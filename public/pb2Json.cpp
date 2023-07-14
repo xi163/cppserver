@@ -1,8 +1,3 @@
-//
-// Created by YangZhi
-// 			5/26/2019
-//
-
 #include "pb2Json.h"
 
 namespace PB2JSON {

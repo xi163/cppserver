@@ -1,7 +1,3 @@
-//
-// Created by YangZhi
-// 			5/26/2019
-//
 #ifndef PROTOBUF2JSON_H
 #define PROTOBUF2JSON_H
 
