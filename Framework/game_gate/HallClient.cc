@@ -1,0 +1,401 @@
+#include "proto/Game.Common.pb.h"
+#include "proto/ProxyServer.Message.pb.h"
+#include "proto/HallServer.Message.pb.h"
+#include "proto/GameServer.Message.pb.h"
+
+#include "public/codec/aes.h"
+#include "public/codec/mymd5.h"
+#include "public/codec/base64.h"
+#include "public/codec/htmlcodec.h"
+#include "public/codec/urlcodec.h"
+
+#include "Gateway.h"
+
+void GateServ::onHallConnection(const muduo::net::TcpConnectionPtr& conn) {
+	conn->getLoop()->assertInLoopThread();
+	if (conn->connected()) {
+		int32_t num = numConnected_.incrementAndGet();
+		LOG_INFO << __FUNCTION__ << " --- *** " << "网关服[" << conn->localAddress().toIpPort() << "] -> 大厅服["
+			<< conn->peerAddress().toIpPort() << "] "
+			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+	}
+	else {
+		int32_t num = numConnected_.decrementAndGet();
+		LOG_INFO << __FUNCTION__ << " --- *** " << "网关服[" << conn->localAddress().toIpPort() << "] -> 大厅服["
+			<< conn->peerAddress().toIpPort() << "] "
+			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+	}
+}
+
+void GateServ::onHallMessage(const muduo::net::TcpConnectionPtr& conn,
+	muduo::net::Buffer* buf,
+	muduo::Timestamp receiveTime) {
+	conn->getLoop()->assertInLoopThread();
+	while (buf->readableBytes() >= packet::kMinPacketSZ) {
+		const uint16_t len = buf->peekInt16();
+		if (likely(len > packet::kMaxPacketSZ ||
+			       len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
+			if (conn) {
+#if 0
+				//不再发送数据
+				conn->shutdown();
+#else
+				conn->forceClose();
+#endif
+			}
+			break;
+		}
+		else if (likely(len <= buf->readableBytes())) {
+			BufferPtr buffer(new muduo::net::Buffer(len));
+			buffer->append(buf->peek(), static_cast<size_t>(len));
+			buf->retrieve(len);
+			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buffer);
+			assert(packet::checkCheckSum(pre_header));
+			packet::header_t const* header = packet::get_header(buffer);
+			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
+			assert(header->crc == crc);
+			std::string session((char const*)pre_header->session, sizeof(pre_header->session));
+			assert(!session.empty() && session.size() == packet::kSessionSZ);
+#if 1
+			//session -> hash(session) -> index
+			int index = hash_session_(session) % threadPool_.size();
+			threadPool_[index]->run(
+				std::bind(
+					&GateServ::asyncHallHandler,
+					this,
+					muduo::net::WeakTcpConnectionPtr(conn), buffer, receiveTime));
+#else
+			//session -> conn -> entryContext -> index
+			muduo::net::WeakTcpConnectionPtr weakConn = entities_.get(session);
+			muduo::net::TcpConnectionPtr peer(weakConn.lock());
+			if (peer) {
+				ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
+				assert(entryContext);
+				int index = entryContext->getWorkerIndex();
+				assert(index >= 0 && index < threadPool_.size());
+				threadPool_[index]->run(
+					std::bind(
+						&GateServ::asyncHallHandler,
+						this,
+						conn,
+						weakConn, buffer, receiveTime));
+			}
+#endif
+		}
+		//数据包不足够解析，等待下次接收再解析
+		else {
+			break;
+		}
+	}
+}
+
+void GateServ::asyncHallHandler(
+	muduo::net::WeakTcpConnectionPtr const& weakConn,
+	BufferPtr const& buf,
+	muduo::Timestamp receiveTime) {
+	muduo::net::TcpConnectionPtr conn(weakConn.lock());
+	if (!conn) {
+		return;
+	}
+	if (buf->readableBytes() < packet::kPrevHeaderLen + packet::kHeaderLen) {
+		return;
+	}
+	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
+	packet::header_t const* header = packet::get_header(buf);
+	std::string session((char const*)pre_header->session, sizeof(pre_header->session));
+	assert(!session.empty() && session.size() == packet::kSessionSZ);
+	//session -> conn
+	muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
+	if (peer) {
+		ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
+		assert(entryContext);
+		int64_t userId = pre_header->userId;
+		assert(session != entryContext->getSession());
+		TraceMessageID(header->mainId, header->subId);
+		if (
+			//////////////////////////////////////////////////////////////////////////
+			//登陆成功，指定用户大厅节点
+			//////////////////////////////////////////////////////////////////////////
+			header->mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL &&
+			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_RES &&
+			pre_header->ok == 1) {
+			assert(userId && 0 == entryContext->getUserID());
+			//指定userId
+			entryContext->setUserID(userId);
+			//指定大厅节点
+			std::vector<std::string> vec;
+			boost::algorithm::split(vec, conn->name(), boost::is_any_of(":"));
+			std::string const& name = vec[0] + ":" + vec[1];
+			ClientConn clientConn(name, conn);
+			LOG_WARN << __FUNCTION__ << " --- *** " << "登陆成功，大厅节点 >>> " << name;
+			entryContext->setClientConn(servTyE::kHallTy, clientConn);
+			//顶号处理 userid -> conn -> entryContext -> session
+			muduo::net::TcpConnectionPtr old(sessions_.add(userId, muduo::net::WeakTcpConnectionPtr(peer)).lock());
+			if (old) {
+				assert(old != peer);
+				ContextPtr entryContext_(boost::any_cast<ContextPtr>(old->getContext()));
+				assert(entryContext_);
+				std::string const& session_ = entryContext_->getSession();
+				assert(session_.size() == packet::kSessionSZ);
+				assert(session_ != session);
+				BufferPtr buffer = packClientShutdownMsg(userId, 0); assert(buffer);
+				muduo::net::websocket::send(old, buffer->peek(), buffer->readableBytes());
+#if 0
+				old->getLoop()->runAfter(0.2f, [&]() {
+					entry_.reset();
+					});
+#else
+				old->forceCloseWithDelay(0.2f);
+#endif
+			}
+		}
+		else if (
+			//////////////////////////////////////////////////////////////////////////
+			//查询成功，指定用户游戏节点
+			//////////////////////////////////////////////////////////////////////////
+			header->mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL &&
+			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_RES &&
+			pre_header->ok == 1) {
+			assert(userId &&&userId == entryContext->getUserID());
+			//判断用户当前游戏节点
+			ClientConn const& clientConn = entryContext->getClientConn(servTyE::kGameTy);
+			muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
+			if (gameConn) {
+				//用户当前游戏节点正常，判断是否一致
+				std::string serverIp;
+				//serverIp = roomid:ip:port
+				if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
+					//与目标游戏节点不一致，重新指定
+					if (clientConn.first != serverIp) {
+						LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 当前游戏节点[" << clientConn.first << "]与目标游戏节点[" << serverIp << "]不一致，重新指定";
+						//获取目标游戏节点
+						ClientConn clientConn;
+						clients_[servTyE::kGameTy].clients_->get(serverIp, clientConn);
+						muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
+						if (gameConn) {
+							//更新用户游戏节点
+							entryContext->setClientConn(servTyE::kGameTy, clientConn);
+							LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 目标游戏节点[" << serverIp << "]，更新成功";
+						}
+						else {
+							//目标游戏节点不可用，要求zk实时监控
+							LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 目标游戏节点[" << serverIp << "]不可用，更新失败!";
+						}
+					}
+				}
+			}
+			else {
+				//用户当前游戏节点不存在/不可用，需要指定
+				if (clientConn.first.empty()) {
+					LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 当前游戏节点不存在，需要指定";
+				}
+				else {
+					LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 当前游戏节点[" << clientConn.first << "]不可用，需要指定";
+				}
+				std::string serverIp;
+				//serverIp = roomid:ip:port
+				if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
+					//获取目标游戏节点
+					ClientConn clientConn;
+					clients_[servTyE::kGameTy].clients_->get(serverIp, clientConn);
+					muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
+					if (gameConn) {
+						//指定用户游戏节点
+						entryContext->setClientConn(servTyE::kGameTy, clientConn);
+						LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 目标游戏节点[" << serverIp << "]，指定成功";
+					}
+					else {
+						//目标游戏节点不可用，要求zk实时监控
+						LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 目标游戏节点[" << serverIp << "]不可用，指定失败!";
+					}
+				}
+			}
+		}
+		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
+	}
+}
+
+//跨网关顶号处理(异地登陆)
+void GateServ::onUserLoginNotify(std::string const& msg) {
+	LOG_WARN << __FUNCTION__ << " " << msg;
+	std::stringstream ss(msg);
+	boost::property_tree::ptree root;
+	boost::property_tree::read_json(ss, root);
+	try {
+		int64_t userid = root.get<int>("userid");
+		//用户最新session(网关生成，标识与客户端conn连接，非登陆token)
+		std::string const session = root.get<std::string>("session");
+#if 0
+		std::string const servid_ = root.get<std::string>("proxyip");
+		//排除自己
+		std::string const& servid = nodeValue_;
+		if (servid == servid_) {
+			return;
+		}
+#endif
+		muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
+		if (!peer) {
+			//顶号处理 userid -> conn -> entryContext -> session
+			muduo::net::TcpConnectionPtr peer_(sessions_.get(userid).lock());
+			if (peer_) {
+				ContextPtr entryContext_(boost::any_cast<ContextPtr>(peer_->getContext()));
+				assert(entryContext_);
+				assert(entryContext_->getUserID() == userid);
+				//相同userid，不同session，非当前最新，则关闭之
+				if (entryContext_->getSession() != session) {
+					BufferPtr buffer = packClientShutdownMsg(userid, 0); assert(buffer);
+					muduo::net::websocket::send(peer_, buffer->peek(), buffer->readableBytes());
+#if 0
+					peer_->getLoop()->runAfter(0.2f, [&]() {
+						entry_.reset();
+						});
+#else
+					peer_->forceCloseWithDelay(0.2);
+#endif
+				}
+			}
+		}
+		else {
+#if 0
+			{
+				ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
+				assert(entryContext);
+				assert(entryContext->getUserID() == userid);
+				assert(entryContext->getSession() == session);
+			}
+			{
+				muduo::net::TcpConnectionPtr peer(sessions_.get(userid).lock());
+				assert(peer);
+				ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
+				assert(entryContext);
+				assert(entryContext->getUserID() == userid);
+				assert(entryContext->getSession() == session);
+			}
+#endif
+		}
+	}
+	catch (boost::property_tree::ptree_error& e) {
+		LOG_ERROR << __FUNCTION__ << " " << e.what();
+	}
+}
+
+void GateServ::sendHallMessage(
+	Context /*const*/& entryContext,
+	BufferPtr const& buf, int64_t userId) {
+	//printf("%s %s(%d)\n", __FUNCTION__, __FILE__, __LINE__);
+	ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
+	muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
+	if (hallConn) {
+		assert(hallConn->connected());
+		assert(entryContext.getUserID() > 0);
+		//判断节点是否维护中
+		if (!clients_[servTyE::kHallTy].isRepairing(clientConn.first)) {
+#if !defined(NDEBUG)
+#if 0
+			assert(
+				std::find(
+					std::begin(clients_[servTyE::kHallTy].clients_),
+					std::end(clients_[servTyE::kHallTy].clients_),
+					clientConn.first) != clients_[servTyE::kHallTy].clients_.end());
+#endif
+			clients_[servTyE::kHallTy].clients_->check(clientConn.first, true);
+#endif
+			if (buf) {
+				//printf("len = %d\n", buf->readableBytes());
+				hallConn->send(buf.get());
+			}
+		}
+		else {
+			LOG_ERROR << __FUNCTION__ << " --- *** " << "用户大厅服维护，重新分配";
+			//用户大厅服维护，重新分配
+			ClientConnList clients;
+			//异步获取全部有效大厅连接
+			clients_[servTyE::kHallTy].clients_->getAll(clients);
+			if (clients.size() > 0) {
+				bool bok = false;
+				std::map<std::string, bool> repairs;
+				do {
+					int index = randomHall_.betweenInt(0, clients.size() - 1).randInt_mt();
+					assert(index >= 0 && index < clients.size());
+					ClientConn const& clientConn = clients[index];
+					muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
+					if (hallConn) {
+						//判断节点是否维护中
+						if (bok = !clients_[servTyE::kHallTy].isRepairing(clientConn.first)) {
+							//账号已经登陆，但登陆大厅维护中，重新指定账号登陆大厅
+							entryContext.setClientConn(servTyE::kHallTy, clientConn);
+							if (buf) {
+								//printf("len = %d\n", buf->readableBytes());
+								hallConn->send(buf.get());
+							}
+						}
+						else {
+							repairs[clientConn.first] = true;
+						}
+					}
+				} while (!bok && repairs.size() != clients.size());
+			}
+		}
+	}
+	else {
+		LOG_ERROR << __FUNCTION__ << " --- *** " << "用户大厅服失效，重新分配";
+		//用户大厅服失效，重新分配
+		ClientConnList clients;
+		//异步获取全部有效大厅连接
+		clients_[servTyE::kHallTy].clients_->getAll(clients);
+		if (clients.size() > 0) {
+			bool bok = false;
+			std::map<std::string, bool> repairs;
+			do {
+				int index = randomHall_.betweenInt(0, clients.size() - 1).randInt_mt();
+				assert(index >= 0 && index < clients.size());
+				ClientConn const& clientConn = clients[index];
+				muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
+				if (hallConn) {
+					assert(hallConn->connected());
+					//判断节点是否维护中
+					if (bok = !clients_[servTyE::kHallTy].isRepairing(clientConn.first)) {
+						if (entryContext.getUserID() > 0) {
+							//账号已经登陆，但登陆大厅失效了，重新指定账号登陆大厅
+							entryContext.setClientConn(servTyE::kHallTy, clientConn);
+						}
+						if (buf) {
+							//printf("len = %d\n", buf->readableBytes());
+							hallConn->send(buf.get());
+						}
+					}
+					else {
+						repairs[clientConn.first] = true;
+					}
+				}
+			} while (!bok && repairs.size() != clients.size());
+		}
+	}
+}
+
+void GateServ::onUserOfflineHall(Context /*const*/& entryContext) {
+	MY_TRY()
+	int64_t userId = entryContext.getUserID();
+	uint32_t clientip = entryContext.getFromIp();
+	std::string const& session = entryContext.getSession();
+	std::string const& aeskey = entryContext.getAesKey();
+	if (userId > 0 && !session.empty()) {
+		BufferPtr buffer = packet::packMessage(
+			userId,
+			session,
+			aeskey,
+			clientip,
+			0,
+			::Game::Common::MAIN_MESSAGE_PROXY_TO_HALL,
+			::Game::Common::MESSAGE_PROXY_TO_HALL_SUBID::HALL_ON_USER_OFFLINE,
+			NULL);
+		if (buffer) {
+			TraceMessageID(
+				::Game::Common::MAIN_MESSAGE_PROXY_TO_HALL,
+				::Game::Common::MESSAGE_PROXY_TO_HALL_SUBID::HALL_ON_USER_OFFLINE);
+			assert(buffer->readableBytes() < packet::kMaxPacketSZ);
+			sendHallMessage(entryContext, buffer, userId);
+		}
+	}
+	MY_CATCH()
+}
