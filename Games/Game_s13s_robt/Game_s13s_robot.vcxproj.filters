@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="pb">
+      <UniqueIdentifier>{7893c805-908d-4170-a7bc-b0cc2e43ea19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game_s13s">
+      <UniqueIdentifier>{a62c7dae-4d82-473c-a760-d29ddd3cc22b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{e18ffc6e-478d-4367-8d31-9bb027bfe282}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\proto\s13s.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="AndroidUserItemSink.cpp">
+      <Filter>Game_s13s</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\proto\s13s.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="AndroidUserItemSink.h">
+      <Filter>Game_s13s</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IPlayer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IReplayRecord.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IRobotDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\ITable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\ITableDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\gameDefine.h" />
+  </ItemGroup>
+</Project>
