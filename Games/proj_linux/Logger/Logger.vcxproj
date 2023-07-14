@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\atomic\Atomic.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\auth\auth.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\excp.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\impl\excpImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\timer\timer.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\MemTrack.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\timer\timer.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\MemTrack.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utils.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{28AC37C0-F75C-4ED8-B834-838A1C1C6C9A}</ProjectGuid>
+    <Keyword>Linux</Keyword>
+    <RootNamespace>Logger</RootNamespace>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+    <ApplicationType>Linux</ApplicationType>
+    <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
+    <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
+    <LinuxProjectType>{D51BCBC9-82E9-4017-911E-C93873C4EA2B}</LinuxProjectType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfStl>libstdc++_shared</UseOfStl>
+    <PlatformToolset>Remote_GCC_1_0</PlatformToolset>
+    <UseCompiler>false</UseCompiler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include.linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\asm-generic;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++\5;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\x86_64-linux-gnu;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.34.31933\include;X:\andy\cppserver\thirdpart;X:\andy\cppserver\thirdpart\Logger;X:\andy\cppserver\thirdpart\Logger\src;X:\andy\cppserver\thirdpart\Logger\src\atomic;X:\andy\cppserver\thirdpart\Logger\src\auth;X:\andy\cppserver\thirdpart\Logger\src\excp;X:\andy\cppserver\thirdpart\Logger\src\excp\impl;X:\andy\cppserver\thirdpart\Logger\src\log;X:\andy\cppserver\thirdpart\Logger\src\log\impl;X:\andy\cppserver\thirdpart\Logger\src\utils;X:\andy\cppserver\thirdpart\Logger\src\utils\impl;X:\andy\cppserver\thirdpart\Logger\src\timer;$(IncludePath)</IncludePath>
+    <TargetName>libLogger</TargetName>
+    <TargetExt>.a</TargetExt>
+    <OutDir>/home/andy/cppserver/libs/</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link />
+    <ClCompile />
+    <Link>
+      <LibraryDependencies>protobuf;pthread;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;snappy;ssl;rt;m;z;dl</LibraryDependencies>
+      <OutputFile>/home/andy/cppserver/libs/$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/home/andy/cppserver/thirdpart/Logger;/home/andy/cppserver/thirdpart/Logger/src;/home/andy/cppserver/thirdpart/Logger/src/atomic;/home/andy/cppserver/thirdpart/Logger/src/auth;/home/andy/cppserver/thirdpart/Logger/src/excp;/home/andy/cppserver/thirdpart/Logger/src/excp/impl;/home/andy/cppserver/thirdpart/Logger/src/log;/home/andy/cppserver/thirdpart/Logger/src/log/impl;/home/andy/cppserver/thirdpart/Logger/src/timer;/home/andy/cppserver/thirdpart/Logger/src/utils;/home/andy/cppserver/thirdpart/Logger/src/utils/impl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+      </PreprocessorDefinitions>
+      <PositionIndependentCode>true</PositionIndependentCode>
+      <CppLanguageStandard>c++11</CppLanguageStandard>
+      <CLanguageStandard>c11</CLanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

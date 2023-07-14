@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="private">
+      <UniqueIdentifier>{95734a4c-ad96-4d0e-b59e-2876bbd037a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ssl">
+      <UniqueIdentifier>{c8a45c00-c762-4248-bf10-60813b6f3543}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\libwebsocket\ssl\ssl.cc">
+      <Filter>ssl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\libwebsocket\ssl\ssl_iorw.cc">
+      <Filter>ssl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\IBytesBuffer.cc">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\sha1.cc">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\websocket.cc">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\base64.cc">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\CurrentThread.cc">
+      <Filter>private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\IContext.h" />
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\IHttpContext.h" />
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\ITimestamp.h" />
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\ssl.h" />
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\websocket.h" />
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\base.h" />
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\IBytesBuffer.h" />
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\ICallback.h" />
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\Endian.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\sha1.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\Types.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\base64.h">
+      <Filter>private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\CurrentThread.h">
+      <Filter>private</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

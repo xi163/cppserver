@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\AsyncLogging.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Condition.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\CountDownLatch.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\CurrentThread.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Date.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Exception.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\FileUtil.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\LogFile.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Logging.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\LogStream.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\ProcessInfo.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Thread.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\ThreadPool.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Timestamp.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\TimeZone.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Acceptor.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\BoilerPlate.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Buffer.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Channel.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Connector.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoop.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoopThread.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoopThreadPool.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpContext.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpResponse.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpServer.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\InetAddress.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\context.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\server.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Poller.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\DefaultPoller.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\EPollPoller.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\PollPoller.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\ProtobufCodecLite.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpc.pb.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcChannel.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec_test.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcServer.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpcservice.pb.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Reactor.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Socket.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\SocketsOps.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpClient.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpServer.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Timer.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerQueue.cc" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\AsyncLogging.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Atomic.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\BlockingQueue.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\BoundedBlockingQueue.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Condition.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\copyable.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\CountDownLatch.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\CurrentThread.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Date.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Exception.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\FileUtil.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\GzipFile.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\LogFile.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Logging.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\LogStream.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Mutex.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\noncopyable.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\ProcessInfo.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Singleton.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\StringPiece.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Thread.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\ThreadLocal.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\ThreadLocalSingleton.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\ThreadPool.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Timestamp.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\TimeZone.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Types.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\WeakCallback.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Acceptor.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\BoilerPlate.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Buffer.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Callbacks.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Channel.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Connector.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Endian.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoop.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoopThread.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoopThreadPool.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpContext.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpRequest.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpResponse.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpServer.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\InetAddress.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\base.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\context.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\IBytesBuffer.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\ICallback.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\IContext.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\IHttpContext.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\ITimestamp.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\server.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\ssl.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\websocket.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Poller.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\EPollPoller.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\PollPoller.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\BufferStream.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\ProtobufCodecLite.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\google-inl.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpc.pb.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcChannel.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcServer.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpcservice.pb.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Reactor.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Socket.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\SocketsOps.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpClient.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpServer.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Timer.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerId.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerQueue.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\ZlibStream.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{EC76A170-E72D-448D-88B9-5F0369EFBA09}</ProjectGuid>
+    <Keyword>Linux</Keyword>
+    <RootNamespace>muduo</RootNamespace>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+    <ApplicationType>Linux</ApplicationType>
+    <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
+    <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
+    <LinuxProjectType>{D51BCBC9-82E9-4017-911E-C93873C4EA2B}</LinuxProjectType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfStl>libstdc++_shared</UseOfStl>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include.linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\asm-generic;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++\5;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\x86_64-linux-gnu;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.34.31933\include;X:\andy\cppserver\thirdpart;$(IncludePath)</IncludePath>
+    <TargetName>libmuduo-vip</TargetName>
+    <TargetExt>.a</TargetExt>
+    <OutDir>/home/andy/cppserver/libs/</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link />
+    <ClCompile />
+    <Link>
+      <LibraryDependencies>protobuf;pthread;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;snappy;ssl;rt;m;z;dl;websocket</LibraryDependencies>
+      <OutputFile>/home/Landy/TianXia/Program/Framework/libs/$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>/home/Landy/TianXia/Program/Framework/libs;/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin;/usr/local/protobuf/lib;/home/Landy/TianXia/Program/Framework/libs/mq;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>/home/andy/cppserver/public;/home/andy/cppserver/proto;/usr/local/include/google/protobuf;/usr/include;/usr/local/include;/home/andy/cppserver/thirdpart/muduo-vip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MUDUO_STD_STRING _MUDUO_OPTIMIZE_CHNANNEL_ LIBWEBSOCKET_DEBUG</PreprocessorDefinitions>
+      <PositionIndependentCode>true</PositionIndependentCode>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

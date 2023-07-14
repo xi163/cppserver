@@ -1,0 +1,397 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="base">
+      <UniqueIdentifier>{f9c7e7d4-c2d6-4053-b143-3f6adaf2d34f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="poller">
+      <UniqueIdentifier>{2c5c5f4a-502b-4ddb-b19a-fee73e1847db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="http">
+      <UniqueIdentifier>{98b6e62a-b3bc-46e3-a8d0-f30e484f1aa6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="protorpc">
+      <UniqueIdentifier>{147286f1-e914-432d-99c0-da84a87a1925}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="protobuf">
+      <UniqueIdentifier>{295967a0-b3f3-4e63-8e34-34fd5d52e199}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net">
+      <UniqueIdentifier>{04a7e59c-479d-4f52-b06e-10cd9882e94b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="websocket">
+      <UniqueIdentifier>{26d35666-3c10-4c15-81a8-e80c31f40307}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\BoilerPlate.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Buffer.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Channel.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Connector.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoop.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoopThread.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoopThreadPool.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\InetAddress.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Poller.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Reactor.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Socket.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\SocketsOps.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpClient.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpServer.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Timer.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerQueue.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Acceptor.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpResponse.cc">
+      <Filter>http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpServer.cc">
+      <Filter>http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpContext.cc">
+      <Filter>http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\CurrentThread.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Date.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Exception.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\FileUtil.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\LogFile.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Logging.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\LogStream.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\ProcessInfo.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Thread.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\ThreadPool.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Timestamp.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\TimeZone.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\AsyncLogging.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\Condition.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\base\CountDownLatch.cc">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\server.cc">
+      <Filter>websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\context.cc">
+      <Filter>websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\PollPoller.cc">
+      <Filter>poller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\DefaultPoller.cc">
+      <Filter>poller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\EPollPoller.cc">
+      <Filter>poller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\ProtobufCodecLite.cc">
+      <Filter>protobuf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec_test.cc">
+      <Filter>protorpc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcServer.cc">
+      <Filter>protorpc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpcservice.pb.cc">
+      <Filter>protorpc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpc.pb.cc">
+      <Filter>protorpc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcChannel.cc">
+      <Filter>protorpc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.cc">
+      <Filter>protorpc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\BoilerPlate.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Buffer.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Callbacks.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Channel.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Connector.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Endian.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoop.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoopThread.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\EventLoopThreadPool.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\InetAddress.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Poller.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Reactor.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Socket.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\SocketsOps.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpClient.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpServer.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Timer.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerId.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerQueue.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\ZlibStream.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Acceptor.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpRequest.h">
+      <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpResponse.h">
+      <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpServer.h">
+      <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpContext.h">
+      <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\CountDownLatch.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\CurrentThread.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Date.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Exception.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\FileUtil.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\GzipFile.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\LogFile.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Logging.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\LogStream.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Mutex.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\noncopyable.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\ProcessInfo.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Singleton.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\StringPiece.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Thread.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\ThreadLocal.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\ThreadLocalSingleton.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\ThreadPool.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Timestamp.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\TimeZone.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Types.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\WeakCallback.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\AsyncLogging.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Atomic.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\BlockingQueue.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\BoundedBlockingQueue.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Condition.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\copyable.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\IHttpContext.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\ITimestamp.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\server.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\ssl.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\websocket.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\base.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\context.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\IBytesBuffer.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\ICallback.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\IContext.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\EPollPoller.h">
+      <Filter>poller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\PollPoller.h">
+      <Filter>poller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\ProtobufCodecLite.h">
+      <Filter>protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\BufferStream.h">
+      <Filter>protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.h">
+      <Filter>protorpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcServer.h">
+      <Filter>protorpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpcservice.pb.h">
+      <Filter>protorpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\google-inl.h">
+      <Filter>protorpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpc.pb.h">
+      <Filter>protorpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcChannel.h">
+      <Filter>protorpc</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

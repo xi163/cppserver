@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\atomic\Atomic.h">
+      <Filter>src\atomic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\auth\auth.h">
+      <Filter>src\auth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\excp.h">
+      <Filter>src\excp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\impl\excpImpl.h">
+      <Filter>src\excp\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h">
+      <Filter>src\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.h">
+      <Filter>src\log\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\timer\timer.h">
+      <Filter>src\timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.h">
+      <Filter>src\utils\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.h">
+      <Filter>src\utils\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.h">
+      <Filter>src\utils\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.h">
+      <Filter>src\utils\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\MemTrack.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.h">
+      <Filter>src\utils\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.h">
+      <Filter>src\utils\impl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{a86945f9-2add-4645-aec9-f70fcf5da2e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\atomic">
+      <UniqueIdentifier>{cae21b93-06f8-48c2-9818-18c84728cf9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\auth">
+      <UniqueIdentifier>{182a9713-724a-4989-9b22-37c6a389b197}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\excp">
+      <UniqueIdentifier>{90b7af52-5471-4786-b66d-e061caa06814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\excp\impl">
+      <UniqueIdentifier>{a9f981f4-2e50-467d-a81c-9fd9a1a9d8a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\log">
+      <UniqueIdentifier>{d5cbe12a-a327-490f-b012-fad89a10c07a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\log\impl">
+      <UniqueIdentifier>{496b334e-5603-4545-98af-c574f49475cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\timer">
+      <UniqueIdentifier>{d632ba31-01eb-4b56-92b0-93fdb6888159}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\utils">
+      <UniqueIdentifier>{cedd8789-ca88-41fe-a9ab-372f8a68c1e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\utils\impl">
+      <UniqueIdentifier>{63fcfbe7-af42-4bfd-8438-7b79641730e1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cpp">
+      <Filter>src\auth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cpp">
+      <Filter>src\log\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cpp">
+      <Filter>src\log\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\timer\timer.cpp">
+      <Filter>src\timer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.cpp">
+      <Filter>src\utils\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.cpp">
+      <Filter>src\utils\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.cpp">
+      <Filter>src\utils\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\MemTrack.cpp">
+      <Filter>src\utils\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utils.cpp">
+      <Filter>src\utils\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.cpp">
+      <Filter>src\utils\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.cpp">
+      <Filter>src\utils\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.cpp">
+      <Filter>src\utils\impl</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
