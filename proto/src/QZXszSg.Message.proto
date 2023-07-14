@@ -1,0 +1,209 @@
+syntax = "proto2";
+package QZXszSg; //抢庄选三张—三公[选三公]
+// gameid = 860
+enum GameEndType
+{
+  	en_Normal_End		  = 0;	  //正常结束
+  	en_All_Kill		    = 1;	  //通杀
+  	en_All_Compensate	= 2;	  //通赔
+  	en_No_Bet		      = 3;	  //没有下注(方便客户端不显示结算框)
+};
+
+
+enum SUBID
+{
+//场景消息
+    SC_GAMESCENE_FREE				=		201	;					//空闲场景消息
+    SC_GAMESCENE_CALL				=		202	;					//叫庄场景消息
+    //SC_GAMESCENE_SCORE			=		203	;					//下注场景消息
+    SC_GAMESCENE_OPEN				=		204	;					//开牌场景消息
+    SC_GAMESCENE_END				=		205	;					//游戏结束
+
+//服务器命令结构
+    XSG_SUB_S_GAME_START			      =		100	;					//游戏开始[XSG_CMD_S_GameStart]
+    XSG_SUB_S_CALL_BANKER			      =		101	;					//叫庄[XSG_CMD_S_CallBanker]
+    XSG_SUB_S_CALL_BANKER_RESULT		=		102	;					//叫庄结果[XSG_CMD_S_CallBankerResult]
+    //XSG_SUB_S_ADD_SCORE_RESULT			=		103	;					//下注结果[XSG_CMD_S_AddScoreResult]
+    XSG_SUB_S_SEND_CARD				      =		104	;					//发牌消息[XSG_CMD_S_SendCard]
+    XSG_SUB_S_OPEN_CARD_RESULT		  =		105	;					//开牌结果[XSG_CMD_S_OpenCardResult]
+    XSG_SUB_S_GAME_END              =		106	;					//游戏结束[XSG_CMD_S_GameEnd]
+    XSG_SUB_S_OPERATE_FAIL			    =		107	;					//操作失败:不是最优牌型[XSG_CMD_S_OperateFail],
+    XSG_SUB_S_GAME_START_AI         =   108 ;
+
+//客户端往服务器端发消息(C->S)
+    XSG_SUB_C_CALL_BANKER			  =	  1	;					//叫庄消息[XSG_CMD_C_CallBanker]
+    //XSG_SUB_C_ADD_SCORE				  =		2	;					//下注消息[XSG_CMD_C_AddScore]
+    XSG_SUB_C_OPEN_CARD			    =		3	;					//开牌消息[XSG_CMD_C_OpenCard]
+}
+
+
+//空闲状态
+message XSG_MSG_GS_FREE
+{
+  	required 	int64						dCellScore=1;				    //基础积分
+  	required	int32						cbReadyTime=2;			    //准备时间
+  	repeated	int32						cbJettonMultiple=3;			//下注倍数
+  	optional 	int32						dwUserID=4;
+  	optional	string					szNickName=5;
+  	optional	string					szLocation=6;
+  	optional	int32						cbHeadIndex=7;
+  	optional	int32						wTableID=8;
+  	optional	int32						wChairID=9;
+  	optional	int32						usStatus=10;
+};
+
+//叫庄状态
+message XSG_MSG_GS_CALL
+{
+    required  string          roundId=1;            //牌局编号
+    required 	int64						dCellScore=2;				  //基础积分
+    required	int32						cbTimeLeave=3;				//剩余时间
+    repeated	int32						cbPlayStatus=4;				//游戏中玩家(1打牌玩家)
+    repeated	int32						sCallBanker=5;				//叫庄标志(-1:未叫; 0:不叫; 1:叫庄)
+
+    optional 	int32						dwUserID=6;
+    optional	string					szNickName=7;
+    optional	string					szLocation=8;
+    optional	int32						cbHeadIndex=9;
+    optional	int64						llScore=10;
+    optional	int32						wTableID=11;
+    optional	int32						wChairID=12;
+    optional	int32						usStatus=13;
+};
+
+//下注状态
+//message XSG_MSG_GS_SCORE
+//{
+//    required  string          roundId=1;            //牌局编号
+//    required 	int64						dCellScore=2;				  //基础积分
+//    required	int32						cbTimeLeave=3;				//剩余时间
+//    repeated	int32						cbPlayStatus=4;				//游戏中玩家(1打牌玩家)
+//    required	int32						wBankerUser=5;				//庄家用户
+//    repeated	int32						cbUserCurJetton=6;			//闲家下注倍数(0表示还没有下注)
+//    repeated	int32						cbUserMaxJetton=7;			//闲家最大下注倍数
+//
+//    optional 	int32						dwUserID=8;
+//    optional	string					szNickName=9;
+//    optional	string					szLocation=10;
+//    optional	int32						cbHeadIndex=11;
+//    optional	int64						llScore=12;
+//    optional	int32						wTableID=13;
+//    optional	int32						wChairID=14;
+//    optional	int32						usStatus=15;
+//};
+
+//开牌状态
+message XSG_MSG_GS_OPEN
+{
+    required  string          roundId=1;                //牌局编号
+    required 	int64						dCellScore=2;				      //基础积分
+    required	int32						cbTimeLeave=3;				    //剩余时间
+    repeated	int32						cbPlayStatus=4;				    //游戏中玩家(1打牌玩家)
+    required	int32						wBankerUser=5;				    //庄家用户
+
+  	repeated	int32						cbIsOpenCard=6;			      //是否开牌
+  	repeated	int32						cbCardType=7;				      //牌型
+  	repeated	int32						cbCardData=8;				      //最优牌牌数据
+	repeated	int32						cbHandCardData=9;				      //4张手牌数据
+  	//repeated	int32						cbUserJettonMultiple=9;		//闲家下注倍数
+
+  	optional 	int32						dwUserID=10;
+  	optional	string					szNickName=11;
+  	optional	string					szLocation=12;
+  	optional	int32						cbHeadIndex=13;
+  	optional	int64						llScore=14;
+  	optional	int32						wTableID=15;
+  	optional	int32						wChairID=16;
+  	optional	int32						usStatus=17;
+};
+
+
+//游戏开始
+message XSG_CMD_S_GameStart
+{
+    required  string          roundId=1;              //牌局编号
+    repeated	int32						cbPlayStatus=2;				  //用户状态(1打牌玩家)
+    required	int32						cbCallBankerTime=3;			//抢庄时间
+};
+
+//叫庄
+message XSG_CMD_S_CallBanker
+{
+  	required	int32						wCallBankerUser=1;			//叫庄玩家 chairId
+  	required	int32						cbCallMultiple=2;			  //叫庄倍数(0:不叫 1:叫庄)
+};
+
+//叫庄结果
+message XSG_CMD_S_CallBankerResult
+{
+  	required	int32						dwBankerUser=1;			    //确定的庄家
+    repeated	int32						cbCallBankerUser=2;     //叫庄的玩家的座椅号
+  	required	int32						cbOpenCardTime=3;			  //开牌(选牌)时间
+  	//repeated	int64						lMaxJettonMultiple=4;		//最大下注倍数
+};
+
+//下注结果
+//message XSG_CMD_S_AddScoreResult
+//{
+//  	required	int32						wAddJettonUser=1;			//下注玩家
+//    required	int64						cbJettonMultiple=2;		//下注倍数
+//};
+
+//发牌结果
+message XSG_CMD_S_SendCard 
+{
+  	repeated	int32						cbSendCard=1;				//本家4张牌数据
+    repeated	int32						cbSGCard=2;         //提牌数据(最优牌型数据)
+  	required	int32						cbCardType=3;				//牌型
+  	required	int32						cbOpenTime=4;				//开牌时间
+};
+
+//开牌结果
+message XSG_CMD_S_OpenCardResult
+{
+  	required	int32						wOpenCardUser=1;		//开牌玩家
+  	required	int32						cbCardType=2;				//牌型
+  	repeated	int32						cbSGCardData=3;			//牌数据
+  	//对应牌型: (0:0点;1:1点;2:2点;3:3点;4:4点;5:5点;6:6点;7:7点;8:8点;9:9点;10:三公;11:炸弹;12:爆玖)
+};
+
+//游戏结算
+message XSG_CMD_S_GameEnd
+{
+  	repeated	int64						dLWScore=1;				//输赢分
+  	repeated 	int64						dTotalScore=2;		//结算后的分数
+    required	int32						cbEndType=3;      //0：正常输赢 1：通杀 2：通赔
+    repeated	int32						cbOperate=4;
+
+};
+
+//叫庄
+message XSG_CMD_C_CallBanker  
+{
+	  required	 int32						cbCallFlag=1;				//叫庄标志(0:不叫 1:叫庄)
+};
+
+//下注
+//message XSG_CMD_C_AddScore  
+//{
+//	  required	 int64						cbJetton=1;				  //下注倍数
+//};
+
+//开牌(选牌)
+message XSG_CMD_C_OpenCard  
+{
+    required  int32           cbOpenFlag=1;         //选牌标志(0:推荐 1:摊牌)
+    repeated  int32           cbChooseCard=2;       //选牌数据(4张选3张)
+};
+
+//选牌操作失败:这不是最优牌型
+message XSG_CMD_S_OperateFail
+{
+    required int32          cbReason = 1;       //操作失败原因(0:不是最优牌型)
+};
+
+message CMD_S_GameStartAi
+{
+    required int32					cbSGCardData = 1;	  //扑克列表
+    required int32          isMaxCard    = 2;
+};

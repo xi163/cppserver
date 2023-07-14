@@ -1,0 +1,78 @@
+syntax = "proto2";
+package csxl;
+// gameid = 401 财神献礼
+
+enum SUBID
+{
+	//客户端命令结构
+	SUB_C_PULL				= 100	;//拉
+
+	//服务器命令结构
+	SUB_S_PULL				= 101	;//结算消息
+	SUB_S_GAME_SCENE       = 102   ;//游戏场景消息
+}
+
+//图标代号
+enum ICONID
+{
+	Low_1	=	0 ;  //A
+	Low_2	=	1 ;  //B
+	Low_3	=	2 ;  //C
+	Low_4	=	3 ;  //D
+	Low_5	=	4 ;  //E
+	Low_6	=	5 ;  //F
+	Mid_1	=	6 ;  //G
+	Mid_2	=	7 ;  //H
+	Mid_3	=	8 ;  //I
+	Scatter	=   9 ;  //S
+	Wild	=	10 ; //W
+	Treasure_MAX  =	11;
+}
+
+enum TableRow
+{
+	Table_Row_Num=3; //3行
+	Table_Col_Num=5; //5列
+}
+
+message CMD_C_Pull
+{
+	required int32		userBetMultiple=1;			//玩家下注倍数
+}
+
+//结算消息
+message GameEnd
+{
+	repeated int32		m_Table=1;			//格子数据
+	repeated int32		m_TableLight=2;		//格子中亮起的位置
+	required double		userScore=3;			//用户分数
+	required double		winScore=4;			//中了多少分
+	required int32		TotalFreePullTime=5;	//免费旋转次数
+	required int32		GetFreePullTime=6;	//这次获得的次数
+	required int32      ScatterNum=7;        //免费转图标个数
+};
+//奖池信息数据
+message GoldPoolInfo
+{
+	required double	GoldPoolScore=1;
+};
+
+//场景信息
+message GameSceneInfo
+{
+	required double		GoldPool=1;			//奖池信息
+	required double		UserScore=2;			//玩家金币
+	required int32		SingleBet=3;			//单注押注
+	required int32		MaxBetMultiple=4;		//最大押注倍数
+	required int32		TotalLine=5;			//押注线数
+	required int32		CurrentBetMultiple=6;	//当前倍数（免费次数时用到）
+	required int32		FreePullTime=7;		//免费旋转次数
+	required int32		userBetMultiple=8;	//免费旋转次数下注倍数
+};
+
+
+
+
+
+
+

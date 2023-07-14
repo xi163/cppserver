@@ -1,0 +1,237 @@
+syntax = "proto2";
+package Gswz;
+
+// gameid = 6
+
+enum SUBID
+{
+        //客户端命令
+        SUB_C_ADD_SCORE		= 1;                                    // 用户加注   CMD_C_AddScore
+        SUB_C_GIVE_UP		= 2;					// 放弃消息
+        SUB_C_FOLLOW_SCORE	= 3;					// 跟注
+        SUB_C_PASS_SCORE	= 4;					// 不加注
+        SUB_C_ALL_IN		= 5;					// 孤注一掷
+        SUB_C_GIVEUP_TIMEOUT_OP	= 6;					// 防超时弃牌操作   CMD_C_GIVEUP_TIMEOUT_OP
+        SUB_C_LOOK_CARD         = 7;                                    // 玩家看牌
+
+        //场景消息
+        SUB_SC_GAMESCENE_FREE		= 201;				//空闲场景消息	 CMD_S_StatusFree
+        SUB_SC_GAMESCENE_PLAY		= 202;				//游戏中场景消息	 CMD_S_StatusPlay
+        SUB_SC_GAMESCENE_END		= 203;				//游戏结束	CMD_S_StatusEnd
+
+        //服务端命令
+        SUB_S_GAME_START		= 100;                          //游戏开始	 CMD_S_GameStart
+        SUB_S_ADD_SCORE			= 101;				//加注结果	 CMD_S_AddScore
+        SUB_S_GIVE_UP			= 102;                          //放弃跟注	 CMD_S_GiveUp
+        SUB_S_FOLLOW_SCORE              = 103;                          //跟注	         CMD_S_FollowScore
+        SUB_S_PASS_SCORE		= 104;				//不加注          CMD_S_PassScore
+        SUB_S_GAME_END			= 105;				//游戏结束	 CMD_S_GameEnd
+        SUB_S_ALL_IN                    = 106;   			//孤注一掷	 CMD_S_AllIn
+        SUB_S_GIVEUP_TIMEOUT_OP		= 107;				//防超时弃牌应答	 CMD_S_GIVEUP_TIMEOUT_OP
+        SUB_S_USER_LOOK_CARD            = 108;                          //玩家看牌        CMD_S_User_LookCard
+        SUB_S_SEND_CARD 		= 112;                          //发牌	         CMD_S_SendCard
+        SUB_S_ANDROID_CARD		= 113;				//智能消息	 CMD_S_AndroidCard
+        SUB_S_OPERATE_NOTIFY            = 114;                          //操作错误提示     CMD_S_Operate_Notify
+}
+//防超时弃牌
+message CMD_C_GIVEUP_TIMEOUT_OP 
+{
+        required int32 mask		= 1;					//1超时自动押注 2自动跟注
+};
+
+//防超时弃牌
+message CMD_S_GIVEUP_TIMEOUT_OP
+{
+        required int32 mask		= 1;					//1超时自动押注 2自动跟注
+};
+
+//空闲状态
+message CMD_S_StatusFree
+{
+	required int64 dCellScore  = 1;				//基础积分 
+};
+
+message PlayerItem
+{
+	required int32 cbChairId 	=1;			//位置ID
+	required int64 wUserId 		=2;			//位置ID
+	required int32 cbPlayStatus	=3;			//玩家的游戏状态 0=弃牌 1=游戏中
+        repeated int32 cbCards 	        =4;                     //玩家手牌 0=底牌
+	required bool bGiveUp 		= 5;			//弃牌状态[GAME_PLAYER]
+	required int64 dTableJetton 	= 6;			//下注金额
+        required int64 dRoundJetton     =7;                     //这轮下注金额
+        required int64 dUserScore       = 8;                    //玩家当前的金币
+        required int32 cbLastAction     = 9;                    // 不加 加注 跟注 梭哈
+};
+
+//桌面情况及下一步操作信息
+message CMD_S_Next_StepInfo
+{
+        required int64 wNextUser 	= 1;			//下一步操作玩家 （0=不处理）
+        required int64 wNeedJettonScore = 2;			//最少需要押注金额
+        required int64 wMaxJettonScore  = 3;	                //最大下注金额
+        required int64 wMinAddScore     = 4;                    //加注最少需要
+        required int32 wTimeLeft 	= 5;			//剩余时间
+        required int64 dTotalJetton 	= 6;			//桌面总金额
+        required int32 wTurns		= 7;			//轮数
+};
+
+//游戏状态
+message CMD_S_StatusPlay
+{
+        required string roundId         = 1;
+	//加注信息
+        required int64 dCellScore       = 2;				//基础积分
+        required int64 dCurrentJetton   = 3;				//当前押注明注金额
+        repeated PlayerItem  GamePlayers = 4;                           //游戏中的玩家
+	//状态信息
+        required int32 wtimeOutGiveUpMask = 5;				//是否选择防超时弃牌
+        required int32 wAllInScore      =6;                             //梭哈值
+        required CMD_S_Next_StepInfo nextStep = 7;		//桌面情况及下一步操作信息
+};
+
+
+
+//空闲状态
+message CMD_S_StatusEnd
+{
+	required int32 wWaitTime = 1;					//等待时间
+};
+
+
+//游戏开始
+message CMD_S_GameStart
+{
+        required string roundId   = 1;
+	//下注信息
+        required int64 dCellScore = 2;					//基础积分
+        required int64 dCurrentJetton = 3;				//当前筹码值
+        //用户信息
+        repeated PlayerItem  GamePlayers = 4;                           //游戏中的玩家
+        required int32 wAllInScore =5;                                  //梭哈值
+        required CMD_S_Next_StepInfo nextStep = 6;                      //桌面情况及下一步操作信息
+};
+
+
+//用户下注返回
+message CMD_S_AddScore
+{ 
+	required int64 wOpUserId	= 1;			//当前押注玩家  
+	required int64 wJetteonScore	= 2;			//押注金额
+	required int32 cbState 		= 3;			//状态（2 加注）
+	required int64 wAllJetton	= 4;			//当前押注用户的总押注金额
+	required int64 wUserScore	= 5;			//当前押注玩家剩余金额
+	required CMD_S_Next_StepInfo nextStep = 6;		//桌面情况及下一步操作信息
+};
+
+
+//用户弃牌
+message CMD_S_GiveUp
+{
+	required int64 wGiveUpUser = 1;				//弃牌用户
+	required bool  bIsCurrentUser  = 2;			//是否是当前玩家
+	required bool  bEndGame   = 3;				//是否结束游戏   可以结束游戏的情况下    下一步的消息就不需要处理了
+        required int32	cbCardType = 4;				//牌型
+        repeated int32	cbCardData = 5;				//用户扑克[MAX_COUNT]
+        required int32 wAllInScore =6;                             //梭哈值
+        required CMD_S_Next_StepInfo nextStep = 7;		//桌面情况及下一步操作信息
+};
+
+//跟注数据包
+message CMD_S_FollowScore
+{
+        required int64 wFollowUser 	= 1;				//跟注玩家
+        required int64 wFollowScore     = 2;                            //跟注分数
+        required CMD_S_Next_StepInfo nextStep =3;			//桌面情况及下一步操作信息
+}
+//不加注
+message CMD_S_PassScore
+{
+        required int64 wPassUser 	= 1;				//不加注玩家
+        required CMD_S_Next_StepInfo nextStep = 2;			//桌面情况及下一步操作信息
+}
+message CardItem
+{
+        required int32 cbCardUser = 1;				//牌用户userid
+        required int32 cbCard = 2;				//牌
+        required int32	cbCardType = 3;                         //牌型
+}
+//发牌数据包
+message CMD_S_SendCard
+{
+        repeated CardItem cardItems = 1;				//发牌值
+        required CMD_S_Next_StepInfo nextStep = 2;			//桌面情况及下一步操作信息
+};
+
+//梭哈
+message CMD_S_AllIn
+{
+	required int64 wAllinUser = 1;					//梭哈玩家  
+	required int64 dAllinScore = 2;					//梭哈押注金额
+	required CMD_S_Next_StepInfo nextStep = 3;			//桌面情况及下一步操作信息
+};
+
+
+message CMD_S_GameEnd_Player
+{
+        required int64 dUserId	=1;                                     //玩家ID
+        required int32 dChairId	=2;                                     //玩家座位号
+        required int64 dGameScore = 3;                                  //游戏中的得分
+        repeated int32 cbCardData = 4;                                  //用户扑克[3] [底牌为第一个]
+        required int32 cbCardType = 5;                                  //牌型
+        required int64 dUserScore = 6;                                  //结束后玩家身上的金币
+}
+message CMD_S_User_LookCard
+{
+        required int64 dChairId	=1;                                     //玩家座位号
+}
+
+//游戏结束
+message CMD_S_GameEnd
+{
+        required int64 dWinneruserId = 1;                               //赢家ID
+        repeated CMD_S_GameEnd_Player pEndUserInfo =2;                  //结束时玩家信息
+}
+
+
+message  AndroidPlayer
+{
+        required bool cbRealPlayer = 1;                                 //是否真实玩家
+        required int64 cbUserId =2;                                     //玩家的UserId
+        repeated int32 cbAllHandCardData = 3;                           //手上扑克[MAX_COUNT]
+        required int64 cbChairId =4;                                    //机器人椅子
+}
+
+
+//机器人扑克
+message CMD_S_AndroidCard
+{
+        required int64 lStockScore = 1;					//当前库存
+	repeated  AndroidPlayer players = 2;
+};
+
+message CMD_S_PlayerCard
+{
+	repeated int32 cbAllHandCardData = 1;				//手上扑克[GAME_PLAYER][MAX_COUNT]
+};
+
+message CMD_S_OutRound_Result 
+{
+	
+}
+
+//用户加注
+message CMD_C_AddScore
+{
+	required int64 dScore  = 1;					//加注数目
+};
+
+message CMD_C_NULL
+{
+}
+message CMD_S_Operate_Notify
+{
+    required  string strNotify  = 1;
+}
+
+

@@ -1,0 +1,157 @@
+syntax = "proto2";
+package qzpj;
+
+// gameid = 6
+
+enum SUBID
+{
+	/////////////////////////////////////////////////////////////////////////////
+	SUB_C_CALL_BANKER       = 1;				//用户叫庄 CMD_C_CallBanker
+	SUB_C_ADD_SCORE			= 2;				//用户下注 CMD_C_AddScore
+	
+	// 服务器命令结构
+	SUB_SC_GAMESCENE_FREE		= 201;			//空闲场景消息   CMD_S_StatusFree
+	SUB_SC_GAMESCENE_PLAY		= 202;			//游戏中场景消息 CMD_S_StatusPlay
+	SUB_SC_GAMESCENE_END		= 203;			//游戏结束       CMD_S_StatusEnd
+
+	/////////////////////////////////////////////////////////////////////////////
+	SUB_S_GAME_START		     = 100;			//游戏开始 CMD_S_GameStart
+	SUB_S_GAME_START_ANDROID     = 101;
+	SUB_NS_GAME_READY_ANDROID    = 102;         //机器人准备
+	
+	/////////////////////////////////////////////////////////////////////////////
+	SUB_S_CALL_BANKER		     = 111;         //通知叫庄 CMD_S_CallBanker
+	SUB_S_CALL_BANKER_BROADCAST  = 112;			//用户叫庄 CMD_S_CallBankerBroadcast
+	SUB_S_CALL_BANKER_RESULT     = 113;         //叫庄结果 CMD_S_CallBankerResult
+	/////////////////////////////////////////////////////////////////////////////
+	SUB_S_ADD_SCORE				 = 114;		 	//通知下注 CMD_S_AddScore
+	SUB_S_ADD_SCORE_BROADCAST 	 = 115;         //用户下注 CMD_S_AddScore_Broadcast
+	
+	/////////////////////////////////////////////////////////////////////////////
+	SUB_S_DEAL_CARD				 = 121;			//系统发牌 CMD_S_DealCard
+	SUB_S_SHOW_CARD	             = 122;			//系统亮牌 CMD_S_ShowCard
+	SUB_S_COMPARE_CARD		     = 123;			//比牌结果 CMD_S_CompareCard
+	
+	/////////////////////////////////////////////////////////////////////////////
+	SUB_S_GAME_END			     = 130;			//游戏结束 CMD_S_GameEnd
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//游戏开始
+message CMD_S_GameStart
+{
+	required int32 wTimeLeft = 1;	//剩余时间
+};
+
+/////////////////////////////////////////////////////////////////////////////
+//报送机器人
+message CMD_S_GameStart_android
+{
+	repeated int32 cardType = 1;	//玩家&机器人牌型
+	repeated int32 isAndroid = 2;	//是否玩家或机器人
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//机器人准备好
+message CMD_NS_Ready_android
+{
+	
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//通知叫庄
+message CMD_S_CallBanker
+{
+	required int32 wTimeLeft = 1;	//剩余时间
+	repeated int32 opValues = 2;	//叫庄倍数 1/2/3/4倍或不叫,索引0,1,2,3,4
+};
+
+//用户叫庄
+message CMD_S_CallBankerBroadcast
+{
+	required int32 chairID = 1;    //玩家ID
+	required int32 OpValue  = 2;    //叫庄倍数
+}
+//叫庄结果
+message CMD_S_CallBankerResult
+{
+	required int32 bankerID = 1;    //庄家ID
+	required int32 OpValue  = 2;    //叫庄倍数
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//通知下注
+message CMD_S_AddScore
+{
+	required int32 wTimeLeft = 3;	//剩余时间
+	repeated int32 opValues = 11;	//下注倍数,索引0,1,2,3,4
+};
+//用户下注
+message CMD_S_AddScore_Broadcast
+{
+	required int32 chairID = 1;    	//闲家ID
+	required int32 OpValue = 2;	 	//下注倍数
+}
+
+//系统发牌
+message CMD_S_DealCard
+{
+	repeated int32 Values = 1;		//骰子数据
+	repeated int32 players = 2;		//发牌顺序
+	required int32 wTimeLeft = 3;	//剩余时间
+}
+
+//牌九手牌
+message HandCards 
+{
+	repeated int32 handCards = 1;	//手牌数据[2]
+	required int32  cardType = 2;   //手牌类型
+}
+//系统亮牌
+message CMD_S_ShowCard 
+{
+	repeated HandCards handCards = 1;   //玩家手牌
+	repeated int32 players   = 2;	    //亮牌顺序
+	required int32 wTimeLeft = 3;		//剩余时间
+}
+
+//比牌结果 闲家与庄家比牌
+message CMD_S_CompareCard
+{
+	required int32 bankerUser = 1;      //庄家用户
+	repeated int32 winUsers = 2;        //闲家赢牌
+	repeated int32 LostUsers = 3;       //闲家输牌
+	repeated float playerOrgMoney = 4;  //携带金币[4]
+	repeated float winLostMoney = 5;    //输赢金币[4]
+	repeated float playerMoney  = 6;    //当前金币[4]
+	required int32 wTimeLeft = 7;    	//继续下一局
+};
+
+/////////////////////////////////////////////////////////////////////////////
+//用户叫庄
+message CMD_C_CallBanker
+{
+	required int32 opValue = 1;		//叫庄倍数 1/2/3/4倍或不叫,索引0,1,2,3,4
+};
+
+/////////////////////////////////////////////////////////////////////////////
+//用户下注
+message CMD_C_AddScore
+{
+	required int32 opValue = 1;		//下注倍数 下1/8/15/22/30倍,索引0,1,2,3,4
+};
+
+
+//游戏结束
+message CMD_S_GameEnd
+{
+	//repeated int32 cbGameState = 1;					//游戏状态[GAME_PLAYER]
+	//repeated double dGameScore = 2;					//游戏得分[GAME_PLAYER]
+	//repeated double dTotalScore = 3;				//游戏总分[GAME_PLAYER]
+	//repeated int32 cbCardData = 4;					//用户扑克[GAME_PLAYER][3]
+	//repeated int32 cbCardType = 5;					//牌型[GAME_PLAYER]
+
+	//repeated int32 wCompareUser = 6;				//比牌用户[GAME_PLAYER]
+	//required int32 wTimeLeft = 7;					//结束动画时间
+	required int32 cbEndState = 8;					//结束状态(0表示比牌结束 1表示弃牌结束)
+};

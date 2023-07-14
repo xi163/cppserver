@@ -1,0 +1,318 @@
+syntax = "proto2";
+package ErBaGang;
+enum SUBID
+{	
+	SUB_S_GameStart				= 100;		//開始游戲		CMD_S_GameStart
+	SUB_S_GameEnd				= 101;		//結束游戲		CMD_S_GameEnd
+	SUB_S_SCENE_START			= 102;		//開始游戲場景    CMD_S_Scene_GameStart
+	SUB_S_SCENE_END				= 103;		//結束游戲場景    CMD_S_Scene_GameEnd
+	SUB_S_PLAYERLIST			= 104;		//玩家列表        CMD_S_PlayerList
+	SUB_S_JETTON_SUCCESS			= 105;		//下注成功    CMD_S_PlaceJetSuccess
+	SUB_S_JETTON_FAIL			= 106;		//下注失敗        CMD_S_PlaceJettonFail
+	SUB_S_GameJetton			= 112;		// tell you start jetton  CMD_S_GameJetton
+	SUB_S_SCENE_Jetton			= 113;		//結束游戲場景  	CMD_S_Scene_GameJetton
+
+	SUB_C_USER_JETTON			= 107;		//玩家下注        CMD_C_PlaceJet
+	SUB_C_USER_ASKLIST			= 108;		//玩家申請列表     CMD_C_AskList
+	SUB_C_USER_REPEAT_JETTON		= 109;		//	         CMD_C_ReJetton
+
+	SUB_C_QUERY_PLAYERLIST			= 110;		//     		CMD_C_PlayerList
+        SUB_S_QUERY_PLAYLIST			= 111;		//              CMD_S_PlayerList
+        SUB_S_JETTON_BROADCAST                  = 114 ;        //push top 10 palyer jetton broadcast in 0.5s gap       CMD_S_Jetton_Broadcast
+        SUB_S_SERVER_NOTIFY                     = 115 ;        //notiy message   CMD_S_Server_Notity
+        SUB_C_HANDLE_BANKER                     = 116 ;        //玩家申请上庄      //CMD_C_Handle_Banker
+        SUB_S_UPDATE_BANKER_INFO                = 117 ;        //更新庄家信息      //BankerInfo
+}
+
+message SimplePlayerInfo
+{
+        required  int32  dwUserID                       = 1 ;   //玩家ID
+        required  int32  headerID			= 2 ;	//玩家头像.
+        required  string nickName			= 3 ;	//玩家昵称.
+        required  double lUserScore			= 4 ;	//玩家当前积分.
+}
+
+//庄家信息
+message BankerInfo
+{
+        required  bool   bSystemBanker                  = 1 ;   //是否系统当庄
+        optional  int32  dwUserID                       = 2 ;   //玩家ID
+        optional  int32 ContinueCount                   = 3 ;   //连庄局数
+        optional  int32  headerID			= 4 ;	//庄头像.
+        optional  string nickName			= 5 ;	//庄昵称.
+        optional  double lUserScore			= 6 ;	//庄当前积分.
+        repeated  SimplePlayerInfo applyList            = 7 ;   //申请列表
+}
+
+//開始游戲
+message CMD_S_GameStart
+{
+	required int32		cbPlaceTime		= 1;	//总时间
+	required int32 		cbTimeLeave		= 2;	//过去的时间
+	required double 	lUserScore		= 3;	//我的分数
+	repeated int32 		Mutical			= 4;	//倍率表
+        repeated double	    	lAllJettonScore     	= 5;	//沒門的縂下注
+        repeated double 	SelfJettonScore         = 6;	//自己每門的下注
+	optional int32  	OnlineNum		= 7;   //
+	repeated int32		cardgroup		= 8;   //
+	repeated PlayerListItem players			= 9;
+	repeated int32		shuaizi			= 10;
+        required string          roundId                = 11;
+        optional BankerInfo     bankerInfo              = 12;  //庄家信息
+
+}
+
+//開始jetton
+message CMD_S_GameJetton
+{
+	required int32		cbPlaceTime		= 1;	//总时间
+	required int32 		cbTimeLeave		= 2;	//过去的时间
+	required double 	lUserScore		= 3;	//我的分数
+	repeated int32 		Mutical			= 4;	//倍率表
+        repeated double	        AllJettonScore          = 5;	//沒門的縂下注
+        repeated double 	SelfJettonScore         = 6;	//自己每門的下注
+        optional int32  	OnlineNum		= 7;    //
+        repeated int32		cardgroup		= 8;    //
+	repeated PlayerListItem players			= 9;
+	repeated int32		shuaizi			= 10;
+        required string          roundId                = 11;
+        optional BankerInfo     bankerInfo              = 12;  //庄家信息
+
+}
+//游戲結束
+message CMD_S_GameEnd
+{
+	required int32		cbPlaceTime		= 1;	//总时间
+	required int32 		cbTimeLeave		= 2;	//过去的时间
+	required double 	lUserMaxScore		= 3;	//最大下注	
+	repeated double	    	lAllJettonScore		= 4;	//每門縂的下注
+	repeated double 	SelfJettonScore		= 5;	//自己每門的下注
+	optional double		MostWinScore		= 6;    //本局贏最多的玩家贏的分數
+	optional int32		BestuserID		= 7; 	// 本侷贏最多的玩家的id
+	optional string 	BestuserNikeName	= 8;	//贏得最多的玩家的昵稱
+	repeated int32		WinIndex		= 9;	//本侷開的哪一門
+	repeated int32		cartype			= 10;	//kaide chexing
+	optional double		userwinscore		= 11;	//wanjia ying fen 
+	optional int32  	OnlineNum		= 12;   //
+	repeated int32		cardgroup		= 13;   //
+	repeated PlayerListItem players			= 14;
+	optional PlayerListItem self			= 15;
+	optional PlayerListItem bestuser		= 16;
+	repeated double		dallwinscore		= 17;
+	repeated int32		shunplace		= 18;
+	repeated int32		tianplace		= 19;
+	repeated int32		diplace			= 20;
+        required string         roundId                 = 21;
+        optional int64          bankerWinLost           = 22 ;   //庄家输赢
+	
+}
+//開始游戲場景
+message CMD_S_Scene_GameJetton
+{
+	required int32		cbPlaceTime		= 1;	//总时间
+	required int32 		cbTimeLeave		= 2;	//过去的时间	
+	optional string		TimeType		= 3;	//游戏状态
+	optional double		maxBet			= 4;	//最大下注
+	repeated int32		carType			= 5;	//历史纪录
+	repeated CMD_AeraInfo aeraInfo			= 6;    //三个
+	optional int32  OnlineNum			= 7;   //
+	repeated int32		cardgroup		= 8;   //
+	repeated PlayerListItem players			= 9;
+	repeated int32		shuaizi			= 10;
+	optional PlayerListItem self			= 12;
+	repeated int32		shunplace		= 13;
+	repeated int32		tianplace		= 14;
+	repeated int32		diplace			= 15;
+        repeated int32		shensuanziJettonFlag	= 16; //1-下注 0-没下注
+        required string          roundId                = 17;
+        optional BankerInfo     bankerInfo              = 18;  //庄家信息
+}
+//開始游戲場景
+message CMD_S_Scene_GameStart
+{
+	required int32		cbPlaceTime		= 1;	//总时间
+	required int32 		cbTimeLeave		= 2;	//过去的时间	
+	optional string		TimeType		= 3;	//游戏状态
+	optional double		maxBet			= 4;	//最大下注
+	repeated int32		carType			= 5;	//历史纪录
+	repeated CMD_AeraInfo aeraInfo			= 6;    //三个
+        optional int32  OnlineNum			= 7;    //
+        repeated int32		cardgroup		= 8;    //
+	repeated PlayerListItem players			= 9;
+	repeated int32		shuaizi			= 10;
+	optional PlayerListItem self			= 12;
+	repeated int32		shunplace		= 13;
+	repeated int32		tianplace		= 14;
+	repeated int32		diplace			= 15;
+        required string         roundId                 = 16;
+        optional BankerInfo     bankerInfo            = 17;  //庄家信息
+}
+
+message CMD_AeraInfo
+{	
+	optional int32 		mutical			= 4;	//倍數表
+	optional double	   	lAllJettonScore		= 5;	//每門的縂下注
+	optional double 	SelfJettonScore		= 6;	//自己沒門的下注
+}
+//結束游戲場景
+message CMD_S_Scene_GameEnd
+{
+	required int32		cbPlaceTime		= 1;	//总时间
+	required int32 		cbTimeLeave		= 2;	//过去的时间
+	optional string		TimeType		= 4;	//游戏状态
+	optional double		maxBet			= 5;	//最大下注
+	repeated int32		carType			= 6;	//历史纪录
+	repeated CMD_AeraInfo aeraInfo			= 7;    //三个
+	optional int32  OnlineNum			= 8;   //
+	repeated int32		cardgroup		= 9;   //
+	repeated PlayerListItem players			= 10;
+	repeated int32		shuaizi			= 11;
+	optional PlayerListItem self			= 12;
+	repeated int32		shunplace		= 13;
+	repeated int32		tianplace		= 14;
+	repeated int32		diplace			= 15;
+        required string         roundId                 = 16;
+        optional BankerInfo     bankerInfo              = 17;  //庄家信息
+}
+
+// 玩家下注.
+message CMD_C_PlaceJet
+{
+	required int32	cbJettonArea		= 1;	//筹码区域 1 2 3
+	required double	lJettonScore		= 2;	//加注数目
+}
+
+
+// 玩家.
+message CMD_C_AskList
+{
+	required int32	index			= 1;	//pai hang bang
+}
+// 下注失败.
+message CMD_S_PlaceJettonFail
+{
+	required int32	dwUserID			= 1;	//下注玩家
+	required int32	cbJettonArea			= 2;	//下注区域 
+	required double	lPlaceScore			= 3;	//当前下注
+	required int32	cbAndroid		 	= 4;	//是否机器人
+	optional string	returnCode			= 5;	//
+}
+
+// 下注成功.
+message CMD_S_PlaceJetSuccess
+{
+	required int32	dwUserID			= 1;	//下注玩家
+	required int32	cbJettonArea			= 2;	//筹码区域
+	required double lJettonScore			= 3;	//加注数目
+	required bool	bIsAndroid			= 4;	//是否机器人
+	required double lUserScore			= 5;	//玩家当前积分.
+	repeated double AllJettonScore			= 6;	//所有下注
+	repeated double SelfJettonScore			= 7;	//所有个人下注
+}
+
+message Jetton_Player
+{
+	required int32 dwSeatid  			=1 ; //jetton seatid
+	repeated int32 dwTotalJetton        =2 ; //areas total jeton score  [0]=10 [1]=10  [2]=50  
+	required double lUserScore			=3;	//玩家当前积分.   	
+}
+
+message CMD_S_Jetton_Broadcast
+{
+	repeated double AllJettonScore		=1 ;	//所有下注
+        repeated double tmpJettonScore		=2 ;	//user total jetton in this gap
+
+}
+
+message CMD_S_Server_Notity
+{
+        required string notifyMessage			= 1;	//提醒信息.
+}
+
+// 下注失败.
+message CMD_C_ReJetton
+{
+	required int32	dwUserID			= 1;	//下注玩家
+}
+//玩家列表
+message CMD_S_UserWinList
+{
+	repeated PlayerInfo		player	= 1;	//总时间	
+}
+//获取玩家列表返回.
+message PlayerInfo
+{
+	required int32	dwUserID			= 1;	//玩家ID.
+	required int32  headerID			= 2;	//玩家头像.
+	required string nickName			= 3;	//玩家昵称.
+	optional string szLocation			= 4;	//登陆地址
+	optional int32	WinScore			= 5;	//玩家 贏分
+	optional string	Wintime				= 6;
+}
+// 获取玩家列表.
+message CMD_C_PlayerList
+{
+	required int32	nLimitCount			= 1;	//获取数量.
+	optional int32	nBeginIndex			= 2;	//起始下标.
+}
+// 获取玩家在线列表
+message CMD_S_PlayerList
+{
+	required int32 nEndIndex 			= 1;	// End index.
+	required int32 nResultCount			= 2;	// 记录数量.
+	repeated PlayerListItem players			= 3;	// 玩家列表.
+}
+//获取玩家列表返回.
+message PlayerListItem
+{
+	required int32	dwUserID			= 1;	//玩家ID.
+	required int32  headerID			= 2;	//玩家头像.
+	required string nickName			= 3;	//玩家昵称.
+        required double lUserScore			= 4;	//玩家当前积分.
+	optional double lTwentyWinScore			= 5;	//20局嬴分值. 在线列表显示用
+	optional int32	lTwentyWinCount			= 6;	//20局嬴次数. 在线列表显示用
+	optional int32	isdivineMath			= 7;	//是否为神算子 (0,1是)
+	optional int32	Index				= 8;	//玩家列表排序 1-8 (排行)
+        optional int32	lJetton				= 9;	//
+        optional string szLocation			= 10;	//登陆地址
+        repeated double	lwinscore			= 11;	//
+        optional double lAllWinScore			= 12;	//玩家当前积分.
+}
+//上下庄消息包
+message CMD_C_Handle_Banker
+{
+        required int32   mask                           = 1 ;  //1申请上庄0申请下庄
+}
+
+message CMD_S_UPDATE_BANKER
+{
+        required  BankerInfo bankerInfo                 = 1 ;   //
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//系统开牌
+message SysCards
+{
+	optional bytes cards     = 1; //手牌
+	optional int32 ty        = 2; //牌型(点数)
+	optional int32 multi     = 3; //牌型倍数
+}
+
+//当局下注区域记录详情
+message BetAreaRecordDetail {
+	optional int32 dAreaId		   = 1; //下注区域[0:顺;1:天;2:地]
+	optional SysCards handcard 	   = 2; //手牌数据
+	optional int64 dAreaJetton     = 3; //投注积分
+	optional int32 dAreaWin        = 4; //区域输赢积分
+	optional int32 dAreaIsWin      = 5; //本区域是否赢[0:否;1:赢]
+}
+
+//当局游戏记录详情
+message CMD_S_GameRecordDetail {
+	optional int32 gameid               = 1; //游戏类型
+	optional int64 userscore     	    = 2; //携带积分
+	optional int32 winLostScore         = 3; //总输赢积分
+	optional SysCards syscard 		    = 4; //系统开牌
+	repeated BetAreaRecordDetail detail = 5; //当局记录详情
+}
+////////////////////////////////////////////////////////////////////////////////

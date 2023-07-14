@@ -1,0 +1,125 @@
+syntax = "proto3";
+package MatchServer;
+
+import "Game.Common.proto";
+
+// 比赛服消息.  
+enum SUBID
+{
+    SUBID_BEGIN                             = 0;
+
+    SUB_C2S_ENTER_MATCH_REQ                 = 1;                // 进入比赛             MSG_C2S_UserEnterMathReq
+    SUB_C2S_LEFT_MATCH_REQ                  = 2;                // 退出比赛             MSG_C2S_UserLeftMathReq
+    SUB_C2S_USER_RANK_REQ                   = 3;                // 获取排行榜            MSG_C2S_UserRankReq
+
+
+    SUB_S2C_ENTER_MATCH_RESP                = 51;                // 进入比赛            MSG_S2C_UserEnterMatchResp
+    SUB_S2C_LEFT_MATCH_RESP                 = 52;               // 离开响应             MSG_S2C_UserLeftMatchResp
+    SUB_S2C_USER_ENTER_NOTIFY               = 53;                // 玩家进入返回         MSG_S2C_UserEnterNotify
+    SUB_S2C_MATCH_SCENE                     = 54;                //比赛场景             MSG_S2C_Match_Scene
+    SUB_S2C_MATCH_PLAYER_UPDATE             = 55;                 //更新人数            MSG_S2C_Match_Player_Update
+    SUB_S2C_MATCH_RANK_UPDATE               = 56;                 //更新排名            MSG_S2C_Match_Rank_Update
+    SUB_S2C_MATCH_FINISH                    = 57;                 //通知玩家比赛结束      MSG_S2C_Match_Finish
+    SUB_S2C_USER_RANK_RESP                  = 58;                //排行榜               MSG_S2C_UserRankResp
+    SUB_S2C_UPGRADE                         = 59;                //晋级                MSG_S2C_Upgrade
+}
+
+
+// 玩家进入游戏.
+message MSG_C2S_UserEnterMathReq
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+
+    int32 gameId                            = 2;                // 游戏ID.
+    int32 roomId                            = 3;                // 房间类型ID.
+    bytes dynamicPassword                   = 4;                // 动态密码
+}
+
+// 进入房间成功.
+message MSG_S2C_UserEnterMatchResp
+{
+    Game.Common.Header header               = 1;            // 命令包头.
+
+    int32 retCode                           = 2;
+    string errorMsg                         = 3;
+}
+
+
+message MSG_C2S_UserLeftMathReq
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+}
+
+message MSG_S2C_UserLeftMatchResp
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+    int32 retCode                           = 2;                //
+    string errorMsg                         = 3;                //
+}
+
+message MSG_S2C_Match_Scene
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+    int32 userCount                         = 2;                // 当前人数
+    int32 passUserCount                     = 3;                // 这轮晋级多少人
+    int32 needCount                         = 4;                // 需要总人数
+    int32 score                             = 5;                // 当前分数
+    int32 sort                              = 6;                // 排名
+    int32 status                            = 7;                // 状态 等待开始0 正在比赛1 比赛结束2
+    int32 letfRoundGameCount                = 8;                // 本轮剩余局数
+    int32 totalRoundGameCount               = 9;                // 该轮总局数
+}
+
+message MSG_S2C_Match_Player_Update
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+    int32 userCount                         = 2;                // 当前人数
+}
+message MSG_S2C_Match_Rank_Update
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+    int32 rank                              = 2;                // 当前排名
+    int32 passUserNum                       = 3;                // 晋级人数
+    int32 UserNum                           = 4;                // 正在比赛人数
+    int32 leftTableNum                      = 5;                // 剩余桌子 本轮结束赋值 本轮未结束-1
+    int32 letfRoundGameCount                = 6;                // 本轮剩余局数
+    int32 totalRoundGameCount               = 7;                // 该轮总局数
+}
+
+message MSG_S2C_Match_Finish
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+    int32 rank                              = 2;                // 最终排名
+    int32 awardScore                        = 3;                // 奖励分数
+    int32 finishStatus                      = 4;                // 淘汰1 结束0
+}
+
+message MSG_C2S_UserRankReq
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+}
+
+message rankInfo
+{
+    int32  userid                           = 1;
+    int32  rank                             = 2;
+    int32  score                            = 3;
+}
+
+message MSG_S2C_UserRankResp
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+    repeated  rankInfo  ranks               = 2;                //
+    int32 passUserNum                       = 3;                // 晋级人数
+    int32 roundNum                          = 4;                // 当前轮数
+    int32 gameNum                           = 5;                // 游戏局数
+}
+
+message MSG_S2C_Upgrade
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+    int32 rank                              = 2;                // 晋级时的排名
+    int32 passUserNum                       = 3;                // 晋级人数 如果为0就是决赛
+    int32 roundNum                          = 4;                // 当前轮数
+    int32 gameNum                           = 5;                // 游戏局数
+}

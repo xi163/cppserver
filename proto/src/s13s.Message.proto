@@ -1,0 +1,335 @@
+syntax = "proto2";
+package s13s;
+
+enum SUBID
+{
+	//客户端命令结构
+        SUB_C_MANUALCARDS		= 1;                                    // 手动摆牌 CMD_C_ManualCards
+        SUB_C_MAKESUREDUNHANDTY = 2;                                            // 确定三墩牌型 CMD_C_MakesureDunHandTy
+        SUB_C_CANCELCARDS		= 3;                                    // 手动摆牌取消哪一墩的牌 CMD_C_CancelCards
+	
+	// 服务器命令结构
+        SUB_SC_GAMESCENE_FREE		= 201;                                  //空闲场景消息	CMD_S_StatusFree
+        SUB_SC_GAMESCENE_GROUP		= 202;                                  //发送理牌场景	CMD_S_StatusGroup
+        SUB_SC_GAMESCENE_OPEN    	= 203;                                  //发送比牌场景    CMD_S_StatusOpen
+        SUB_SC_GAMESCENE_END		= 204;                                  //游戏结束       CMD_S_StatusEnd
+	
+        SUB_S_GAME_START		= 100;                                  //游戏开始	CMD_S_GameStart
+        SUB_S_MANUALCARDS		= 101;                                  //手动摆牌	CMD_S_ManualCards
+        SUB_S_MAKESUREDUNHANDTY = 102;                                  //理牌完成，确定三墩牌型 CMD_S_MakesureDunHandTy
+		SUB_S_COMPARECARDS    	= 103;                                  //开始比牌 CMD_S_CompareCards
+        SUB_S_GAME_END			= 105;                                  //游戏结束	MD_S_GameEnd
+        SUB_S_CANCELCARDS		= 106;                                  //手动摆牌取消哪一墩的牌 CMD_S_CancelCards
+        SUB_S_ANDROID_CARD		= 113;                                  //机器人牌	CMD_S_AndroidCard
+
+        SUB_C_ROUND_END_EXIT            = 114;                                  //本局结束后退出[CMD_C_RoundEndExit]
+        SUB_C_ROUND_END_EXIT_RESULT     = 115;                                  //本局结束后退出[CMD_C_RoundEndExiResult]
+		
+		NN_SUB_C_MESSAGE            =126;   //发送消息[NN_CMD_C_Message]
+		NN_SUB_S_MESSAGE_RESULT     =127;   //发送消息[NN_CMD_S_MessageResult]
+}
+
+//发送消息
+message NN_CMD_C_Message
+{
+    required    string  message                 =1; //文字消息 没有文字时为空字串
+    required    int32   faceId                  =2; //表情    没有表情时为-1
+    required    int32   type                    =3;
+};
+message NN_CMD_S_MessageResult
+{
+    required    int32   sendChairId             =1;
+    required    int64   sendUserId              =2; //发送者Id
+    required    string  message                 =3; //文字消息 没有文字时为空字串
+    required    int32   faceId                  =4; //表情    没有表情时为-1
+    required    int32   type                    =5;
+    required    int32   headerId                =6;
+    required    int32   headboxId               =7;
+    required    string  headImgUrl              =8;
+    required    int32   vip                     =9;
+    optional    string  nickName                =10;
+	
+};
+////////////////////////////////////////////////////////////////////////////////
+//牌数据
+message CardData
+{
+	required bytes cards = 1;
+}
+////////////////////////////////////////////////////////////////////////////////
+//单墩数据
+message DunData 
+{
+        required int32 id	 = 1;           //标记0-头/1-中/2-尾
+        required int32 ty        = 2;           //墩对应普通牌型
+        required int32 c         = 3;           //墩对应牌数c(3/5/5)
+        required bytes cards     = 4;           //墩牌数据(头敦3张牌/中墩和尾墩各5张牌)
+        optional bool max        = 5;           //是否最大
+}
+////////////////////////////////////////////////////////////////////////////////
+//一组墩(含头墩/中墩/尾墩)
+message GroupDunData
+{
+        required int32 start     = 1;               //从哪墩开始的
+        required int32 specialTy = 2;               //总体对应特殊牌型
+        repeated DunData duns    = 3;               //[0]头敦(3)/[1]中墩(5)/[2]尾墩(5)
+}
+////////////////////////////////////////////////////////////////////////////////
+//手牌数据
+message HandCards 
+{
+        required bytes cards         = 1;           //一副13张手牌
+        required int32 specialTy     = 2;           //标记手牌特殊牌型
+        repeated GroupDunData groups = 3;           //枚举几组最优墩(开元或得胜是给了3组，这里给了5组)
+}
+////////////////////////////////////////////////////////////////////////////////
+//枚举牌型
+message EnumCards
+{
+        repeated bytes v123sc     = 1;              //所有同花色五张/三张连续牌(五张/三张同花顺)
+        repeated bytes v40	  = 2;              //所有铁支(四张)
+        repeated bytes v32	  = 3;              //所有葫芦(一组三条加上一组对子)
+        repeated bytes vsc	  = 4;              //所有同花五张/三张非连续牌(五张/三张同花)
+        repeated bytes v123	  = 5;              //所有非同花五张/三张连续牌(五张/三张顺子)
+        repeated bytes v30	  = 6;              //所有三条(三张)
+        repeated bytes v22	  = 7;              //所有两对(两个对子)
+        repeated bytes v20	  = 8;              //所有对子(一对)
+}
+////////////////////////////////////////////////////////////////////////////////
+//比牌对方
+message ComparePlayer
+{
+        required int32 chairId       = 1;           //座椅ID
+        required GroupDunData group  = 2;           //比牌对方选择一组墩(含头墩/中墩/尾墩)
+        required int32 deltascore    = 3;           //比牌对方输赢得水总分 玩家两两比牌总输赢 赢分+/和分0/输分- 包括打枪/全垒打
+        repeated int32 fromshootIds  = 4;           //作为被打枪者(shoot=-1)，来自打枪者座椅ID列表
+        repeated int32 toshootIds    = 5;           //作为打枪者(shoot=1)，被打枪者座椅ID列表
+}
+////////////////////////////////////////////////////////////////////////////////
+//单墩比输赢
+message CompareItem
+{
+        required int32 winLost = 1;                 //输赢 -1输/0和/1赢
+        optional int32 score   = 2;                 //赢分+/和分0/输分-
+        optional int32 ty      = 3;                 //单墩牌型
+        optional int32 peerTy  = 4;                 //对方单墩牌型
+}
+////////////////////////////////////////////////////////////////////////////////
+//三墩比输赢
+message CompareResult
+{
+        repeated CompareItem items    = 1;          //items[DunMax] 头/中/尾 不考虑打枪
+        optional CompareItem specitem = 2;          //特殊牌型比较整墩 无打枪/全垒打
+        optional int32       shoot    = 3;          //-1被打枪/0不打枪/1打枪
+        optional int32       score    = 4;          //三墩不考虑打枪总输赢 赢分+/和分0/输分-
+}
+////////////////////////////////////////////////////////////////////////////////
+//桌椅玩家
+message PlayerItem
+{
+        required int32 chairId 		   = 1;     //座椅ID
+        optional int64 userId		   = 2;     //玩家ID
+        optional string nickname 	   = 3;     //昵称
+        optional int32 headId		   = 4;     //头像ID
+        optional int32 status		   = 5;     //玩家状态
+        optional int64 score		   = 6;     //玩家积分
+        optional string	location	   = 7;     //玩家位置
+        optional HandCards handCards       = 8;     //手牌数据
+        optional EnumCards     enums       = 9;     //枚举牌型
+        optional bytes cpy    		   = 10;    //剩余牌
+        optional GroupDunData group        = 11;    //座椅玩家选择一组墩(含头墩/中墩/尾墩)
+        optional int32 selected            = 12;    //是否理牌
+        optional bool isInGame             = 13;    //是否在游戏中 false 不再，TRUE 在游戏
+		
+	optional int32 vipLevel        = 14;
+	optional int32 headBoxIndex    = 15;
+	optional string  headImgUrl    = 16;
+}
+////////////////////////////////////////////////////////////////////////////////
+//游戏开始
+message CMD_S_GameStart
+{
+        required HandCards handCards  = 1;          //手牌数据
+        optional int64 ceilScore      = 2;          //基础积分
+        repeated PlayerItem players   = 3;          //座椅玩家
+        repeated int32 playstatus     = 4;          //玩家状态[GAME_PLAYER]
+        repeated int64 userscore      = 5;          //玩家积分[GAME_PLAYER]
+        optional int32 wTimeLeft      = 6;          //剩余时间
+        optional string roundId       = 7;          //牌局标识
+        optional int32 tableId        = 8;
+};
+////////////////////////////////////////////////////////////////////////////////
+//手动摆牌
+message CMD_C_ManualCards
+{
+        optional int32 dt    = 1;                   //客户端选择了哪一墩，标记0-头/1-中/2-尾
+        optional bytes cards = 2;                   //客户端选择了哪些牌，作为一墩，后端用余牌再计算枚举
+}
+////////////////////////////////////////////////////////////////////////////////
+//手动摆牌
+message CMD_S_ManualCards
+{
+        optional EnumCards enums = 1;               //枚举牌型
+        optional int32 dt        = 2;               //客户端选择了哪一墩，标记0-头/1-中/2-尾
+        optional int32 ty        = 3;               //墩对应牌型
+        optional bytes cpy       = 4;               //剩余牌
+        optional int32 result  	 = 5;               //0-成功 1-失败
+        optional string errmsg   = 6;               //错误消息
+}
+////////////////////////////////////////////////////////////////////////////////
+//手动摆牌取消哪一墩的牌(头3张/中5张/尾5张)
+message CMD_C_CancelCards
+{
+        required int32 dt = 1;                      //客户端选择了哪一墩
+}
+////////////////////////////////////////////////////////////////////////////////
+//手动摆牌取消哪一墩的牌
+message CMD_S_CancelCards
+{
+        optional EnumCards enums = 1;               //枚举牌型
+        optional int32 dt        = 2;               //客户端选择了哪一墩
+        optional bytes cpy       = 3;               //剩余牌
+        optional int32 result  	 = 4;               //0-成功 1-失败
+        optional string errmsg   = 5;               //错误消息
+}
+////////////////////////////////////////////////////////////////////////////////
+//确定牌型，所有玩家都确定牌型后比牌
+message CMD_C_MakesureDunHandTy
+{
+        required int32 groupindex    = 1;            //>=0从枚举的几组墩中选择一组，-1手动摆牌确认
+        required bool  isAutoOpertor = 2;            //true 朝时操作； false 手动操作
+}
+////////////////////////////////////////////////////////////////////////////////
+//理牌完成，确定三墩牌型
+message CMD_S_MakesureDunHandTy
+{
+        required int32 chairId = 1;                 //确定牌型玩家
+}
+////////////////////////////////////////////////////////////////////////////////
+//玩家之间两两比牌 SUB_S_COMPARECARDS
+message CMD_S_CompareCards
+{
+        required PlayerItem player     = 1;         //座椅玩家
+        repeated int32 itemscores      = 2;         //座椅玩家与其余玩家按墩比输赢分items[DunMax+1] 头/中/尾/特殊，不含打枪/全垒打
+        repeated int32 itemscorePure   = 3;         //座椅玩家与其余玩家按墩比输赢分items[DunMax+1] 头/中/尾/特殊，含打枪/全垒打
+        repeated ComparePlayer peers   = 4;         //比牌对方  peers[GAME_PLAYER-1]
+        repeated CompareResult results = 5;         //比牌结果results[GAME_PLAYER-1]
+        optional int32 allshoot        = 6;         //是否全垒打 -1被全垒打/0无全垒打/1全垒打
+        optional int32 fromchairId     = 7;         //若allshoot=-1被全垒打，记下全垒打桌椅ID
+        optional int32 deltascore      = 8;         //玩家两两比牌总输赢 赢分+/和分0/输分- 包括打枪/全垒打
+        optional int32 wTimeLeft       = 9;         //剩余时间
+}
+////////////////////////////////////////////////////////////////////////////////
+//空闲状态
+message CMD_S_StatusFree
+{
+        required int64 ceilscore      = 1;          //基础积分
+        repeated PlayerItem players   = 2;          //座椅玩家
+		required int32 wTimeLeft      = 3;
+		optional int32 tableId        = 4;
+};
+////////////////////////////////////////////////////////////////////////////////
+//理牌状态
+message CMD_S_StatusGroup
+{
+        required string roundId         = 1;        //牌局编号
+        required int64 ceilscore 	    = 2;        //基础积分
+        optional HandCards handCards    = 3;        //手牌数据
+        repeated PlayerItem players     = 4;        //座椅玩家
+        required int32 wTimeLeft        = 5;        //剩余时间
+        optional int32 tableId          = 6;
+};
+////////////////////////////////////////////////////////////////////////////////
+//开牌状态
+message CMD_S_StatusOpen
+{
+        required string roundId         = 1;        //牌局编号
+        required int64 ceilscore 	    = 2;        //基础积分
+        optional HandCards handCards    = 3;        //手牌数据
+        repeated PlayerItem players     = 4;        //座椅玩家
+		required CMD_S_CompareCards cmp = 5;        //比牌数据
+		required int32 wTimeLeft        = 6;        //剩余时间
+		optional int32 tableId          = 7;
+};
+////////////////////////////////////////////////////////////////////////////////
+//结束状态
+message CMD_S_StatusEnd
+{
+	required string roundId         = 1;        //牌局编号
+	required int64 ceilscore 	    = 2;        //基础积分
+	optional HandCards handCards    = 3;        //手牌数据
+	repeated PlayerItem players     = 4;        //座椅玩家
+	required CMD_S_CompareCards cmp = 5;        //比牌数据
+	repeated GameEndScore scores    = 6;        //玩家积分
+	required int32 wTimeLeft        = 7;        //剩余时间
+	optional int32 tableId          = 8;
+};
+////////////////////////////////////////////////////////////////////////////////
+//游戏结束，结算玩家积分
+message GameEndScore
+{
+        required int32 chairId	 = 1;               //座椅ID
+        required int32 score     = 2;               //输赢积分
+        required int64 userscore = 3;               //剩余积分
+}
+////////////////////////////////////////////////////////////////////////////////
+//游戏结束，广播消息
+message CMD_S_GameEnd
+{
+	repeated GameEndScore    scores = 1; //玩家积分
+	required int32 wTimeLeft        = 2; //剩余时间(飘金币动画时间)
+}
+////////////////////////////////////////////////////////////////////////////////
+//给机器人发送真实玩家数据
+message AndroidPlayer
+{
+        required HandCards handCards  = 1;          //手牌数据
+        required int32 chairId = 2;                 //座椅ID
+}
+////////////////////////////////////////////////////////////////////////////////
+//机器人扑克
+message CMD_S_AndroidCard
+{
+        optional string roundId        = 1;         //牌局标识
+        repeated AndroidPlayer players = 2;         //其它玩家信息
+};
+
+//本局结束后退出
+message CMD_C_RoundEndExit
+{
+    required    bool   bExit                    =1; //本局结束后退出  ture:退出  false:不退出
+};
+message CMD_C_RoundEndExitResult
+{
+    required    bool   bExit                    =1; //本局结束后退出  ture:退出  false:不退出
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//玩家三墩手牌
+message DunCards 
+{
+	required int32 ty        = 1; //墩对应普通/特殊牌型
+	required bytes cards     = 2; //墩牌数据(头敦3张牌/中墩和尾墩各5张牌)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//当局游戏记录详情
+message PlayerRecordDetail {
+	optional string account      = 1; //账号/昵称
+	optional int32 chairId       = 2; //座椅ID
+	repeated DunCards handcards  = 3; //手牌数据
+	optional int64 userscore     = 4; //携带积分
+	optional int32 cellscore     = 5; //房间底注
+	repeated int32 itemscores    = 6; //头/中/尾/特殊，不含打枪/全垒打
+	repeated int32 itemscorePure = 7; //头/中/尾/特殊，含打枪/全垒打
+	optional int32 deltascore    = 8; //输赢得水
+	optional int32 winLostScore  = 9; //输赢积分
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//当局游戏记录详情
+message CMD_S_GameRecordDetail {
+	optional int32 gameid              = 1; //游戏类型
+	repeated PlayerRecordDetail detail = 2; //当局记录详情
+}

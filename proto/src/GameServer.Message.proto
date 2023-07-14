@@ -1,0 +1,352 @@
+syntax = "proto3";
+package GameServer;
+
+import "Game.Common.proto";
+
+// 游戏服消息.
+enum SUBID
+{
+    SUBID_BEGIN                             = 0;
+
+//    LOGIN_GAME_SERVER_MESSAGE_REQ           = 1;		// 登录游戏服            LoginGameServerMessage
+//    LOGIN_GAME_SERVER_MESSAGE_RES           = 2;		// 返回登录服            LoginGameServerMessageResponse
+//    SUB_S2C_ENTER_ROOM_FAIL                 = 102;		// 进入房间失败           MSG_SC_GameErrorCode
+
+
+    SUB_C2S_ENTER_ROOM_REQ                  = 3;                // 进入房间             MSG_C2S_UserEnterMessage
+    SUB_S2C_ENTER_ROOM_RES                  = 4;                // 进入房间             MSG_S2C_UserEnterMessageResponse
+	
+    SUB_S2C_USER_ENTER_NOTIFY               = 5;                // 玩家进入返回         MSG_S2C_UserBaseInfo
+    SUB_S2C_USER_SCORE_NOTIFY               = 6;                // 玩家积分信息         MSG_S2C_UserScoreInfo
+    SUB_S2C_USER_STATUS_NOTIFY              = 7;                // 玩家状态            MSG_S2C_GameUserStatus
+	
+    SUB_C2S_USER_READY_REQ                  = 8;		// 玩家就绪             MSG_C2S_UserReady
+    SUB_S2C_USER_READY_RES                  = 29;		// 玩家就绪             MSG_C2S_UserReady
+
+    SUB_C2S_USER_LEFT_REQ                   = 9;                // 玩家离开             MSG_C2S_UserLeftMessage
+    SUB_S2C_USER_LEFT_RES                   = 10;               // 离开响应             MSG_C2S_UserLeftMessageResponse
+
+//    SUB_C2S_USER_OFFLINE_REQ                = 11;               // 玩家离开
+//    SUB_S2C_USER_OFFLINE_RES                = 31;               // 玩家离开
+
+    SUB_C2S_CHANGE_TABLE_REQ                = 12;               // 玩家换桌		MSG_C2S_ChangeTable
+    SUB_S2C_CHANGE_TABLE_RES                = 13;               // 玩家换桌返回		MSG_S2C_ChangeTable
+
+    SUB_C2S_USER_RECHARGE_OK_REQ            = 14;               // USER RECHARGE OK MESSAGE GameServerUserRechargeOKMessage
+    SUB_S2C_USER_RECHARGE_OK_RES            = 15;               // USER RECHARGE OK RESPONSE GameServerUserRechargeOKMessageResponse
+
+    SUB_C2S_USER_EXCHANGE_FAIL_REQ          = 16;               // USER EXCHANGE FAIL MESSAGE GameServerUserExchangeFailMessage
+    SUB_S2C_USER_EXCHANGE_FAIL_RES          = 17;               // USER EXCHANGE FAIL RESPONSE GameServerUserExchangeFailMessageResponse
+
+    SUB_C2S_CHANGE_TABLE_SIT_CHAIR_REQ      = 18;               // MSG_C2S_ChangeTable0
+    SUB_S2C_CHANGE_TABLE_SIT_CHAIR_RES      = 19;               // MSG_S2C_ChangeTable0
+
+
+    SUB_S2C_PLAY_IN_OTHERROOM               = 20;               // 玩家正在其他房间	MSG_S2C_PlayInOtherRoom
+
+    SUB_GF_SYSTEM_MESSAGE                   = 21;               // 系统广播消息		MSG_S2C_SystemMessage
+
+}
+
+
+// 游戏服通道消息.
+message MSG_CSC_Passageway
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+    bytes passData                          = 2;                // 具体游戏自己解析的数据.
+}
+
+// 系统消息.
+message MSG_S2C_SystemMessage
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+
+    int32  msgType                          = 2;                // msg type.
+    string msgContent                       = 3;                // message.
+}
+
+
+
+// 玩家进入游戏.
+message MSG_C2S_UserEnterMessage
+{
+    Game.Common.Header header               = 1;                // 命令包头.
+	
+    int32 gameId                            = 2;                // 游戏ID.
+    int32 roomId                            = 3;                // 房间类型ID.
+    bytes dynamicPassword                   = 4;                // 动态密码
+}
+// 进入房间成功.
+message MSG_S2C_UserEnterMessageResponse
+{
+    Game.Common.Header header               = 1;            // 命令包头.
+
+    int32 retCode                           = 2;
+    string errorMsg                         = 3;
+}
+// 进入房间成功返回数据 通知所有同一桌人
+message MSG_S2C_UserBaseInfo
+{
+        Game.Common.Header header           = 1;    // 命令包头.
+
+        int32	userId                      = 2;    //玩家ID
+        string  account                     = 3;
+        string  nickName                    = 4;    //昵称
+        int32	headIndex                 = 5;    //
+
+        int32	tableId                     = 6;   //桌子id
+        int32 	chairId                     = 7;   //椅子id
+        int32	userStatus                  = 8;   //用户状态
+
+        string  location                  = 9;    //位置
+        int64   score                       = 10;   //玩家金币
+
+/*
+         int32  cbHeadboxId     = 17;			//头像外框
+         string clientIp 	= 5;			//客户端IP
+         double dLongitude	= 6;			//经度
+         int32	cbGender 	= 9;			//性别
+         int32	cbVipLevel	= 10;			//VIP
+         int32	cbVipLevel2	= 11;			//VIP2
+
+        double	dwGem 		= 12;			//玩家钻石
+        */
+}
+// 服务器下发玩家状态.
+message MSG_S2C_GameUserStatus
+{
+     Game.Common.Header header	= 1;			// 命令包头.
+
+         uint32	userId		= 2;			//用户id
+         int32	tableId		= 3;			//椅子id
+         int32	chairId		= 4;			//桌子id
+         int32	usStatus	= 5;			//用户状态
+}
+
+
+
+// 玩家正在其他房间
+message MSG_S2C_PlayInOtherRoom
+{
+     Game.Common.Header header              = 1;
+
+     int32 gameId                           = 2;
+     int32 roomId                           = 3;
+}
+
+
+// 玩家就绪.
+message MSG_C2S_UserReadyMessage
+{
+     Game.Common.Header header		= 1;		// 命令包头.
+}
+message MSG_S2C_UserReadyMessageResponse
+{
+    Game.Common.Header header               = 1;            // 命令包头.
+
+    int32 retCode                           = 2;
+    string errorMsg                         = 3;
+}
+
+// 玩家离开.
+message MSG_C2S_UserLeftMessage
+{
+     Game.Common.Header header		= 1;		// 命令包头.
+     uint32	userId			= 2;		// 玩家ID.
+     int32      gameId			= 3;		// 游戏ID.
+     int32      roomId                  = 4;            // 房间ID
+     int32      type                    = 5;            //
+}
+message MSG_C2S_UserLeftMessageResponse
+{
+     Game.Common.Header header		= 1;		// 命令包头.
+     uint32	userId                  = 2;		// 玩家ID.
+     int32      gameId                  = 3;		// 游戏ID.
+     int32      roomId                  = 4;            // 房间ID
+     int32      type                    = 5;
+
+     int32      retCode                 = 6;
+     string     errorMsg                = 7;
+}
+
+// 玩家换桌.
+message MSG_C2S_ChangeTable
+{
+     Game.Common.Header header		= 1;		// 命令包头
+     uint32 userId			= 2;		// 玩家ID.
+     int32 gameId			= 3;		// 游戏ID.
+     int32 tableId          = 4;        // table id
+}
+
+message MSG_S2C_ChangeTable
+{
+     Game.Common.Header header		= 1;		// 命令包头
+     int32 gameId			= 2;		// 游戏ID.
+     int32 retCode 			= 3; // error code.
+     int32 tableId          = 4;        // table id
+}
+
+
+// 玩家换桌.
+message MSG_C2S_ChangeTable0
+{
+     Game.Common.Header header		= 1;		// 命令包头
+     uint32 userId			= 2;		// 玩家ID.
+     int32 gameId			= 3;		// 游戏ID.
+     int32 tableId          = 4;        // table id
+}
+
+message MSG_S2C_ChangeTable0
+{
+     Game.Common.Header header		= 1;		// 命令包头
+     int32 gameId			= 2;		// 游戏ID.
+     int32 retCode 			= 3; // error code.
+     int32 tableId          = 4;        // table id
+}
+
+
+
+
+
+
+
+/*
+// 进入房间失败.
+message MSG_S2C_EnterRoomFail
+{
+     Game.Common.Header header	= 1;			// 命令包头.
+
+          int32 errCode		= 2;			// 错误代码
+         string errMsg 		= 3;			// 错误描述
+}
+*/
+
+
+// 进入房间成功后通知玩家积分.
+message MSG_S2C_UserScoreInfo
+{
+     Game.Common.Header header	= 1;			// 命令包头.
+	
+         int32	userId		= 2;			//用户ID
+         int32	tableId		= 3;			//桌子id
+         int32	chairId		= 4;			//椅子id
+         double userScore	= 5;			//玩家金币
+}
+
+
+
+
+
+
+
+
+
+
+message GameServerUserRechargeOKMessage
+{
+     Game.Common.Header     header       = 1;  			//
+     int32                  userId       = 2;			// userId
+     int32                  id           = 3;			// order table auto id
+     string                 orderId      = 4;
+     double                 realPay      = 5;
+     int32                  status       = 6;
+}
+message GameServerUserRechargeOKMessageResponse
+{
+     Game.Common.Header     header       = 1;  			// ID
+     int32                  retCode      = 2;			// 返回错误码
+     string                 errorMsg     = 3;			// 返回消息
+
+     double                 addScore     = 4;			//增加的分值
+     double                 score     	 = 5;			//当前的总分
+     int32                  vip          = 6;			// vip
+     int32                  chargeAmount = 7;           // 总充值
+}
+
+message GameServerUserExchangeFailMessage
+{
+     Game.Common.Header     header       = 1;  			//
+     int32                  userId       = 2;			// userId
+     int32                  id           = 3;			// order table auto id
+     string                 orderId      = 4;
+     double                 realPay      = 5;
+     int32                  status       = 6;
+}
+message GameServerUserExchangeFailMessageResponse
+{
+     Game.Common.Header     header       = 1;  			// ID
+     int32                  retCode      = 2;			// 返回错误码
+     string                 errorMsg     = 3;			// 返回消息
+
+     double                 addScore     = 4;			//增加的分值
+     double                 score     	 = 5;			//当前的总分
+     int32                  exchangeAmount = 6;           // 总
+}
+
+
+
+
+/*
+message LoginGameServerMessage
+{
+         Game.Common.Header header	= 1;		// 命令包头.
+         int32  userId		= 2;	// 登录用户名
+         bytes  dynamicPassword = 3;    //动态密码
+         int32  gameId		= 4;    // 游戏ID
+         int32  kindId		= 5;    // 游戏类型
+         int32  roomKindId	= 6;    // 房间类型 初 中 高 房间区别
+}
+message LoginGameServerMessageResponse
+{
+    enum LoginGameServerRetCode
+    {
+        LOGIN_OK                        = 0;
+        LOGIN_ACCOUNTS_NOT_EXIST	    = 1;
+        LOGIN_PASSWORD_ERCOR		    = 2;
+        LOGIN_RESTART                   = 3;
+        LOGIN_NETBREAK			        = 4;
+        LOGIN_IN_OTHER_GAME		        = 5;
+        LOGIN_VERSION_TOO_LOW		    = 6;
+
+        REGISTER_UNKNOWN		        = 20;
+    }
+
+     Game.Common.Header     header       = 1;  // ID
+     int32                  retCode      = 2;
+     string                 errorMsg     = 3;
+         int32                 gameId                  = 4;  // 游戏ID
+     int32                 kindId                  = 5;  // 游戏类型
+     int32                 roomKindId              = 6;  // 房间类型 初 中 高 房间区别
+}
+*/
+
+
+// 玩家状态.
+enum USER_STATUS
+{
+        sGetOut 				= 0;		// 离开.
+        sFree   				= 1;		// 空闲.
+        sSit					= 2;		// 坐下.
+        sReady					= 3;		// 就绪.
+        sPlaying				= 4;		// 正在游戏.
+        sOffLine				= 5;		// 离线。
+        sLookOn 				= 6;		// 旁观.
+        sGetOutAtPlaying 			= 7;		// 游戏中离开.
+}
+
+// 游戏结束原因.
+enum GameEndTag
+{
+        GER_NORMAL 				= 0;		// 正常一局结束.
+        GER_UER_LEFT 				= 1;		// 玩家离开.
+        GER_DISMISS 				= 2;		// 桌台解散.
+        GER_FLOW_GUREAU 			= 3;		// 流局.
+}
+
+
+
+
+
+
+
+

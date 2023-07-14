@@ -1,0 +1,360 @@
+syntax = "proto2";
+package Common;
+enum SUBID
+{
+	
+	// 客户端子命令.
+	SUB_C_PLACE_JETTON			= 100;		// 玩家下注.		CMD_C_PlaceJet
+	SUB_C_QUERY_PLAYERLIST		= 103;		// 获取玩家在线列表	CMD_C_PlayerList
+	SUB_C_APPLY_BANKER			= 101;		// 申请坐庄.		只有命令ID.
+	SUB_C_CANCEL_BANKER			= 102;		// 取消坐庄.		只有命令ID.
+	CMD_C_OUT_CARD_REQ			= 137;		//出牌请求		CMD_C_Out_Card_Req
+	SUB_C_SYNC_DESK				=143;			//同步分值		CMD_C_SyncGameDesk_Req	
+	SUB_C_BANKERSUCCESS		        =147;		//CMD_S_ApplyBankerSuccess
+	SUB_C_OPEN_SUCCESS		        =148;		//CMD_S_Open_cardSucees
+	
+	// 服务端子命令.
+	SUB_S_GAME_FREE				= 120;		//游戏空闲		CMD_Scene_StatusFree
+	SUB_S_GAME_START			= 121;		//游戏开始		CMD_S_GameStart
+	SUB_S_PLACE_JETTON			= 122;		//用户下注		CMD_S_PlaceJetSuccess
+	SUB_S_GAME_END				= 123;		// 当局游戏结束	CMD_S_GameEnd 
+	SUB_S_APPLY_BANKER			= 124;		//申请庄家		CMD_S_ApplyBanker
+	SUB_S_CHANGE_BANKER			= 125;		//切换庄家		CMD_S_ChangeBanker	
+	SUB_S_SEND_RECORD			= 127;  //游戏记录 
+
+	SUB_S_BANKAPPLY_END			= 144;//SHENQING JIE SHU
+	SUB_S_JETTONE_END			= 145;//YA ZHU JIE SHU
+	SUB_S_OPENCARD_END			= 146;//KAI PAI JIE SHU	
+
+	
+	SUB_S_PLACE_JET_FAIL		= 128;		//下注失败			CMD_S_PlaceJettonFail
+	SUB_S_CANCEL_BANKER		 	= 129;		//取消申请		CMD_S_CancelBanker
+
+	
+	
+	SUB_S_QUERY_PLAYLIST		= 130;		//玩家在线列表返回	CMD_S_PlayerList
+	SUB_S_GAME_PLAY				= 131;		//游戏中		CMD_Scene_StatusPlay
+	SUB_S_USER_ENTER			= 132;		//玩家进入		CMD_S_User_Enter
+
+	SUB_S_USER_LEAVE			= 133;		//玩家退出		CMD_S_User_Leave
+	SUB_S_USER_REDAY			= 134;		//玩家准备		CMD_S_User_Reday
+	SUB_S_USER_GET_CARD			= 135;		//玩家获得牌		CMD_S_User_Get_Card
+	SUB_S_USER_OUT_CARD			= 136;		//玩家出牌		CMD_S_User_Out_Card
+	CMD_S_OUT_CARD_ACK			= 138;		//出牌返回		CMD_S_Out_Card_Ack
+	CMD_S_START_PLACE_JETTON	= 139;		//开始下注		CMD_S_StartPlaceJetton	
+	SUB_S_APPLY_BANKER_FAIL		= 140;		//玩家申请坐庄失败 	CMD_S_ApplyBank_Fail
+	SUB_S_CANCEL_BANKER_FAIL	= 141;		//玩家取消坐庄失败 	CMD_S_CancelBanker_Fail
+	SUB_S_SYNC_JET_AREA_SCORE	= 142;		//同步分值		CMD_S_SyncJetAreaScore	
+			
+	
+
+}
+//场景状态
+enum STATUS_SCENE
+{
+	SCENE_FREE 		= 0;
+	SCENE_START 		= 100;
+	SCENE_ENDBANKAPLLY	= 101;
+	SCENE_PLACEJET 		= 102;
+	SCENE_PLACEJETEND 	= 103;
+	SCENE_END 		= 200;
+	SCENE_OPENCAREND	= 104;
+	
+}
+message PlaceJetInfo
+{
+	required int32 lJettonType=1;			//type 1,10,50,100,500
+	required int32 lJettonCount=2;			//this type item count 
+	required int32 	lJettonArea			= 3;	//下注区域
+}
+message PlaceJettonScore
+{
+	required int32	dwUserID			= 1;	//玩家ID.
+	required double lJettonScore			= 2;	//下注总数
+	required int32 	lJettonArea			= 3;	//下注区域
+}
+
+message GameDeskInfo
+{
+	repeated PlaceJettonScore lAllJettonScore		= 1;	//全体总注
+	repeated PlaceJettonScore SelfJettonScore		= 2;	//自己下注
+	repeated PlaceJettonScore divineJettonScore	= 3;	//神算子下注
+	required double	lApplyBankerCondition 		= 4;	//申请条件
+	required double 	lAreaLimitScore			= 5;	//区域限制
+	repeated CardGroup Cards					= 6; 
+	repeated PlayerListItem players			= 7;	// 玩家列表.
+	//庄家信息
+	required int32 	wBankerChairID			= 8;	//当前庄家
+	required int32 	cbBankerTime			= 9;	//庄家局数
+	required double	lBankerWinScore			= 10;	//庄家赢分
+	required double	lBankerScore			= 11;	//庄家分数
+	required bool 	bEnableSysBanker			= 12;	//系统做庄
+	optional string szGameRoomName				= 13;	//房间名称
+	repeated 	int32	winTag				= 14;	// 胜利方标记  1和 2龙 3虎  龙虎取第一个值
+	repeated 	int32	winCardGroupType			= 15;	// 胜利方标记  1和 2龙 3虎  龙虎取第一个值
+	repeated PlaceJetInfo JetInfo 				= 16;	//this area place jet type info 
+	required int32 	lOnlinePopulation			= 17;	//在线人数
+}
+message CMD_S_SyncJetAreaScore
+{
+	repeated PlaceJettonScore AllJettonScore	= 1;	//所有下注
+	repeated PlaceJettonScore SelfJettonScore	= 2;	//所有个人下注
+}
+// 空闲状态下的场景消息. 没有空闲状态
+message CMD_Scene_StatusFree
+{
+	required GameDeskInfo	DeskData	= 1;	//桌面数据
+	//全局信息
+	required int32 cbTimeLeave		= 2;	//过去的时间
+	//玩家信息
+	required double lUserMaxScore		= 3;	//玩家金币
+	//房间信息
+	required double lUserScore		= 4;	//最大下注	
+	optional string szGameRoomName		= 5; 	//房间名称
+}
+//开始下注
+message CMD_S_StartPlaceJetton
+{
+	required GameDeskInfo	DeskData		= 1;	//桌面数据
+	required int32	cbPlaceTime			= 2;	//总时间
+	required int32 	cbTimeLeave			= 3;	//过去的时间
+	required double 	lUserMaxScore		= 4;	//最大下注	
+	required double 	lUserScore			= 5;	//我的分数
+	required int32   	verificationcode = 6;    //校验码 6位的验证码
+}
+// 命令: 开始游戏消息.
+message CMD_S_GameStart
+{
+	//富豪列表[5].
+	required GameDeskInfo	DeskData		= 1;	//桌面数据
+	required int32	cbTimeLeave			= 2;	//过去的时间	
+	required int32	nChipRobotCount		= 3;	//人数上限 (下注机器人)
+	required double	lUserMaxScore		= 4;	//我的最大可以下注分数 
+	required double	lUserScore			= 5;	//我的金币
+	required int32	nRoundCount			= 6;	//总回合 
+}
+// 玩家分值数组
+message PlayerScoreValue
+{
+	required	int32	userId		= 1;	// 玩家ID.
+	required	double  returnScore	= 2;	// 输赢相对分值.
+	optional	double  userScore	= 3;	// 剩余绝对分值.
+}
+
+// 命令: 游戏结束.
+message CMD_S_GameEnd
+{
+	required GameDeskInfo	DeskData		= 1;	//桌面数据
+	required int32 		cbTimeLeave		= 2;	//剩余时间
+
+	repeated PlayerScoreValue gameEndScore	= 3;  //游戏结束玩家数据
+	required double		lUserMaxScore	= 4;	//我的最大可以下注分数
+	required double		lUserScore		= 5;	//我的金币
+	required double		lRevenue		= 6;	//税收
+	required int32   	verificationcode = 7;    //校验码 6位的验证码	
+}
+
+message CMD_S_BankerApplyEnd
+{
+	required GameDeskInfo	DeskData		= 1;	//桌面数据
+	required int32 		cbTimeLeave		= 2;	//剩余时间
+}
+message CMD_S_JettonEnd
+{
+	required GameDeskInfo	DeskData		= 1;	//桌面数据
+	required int32 		cbTimeLeave		= 2;	//剩余时间
+}
+message CMD_S_OpenCardEnd
+{
+	required GameDeskInfo	DeskData		= 1;	//桌面数据
+	required int32 		cbTimeLeave		= 2;	//剩余时间
+}
+
+
+
+message CMD_S_User_Get_Card
+{
+	required int32	dwUserID			= 1;	//玩家ID.
+	repeated 	int32	Cards				= 2;	// 牌组
+}
+message CMD_S_User_Out_Card	
+{
+	required int32	dwUserID			= 1;	//玩家ID.
+	repeated int32	Cards				= 2;	// 牌组
+}
+message CMD_S_Open_cardSucees
+{
+   	repeated PlayerListItem players			= 1;	// 玩家列表.
+}	
+message CMD_C_Out_Card_Req
+{
+	required int32	dwUserID			= 1;	//玩家ID.
+	required double	Cards				= 2;	// 牌组
+}
+message CMD_C_SyncGameDesk_Req
+{
+}
+message CMD_S_Out_Card_Ack
+{
+	required int32	errorCode			= 1;	//出牌返回码，成功或者失败
+	required string	errorMsg			= 2;	//出牌返回消息内容
+}
+
+// 玩家下注.
+message CMD_C_PlaceJet
+{
+	required int32	cbJettonArea		= 1;	//筹码区域
+	required double	lJettonScore		= 2;	//加注数目
+}
+
+// 下注失败.
+message CMD_S_PlaceJettonFail
+{
+	required int32	dwUserID			= 1;	//下注玩家
+	required int32	cbJettonArea			= 2;	//下注区域
+	required double	lPlaceScore			= 3;	//当前下注
+	required int32	cbAndroid		 	= 4;	//是否机器人
+}
+
+// 下注成功.
+message CMD_S_PlaceJetSuccess
+{
+	required int32	dwUserID			= 1;	//下注玩家
+	required int32	cbJettonArea			= 2;	//筹码区域
+	required double lJettonScore			= 3;	//加注数目
+	required bool	bIsAndroid			= 4;	//是否机器人
+	required double lUserScore			= 5;	//玩家当前积分.
+	repeated PlaceJettonScore AllJettonScore	= 6;	//所有下注
+	repeated PlaceJettonScore SelfJettonScore	= 7;	//所有个人下注
+}
+
+// 玩家申请坐庄
+message CMD_S_ApplyBanker
+{
+	required int32 wApplyChairID		= 1;	//申请玩家
+	required int32 lApplyMulti		= 2;	//
+}
+// 玩家申请坐庄
+message CMD_S_ApplyBankerSuccess
+{
+	repeated PlayerListItem players		= 1;	// 玩家列表.
+}
+
+// message for apply banker failed.
+message CMD_S_ApplyBanker_Fail
+{
+	required int32 nErrorCode			= 1;	//
+	optional string szErrorMessage			= 2;	//
+}
+
+// kaipai
+message CMD_S_OpenCard
+{
+	required int32 wApplyChairID		= 1;	//申请玩家
+	required int32 wApplyuserid		= 2;	//申请玩家
+}
+// 取消申请
+message CMD_S_CancelBanker
+{
+	required int32	dwUserID			= 1;	//取消ID
+	required string szCancelUser			= 2;	//取消玩家
+}
+
+
+// 
+message CMD_S_CancelBanker_Fail
+{
+	required int32 nErrorCode			= 1;
+	optional string szErrorMessage			= 2;
+}
+
+
+// 切换庄家
+message CMD_S_ChangeBanker
+{
+	required int32	wBankerChairID		= 1;	//当庄玩家
+	required double	lBankerScore		= 2;	//庄家金币
+}
+
+// 获取玩家列表.
+message CMD_C_PlayerList
+{
+	required int32	nLimitCount			= 1;	//获取数量.
+	optional int32	nBeginIndex			= 2;	//起始下标.
+}
+
+//获取玩家列表返回.
+message PlayerListItem
+{
+	required int32	dwUserID			= 1;	//玩家ID.
+	required int32  headerID			= 2;	//玩家头像.
+	required int32	nVipLevel			= 3;	//玩家VIP等级.
+	required string nickName			= 4;	//玩家昵称.
+	required double lUserScore			= 5;	//玩家当前积分.
+	optional double lTwentyWinScore			= 6;	//20局嬴分值. 在线列表显示用
+	optional int32	lTwentyWinCount			= 7;	//20局嬴次数. 在线列表显示用
+	optional int32	isdivineMath			= 8;	//是否为神算子 (0,1是)
+	optional int32	Index				= 9;	//玩家列表排序 1-8 (排行)
+	optional int32	isBanker			= 10;	//是否是庄家 (0,1)
+	required int32  gender       			= 11; 	// 玩家性别
+	optional int32	isApplyBanker			= 12;	//shi fou qiangzhuan
+	optional int32	ApplyBankerMulti		= 13;
+	optional int32	lJetton				= 14;	//
+	optional string szLocation			= 15;	//登陆地址
+	required int32  HeadBoxID                   	= 16;
+
+}
+message CMD_S_User_Enter
+{
+	required GameDeskInfo	DeskData	= 1;	//桌面数据
+}
+message CMD_S_User_Leave
+{
+	required GameDeskInfo	DeskData	= 1;	//桌面数据
+}
+message CMD_S_User_Reday
+{
+	required int32	dwUserID			= 1;	//玩家ID.
+	required int32	dwChairid			= 2;	//玩家ID.
+}
+				
+
+// 获取玩家在线列表
+message CMD_S_PlayerList
+{
+	required int32 nEndIndex 			= 1;	// End index.
+	required int32 nResultCount			= 2;	// 记录数量.
+	repeated PlayerListItem players		= 3;	// 玩家列表.
+}
+message CardGroup
+{
+	required	int32	group_id	= 1;	// 牌组ID. 2龙 3虎
+	optional	int32	CardType	= 2;	//Card Group Type 
+	repeated 	int32	Cards		= 3;	// 牌组
+}
+
+enum NIUNIU_CARD_GROUP_TYEP
+{
+	BEGIN		=0;
+	NIU0		=1;
+	NIU1		=2;
+	NIU2		=3;
+	NIU3		=4;
+	NIU4		=5;
+	NIU5		=6;
+	NIU6		=7;
+	NIU7		=8;
+	NIU8		=9;
+	NIU9		=10;
+	NIUNIU	=11;
+	TONGHUA	=12;
+	HULUNIU	=13;
+	WUHUANIU	=14;
+	ZHADANGNIU	=15;
+	TONGHUASHUN	=16;
+	WUXIAONIU	=17;
+	END		=18;
+}
+
+
+

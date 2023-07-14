@@ -1,0 +1,583 @@
+syntax = "proto2";
+package Fish;
+
+// gameid = 168 sds
+// gameid = 169 jcfish.
+
+enum SUBID
+{
+	// 客户端命令.
+	SUB_C_EXCHANGE_SCORE = 1;	// 进入游戏时分值同步.	CMD_C_ExchangeScore
+	SUB_C_USER_FIRE = 2;		// 玩家开火.		CMD_C_UserFire
+	SUB_C_FISH_HIT	= 3;    	// 用户击中鱼.		CMD_C_HitFish
+	SUB_C_FISH_LOCK	= 4;    	// 玩家锁定.		CMD_C_LockFish
+	SUB_C_FISH_UNLOCK = 5;  	// 锁定解锁.		CMD_C_UnlockFish
+	SUB_C_SCORE_UP	= 6;    	// 玩家上分.		CMD_C_ScoreUp
+	SUB_C_GAMEPLAY	= 7;    	// 游戏玩法.		CMD_C_Gameplay
+	SUB_C_DYNAMIC_CHAIR = 8;	// 动态换坐.		CMD_C_DynamicChair
+	SUB_C_FROZEN	= 9;		// 定屏炸弹.		CMD_C_Frozen
+	SUB_C_ADDLEVEL	= 10;		// 客户端返回加炮.		CMD_C_AddLevel
+	// 服务端命令.
+	SUB_S_GAME_CONFIG = 100;	// 游戏配置.		CMD_S_GameConfig	
+	SUB_S_GAME_SCENE  = 101;	// 同步场景.		CMD_S_GameScene
+	SUB_S_SCENE_SWITCH= 102;	// 切换场景.		CMD_S_SwitchScene
+	SUB_S_FISH_PRODUCE= 103;	// 游戏出鱼		CMD_S_ProduceFish
+	SUB_S_FISH_ARRAY_PRODUCE = 104; // 鱼阵出鱼.		CMD_S_ProduceFishArray
+	SUB_S_FISH_CATCH  = 105;	// 捕获某鱼		CMD_S_CatchFish
+	SUB_S_FISH_PAUSE  = 106;	// 定屏炸弹.		CMD_S_PauseFish
+	SUB_S_FISH_LOCK   = 107;	// 锁定某鱼		CMD_S_LockFish
+	SUB_S_FISH_UNLOCK = 108;	// 解锁某鱼.		CMD_S_UnlockFish
+	SUB_S_USER_FIRE   = 109;	// 玩家开火.		CMD_S_UserFire
+	SUB_S_SCORE_UP    = 110;	// 玩家上分.		CMD_S_ScoreUp
+	SUB_S_WASH_PERCENT= 111;	// 能量条累积功能.	CMD_S_WashPercent
+	SUB_S_GAMEPLAY	  = 112;    	// 游戏玩法专用指令.	CMD_S_Gameplay
+	SUB_S_EXCHANGE_SCORE = 113; 	// 进入游戏时分值同步.	CMD_S_ExchangeScore
+	SUB_S_SCORE_UP2		= 114;  // 玩家上分2.		CMD_S_ScoreUp2
+	SUB_S_DYNAMIC_CHAIR	= 115;  // 动态换坐.		CMD_S_DynamicChair
+	SUB_S_FROZEN		= 116;  // 冰冻效果		CMD_S_Frozen
+	SUB_S_ADDLEVEL		= 117;  // 服务端返回架炮		CMD_S_AddLevel
+};
+
+
+// 收集玩法.
+message CollectData
+{
+	required int32 collectCount	 = 1; // 收集boss个数(1~8).
+	repeated int32 collectFishId	 = 2; //[COLLECT_COUNT]; // 需收集的所有鱼类型.
+	repeated int32 collectStats	 = 3; // [MAX_PLAYERS]; // 每个玩家当前的收集状态.
+};
+
+// 马上有钱玩法.
+message MsyqData
+{
+	repeated int32 msyqPercent	= 1;	// 每个台位洗码量完成情况
+};
+
+// 
+message PplXmlConfig
+{
+	required int32 fishType		= 1;
+	required int32 fishLife		= 2;	// 打死拍拍乐先得多少分
+};
+
+// 
+message PplRuntimeData
+{
+	required int32 life		= 1;	// 生命
+	required int32 bulletScore	= 2;	// 子弹大小.
+};
+
+message PplData
+{
+	required int32 isPlaying	= 1;	// 玩法状态.
+	required int32 hits		= 2;	// 连击数.
+};
+
+
+// fish type.
+message FishType
+{
+	required int32 type	= 1;
+	required int32 king	= 2;
+}
+
+// fish produce data.
+message FishProduceData
+{
+	required int64 randomSeed				= 1;	//
+	required int32	elapsed					= 2;	// 单位: 0.01秒.
+	// id-12bits typ-5 king-4 shoalType-3 isAlive-1
+	required int32 fishID					= 3;	//
+	required FishType fishType				= 4;	//
+	required int32 isAlive					= 5;	//
+	required int32 soalNum					= 6;	
+	required int32 soalType					= 7;
+	required int32 duration					= 8;
+	required int32 fishlive					= 9;
+};
+
+// zip:鱼群.
+message FishShoalInfo
+{
+	required FishType fishType = 1;
+
+	required int32 genRatio    = 2;
+	required int32 amountMin   = 3;
+	required int32 amountMax   = 4;
+	required int32 allowFollow = 5;
+	required int32 allowLump   = 6;
+};
+
+// zip:鱼游动路径.
+message FishSwimmingParam
+{
+	required int32 pathType		= 1;
+	optional int32 speed		= 2;
+	optional int32 minLength	= 3;
+	optional int32 maxLength	= 4;
+	optional int32 minRotation	= 5;
+	optional int32 maxRotation	= 6;
+};
+
+// zip:鱼游动路径.
+message FishSwimmingPattern
+{
+	required FishType fishType  = 1;
+	required int32 paramDataCount = 2;
+	
+	repeated FishSwimmingParam paramItem = 3;
+};
+
+// zip:基础鱼.
+message FishBasicData
+{
+	required FishType fishType = 1;
+    required int32 lifeMin = 2;
+	required int32 lifeMax = 3;
+//#ifdef __USE_LIFE2__
+    optional int32 life2Min = 4;
+    optional int32 life2Max = 5;
+//#endif
+    required int32 boundingWidth = 6;
+    required int32 boundingHeight = 7;
+};
+
+// 鱼阵1.
+message FishArrayParam1
+{
+	required int32 small_fish_type	= 1;
+	required int32 small_fish_count = 2;
+	required int32 move_speed_small = 3;
+	required int32 move_speed_big	= 4;
+	required int32 space			= 5;
+	repeated int32 big_fish_kind_count = 6;
+	repeated FishType big_fish 		= 7;
+	required int32 big_fish_time 	= 8;
+};
+
+// 鱼阵2.
+message FishArrayParam2
+{
+	required int32 small_fish_type	= 1;
+	required int32 small_fish_count = 2;
+	required int32 move_speed_small = 3;
+	required int32 move_speed_big	= 4;
+
+	required int32 big_fish_count   = 5;
+	required int32 big_fish_kind_count = 6;
+
+	repeated FishType big_fish		= 7;
+	required int32 big_fish_time_interval = 8;
+	required int32 small_fish_time_interval = 9;
+};
+
+// 鱼阵3.
+message CirboomParam
+{
+	required double delay = 1;
+	required int32 fish_type = 2;
+	required int32 count = 3;
+	required int32 move_speed = 4;
+	required int32 radius = 5;
+};
+
+// 鱼阵3.
+message FishArrayParam3
+{
+	required int32 rat_angles = 1;
+	required int32 rot_speed  = 2;
+	required double time_interval = 3;
+	required int32 param_count = 4;
+	
+	repeated CirboomParam param = 5;
+};
+
+// 鱼阵4.
+message FishArrayParam4
+{
+	required int32 param_count  = 1;
+	repeated CirboomParam param = 2;
+};
+
+// 
+message Circle2Param
+{
+	required int32 fish_type	= 1;
+	required int32 count     	= 2;
+	required int32 move_speed 	= 3;
+	required int32 radius 		= 4;
+	required int32 order    	= 5;
+};
+
+// 鱼阵5.
+message FishArrayParam5
+{
+	required int32 rot_angles   = 1;
+	required int32 rot_speed    = 2;
+	required double time_interval = 3;
+	repeated int32 param_count  = 4;
+	repeated Circle2Param param = 5;
+};
+
+// 鱼阵6.
+message CrossoutParam
+{
+	required int32 fish_type	= 1;
+	required int32 count		= 2;
+	required int32 radius 		= 3;
+};
+
+message FishArrayParam6
+{
+	required int32 move_speed	= 1;
+	repeated int32 max_radius	= 2;
+	repeated int32 param_count	= 3;
+	repeated CrossoutParam param= 4;
+};
+
+// 鱼阵7.
+message CenterOutParam 
+{
+	required int32 fish_type 	= 1;
+	required int32 count		= 2;
+	required int32 dirs		= 3;
+	required int32 move_speed	= 4;
+	required double interval 	= 5;
+};
+
+//鱼阵7.
+message FishArrayParam7
+{
+	required int32 param_count	= 1;
+	repeated CenterOutParam param = 2;
+	required double fish_time_delay = 3;
+	required double small_fish_time_interval = 4;
+};
+
+// 鱼阵8.
+message FishArrayParam8
+{
+	required int32 small_fish_type  = 1;
+	required int32 small_fish_count = 2;
+	required int32 move_speed_small = 3;
+
+	required int32 move_speed_big   = 4;
+	repeated int32 big_fish_kind_count = 5;
+	repeated FishType big_fish		= 6;
+	required double big_fish_time_interval = 7;
+	required double small_fish_time_interval = 8;
+};
+
+// 鱼阵合集.
+message FishArrayParam
+{
+	required FishArrayParam1 param1 = 1; 
+	optional FishArrayParam2 param2 = 2; 
+	optional FishArrayParam3 param3 = 3; 
+	optional FishArrayParam4 param4 = 4; 
+	optional FishArrayParam5 param5 = 5; 
+	optional FishArrayParam6 param6 = 6; 
+	optional FishArrayParam7 param7 = 7; 
+	optional FishArrayParam8 param8 = 8; 
+};
+
+// COMMANDS =========================================
+
+message CMD_C_UserFire
+{
+	required int32 lockedFishID = 1;
+	required int32 cannonPower  = 2;
+	required int32 angle = 3;
+	required int32 bulletId = 4;
+};
+
+// 
+message CMD_C_ScoreUp 
+{
+	required int32 inc = 1;
+};
+
+// 
+message CMD_C_HitFish
+{
+	required int32 bulletID 				= 1; // bullet id.
+	repeated int32 fishIDs					= 2; // fish id.
+};
+
+// 
+message CMD_C_Gameplay
+{
+	required int32 gameplayID				= 1;
+	required int32 commandType				= 2;
+};
+
+// 场景配置消息.
+message CMD_S_GameConfig
+{	
+	required int32 version					= 1; // 版本号.
+	required int32 ticketRatio				= 2; // 当前机器的投币比例(渔币).
+	required int32 bulletStrengtheningScale	= 3; // 加炮幅度.
+	required int32 cannonPowerMin			= 4; // 最小炮数.
+	required int32 cannonPowerMax			= 5;				// 最大炮数.
+	required int32 bulletSpeed				= 6;					// 子弹飞行速度.
+	required int32 consoleType				= 7;					// 机台类型.
+	required int32 prizeScore				= 8;					// 爆机分数.
+	required int32 exchangeRatioUserScore	= 9;		// 兑换比率(金币).
+	required int32 exchangeRatioFishScore	= 10;		// 兑换比率(渔币).
+	required int32 decimalPlaces			= 11;				// 小数位数
+	optional int32 exchangeRatio			= 12;				// 1金币=N渔币.
+	repeated int32 exchangeFishScore		= 13;			// [MAX_PLAYERS].
+	repeated int32 fishScore				= 14;					// [MAX_PLAYERS]
+	
+    // 第二套货币系统(勋章).
+// #ifdef __USE_LIFE2__
+	optional int32 exchangeRatioIngot		= 15; // 兑换比率(元宝)
+	optional int32 exchangeRatioScore2		= 16; // 兑换比率(奖券)
+	optional int32 fishScore2				= 17;	// [MAX_PLAYERS]
+	optional int32 exchangeFishScore2		= 18;	// [MAX_PLAYERS];
+//#endif
+
+	required int32 isExperienceRoom			= 19;
+	required int32 isAntiCheatRoom			= 20;
+	required int32 timeOutQuitCheck			= 21;
+	required int32 timeOutQuitMsg			= 22;
+	required int32 fishLockable				= 23;
+	required FishArrayParam fishArrayParam	= 24;
+	required int32 supportedGameplays		= 25; // 支持的玩法ID，最多八个玩法
+	
+    // 动态换坐位玩法.
+//#ifdef __DYNAMIC_CHAIR__
+	repeated int32 dynamicChair			= 26; //[MAX_PLAYERS]; // 游戏中允许换座
+//#endif
+
+//#ifdef __GAMEPLAY_COLLECT__
+	optional CollectData collectData		= 27; // 
+//#endif
+
+//#ifdef __GAMEPLAY_MSYQ__
+	optional MsyqData msyqData				= 28; //
+//#endif
+
+//#ifdef __GAMEPLAY_PAIPAILE__
+	repeated PplData pplData			= 29; // [MAX_PLAYERS];
+	optional PplXmlConfig pplXmlConfig		= 30; // 
+//#endif
+
+};
+
+
+// COMMAND S2C ==========================================
+message CMD_S_ScoreUp
+{
+	required int64 playerScore				= 1;
+	required int32  score					= 2;
+	required int32  type					= 3;
+	required int32  playerID				= 4;
+};
+
+message CMD_S_ScoreUp2
+{
+	required int32 score					= 1;
+	required int32 score2					= 2;
+	required int32 type						= 3;
+	required int32 playerID					= 4;
+};
+
+// Client 带换算一次性合部上分指令.
+message CMD_C_ExchangeScore
+{
+	required int32 userID					= 1;	// userID.
+}
+
+// 带换算一次性合部上分指令.
+message CMD_S_ExchangeScore 
+{
+	required int64 score					= 1;
+	optional int64 ingot					= 2;
+	required int32 inc					= 3;
+	required int32 playerID					= 4;
+};
+
+// 切换场景
+message CMD_S_SwitchScene
+{
+	required int32 sceneID					= 1;
+	required int32 switchTimeLength				= 2;	
+};
+
+// 捕获某条鱼.
+message CMD_S_CatchFish
+{
+	required int32 bulletID					= 1;
+	required int32 playerID					= 2;
+	required int32 cannonPower				= 3; 
+
+	repeated int32 fishIDs					= 4;
+	
+	repeated int32 hitFishID				= 5;
+};
+
+// 暂停鱼的游动
+message CMD_S_PauseFish
+{
+	required int32 pause					= 1;
+};
+
+// 锁定鱼客户端指令
+message CMD_C_LockFish
+{
+	required int32 fishID = 1;
+};
+
+// 锁定鱼的返回
+message CMD_S_LockFish
+{
+	required CMD_C_LockFish c				= 1;
+	required int32 playerID					= 2;
+};
+// 客户端返回加炮指令
+message CMD_C_AddLevel
+{
+	required int32 playerID					= 1;
+	required int32 cannonPower					= 2;
+};
+// 服务端发送加炮指令
+message CMD_S_AddLevel
+{	
+	required int32 playerID					= 1;
+	required int32 cannonPower					= 2;
+};
+// 解锁指定的鱼客户端
+message CMD_C_UnlockFish
+{	
+	required int32 playerID					= 1;
+	required bool bUnlock					= 2;
+}
+
+// 解锁指定的鱼.
+message CMD_S_UnlockFish
+{
+	required int32 playerID					= 1;
+};
+
+// 玩家开炮返回.
+message CMD_S_UserFire
+{
+	required CMD_C_UserFire c				= 1;
+	required int32 playerID					= 2;
+};
+
+// 出鱼指令.
+message CMD_S_ProduceFish
+{
+	required int32 numberOfFishLeaders			= 1;
+	repeated FishProduceData produceFish			= 2;
+	repeated CMD_S_ProduceFishShoal fishShoal		= 3;
+};
+
+// 
+message CMD_S_ProduceFishShoal
+{
+	// it-12bits shoalType-3
+	required int32 fishID					= 1;	//
+	required int32 elapsed					= 2;	// 单位: 0.01秒.
+	required int32 shoalType				= 3;	//
+};
+
+// 产生鱼阵.
+message CMD_S_ProduceFishArray
+{
+	required int64 randomSeed		 = 1;	//
+	// fishID(first)-12bits fishArrayID-bits.
+	required int32 firstFishID		 = 2;	//
+	required int32 fishArrayID		 = 3;	//
+};
+// 玩家信息.
+message CMD_S_PlayerInfo
+{
+	required int64 Scores		=1;
+	required int32 UserID		=2;
+	required int32 ChariID		=3;
+	required string NikeName		=4;
+	required int32 UserStatus	=5;
+
+};
+// 场景消息.
+message CMD_S_GameScene
+{
+	required int32 fishBasicDataCount			= 1;	//
+	required int32 fishSwimmingPatterCount		= 2;	//
+	required int32 fishShoalInfoCount			= 3;	//
+
+	// FishBasicData
+	repeated FishBasicData fishBasicData		= 4;	//
+	
+	// FishSwimmingPattern
+	repeated FishSwimmingPattern fishSwimmingPattern = 5; //
+
+	// FishShoalInfo
+	repeated FishShoalInfo fishShoal = 6;	//
+
+	required CMD_S_GameConfig gameConfig	  = 7;	//
+	optional CMD_S_ProduceFishArray fishArray = 8;	//
+	
+	// pause-1bit sceneID-3bits.
+	required int32 sceneID			= 9;	//
+	required int32 pause			= 10;	//
+
+	// produce fishes.
+	optional CMD_S_ProduceFish fishes	= 11;	// produce fishes.
+	
+	
+	repeated CMD_S_PlayerInfo  Players	= 12;
+	
+	optional float sceneTime=13;
+	
+	repeated int32  livefishs	= 14;
+};
+
+// 海浪比例.
+message CMD_S_WashPercent
+{
+	required int32 washPercent				= 1; // 
+	required int32 playerID					= 2; // 
+};
+
+// 玩法配置.
+message CMD_S_Gameplay
+{
+	required CMD_C_Gameplay c			 	= 1; // 玩法配置
+	required int32 playerID					= 2; // 玩家 ID.
+	
+	optional bytes appData					= 3; // 玩法附加数据.
+};
+
+// 动态换座
+message CMD_C_DynamicChair
+{
+	required int32 newChairID				= 1; // 目标椅子ID.
+};
+
+message CMD_S_DynamicChair
+{
+	required int32 newChairID				= 1; // 目标椅子ID.
+	required int32 playerID					= 2; // 玩家ID.
+};
+
+// 冰冻效果
+message CMD_C_Frozen
+{
+	required bool bFrozen					= 1;
+};
+
+message CMD_S_Frozen
+{
+	required bool bFrozen					= 1;
+}
+
+
+
+
+
+
+

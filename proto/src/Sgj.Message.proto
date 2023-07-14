@@ -1,0 +1,93 @@
+syntax = "proto2";
+package Sgj;
+
+enum SUBID
+{
+	// 服务端推送命令
+	SUB_S_NORMAL 					= 100;
+	SUB_S_MARRY	 					= 101;
+	SUB_S_STATUSFREE				= 102;
+	
+	//客户端命令   	
+	SUB_C_START 					= 103;
+	SUB_C_MARRY  					= 104;
+	SUB_C_ROUND_OVER 				= 105;
+	SUB_C_JACKPOT_REC 				= 106;	//CMD_C_ClientReq
+					
+	//jackpot 
+	SUB_S_JackPot	 				= 130;
+	SUB_S_JackPot_Rec	 			= 131;
+	//错误信息
+	SUB_S_ERROR_INFO				= 150;	//CMD_S_ErrorCode 
+
+	// 服务器场景命令
+	SUB_SC_GAMESCENE_FREE			= 201;	//空闲场景消息CMD_S_StatusFree 
+}
+
+
+message CMD_S_ErrorCode
+{
+	required int32 cbLoseReason 	= 1; 	//错误码
+} 
+
+//彩金分
+message CMD_S_JackPot
+{
+	required int64 TotalJackPot     = 1; 	//总彩金分 
+}
+message CMD_S_JackPot_Rec
+{
+	required string JackPotRecord   = 1; 	//奖池记录 
+}
+
+//场景消息开始，空闲状态
+message CMD_S_GameFree
+{
+	required int64 MinBet 			= 1;	//最低下注 (下注必须是这个数的倍数)
+	required int64 MaxBet 			= 2;	//最大下注
+	required int64 lCurrentBet 		= 3;	//当前下注信息
+	required int64 MyScoreInfo 		= 4;	//分数信息
+	required int64 nLeftNum 		= 5;	//剩余免费旋转次数
+	required int64 nSmallMaryNum 	= 6;	//剩余小玛丽数量
+	required int64 TotalWin 		= 7;	//小玛丽得分
+	repeated int32 BetLists 		= 8;	//押分项列表 
+}
+
+//拉霸开奖结果消息
+message CMD_S_RoundResult 
+{
+	repeated int32 m_Table   		= 1; 	//表盘水果
+    repeated int32 Line 			= 2; 	//连线				
+    repeated int32 TableLight 		= 3; 	//亮起来的图标
+    required int64 Score 			= 4; 	//中了多少分
+	required int64 lCurrentScore 	= 5; 	//当前携带金币
+	required int32 nFreeRoundLeft 	= 6; 	//剩余免费旋转				
+	required int64 lFreeRoundWinScore=7; 	//免费旋转总赢分	
+	required int32 nMarryNum 		= 8; 	//剩余玛丽数量		
+	repeated bool bSpeedUp 			= 9; 	//哪一列要加速
+	required int32 nJackpot 		= 10; 	//获奖金额	
+	required string roundId			= 11; 	//牌局Id 
+}
+
+//小玛丽结束
+message CMD_S_MarryResult
+{
+	required int64 TotalWin   		= 1; 	//总得分
+    required int64 CurrentWin 		= 2; 	//当前赢分
+    required int64 UserScore 		= 3; 	//当前携带金币
+	required int32 Fruit 			= 4; 	//转动水果
+	required int32 nMarryLeft 		= 5; 	//剩余小玛丽 
+	required int32 nMarryNum 		= 6; 	//总共玩多少次小玛丽
+	required string roundId			= 7; 	//牌局Id
+}
+
+//开始按键(拉一盘)
+message CMD_C_GameStart
+{
+	required int64 llBetScore  		= 1; 	//总押分
+}
+message CMD_C_ClientReq
+{
+	required int32 nReqType  		= 1; 	//请求类型
+}
+

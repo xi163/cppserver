@@ -1,0 +1,54 @@
+syntax = "proto2";
+package LuckGame;
+
+enum SUBID
+{
+	//客户端命令   	
+	SUB_C_START 					= 101;  
+
+	//服务端推送命令
+	SUB_S_NORMAL 					= 105;  
+
+
+	//错误信息
+	SUB_S_ERROR_INFO				= 150;	
+			     			
+	//服务器场景命令
+	SUB_SC_GAMESCENE_FREE			= 201;	//空闲场景消息CMD_S_StatusFree 
+}
+
+
+message CMD_S_ErrorCode
+{
+	required int32 nLoseReason 		= 1; 	//错误码
+}
+
+//开始按键
+message CMD_C_GameStart
+{
+	required int32 nBetIndex  		= 1; 	//押分下标
+	required int32 nTypeIndex  		= 2; 	//转盘数值类形下标
+}
+
+
+//场景消息开始，空闲状态
+message CMD_S_GameFree
+{ 
+	required int64 lUserScore 		= 1;	//当前玩家金币  
+	required int64 lCurrentJiFen 	= 2;	//玩家积分 
+	repeated int32 tBetLists 		= 3;	//押分项列表
+	repeated int32 tIconLists 		= 4;	//图标列表
+	repeated int32 tGoldLists 		= 5;	//金币列表
+}
+
+//拉霸开奖结果消息
+message CMD_S_RoundResult 
+{
+    required int64 lScore 			= 1; 	//获奖多少金币
+	required int64 lUserScore 		= 2; 	//当前玩家金币 	 
+	required int64 lCurrentJiFen 	= 3; 	//当前玩家积分	
+	required string cbRoundId		= 4; 	//牌局Id
+}
+ 
+
+

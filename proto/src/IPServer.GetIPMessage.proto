@@ -1,0 +1,17 @@
+syntax = "proto2";
+package IPServer;
+
+import "Game.Common.proto";
+
+
+message GetIPMessage 
+{ 
+    required Game.Common.Header     header = 1;  // ID 
+}
+
+message GetIPMessageResponse
+{
+    required Game.Common.Header     header = 1;  // ID
+    repeated string        ip = 2;				 // 返回的服务器IP或域名.
+}
+

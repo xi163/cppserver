@@ -1,0 +1,348 @@
+syntax = "proto2";
+package ddz;
+// gameid = 5
+
+//逻辑类型
+enum CardType
+{
+    CT_ERROR				=	0			;							//错误类型
+    CT_SINGLE				=	1			;							//单牌类型
+    CT_DOUBLE_CARD			=	2			;							//对牌类型
+    CT_THREE				=	3			;							//三条类型
+    CT_SINGLE_LINE			=	4			;							//单连类型
+    CT_DOUBLE_LINE			=	5			;							//对连类型
+    CT_THREE_LINE			=	6			;							//三连类型
+    CT_THREE_TAKE_ONE		=	7			;							//三带一单
+    CT_THREE_TAKE_TWO		=	8			;							//三带一对
+    CT_FOUR_TAKE_ONE		=	9			;							//四带两单
+    CT_FOUR_TAKE_TWO		=	10			;							//四带两对
+    CT_BOMB_CARD			=	11			;							//炸弹类型
+    CT_MISSILE_CARD			=	12			;							//火箭类型
+};
+
+//底牌类型
+enum DPCardType
+{
+    BCT_GENERAL				=	0			;							//普通类型
+    BCT_FULSH				=	1			;							//顺子类型
+    BCT_STRAIGHT			=	2			;							//同花类型
+    BCT_STRAIGHT_FULSH		=	3			;							//同花顺类型
+    BCT_SINGLE_MISSILE		=	4			;							//单王类型
+    Bdouble_MISSILE		=	5			;							//对王类型
+    BCT_THREE				=	6			;							//三条类型
+};
+
+//叫地主
+enum CALLType
+{
+    CB_NOT_CALL						=	0	;							//没叫地主
+    CB_CALL_BENKER_1				=	1	;							//叫地主1分
+    CB_CALL_BENKER_2				=	2	;							//叫地主2分
+    CB_CALL_BENKER_3				=	3	;							//叫地主3分
+    CB_NO_CALL_BENKER				=	4	;							//不叫地主
+};
+
+//加倍信息
+enum ADDScoreType
+{
+    CB_NOT_ADD_DOUBLE				=	0	;							//没加倍
+    CB_ADD_DOUBLE					=	1	;							//加倍标志
+    CB_NO_ADD_DOUBLE				=	2	;							//不加倍
+};
+//胜负信息
+enum GAMEEndType
+{
+    GAME_WIN						=	0	;							//胜
+    GAME_LOSE						=	1	;							//负
+};
+	
+//场景消息
+enum  SUBID
+{
+//场景消息
+    SC_GAMESCENE_FREE		=			201	;						//空闲场景消息
+    SC_GAMESCENE_CALL		=			202	;						//叫地主状态
+    SC_GAMESCENE_PLAY		=			203	;						//游戏中场景消息
+    SC_GAMESCENE_END		=			204	;						//游戏结束
+    SC_GAMESCENE_DOUBLE		=			205	;						//加倍场景
+//服务器命令结构	
+	SUB_S_GAME_START		=	100				;						//游戏开始
+    SUB_S_CALL_BANKER		=	101				;						//叫地主
+    SUB_S_BANKER_INFO		=	102				;						//庄家信息
+    SUB_S_OUT_CARD			=	103				;						//用户出牌
+    SUB_S_PASS_CARD			=	104				;						//用户放弃
+    SUB_S_OUT_START_START	=	105				;						//开始出牌
+    SUB_S_GAME_CONCLUDE		=	106				;						//游戏结束
+    SUB_S_CLEARING			=	107				;						//牌局结算
+    SUB_S_TRUSTEE			=	108				;						//托管
+    SUB_S_ADD_DOUBLE		=	109				;						//加倍[CMD_S_Double]
+    SUB_S_CHEAT_LOOK_CARD	=	110				;						//看牌	
+//客户端往服务器端发消息(C->S)
+	SUB_C_CALL_BANKER		=	1				;					//用户叫地主
+    SUB_C_OUT_CARD			=	2				;					//用户出牌
+    SUB_C_PASS_CARD			=	3				;					//用户放弃
+    SUB_C_TRUSTEE			=	4				;					//用户托管
+    SUB_C_CANCEL_TRUSTEE	=	5				;					//用户取消托管
+    SUB_C_ADD_DOUBLE		=	6				;					//用户加倍[CMD_C_Double]
+    SUB_C_CHEAT_LOOK_CARD	=	7				;					//作弊看牌	
+	SUB_C_GAMESCENE			=	8				;					//获取牌型
+};
+
+
+
+   
+    
+
+//空闲状态
+message CMD_S_StatusFree
+{
+	//游戏属性
+	required double					dCellScore=1;							//基础积分
+	required  int32						dwCurrPlayCount=2;
+
+};
+
+//叫地主状态
+message CMD_S_StatusCall
+{
+	//时间信息
+	required  int32							cbLeftTime=1;							//剩余时间
+
+	//游戏信息
+	required double						dCellScore=2;							//单元积分
+	required int32							wCurrentUser=3;						//当前玩家
+	repeated int32							cbCallBankerInfo=4;		//叫地主信息	
+	repeated int32							cbHandCardData=5;		//手上扑克
+	repeated int32							cbTrustee=6;				//是否托管
+};
+
+//加倍状态
+message CMD_S_StatusDouble
+{
+	//游戏信息
+	required int32							cbLeftTime=1;							//剩余时间
+	required int32							cbCallScore=2;						//叫分
+	required double						dCellScore=3;							//单元积分
+	required int32							wBankerUser=4;						//庄家用户
+	required int32							wCurrTime=5;							//当前倍数
+	repeated int32							cbDoubleInfo=6;			//加倍信息
+	repeated int32							cbBankerCard=7;					//游戏底牌
+	repeated int32							cbHandCardCount=8;		//扑克数目
+	repeated int32							cbHandCardData=9;			//手上扑克
+	repeated int32							cbTrustee=10;				//是否托管
+};
+
+//游戏状态
+message CMD_S_StatusPlay
+{
+	//时间信息
+	required int32							cbLeftTime=1;								//剩余时间
+	//游戏变量
+	required double						dCellScore=2;								//单元积分
+	required int32						dwBankerUser=3;							//庄家用户
+	required int32						dwCurrentUser=4;							//当前玩家
+
+	required int32							cbCallScore=5;							//叫分
+	required int32						dwBombTime=6;								//炸弹倍数(地主*2)
+	repeated int32							cbAddDoubleInfo=7;			//加倍信息
+
+	//出牌信息
+	required int32							wTurnWiner=8;								//出牌玩家
+	required int32							cbTurnCardCount=9;						//出牌数目
+	repeated int32							cbTurnCardData=10;				//出牌数据
+
+	//扑克信息
+	repeated int32							cbBankerCard=11;						//游戏底牌
+	repeated int32							cbHandCardCount=12;			//扑克数目
+	repeated int32							cbHandCardData=13;				//手上扑克
+	repeated int32							cbOutCount=14;				//出牌次数
+	repeated int32							cbOutCardListCount=15;			//每次出牌张数
+	repeated int32							cbOutCardList=16;	//出牌列表
+	//int32							cbRemainCard[MAX_CARD_VALUE];			//剩余牌数据
+
+	repeated int32							cbTrustee=17;					//是否托管
+};
+
+//游戏结束
+message CMD_S_StatusEND
+{
+	required double					dCellScore=1;									//基础积分
+	required int32						wCurrPlayCount=2;								//当前局数
+	required int32						cbTimeLeave=3;								//剩余时间
+																			//扑克信息
+	repeated int32						cbBankerCard=4;							//游戏底牌
+	repeated int32						cbHandCardCount=5;				//扑克数目
+	repeated int32						cbHandCardData=6;					//手上扑克
+};
+
+
+//发送扑克
+message CMD_S_GameStart
+{
+	required int32						dwStartUser=1;							//开始玩家
+	required int32				 		dwCurrentUser=2;							//当前玩家
+	required int32						dwStartTime=3;							//初始倍数
+	repeated int32							cbCardData=4;				//扑克列表
+	required int32							cbTimeLeft=5;								//剩余时间
+	repeated int32							cbCardData0=6;				//回放扑克列表 椅子0
+	repeated int32							cbCardData1=7;				//回放扑克列表 椅子1
+	repeated int32							cbCardData2=8;				//回放扑克列表 椅子2
+};
+
+message CMD_S_GameStartAi
+{
+	required int32						dwStartUser=1;							//开始玩家
+	required int32				 		dwCurrentUser=2;							//当前玩家
+	required int32						dwStartTime=3;							//初始倍数
+	repeated int32							cbCardData=4;	//扑克列表
+	repeated int32							cbBankerCard=5;						//底牌
+};
+
+//用户叫地主
+message CMD_S_CallBanker
+{
+	required int32				 		dwCurrentUser=1;							//当前玩家
+	required int32				 		dwBankerUser=2;							//庄家玩家
+	required int32						dwLastUser=3;								//下一个叫地主玩家
+	required int32							cbCallInfo=4;								//叫地主分数
+	required int32							cbTimeLeft=5;								//剩余时间
+};
+
+//加倍信息
+message CMD_S_Double
+{
+	required int32						dwCurrentUser=1;						//当前用户
+	required int32							cbDouble=2;							//是否加倍(0 未操作 1 加倍 2 不加倍)
+	required int32							wUserTimes=3;							//用户倍数
+};
+
+//开始出牌信息
+message CMD_S_StartOutCard
+{
+	required int32				 		dwBankerUser=1;						//庄家玩家
+	required int32				 		dwCurrentUser=2;						//当前玩家
+	required int32							cbLeftTime=3;							//剩余时间
+};
+
+//庄家信息
+message CMD_S_BankerInfo
+{
+	required int32				 		dwBankerUser=1;						//庄家玩家
+	required int32				 		dwCurrentUser=2;						//当前玩家
+	repeated int32							cbBankerCard=3;					//庄家扑克
+	required int32							cbTimeLeft=4;							//剩余时间
+};
+
+//用户出牌
+message CMD_S_OutCard
+{
+	required int32							cbTimeLeft=1;							//剩余时间
+	required int32							cbCardCount=2;						//出牌数目
+	required int32				 		dwCurrentUser=3;						//当前玩家
+	required int32						dwOutCardUser=4;						//出牌玩家
+	required int32							wUserTimes=5;							//用户倍数
+	repeated int32							cbCardData=6;				//扑克列表
+	required int32                          Msgid=7;                  //消息ID编号
+};
+
+//放弃出牌
+message CMD_S_PassCard
+{
+	required int32							cbTurnOver=1;							//一轮结束
+	required int32				 		dwCurrentUser=2;						//当前玩家
+	required int32				 		dwPassCardUser=3;						//放弃玩家
+	required int32							cbTimeLeft=4;
+	required int32                          Msgid=5;                  //消息ID编号
+};
+
+//作弊看牌
+message CMD_S_CheatLookCard
+{
+	required int32							wCardUser=1;							//看牌用户
+	required int32							cbCardCount=2;						//出牌数目
+	repeated int32							cbCardData=3;				//扑克列表
+};
+
+//游戏结束
+message DDZ_CMD_S_GameEnd
+{
+	//积分变量
+	//double						dCellScore;							//单元积分
+	required int32							cbCallScore=1;						//叫分
+	repeated double						dGameScore=2;			//游戏积分
+	repeated int32							bLose=3;					//胜负标志							
+
+	//春天标志
+	required int32							bChunTian=4;							//春天标志
+	required int32							bFanChunTian=5;						//春天标志
+	required int32							bWinMaxScore=6;						//是否达到赢钱封顶
+
+	//炸弹信息
+	required int32							cbBombTimes=7;						//炸弹倍数(不包括火箭)
+	required int32							cbMissileTimes=8;						//火箭倍数
+	repeated int32							cbDoubleInfo=9;			//加倍信息
+
+	//游戏信息
+	repeated int32							cbCardCount=10;				//扑克数目
+	repeated int32							cbHandCardData=11;	//扑克列表
+};
+
+//牌局结算
+message DDZ_CMD_S_CLEARING
+{
+	repeated double					llTotalLWScore=1;			//各玩家总输赢分d
+	required int32						wRoomOwner=2;								//房主
+	
+	repeated int32						cbRombCount=3;				//各玩家炸弹个数
+	
+	required string						szCurTime=4;					//当前时间
+	required int32						wCurrPlayCount=5;							//当前局数
+	repeated int32						wPlayWinCount=6;				//赢局数
+	repeated int32						wPlayLoseCount=7;			//输局数
+};
+
+
+//游戏托管
+message CMD_S_StatusTrustee
+{
+	repeated int32						cbTrustee=1;					//托管信息
+};
+
+
+//用户地主
+message CMD_C_CallBanker  
+{
+	required int32							cbCallInfo=1;							//叫地主
+};
+
+//用户加倍
+message CMD_C_Double  
+{
+	required int32							cbDoubleInfo=1;						//加倍信息(1：加倍 2：不加倍)
+};
+
+//用户出牌
+message CMD_C_OutCard  
+{
+	required int32							cbCardCount=1;						//出牌数目
+	repeated int32							cbCardData=2;				//扑克数据
+};
+
+//用户托管
+message CMD_C_Trustee  
+{
+	required int32							wChairID=1;							//托管玩家id
+};
+
+//用户取消托管
+message CMD_C_CancelTrustee  
+{
+	required  int32							wChairID=1;							//取消托管玩家id
+};
+
+
+//用户看牌
+message CMD_C_CheatLookCard  
+{
+	required int32							wBeCheatChairID=1;					//被偷看玩家椅子ID
+};

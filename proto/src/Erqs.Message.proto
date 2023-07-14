@@ -1,0 +1,309 @@
+syntax = "proto2";
+package Erqs;
+
+//gameid = 740
+
+// 牌定义
+// 0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09, // 1-9万
+// 0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19, // 1-9条/
+// 0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29, // 1-9筒
+// 0x31,0x32,0x33,0x34,0x35,0x36,0x37, // 东西南北中发白
+// 0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48  //春夏秋冬 梅兰竹菊
+
+// 选项值定义
+// left_chi = 1 << 1, //2
+// center_chi = 1 << 2, //4
+// right_chi = 1 << 3, //8
+// peng = 1 << 4, //16
+// an_gang = 1 << 5, //32
+// dian_gang = 1 << 6, //64
+// jia_gang = 1 << 7, //128
+// ting = 1 << 8, //256
+// hu = 1 << 9 //512
+
+// 牌型定义
+// 1:大四喜, 2:小四喜, 3:大三风, 4:小三风, 5:大三元, 6:小三元, 7:双箭刻, 8:箭刻, 9:四杠, 10:三杠,
+// 11:双暗杠, 12:双明杠, 13:暗杠, 14:明杠, 15:四暗刻, 16:三暗刻, 17:双暗刻, 18:四连刻, 19:三连刻, 20:四字刻,
+// 21:四步高, 22:三步高, 23:一般高, 24:四同顺, 25:三同顺, 26:双龙会, 27:老少副, 28:混幺九, 29:全带幺, 30:断幺,
+// 31:字一色, 32:清一色, 33:混一色, 34:清龙, 35:连六, 36:大于五, 37:小于五, 38:全求人, 39:不求人, 40:大七星,
+// 41:连七对, 42:三元七对子, 43:四喜七对子, 44:七对子, 45:九莲宝灯, 46:碰碰和, 47:平和, 48:四归一, 49:门前清, 50:边张,
+// 51:砍张, 52:单钓将, 53:天胡, 54:地胡, 55:人胡, 56:天听, 57:全花, 58:妙手回春, 59:海底捞月, 60:杠上开花,
+// 61:抢杠胡, 62:和绝张, 63:自摸, 64:花牌, 65:报听,
+
+
+enum SUBID
+{
+ //客户端消息
+ SUB_C_OUT_CARD = 1; //出牌 CMD_C_OutCard
+ SUB_C_CHI = 2; //吃 CMD_C_Chi
+ SUB_C_PENG = 3; //碰 CMD_C_Null
+ SUB_C_GANG = 4; //杠 CMD_C_Gang
+ SUB_C_PASS = 5; //过 CMD_C_Null
+ SUB_C_TING = 6; //听 CMD_C_Ting
+ SUB_C_HU = 7; //胡 CMD_C_Null
+ SUB_C_GIVEUP_TIMEOUT_OP = 8;  //防超时弃牌操作 CMD_C_GiveUpTimeOutOp
+ SUB_C_HOSTING = 9;	//托管 CMD_C_Hosting
+
+ //场景消息
+ SUB_SC_GAMESCENE_FREE = 201; //空闲场景消息 CMD_S_GameSceneFree
+ SUB_SC_GAMESCENE_PLAY = 202; //游戏中场景消息 CMD_S_GameScenePlay
+ SUB_SC_GAMESCENE_END = 203; //游戏结束 CMD_S_GameSceneEnd
+
+ //服务端消息
+ SUB_S_GAME_START = 100; //游戏开始 CMD_S_GameStart
+ SUB_S_REPLACE_HUA = 101; //补花 CMD_S_ReplaceHua
+ SUB_S_OUT_CARD = 102; //出牌 CMD_S_OutCard
+ SUB_S_CHI = 103; //吃 CMD_S_Chi
+ SUB_S_PENG = 104; //碰 CMD_S_Peng
+ SUB_S_GANG = 105; //杠 CMD_S_Gang
+ SUB_S_PASS = 106; //过 CMD_S_Pass
+ SUB_S_TING = 107; //听 CMD_S_Ting
+ SUB_S_OPTIONS = 108; //操作选项(吃碰杠胡) CMD_S_Options
+ SUB_S_GAME_ROUND = 109; //游戏回合 CMD_S_GameRound
+ SUB_S_GAME_END = 110; //游戏结束 CMD_S_GameEnd
+ SUB_S_NOTIFY = 111; //操作错误提示 CMD_S_Notify
+ SUB_S_GIVEUP_TIMEOUT_OP = 112; //防超时弃牌应答 CMD_S_GiveUpTimeOutOp
+ SUB_S_HOSTING = 113; //托管 CMD_S_Hosting
+
+ //服务端机器人消息
+ SUB_S_ANDROID_AI_LV = 130; //机器人ai级别 CMD_S_Android_AiLv
+
+ //客户端测试消息
+ SUB_C_LETF_CARDS = 30; //剩余的牌 CMD_C_Null [出牌玩家才能启动换牌功能]
+ SUB_C_REPLACE_CARD = 31; //换牌 CMD_C_ReplaceCard [出牌玩家才能启动换牌功能]
+
+ //服务端测试消息
+ SUB_S_LEFT_CARDS = 150; //剩余的牌 CMD_S_LeftCards
+ SUB_S_REPLACE_CARD = 151; //换牌 CMD_S_ReplaceCard
+}
+
+//----------------------------消息结构体start----------------------------------
+//吃碰杠
+message ChiPengGang
+{
+ required int32 type = 1; //类型
+ repeated int32 cards = 2; //牌 [0=不可见牌, 其他=有效值]
+ required int32 targetCard = 3; //目标牌 [-1=无效值，其他=有效值]
+ required int32 targetChair = 4; //目标座位 [-1=无效值，其他=有效值]
+}
+
+//胡牌
+message MsgHuCard
+{
+ required int32 card = 1; //牌
+ optional int32 num = 2; //数目 [废弃-现由客户端统计]
+ required int32 times = 3; //倍数
+}
+
+//听
+message MsgTingInfo {
+ required int32 outCard = 1; //出牌 [-1:闲家天听 正常值:庄家天听 报听]
+ repeated MsgHuCard huCards = 2; //胡牌
+};
+
+ //玩家信息
+message Player
+{
+ required int32 chairId = 1; //位置ID
+ required int64 userId = 2; //用户id
+ required int64 score = 3; //分数
+ repeated int32 handCards = 4; //玩家手牌 [0=不可见牌, 其他=有效值]
+ repeated int32 outCards = 5; //玩家出牌
+ repeated ChiPengGang cpgs = 6; //吃碰杠
+ repeated int32 huaCards = 7; //花牌
+ required bool hosting = 8; //是否托管
+ required bool ting = 9; //是否听
+ repeated MsgHuCard huCards = 10; //听牌后要胡的牌
+};
+//----------------------------消息结构体end----------------------------------
+
+//----------------------------客户端消息start----------------------------------
+//防超时弃牌
+message CMD_C_GiveUpTimeOutOp
+{
+ required int32 mask = 1; //1超时自动押注2自动跟注
+};
+//出牌
+message CMD_C_OutCard
+{
+ required int32 card = 1; //牌
+};
+//吃
+message CMD_C_Chi
+{
+ repeated int32 cards = 1; //牌
+};
+//杠
+message CMD_C_Gang
+{
+ repeated int32 cards = 2; //牌
+};
+//听 [听牌不发CMD_C_OutCard]
+message CMD_C_Ting
+{
+ required int32 card = 1; //牌 [-1:闲家天听 正常牌值:庄家天听，报听]
+}
+//托管
+message CMD_C_Hosting
+{
+ required bool hosting = 1; //是否托管
+}
+message CMD_C_NULL
+{
+};
+//----------------------------客户端消息end----------------------------------
+
+//----------------------------场景消息start----------------------------------
+//空闲状态
+message CMD_S_GameSceneFree
+{
+
+};
+//游戏状态
+message CMD_S_GameScenePlay
+{
+ required string roundId = 1; //牌局id
+ required int64 cellScore = 2; //底注
+ required int32 leftCardNum = 3; //剩余牌数
+ required int32 bankerChairId = 4; //庄家座位
+ repeated Player players = 5; //玩家列表
+ repeated int32 dices = 6; //骰子
+ repeated int32 cardWall = 7; //牌墙 [牌墙从庄家右手边起 0=起始索引，1=结束索引]
+};
+//空闲状态
+message CMD_S_GameSceneEnd
+{
+ required int32 waitTime = 1; //等待时间
+};
+//----------------------------场景消息end----------------------------------
+
+//----------------------------服务端消息start----------------------------------
+//游戏开始
+message CMD_S_GameStart
+{
+ required string roundId = 1; //牌局id
+ required int64 cellScore = 2; //底注
+ required int32 leftCardNum = 3; //剩余牌数
+ required int32 bankerChairId = 4; //庄家座位
+ repeated Player players = 5; //玩家列表
+ repeated int32 dices = 6; //骰子
+ repeated int32 cardWall = 7; //牌墙 [牌墙从庄家右手边起 0=起始索引，1=结束索引]
+};
+//补花
+message CMD_S_ReplaceHua
+{
+    required int32 chairId = 1; //座位
+    repeated int32 huaCards = 2; //花牌
+    repeated int32 replaceCards = 3; //补的牌
+}
+//出牌
+message CMD_S_OutCard
+{
+ required int32 chairId = 1; //座位
+ required int32 card = 2; //牌
+}
+//吃
+message CMD_S_Chi
+{
+ required int32 chairId = 1; //座位
+ required ChiPengGang cpg = 2; //吃碰杠
+}
+//碰
+message CMD_S_Peng
+{
+ required int32 chairId = 1; //座位
+ required ChiPengGang cpg = 2; //吃碰杠
+}
+//杠
+message CMD_S_Gang
+{
+ required int32 chairId = 1; //座位
+ required ChiPengGang cpg = 2; //吃碰杠
+}
+//过
+message CMD_S_Pass
+{
+ required int32 chairId = 1; //座位
+}
+//听
+message CMD_S_Ting
+{
+ required int32 chairId = 1; //座位
+ required bool tianTing = 2; //是否天听
+ required int32 card = 3; //牌 [-1:闲家天听不出牌 正常牌值:庄家天听或报听出的牌]
+ repeated MsgHuCard huCards = 4; //胡牌
+}
+//游戏选项
+message CMD_S_Options
+{
+ required int32 chairId = 1; //座位 [用于AI]
+ required int32 option = 2; //选项
+ required int32 optionTime = 3; //剩余操作选项时间 [0=无效值，其他=有效值]
+ repeated ChiPengGang optionalCpgs = 4; //吃碰杠列表
+ repeated MsgTingInfo tingInfos = 5; //听
+}
+//游戏回合
+message CMD_S_GameRound
+{
+ required int32 chairId = 1; //座位
+ required int32 card = 2; //牌 [-1=无效牌, 0=不可见牌, 其他=有效值]
+ required int32 roundTime = 3; //剩余回合时间
+ repeated int32 cardWall = 4; //牌墙 [牌墙从庄家右手边起 0=起始索引，1=结束索引]
+}
+//防超时弃牌
+message CMD_S_GiveUpTimeOutOp
+{
+ required int32 mask = 1; //1超时自动押注2自动跟注
+};
+//游戏结束
+message CMD_S_GameEnd
+{
+ repeated Player players = 1; //玩家列表
+ repeated int32 composeTypes = 2; //牌型
+ required int32 winChairId = 3; //赢家座位 [-1=流局, 其他=赢家座位]
+ optional int32 times = 4; //总番数
+ optional bool isZiMo = 5; //是否自摸
+}
+//消息提示
+message CMD_S_Notify
+{
+ required string strNotify = 1;
+}
+//托管
+message CMD_S_Hosting
+{
+ required int32 chairId = 1; //座位
+ required bool hosting = 2; //是否托管
+}
+//----------------------------服务端消息end----------------------------------
+
+//---------------------------服务器机器人消息start-----------------------------
+message CMD_S_Android_AiLv
+{
+ required int32 lv = 1; //ai 级别
+}
+//---------------------------服务器机器人消息end-----------------------------
+
+//---------------------------客户端测试消息start-----------------------------
+//换牌
+message CMD_C_ReplaceCard
+{
+ repeated int32 originCard = 1; //手牌
+ repeated int32 targetCard = 2; //目标牌
+}
+//----------------------------客户端测试消息end----------------------------------
+
+//----------------------------服务端测试消息start--------------------------------
+//剩余的牌
+message CMD_S_LeftCards
+{
+ repeated int32 cards = 1; //牌列表
+ optional string serverInfo = 2; //服务器信息
+}
+//换牌
+message CMD_S_ReplaceCard
+{
+ repeated int32 originCard = 1; //手牌
+ repeated int32 targetCard = 2; //目标牌 
+}
+//----------------------------服务端测试消息end----------------------------------

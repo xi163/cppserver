@@ -1,0 +1,183 @@
+syntax = "proto2";
+package Tbnn;
+
+enum SUBID
+{
+//场景消息
+  SC_GAMESCENE_FREE				=		201	;						//空闲场景消息
+  SC_GAMESCENE_SCORE			=		203	;						//下注场景消息
+  SC_GAMESCENE_OPEN				=		204	;						//开牌场景消息
+  SC_GAMESCENE_END				=		205	;						//游戏结束
+
+//服务器命令结构
+  NN_SUB_S_GAME_START				=		100	;						//游戏开始
+  NN_SUB_S_ADD_SCORE_RESULT			=		103	;						//下注结果[NN_CMD_S_AddScoreResult]
+  NN_SUB_S_SEND_CARD				=		104	;						//发牌消息[NN_CMD_S_SendCard]
+  NN_SUB_S_OPEN_CARD_RESULT			=		105	;						//开牌结果[NN_CMD_S_OpenCardResult]
+  NN_SUB_S_GAME_END                 =		106	;						//游戏结束[NN_CMD_S_GameEnd]
+  NN_SUB_S_OPERATE_FAIL				=		107	;						//操作失败
+  NN_SUB_S_GAME_START_AI            =       108 ;
+
+//客户端往服务器端发消息(C->S)
+  NN_SUB_C_ADD_SCORE				=		2	;						//下注消息[NN_CMD_C_AddScore]
+  NN_SUB_C_OPEN_CARD				=		3	;						//开牌消息[空消息]
+}
+
+
+//空闲状态
+message NN_MSG_GS_FREE
+{
+	required 	double						dCellScore=1;				//基础积分
+	required	int32						cbReadyTime=2;				//准备时间
+	repeated	int32						cbJettonMultiple=3;			//下注倍数
+	optional 	int32						dwUserID=4;
+	optional	string						szNickName=5;
+	optional	int32						szHeadUrl=6;
+	optional	string						szLocation=7;
+	optional	int32						cbHeadIndex=8;
+	optional	int32						cbGender=9;
+	optional	int32						cbVipLevel=10;
+	optional	int32						cbVipLevel2=11;
+	optional	double						llScore=12;
+	optional	int32						wTableID=13;
+	optional	int32						wChairID=14;
+	optional	int32						usStatus=15;
+};
+
+//下注状态
+message NN_MSG_GS_SCORE
+{
+	required 	double						dCellScore=1;				//基础积分
+	required	int32						cbTimeLeave=2;				//剩余时间
+	repeated	int32						cbPlayStatus=3;				//游戏中玩家(1打牌玩家)
+	repeated	int32						cbUserJettonMultiple=4;			//闲家下注倍数(0表示还没有下注)
+	repeated	int32						cbJettonMultiple=5;			//下注倍数
+	optional 	int32						dwUserID=6;
+	optional	string						szNickName=7;
+	optional	int32						szHeadUrl=8;
+	optional	string						szLocation=9;
+	optional	int32						cbHeadIndex=10;
+	optional	int32						cbGender=11;
+	optional	int32						cbVipLevel=12;
+	optional	int32						cbVipLevel2=13;
+	optional	double						llScore=14;
+	optional	int32						wTableID=15;
+	optional	int32						wChairID=16;
+	optional	int32						usStatus=17;
+	optional 	string 			roundId   = 18;
+};
+
+//开牌状态
+message NN_MSG_GS_OPEN
+{
+	required 	double						dCellScore=1;				//基础积分
+	required	int32						cbTimeLeave=2;				//剩余时间
+	repeated	int32						cbPlayStatus=3;				//游戏中玩家(1打牌玩家)
+	required	int32						wWinUser=4;				//赢家用户
+	repeated	int32						cbIsOpenCard=6;				//是否开牌
+	repeated	int32						cbCardType=7;				//牌型
+	repeated	int32						cbCardData=8;				//牌数据
+	repeated	int32						cbHintCard=9;				//牌数据(前三张牛牛，后两张点数)
+	repeated	int32						cbUserJettonMultiple=10;		//闲家下注倍数
+
+	repeated	int32						cbJettonMultiple=11;			//下注倍数
+	optional 	int32						dwUserID=12;
+	optional	string						szNickName=13;
+	optional	int32						szHeadUrl=14;
+	optional	string						szLocation=15;
+	optional	int32						cbHeadIndex=16;
+	optional	int32						cbGender=17;
+	optional	int32						cbVipLevel=18;
+	optional	int32						cbVipLevel2=19;
+	optional	double						llScore=20;
+	optional	int32						wTableID=21;
+	optional	int32						wChairID=22;
+	optional	int32						usStatus=23;
+	optional 	string 	roundId   = 24;
+};
+
+
+//游戏开始
+message NN_CMD_S_GameStart
+{
+	repeated	int32					cbPlayStatus=1;					//用户状态(1打牌玩家)
+	required	int32					cbAddJettonTime=2;			//下注时间
+	repeated	int32					cbJettonMultiple=3;			//下注倍数
+	required 	string 				roundId   = 4;
+};
+
+//下注结果
+message NN_CMD_S_AddScoreResult
+{
+  required	int32						wAddJettonUser=1;										//下注玩家
+	required	int32						cbJettonMultiple=2;										//下注倍数
+};
+
+//发牌结果
+message NN_CMD_S_SendCard 
+{
+	repeated	int32						cbSendCard=1;									//本家牌数据
+    repeated	int32						cbOxCard=2;                                     //提牌数据
+	required	int32						cbCardType=3;												//牌型
+	required	int32						cbOpenTime=4;												//开牌时间
+};
+
+//开牌结果
+message NN_CMD_S_OpenCardResult
+{
+	required	int32						wOpenCardUser=1;											//开牌玩家
+	required	int32						cbCardType=2;												//牌型
+	repeated	int32						cbCardData=3;									//牌数据
+	repeated	int32						cbOxCardData=4;								//牌数据(前三张牛牛，后两张点数)
+	//对应牌型: (0:无牛;1:牛一;2:牛二;3:牛三;4:牛四;5:牛五;6:牛六;7:牛七;8:牛八;9:牛九;10:牛牛;11:银牛;12:金牛;13:炸弹;14:五小牛)
+};
+
+//游戏结算
+message NN_CMD_S_GameEnd
+{
+	repeated	double						dLWScore=1;									//输赢分
+	repeated 	double						dTotalScore=2;								//结算后的分数
+};
+
+
+//下注
+message NN_CMD_C_AddScore  
+{
+	required	int32						cbJettonIndex=2;										//倍数索引
+};
+
+message CMD_S_GameStartAi
+{
+    required int32							cbOXCardData = 1;	//扑克列表
+    required int32                          isMaxCard    = 2;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//玩家手牌
+message HandCards
+{
+	optional int32 ty        = 1; //牌型
+	optional bytes cards     = 2; //手牌
+	optional int32 multi     = 3; //牌型倍数
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//当局游戏记录详情
+message PlayerRecordDetail {
+	optional string account      = 1; //账号/昵称
+	optional int32 chairId       = 2; //座椅ID
+	optional int32 isbanker      = 3; //是否庄家
+	optional HandCards handcards = 4; //手牌数据
+	optional int64 userscore     = 5; //携带积分
+	optional int32 cellscore     = 6; //房间底注
+	optional int32 multi         = 7; //下注/抢庄倍数
+	optional int32 calcMulti     = 8; //牌局倍数
+	optional int32 winLostScore  = 9; //输赢积分
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//当局游戏记录详情
+message CMD_S_GameRecordDetail {
+	optional int32 gameid              = 1; //游戏类型
+	repeated PlayerRecordDetail detail = 2; //当局记录详情
+}

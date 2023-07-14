@@ -1,0 +1,334 @@
+syntax = "proto2";
+package Blackjack;
+
+// gameid = 600
+
+enum SUBID
+{
+	//客户端命令
+	SUB_C_ADD_SCORE		= 1;						// 用户下注   			// CMD_C_AddScore
+	SUB_C_INSURE		= 2;						// 买保险   			// CMD_C_Insure
+	SUB_C_OPERATE		= 3;						// 用户操作   			// CMD_C_Operate
+	SUB_C_END_SCORE		= 4;
+
+	// 服务器场景命令
+	SUB_SC_GAMESCENE_FREE		= 201;				//空闲场景消息		   	// CMD_S_StatusFree
+	SUB_SC_GAMESCENE_SCORE		= 202;				//下注场景消息			// CMD_S_StatusScore
+	SUB_SC_GAMESCENE_INSURE		= 203;				//游戏保险场景消息		// CMD_S_StatusInsure
+	SUB_SC_GAMESCENE_PLAY		= 204;				//游戏中场景消息		// CMD_S_StatusPlay
+	SUB_SC_GAMESCENE_END     	= 205;				//CMD_S_StatusEnd
+	
+	// 服务端推送命令
+	SUB_S_GAME_START			= 100;				//游戏开始			// CMD_S_GameStart
+	SUB_S_ADD_SCORE				= 101;				//下注结果			// CMD_S_AddScore
+	SUB_S_DEAL_CARD				= 102;				//下注之后发牌		// CMD_S_DealCard
+	SUB_S_INSURE				= 103;				//玩家购买保险		// CMD_S_Insure
+	SUB_S_INSURE_RESULT			= 104;				//庄家确认保险结果  //	CMD_S_Insure_Result		 
+	SUB_S_OPERATE				= 105;				//通知玩家操作		// CMD_S_Operate
+	SUB_S_OPER_RESULT			= 106;				//玩家操作结果		// CMD_S_Oper_Result
+	SUB_S_BANKER_DEAL			= 107;				//庄家要牌			// CMD_S_Banker_Deal
+	SUB_S_GAME_END 				= 108;				//游戏结束			// CMD_S_GameEnd
+	SUB_S_GAME_START_AI         = 109 ;
+	SUB_S_END_SCORE				= 110;//CMD_S_EndScore
+					
+
+	SUB_S_ANDROID_CARD			= 120;				//智能消息			// CMD_S_AndroidCard
+
+	//错误信息
+	SUB_S_ERROR_INFO			= 150;			//CMD_S_ErrorInfo
+}
+
+message HJK_PlayerItem
+{
+	required int32 cbChairId 	=1;			//位置ID
+	required string szNickName = 2;
+	required int32 cbPlayStatus	=3;			//玩家的游戏状态
+	required bool bShadow		=4;			//是否是别人押了的空位置
+	optional int64 wUserId 		=5;			//位置ID
+	optional int32	cbHeadIndex =6;
+	optional int64	llScore 	=7;
+	optional string	szLocation	=8;
+	optional HandItem cbFirstHand = 9;		//第一手牌
+	optional HandItem cbSecondHand = 10; 	//第二手牌
+	optional int32 wMasterChair = 11;//幕后黑手
+	optional bool  bInsured = 12;//是否有保险操作
+}
+
+//手牌
+message HandCard 
+{
+	required int64 wChairId = 1;//位置
+	repeated int32 cbHandCardData = 2;
+	optional int32 cbHandCardType = 3;
+	optional int32 chHandCardPoint = 4;
+}
+
+//用于场景推送的手牌
+message HandItem
+{
+	required int64 dTableJetton = 1;		//下注金额
+	repeated int32 cbHandCardData = 2;		//手牌
+	optional int32 cbHandCardType = 3;		//牌型
+	optional int32 cbHandCardPonit = 4;		//点数
+}
+
+
+message CMD_S_ErrorInfo
+{
+	required int32 wCode = 1; //错误码
+}
+
+///////////////////场景消息开始//////////////////////////
+//空闲状态
+message CMD_S_StatusFree
+{
+	required int64 dCellScore  = 1;				//基础积分 				//基础积分
+	repeated HJK_PlayerItem  GamePlayers = 2;		//游戏中的玩家
+}
+
+//下注状态
+message CMD_S_StatusScore 
+{
+	required string roundId   = 1;
+
+	//加注信息
+    required int64 dCellScore = 2;					//基础积分\
+    repeated int64 dBetScores = 3;
+    repeated bool  bEndScore = 4;
+	repeated HJK_PlayerItem  GamePlayers = 5;		//游戏中的玩家
+
+	//状态信息
+	required int32 wTimeLeft = 6;					//剩余时间
+	required int32 wTotalTime = 7;					//总时间
+}
+
+//买保险咯
+message CMD_S_StatusInsure
+{
+	required string roundId   = 1;
+	//加注信息
+    required int64 dCellScore = 2;					//基础积分
+    required HandCard wBankerHand = 3;				//庄家手牌
+	repeated HJK_PlayerItem  GamePlayers = 4;		//游戏中的玩家
+	//保险购买状态
+	repeated int32 cbInsureStatus = 5;				//购买保险状态 0:未决定，1买了，2没买
+	//状态信息
+	required int32 wTimeLeft = 6;					//剩余时间
+	required int32 wTotalTime = 7;					//总时间
+}
+
+//游戏状态
+message CMD_S_StatusPlay
+{
+    required string roundId   = 1;
+	//加注信息
+    required int64 dCellScore = 2;					//基础积分
+	required int64 wCurrentUser = 3;				//当前玩家userid
+	required HandCard wBankerHand = 4;				//庄家手牌
+	repeated HJK_PlayerItem  GamePlayers = 5;		//游戏中的玩家
+	
+	//状态信息
+	required int32 wTimeLeft = 6;				//剩余时间
+	required int32 wTotalTime = 7;				//总时间
+	optional int32 wCurrentIndex = 8;			//操作第几手牌
+	optional int32 wOpercode = 9;				//当前玩家的操作码，只有当前玩家才有
+};
+
+
+//空闲状态
+message CMD_S_StatusEnd
+{
+	required int32 wWaitTime = 1;					//等待时间
+};
+/////////////////////场景消息结束////////////////////////////////
+/////////////////////服务端主推消息/////////////////////////////
+//游戏开始
+message CMD_S_GameStart
+{
+    required string roundId   = 1;
+	//下注信息
+	required int64 dCellScore = 2;					//基础积分
+
+	//用户信息
+	repeated int32 cbPlayStatus = 3;			//用户状态[GAME_PLAYER]
+	repeated int64 dUserScore = 4;				//每个玩家当前的金币
+
+	required int32 wTimeLeft = 5;				//剩余时间
+};
+
+//用户下注返回
+message CMD_S_AddScore
+{
+	required int64 wOperUser	= 1;			//当前押注玩家
+	required int64 wJettonScore	= 2;			//押注金额
+	required int64 wUserScore	= 3;			//当前押注玩家剩余金额
+	required int32 wSeat = 4; //下注位置
+};
+
+//end bet
+message CMD_S_EndScore
+{
+	required int64 wOperUser	= 1;
+}
+
+//下注完成之后开始发牌
+//wNeedInsure:
+// true 走保险流程
+// false 是否存在wCurrentUser, 存在的话显示玩家倒计时参考CMD_S_Operate，不存在的话等待服务端结束的消息
+message CMD_S_DealCard 
+{
+	repeated HandCard cbHandCards = 1;			//座位的牌的数据
+	required bool  wNeedInsure = 2;				//是否需要保险，true 保险的倒计时，false waiting for operate notice
+	repeated int64 wRealChair = 3;				//真实玩家
+	optional int32 wTimeLeft = 4;				//剩余时间
+	//optional int64 wCurrentUser = 5;			//当前玩家：wNeedInsure为false的时候才有
+	//optional int32 wOpercode = 6;				//当前玩家是自己的时候才有
+	//optional int32 wSeat = 7;					//当前操作的位置,没有的话就是当前位置
+}
+
+//玩家购买保险广播
+message CMD_S_Insure
+{
+	required int64 wInsureUser = 1;			//购买保险操作用户
+	required bool  bBought  = 2;			//是否购买保险
+	required int64 wUserScore = 3;//玩家剩余多少钱
+	optional int32 wSeat = 4;  //玩家买保险的位置
+}
+
+//买完保险后庄家查牌结果
+message CMD_S_Insure_Result 
+{
+	required int32 bBankerBJ = 1;  //1 没人买保险，等待发送操作结果；2 庄家是黑杰克, 稍后推送结算并结束；3 庄家不是黑杰克，扣掉保险的钱
+	repeated int64 bInsureScore = 2;//买保险的输赢结果 ，上面是1的时候不用管：只是保险的胜负显示，牌的胜负在结算里面
+	optional int32 cbSecondCard = 3;//bBankerBJ为true的时候才发
+}
+
+//通知玩家进行操作
+message CMD_S_Operate
+{
+	required int64 wOperUser = 1;	//操作玩家
+	required int32 wOpercode = 2;	//操作码按位取 可分牌8<<可双倍4<<可要牌2<<可停牌1
+	required int32 wSeat = 3;  //当前操作位置
+	required int32 wTimeLeft = 4;//剩余时间
+}
+
+//玩家操作结果
+// 停牌：稍后推CMD_S_Operate；
+// 要牌和双倍，发一张牌到当前手牌，双倍会扣钱并停牌
+// 分牌：多发2张牌并扣钱
+// 所有下一步操作都通过CMD_S_Operate推送
+//todo 要判断钱不够的情况
+message CMD_S_Oper_Result
+{
+	required int32 wOperUser = 1; 	//操作玩家
+	required int32 wOperType = 2;	//current operation type
+	optional int32 wOperCode = 3;	//new operate code
+	optional int32 wOperSeat = 4; //玩家操作的位置
+	optional int32 cbFirstHandCardData = 5;	// 当前手牌要牌，双倍，分牌新给的牌
+	optional int32 cbFirstHandCardType = 6;//新牌型
+	optional int64 wUserScore = 7;//玩家余额更新：只有双倍，分牌的时候才有
+	optional int32 cbSecondHandIndex = 8;//新手牌的索引，只有分牌的时候才有
+	optional int32 cbSecondHandCardData = 9;//分出来的手牌
+	optional int32 cbSecondHandCardType = 10;//分出来的牌型
+	optional int32 cbScore = 11;//手牌的下注更新：加倍的时候会有
+	optional int32 wTimeLeft = 12;//剩余时间：只有分牌的时候才有
+}
+
+//庄家要牌
+message CMD_S_Banker_Deal
+{
+	required int32 cbHandCardType = 1;//庄家牌型
+	repeated int32 cbHandCardData = 2;//庄家手牌
+}
+//玩家结束信息
+message CMD_S_EndPlayer
+{
+	required int64 dUserId	= 1; //玩家ID
+	required int32 dChairId	= 2;  //玩家座位号
+	required int64 dUserScore = 3;  //玩家理论上结算后身上的金币
+	required int64 dScore = 4;//输赢
+}
+//手牌结束信息
+message CMD_S_EndHand
+{
+	required int32 dChairId = 1;
+	required int64 dScore = 2;//输赢
+}
+//游戏结束
+message CMD_S_GameEnd
+{
+	required int64 dBankerWinScore = 1;			//庄家输赢
+	required int32 cbState    		= 2;		//结束类型  1 普通结果  2 保险结束
+	repeated CMD_S_EndPlayer pEndPlayers = 3;  //玩家胜负信息
+	repeated CMD_S_EndHand pEndHands = 4;  //手牌胜负信息
+}
+
+//机器人扑克
+message CMD_S_AndroidCard
+{
+	repeated int32 cbRealPlayer = 1;				//真人玩家[GAME_PLAYER]
+	repeated int32 cbAndroidStatus = 2;				//机器数目[GAME_PLAYER]
+	repeated int32 cbAllHandCardData = 3;				//手上扑克[GAME_PLAYER][MAX_COUNT]
+	required int64 lStockScore = 4;					//当前库存
+}
+
+///////////////////////服务端主推消息结束/////////////////////////////
+//////////////////////客户端请求消息////////////////////////////////////
+//用户加注
+message CMD_C_AddScore
+{
+	required int64 dScore  = 1;				//下注数目
+	optional int32 dSeat   = 2;				//下注的位置：玩家可以下没有人的位置,默认0，其他是位置id+1
+};
+
+//保险数据包
+message CMD_C_Insure
+{
+	required bool wBuy = 1;				//是否购买
+	optional int32 dSeat   = 2;			//保险的位置
+};
+
+//用户操作
+message CMD_C_Operate
+{
+	required int32 wOpercode = 1;
+}
+
+message CMD_S_GameStartAi
+{
+    required int32							cbOXCardData = 1;	//扑克列表
+    required int32                          isMaxCard    = 2;
+};
+
+/////////////////////客户端请求消息结束/////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//玩家手牌
+message HandCards
+{
+	optional bytes cards        = 1; //手牌
+	optional int32 ty           = 2; //牌型
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//当局游戏记录详情
+message PlayerRecordDetail {
+	optional string account      = 1; //账号/昵称
+	optional int32 indexId       = 2; //序号ID
+	optional int32 chairId       = 3; //隶属座椅ID
+	optional int32 isbanker      = 4; //是否庄家
+	repeated HandCards handcards = 5; //手牌数据(不分牌[1]，分牌[2])
+	optional int64 userscore     = 6; //携带积分
+	optional int32 tableScore    = 7; //玩家下注
+	optional int32 winLostScore  = 8; //输赢积分
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//当局游戏记录详情
+message CMD_S_GameRecordDetail {
+	optional int32 gameid              = 1; //游戏类型
+	optional int32 cellscore           = 2; //房间底注
+	repeated PlayerRecordDetail detail = 3; //当局记录详情
+}

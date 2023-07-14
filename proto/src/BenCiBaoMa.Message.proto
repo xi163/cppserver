@@ -1,0 +1,255 @@
+syntax = "proto3";
+package BenCiBaoMa;
+enum SUBID
+{	
+	SUB_S_BEGIN					= 0;
+	SUB_S_GameStart				= 100;		//服务器返回開始游戲		
+	SUB_S_GameEnd				= 101;		//服务器返回結束游戲		
+	SUB_S_SCENE_START			= 102;		//服务器返回開始游戲場景
+	SUB_S_SCENE_END				= 103;		//服务器返回結束游戲場景
+	SUB_S_PLAYERLIST			= 104;		//服务器返回玩家列表(CMD_S_UserWinList,SUB_C_USER_ASKLIST消息的返回命令)
+
+	SUB_S_JETTON_SUCCESS		= 105;		//服务器返回下注成功
+	SUB_S_JETTON_FAIL			= 106;		//服务器返回下注失敗
+
+	SUB_C_USER_JETTON			= 107;		//玩家下注(CMD_C_PlaceJet)
+	SUB_C_USER_ASKLIST			= 108;		//玩家申請排行榜信息(CMD_C_AskList) 应该暂时用不上了
+	SUB_C_USER_REPEAT_JETTON	= 109;		//玩家续押
+	
+	SUB_C_QUERY_PLAYERLIST		= 110;		//获取玩家列表(CMD_C_PlayerList)
+	SUB_S_QUERY_PLAYLIST		= 111;		//服务器返回玩家列表(CMD_S_PlayerList)
+
+
+	SUB_C_QUERY_CUR_STATE		= 112;		//获取当前状态(CMD_C_CurState)
+	SUB_S_QUERY_CUR_STATE		= 113;		//服务器返回当前状态(CMD_S_CurState)
+
+	SUB_S_REPEAT_JETTON_OK		= 114;		//服务器返回玩家续押成功
+
+	SUB_S_JETTON_SUCCESS_OTHER  = 115;		//服务器返回一段时间内其他玩家押注(CMD_S_OtherPlaceJetSuccess)
+}
+//重押的筹码值
+message RepeatInfo
+{	
+	 int64	luserid				= 1;	//玩家ID
+	 int32	tJetIdx				= 2;	//押位置
+	 int32	tlJettonScore		= 3;	//押筹码值
+}
+message CMD_C_CurState
+{
+	 int64	dwUserID			= 1;	//申请玩家
+}
+message CMD_S_CurState
+{
+	 int32		nCurState		= 1;	//当前游戏状态 0,押注状态；1,结算状态
+	 int32 		cbTimeLeave		= 2;	//剩余时间
+	 int64 		lUserScore		= 3;	//我的分数
+	 int32 		nCurRetIdx		= 4;	//自己每門的下注
+	repeated int32 		Mutical			= 5;	//倍率表
+	repeated int32		lAllJettonScore	= 6;	//沒門的縂下注
+	repeated int32 		SelfJettonScore	= 7;	//自己每門的下注
+	repeated int32		carType			= 8;	//历史纪录
+	repeated RepeatInfo tRepeat			= 9;	//重押区域
+	 int32 		nlastRetId		= 10;	//被移除的记录
+	 int32		userwinscore	= 11;	//玩家赢分
+}
+
+//開始游戲（SUB_S_GameStart）
+message CMD_S_GameStart
+{
+	 int32		cbPlaceTime		= 1;	//总时间
+	 int32 		cbTimeLeave		= 2;	//过去的时间
+	 int64 		lUserScore		= 3;	//我的分数
+	repeated int32 		Mutical			= 4;	//倍率表
+	repeated int32		lAllJettonScore	= 5;	//沒門的縂下注
+	repeated int32 		SelfJettonScore	= 6;	//自己每門的下注
+	 int32  	OnlineNum		= 7;    //桌子人数
+	 string  	cbRoundId		= 8;   // 
+}
+
+
+//游戲結束（SUB_S_GameEnd）
+message CMD_S_GameEnd
+{
+	 int32		cbPlaceTime		= 1;	//总时间
+	 int32 		cbTimeLeave		= 2;	//过去的时间
+	 int32 		lUserMaxScore	= 3;	//最大下注	
+	 int64 		lUserScore		= 4;	//我的分数
+	repeated int32		lAllJettonScore	= 5;	//每門縂的下注
+	repeated int32 		SelfJettonScore	= 6;	//自己每門的下注
+	 int32		MostWinScore	= 7;    //本局贏最多的玩家贏的分數
+	 int32		BestuserID		= 8; 	//本侷贏最多的玩家的id
+	 string 	BestuserNikeName= 9;	//贏得最多的玩家的昵稱
+	 int32		WinIndex		= 10;	//本侷開的哪一門
+	 int32		cartype			= 11;	//kaide chexing
+	 int32		userwinscore	= 12;	//玩家赢分
+	 int32		Headid			= 13;	//
+	 int32		gender			= 14;	//   
+	 int32  	HeadBoxID  		= 15;
+	 int32  	OnlineNum		= 16;   //
+	 string  	cbRoundId		= 17;   // 
+}
+
+//開始游戲場景（SUB_S_SCENE_START）
+message CMD_S_Scene_GameStart
+{
+	 int32		cbPlaceTime		= 1;	//总时间
+	 int32 		cbTimeLeave		= 2;	//过去的时间
+	 int64 		lUserScore		= 3;	//我的分数	
+	 int32		nCurState		= 4;	//游戏状态,0,押注状态；1,结算状态
+	 int32		nCurRetIdx		= 5;	//自己每門的下注
+	repeated int32		carType			= 6;	//历史纪录
+	repeated CMD_AeraInfo aeraInfo		= 7;    //三个
+	 int32	dwUserID			= 8;	//玩家ID.
+	 int32  headerID			= 9;	//玩家头像.
+	 int32	nVipLevel			= 10;	//玩家VIP等级.
+	 string nickName			= 11;	//玩家昵称.
+	 int32  gender				= 12; 	// 玩家性别
+	 int32 		nlastRetId		= 13;	//被移除的记录
+	 int32  HeadBoxID			= 14;	//玩家頭像
+	repeated int32	betItems			= 15;	//押分筹码
+	 string  	cbRoundId		= 16;   //
+	repeated RepeatInfo tRepeat			= 17;	//重押区域 
+	 int32  OnlineNum			= 18;   //玩家数量（包括机器人）
+}
+
+message CMD_AeraInfo
+{	
+	 int32 		mutical			= 1;	//倍數表
+	 int32	   	lAllJettonScore	= 2;	//每門的縂下注
+	 int32 		SelfJettonScore	= 3;	//自己沒門的下注
+}
+
+//結束游戲場景（SUB_S_SCENE_END）
+message CMD_S_Scene_GameEnd
+{
+	 int32		cbPlaceTime		= 1;	//总时间
+	 int32 		cbTimeLeave		= 2;	//过去的时间
+	 int64 		lUserScore		= 3;	//我的分数
+	repeated int32		lAllJettonScore	= 4;	//每門縂的下注分數
+	repeated int32 		SelfJettonScore	= 5;	//自己每門下注的分數
+	repeated int32 		Mutical			= 6;	//每門的倍數
+	 int32		MostWinScore	= 7;    //本局贏得最多的玩家的贏的分數
+	 int32		BestuserID		= 8; 	// 贏得最多的玩家id
+	 string 	BestuserNikeName= 9;	//贏得最多的玩家的昵稱
+	 int32		SelfWinScore	= 10;	//自己贏的分數
+	 int32		WinIndex		= 11;	//本局開獎是哪一門
+}
+
+// 玩家下注（SUB_C_USER_JETTON）
+message CMD_C_PlaceJet
+{
+	 int32	cbJettonArea		= 1;	//筹码区域
+	 int32	lJettonScore		= 2;	//加注数目
+}
+
+
+// 玩家申請排行榜信息（SUB_C_USER_ASKLIST）应该暂时用不上了
+message CMD_C_AskList
+{
+	 int32	index				= 1;	//pai hang bang
+}
+// 下注失败返回（SUB_S_JETTON_FAIL）
+message CMD_S_PlaceJettonFail
+{
+	 int32	dwUserID			= 1;	//下注玩家
+	 int32	cbJettonArea		= 2;	//下注区域
+	 int32	lPlaceScore			= 3;	//当前下注
+	 int32	cbAndroid		 	= 4;	//是否机器人
+	 int32	returnCode			= 5;	//失败返回码
+}
+
+// 下注成功返回（SUB_S_JETTON_SUCCESS）
+message CMD_S_PlaceJetSuccess
+{
+	 int32	dwUserID			= 1;	//下注玩家
+	 int32	cbJettonArea		= 2;	//筹码区域
+	 int32  lJettonScore		= 3;	//加注数目
+	 bool	bIsAndroid			= 4;	//是否机器人
+	 int64  lUserScore			= 5;	//玩家当前积分.
+	repeated int32  AllJettonScore		= 6;	//所有下注
+	repeated int32  SelfJettonScore		= 7;	//所有个人下注
+}
+
+
+// 续押下注成功返回（SUB_S_REPEAT_JETTON_OK）
+message CMD_S_RepeatJetSuccess
+{
+	 int32	dwUserID			= 1;	//下注玩家
+	repeated RepeatInfo tRepeat			= 2;	//重押区域
+	 bool	bIsAndroid			= 3;	//是否机器人
+	 int64  lUserScore			= 4;	//玩家当前分.
+	repeated int64  AllJettonScore		= 5;	//所有下注
+	repeated int32  SelfJettonScore		= 6;	//所有个人下注
+}
+
+// 续押命令(SUB_C_USER_JETTON)
+message CMD_C_ReJetton
+{
+	 int32	dwUserID			= 1;	//下注玩家
+}
+
+// 游戏结束时返回玩家结算信息（SUB_S_PLAYERLIST）
+message CMD_S_UserWinList
+{
+	repeated PlayerInfo		player		= 1;	//总时间	
+}
+// 获取玩家列表返回
+message PlayerInfo
+{
+	 int32	dwUserID			= 1;	//玩家ID.
+	 int32  headerID			= 2;	//玩家头像.
+	 int32	nVipLevel			= 3;	//玩家VIP等级.
+	 string nickName			= 4;	//玩家昵称.
+	 int32  gender       		= 5; 	// 玩家性别
+	 string szLocation			= 6;	//登陆地址
+	 int32  HeadBoxID           = 7;	//玩家頭像
+	 int32	WinScore			= 8;	//玩家 贏分
+	 string	Wintime				= 9;
+}
+
+
+//客户端获取玩家列表命令(SUB_C_QUERY_PLAYERLIST)
+message CMD_C_PlayerList
+{
+	 int32	nLimitCount			= 1;	//获取数量.
+	 int32	nBeginIndex			= 2;	//起始下标.
+}
+		
+// 获取玩家在线列表(SUB_S_QUERY_PLAYLIST)
+message CMD_S_PlayerList
+{
+	 int32 nEndIndex 			= 1;	// End index.
+	 int32 nResultCount			= 2;	// 记录数量.
+	repeated PlayerListItem players		= 3;	// 玩家列表.
+}
+
+//获取玩家列表返回.
+message PlayerListItem
+{
+	 int32	dwUserID			= 1;	//玩家ID.
+	 int32  headerID			= 2;	//玩家头像.
+	 int32	nVipLevel			= 3;	//玩家VIP等级.
+	 string nickName			= 4;	//玩家昵称.
+	 int64  lUserScore			= 5;	//玩家当前积分.
+	 int32  lTwentyWinScore		= 6;	//20局嬴分值. 在线列表显示用
+	 int32	lTwentyWinCount		= 7;	//20局嬴次数. 在线列表显示用
+	 int32	isdivineMath		= 8;	//是否为神算子 (0,1是)
+	 int32	Index				= 9;	//玩家列表排序 1-8 (排行)
+	 int32	isBanker			= 10;	//是否是庄家 (0,1)
+	 int32  gender       		= 11; 	// 玩家性别
+	 int32	isApplyBanker		= 12;	//shi fou qiangzhuan
+	 int32	ApplyBankerMulti	= 13;
+	 int32	lJetton				= 14;	//
+	 string szLocation			= 15;	//登陆地址
+	 int32  HeadBoxID			= 16;
+
+}
+
+// 广播一段时间内其他所有玩家的下注(SUB_S_JETTON_SUCCESS_OTHER)
+message CMD_S_OtherPlaceJetSuccess
+{
+	 int32	dwUserID			= 1;	//下注玩家
+	repeated int32  lJettonScore		= 2;	//各区域加注数目
+	repeated int32  AllJettonScore		= 3;	//所有下注
+}
+
