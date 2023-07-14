@@ -1,7 +1,7 @@
 QT       -= core gui
 CONFIG   += plugin c++11
 
-TARGET = Game_S13s_android
+TARGET = Game_s13s_robot
 TEMPLATE = lib
 
 DESTDIR = ../../../GameServer/
