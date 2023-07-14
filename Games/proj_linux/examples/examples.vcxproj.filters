@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\examples\protobuf\rpc\client.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcChannel.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\examples\protobuf\rpc\sudoku.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcChannel.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\examples\protobuf\rpc\sudoku.pb.h" />
+  </ItemGroup>
+</Project>

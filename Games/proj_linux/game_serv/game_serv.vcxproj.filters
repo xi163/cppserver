@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="pb">
+      <UniqueIdentifier>{dbe7505c-c190-438a-a9be-cbedb94f7eb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{e283ee3d-6016-4fd5-b9d2-c25c058f009d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\MongoDB">
+      <UniqueIdentifier>{93441585-5c59-4392-8b53-6920639175ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\RedisClient">
+      <UniqueIdentifier>{e222dd37-2cf4-46bf-b622-935d6373698f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\RedisLock">
+      <UniqueIdentifier>{b500413a-945a-4cd2-9428-e5d26b44c890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\TraceMsg">
+      <UniqueIdentifier>{6c278474-204b-46cf-8a8b-1f6583c7ea68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\zookeeperclient">
+      <UniqueIdentifier>{6f1c9d0f-a567-44ab-8984-3e2b4422e01a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{ec31083d-6831-4e65-8e52-b7d975d7a1e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface\impl">
+      <UniqueIdentifier>{ca1a4402-4fe7-49b0-8450-ddf67bdb41b0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
+      <Filter>public\MongoDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
+      <Filter>public\RedisClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
+      <Filter>public\RedisLock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h">
+      <Filter>public\TraceMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h">
+      <Filter>public\zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h">
+      <Filter>public\zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperlocker.h">
+      <Filter>public\zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h">
+      <Filter>public\zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\Packet.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\SubNetIP.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\StdRandom.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\NetCardIP.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\Env.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\ConsoleClr.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\IPFinder.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\Inc.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\IPlayer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\IReplayRecord.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\IRobotDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\ITable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\ITableDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\Table.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\TableMgr.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\Player.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\PlayerMgr.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\Robot.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\RobotMgr.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\Game.h" />
+    <ClInclude Include="..\..\..\Framework\game_serv\gameDefine.h" />
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\ITableContext.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
+      <Filter>public\MongoDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
+      <Filter>public\RedisClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp">
+      <Filter>public\RedisLock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\TraceMsg\TraceMsg.cc">
+      <Filter>public\TraceMsg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.c">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\Packet.cc">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\IPFinder.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\TableMgr.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\Player.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\PlayerMgr.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\Robot.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\RobotMgr.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\Table.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv\main.cc" />
+    <ClCompile Include="..\..\..\Framework\game_serv\Game.cc" />
+  </ItemGroup>
+</Project>
