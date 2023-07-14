@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Game_s13s">
+      <UniqueIdentifier>{99f9db34-02b5-4dc0-8545-1f0978bfd43c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{7f4cab5a-1002-4707-bb62-93af59c61e37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pb">
+      <UniqueIdentifier>{1452a95f-dda3-446a-b0d7-f0360b82b642}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="funcC.cpp">
+      <Filter>Game_s13s</Filter>
+    </ClCompile>
+    <ClCompile Include="s13s.cpp">
+      <Filter>Game_s13s</Filter>
+    </ClCompile>
+    <ClCompile Include="TableFrameSink.cpp">
+      <Filter>Game_s13s</Filter>
+    </ClCompile>
+    <ClCompile Include="cfg.cpp">
+      <Filter>Game_s13s</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Game_s13s</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\proto\s13s.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="funcC.h">
+      <Filter>Game_s13s</Filter>
+    </ClInclude>
+    <ClInclude Include="s13s.h">
+      <Filter>Game_s13s</Filter>
+    </ClInclude>
+    <ClInclude Include="TableFrameSink.h">
+      <Filter>Game_s13s</Filter>
+    </ClInclude>
+    <ClInclude Include="cfg.h">
+      <Filter>Game_s13s</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimatePlay.h">
+      <Filter>Game_s13s</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IPlayer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IReplayRecord.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IRobotDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\ITable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\ITableDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\proto\s13s.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\gameDefine.h" />
+  </ItemGroup>
+</Project>
