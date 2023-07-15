@@ -265,7 +265,10 @@ bool GameServ::InitServer() {
 		else {	
 		}
 		_LOG_WARN("roomId = %d robot enabled = %d maxRobotCount = %d", roomId_, roomInfo_.bEnableAndroid, roomInfo_.maxAndroidCount);
+		return true;
 	}
+	_LOG_ERROR("error");
+	return false;
 }
 
 void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
@@ -287,7 +290,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 			logicThread_->getLoop()->runEvery(3.0, std::bind(&CRobotMgr::OnTimerCheckIn, &CRobotMgr::get_mutable_instance()));
 			auto player = std::make_shared<CPlayer>();
 			CTableMgr::get_mutable_instance().FindSuitTable(player, INVALID_TABLE);
-			//CRobotMgr::get_mutable_instance().Hourtimer();
+			CRobotMgr::get_mutable_instance().Hourtimer();
 		}
 		else if (gameInfo_.gameType == GameType_Confrontation) {
 			logicThread_->getLoop()->runEvery(0.1f, std::bind(&CRobotMgr::OnTimerCheckIn, &CRobotMgr::get_mutable_instance()));

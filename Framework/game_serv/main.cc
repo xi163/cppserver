@@ -108,7 +108,6 @@ int main(int argc, char* argv[]) {
 	int16_t numThreads = pt.get<int>("GameServer.numThreads", 10);
 	int16_t numWorkerThreads = pt.get<int>("GameServer.numWorkerThreads", 10);
 	int kMaxQueueSize = pt.get<int>("GameServer.kMaxQueueSize", 1000);
-	LOG_INFO << __FUNCTION__ << " --- *** " << "game_serv = " << ip << ":" << port;
 	bool isdebug = pt.get<int>("GameServer.debug", 1);
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
