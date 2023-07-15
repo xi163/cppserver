@@ -161,7 +161,7 @@ namespace RedisLock {
 		~CGuardLock() {
 			//Locked but not ContinueLock
 			if (flag_ && !acquired_) {
-				LOG_WARN << __FUNCTION__ << " Unlock " << resource_;
+				_LOG_WARN("Unlock %s", resource_.c_str());
 				redLock_.Unlock(lock_);
 			}
 		}
@@ -183,7 +183,7 @@ namespace RedisLock {
 			CLock my_lock;
 			bool flag = dlm->Lock(strLockKey.c_str(), 10000, my_lock);
 			if (flag) {
-				printf("获取成功, Acquired by client name:%s, res:%s, vttl:%d\n",
+				_LOG_DEBUG("获取成功, Acquired by client name:%s, res:%s, vttl:%d\n",
 					my_lock.m_val, my_lock.m_resource, my_lock.m_validityTime);
 				// do resource job
 				sleep(20);
@@ -192,7 +192,7 @@ namespace RedisLock {
 				//sleep(2);
 			}
 			else {
-				printf("获取失败, lock not acquired, name:%s\n", my_lock.m_val);
+				_LOG_DEBUG("获取失败, lock not acquired, name:%s\n", my_lock.m_val);
 				sleep(rand() % 3);
 			}
 		}
@@ -206,13 +206,13 @@ namespace RedisLock {
 			CLock my_lock;
 			bool flag = dlm->ContinueLock(strLockKey.c_str(), 14000, my_lock);
 			if (flag) {
-				printf("获取成功, Acquired by client name:%s, res:%s, vttl:%d\n",
+				_LOG_DEBUG("获取成功, Acquired by client name:%s, res:%s, vttl:%d\n",
 					my_lock.m_val, my_lock.m_resource, my_lock.m_validityTime);
 				// do resource job
 				sleep(20);
 			}
 			else {
-				printf("获取失败, lock not acquired, name:%s\n", my_lock.m_val);
+				_LOG_DEBUG("获取失败, lock not acquired, name:%s\n", my_lock.m_val);
 				sleep(rand() % 3);
 			}
 		}

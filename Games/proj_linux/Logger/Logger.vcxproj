@@ -39,6 +39,11 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\auth\auth.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\excp.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\impl\excpImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\ini\ini.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_win.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
@@ -60,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\ini.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\File.cpp" />

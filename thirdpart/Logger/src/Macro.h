@@ -85,6 +85,9 @@
 #include <sys/time.h>
 #include <dirent.h>
 #include <pthread.h>
+#include <sys/prctl.h>
+#include <sys/syscall.h>
+#include <linux/unistd.h>
 #define __FUNC__ __func__
 #define INVALID_HANDLE_VALUE (-1)
 #define xsleep(t) usleep((t) * 1000) //microseconds

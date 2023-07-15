@@ -20,9 +20,11 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "客户端[" << conn->peerAddress().toIpPort() << "] -> 网关服["
-			<< conn->localAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
+			conn->peerAddress().toIpPort().c_str(),
+			conn->localAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 		numTotalReq_.incrementAndGet();
 		if (num > kMaxConnections_) {
 #if 0
@@ -75,9 +77,11 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "客户端[" << conn->peerAddress().toIpPort() << "] -> 网关服["
-			<< conn->localAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
+			conn->peerAddress().toIpPort().c_str(),
+			conn->localAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 		assert(!conn->getContext().empty());
 		//////////////////////////////////////////////////////////////////////////
 		//websocket::Context::dtor
@@ -108,8 +112,7 @@ void GateServ::onConnected(
 
 	conn->getLoop()->assertInLoopThread();
 
-	LOG_INFO << __FUNCTION__ << " --- *** " << "客户端真实IP[" << ipaddr << "]";
-
+	_LOG_INFO("客户端真实IP[%s]", ipaddr.c_str());
 	assert(!conn->getContext().empty());
 	ContextPtr entryContext(boost::any_cast<ContextPtr>(conn->getContext()));
 	assert(entryContext);
@@ -136,7 +139,7 @@ void GateServ::onConnected(
 		//map[session] = weakConn
 		//////////////////////////////////////////////////////////////////////////
 		entities_.add(session, muduo::net::WeakTcpConnectionPtr(conn));
-		LOG_WARN << __FUNCTION__ << " session[ " << session << " ]";
+		_LOG_INFO("session[%s]", session.c_str());
 	}
 }
 
@@ -196,7 +199,7 @@ void GateServ::onMessage(
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			LOG_ERROR << __FUNCTION__ << " --- *** " << "entry invalid";
+			_LOG_ERROR("entry invalid");
 		}
 	}
 	//数据包不足够解析，等待下次接收再解析
@@ -289,7 +292,7 @@ void GateServ::asyncClientHandler(
 						//非登录消息 userid > 0
 						if (header->subId != ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ &&
 							userId == 0) {
-							LOG_ERROR << __FUNCTION__ << " user Must Login Hall Server First!";
+							_LOG_ERROR("user Must Login Hall Server First!");
 							break;
 						}
 						BufferPtr buffer = packet::packMessage(
@@ -337,7 +340,7 @@ void GateServ::asyncClientHandler(
 						std::string const& servId = nodeValue_;
 #endif
 						if (userId == 0) {
-							LOG_ERROR << __FUNCTION__ << " user Must Login Hall Server First!";
+							_LOG_ERROR("user Must Login Hall Server First!");
 							break;
 						}
 						BufferPtr buffer = packet::packMessage(
@@ -369,19 +372,19 @@ void GateServ::asyncClientHandler(
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			LOG_ERROR << __FUNCTION__ << " --- *** " << "TcpConnectionPtr.conn invalid";
+			_LOG_ERROR("TcpConnectionPtr.conn invalid");
 		}
 		//entry->setLocked(false);
 	}
 	else {
 		numTotalBadReq_.incrementAndGet();
-		LOG_ERROR << __FUNCTION__ << " --- *** " << "entry invalid";
+		_LOG_ERROR("entry invalid");
 	}
 }
 
 void GateServ::asyncOfflineHandler(ContextPtr /*const*/& entryContext) {
 	if (entryContext) {
-		LOG_ERROR << __FUNCTION__;
+		_LOG_ERROR("...");
 		std::string const& session = entryContext->getSession();
 		if (!session.empty()) {
 			entities_.remove(session);
@@ -471,11 +474,12 @@ bool GateServ::refreshBlackListSync() {
 		WRITE_LOCK(blackList_mutex_);
 		blackList_.clear();
 	}
+	std::string s;
 	for (std::map<in_addr_t, IpVisitE>::const_iterator it = blackList_.begin();
 		it != blackList_.end(); ++it) {
-		LOG_DEBUG << "--- *** " << "IP访问黑名单\n"
-			<< "--- *** ipaddr[" << Inet2Ipstr(it->first) << "] status[" << it->second << "]";
+		s += std::string("\nipaddr[") + Inet2Ipstr(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
+	_LOG_DEBUG("IP访问黑名单\n%s", s.c_str());
 	return false;
 }
 
@@ -484,11 +488,12 @@ bool GateServ::refreshBlackListInLoop() {
 	assert(blackListControl_ == IpVisitCtrlE::kOpenAccept);
 	server_.getLoop()->assertInLoopThread();
 	blackList_.clear();
+	std::string s;
 	for (std::map<in_addr_t, IpVisitE>::const_iterator it = blackList_.begin();
 		it != blackList_.end(); ++it) {
-		LOG_DEBUG << "--- *** " << "IP访问黑名单\n"
-			<< "--- *** ipaddr[" << Inet2Ipstr(it->first) << "] status[" << it->second << "]";
+		s += std::string("\nipaddr[") + Inet2Ipstr(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
+	_LOG_DEBUG("IP访问黑名单\n%s", s.c_str());
 	return false;
 }
 

@@ -178,7 +178,7 @@ void Connector::addInLoop(
 	if (it == clients_.end()) {
 		//name新节点
 		TcpClientPtr client(new TcpClient(loop_, serverAddr, name, this));
-		LOG_ERROR << __FUNCTION__ << " 添加节点 name = " << client->name();
+		_LOG_WARN("添加节点 name = %s", client->name().c_str());
 		//192.168.2.93:20000
 		clients_[client->name()] = client;
 		client->enableRetry();
@@ -192,7 +192,7 @@ void Connector::addInLoop(
 				!client->connection()->connected()) {
 				//连接断开则重连
 				if (!client->retry()) {
-					LOG_ERROR << __FUNCTION__ << " 重连节点 name = " << client->name();
+					_LOG_WARN("重连节点 name = %s", client->name().c_str());
 					client->reconnect();
 				}
 			}
@@ -204,7 +204,7 @@ void Connector::addInLoop(
 		}
 		else {
 			it->second.reset(new TcpClient(loop_, serverAddr, name, this));
-			LOG_ERROR << __FUNCTION__ << " 重建节点 name = " << name;
+			_LOG_WARN("重建节点 name = %s", name.c_str());
 			it->second->enableRetry();
 			it->second->connect();
 		}
@@ -350,7 +350,7 @@ void Connector::removeInLoop(std::string const& name, bool lazy) {
 		//连接已经无效直接删除
 		if (!it->second->connection() ||
 			!it->second->connection()->connected()) {
-			LOG_ERROR << __FUNCTION__ << " 移除节点 name = " << it->first;
+			_LOG_WARN("移除节点 name = %s", it->first.c_str());
 			it->second->stop();
 			clients_.erase(it);
 		}

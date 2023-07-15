@@ -1,3 +1,5 @@
+#include "public/Inc.h"
+
 #include "zookeeperclientutils.h"
 
 #include <algorithm>
@@ -13,14 +15,14 @@ void ZookeeperClientUtils::printString(const string & name)
 {
 //    auto logger = spdlog::get(getGlobalLogName());
 //    logger->info("{} ",name);
-    cout<<"{ "<<name<<" }"<<endl;
+ //   cout<<"{ "<<name<<" }"<<endl;
 }
 
 void ZookeeperClientUtils::printStringPair(const pair<string, string> &stringPair)
 {
 //    auto logger = spdlog::get(getGlobalLogName());
 //    logger->info("{}:{}",stringPair.first,stringPair.second);
-    cout<<"{ "<<stringPair.first<<" }:"<<"{ "<<stringPair.second<<" }"<<endl;
+ //   cout<<"{ "<<stringPair.first<<" }:"<<"{ "<<stringPair.second<<" }"<<endl;
 }
 
 void ZookeeperClientUtils::transStringVector2VectorString(const String_vector &children, vector<string> &vecString)

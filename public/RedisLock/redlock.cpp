@@ -90,7 +90,7 @@ namespace RedisLock {
 #if 0
 			printf("Can't open file /dev/urandom\n");
 #else
-			LOG_WARN << __FUNCTION__ << " Can't open file /dev/urandom";
+			_LOG_WARN("Can't open file /dev/urandom");
 #endif
 			exit(-1);
 			return false;
@@ -133,7 +133,7 @@ namespace RedisLock {
 #if 0
 		printf("Get the unique id is %s\n", val);
 #else
-		LOG_WARN << __FUNCTION__ << " Get the unique id is " << val;
+		//LOG_WARN << __FUNCTION__ << " Get the unique id is " << val;
 #endif
 		int retryCount = m_retryCount;
 		do {
@@ -154,7 +154,7 @@ namespace RedisLock {
 			printf("The resource validty time is %d, n is %d, quo is %d\n",
 				validityTime, n, m_quoRum);
 #else
-			LOG_WARN << __FUNCTION__ << " The resource validty time is " << validityTime << ", n is " << n << ", quo is " << m_quoRum;
+			//LOG_WARN << __FUNCTION__ << " The resource validty time is " << validityTime << ", n is " << n << ", quo is " << m_quoRum;
 #endif
 			if (n >= m_quoRum && validityTime > 0) {
 				lock.m_validityTime = validityTime;
@@ -188,7 +188,7 @@ namespace RedisLock {
 #if 0
 		printf("Get the unique id is %s\n", val);
 #else
-		LOG_WARN << __FUNCTION__ << " Get the unique id is " << val;
+		//LOG_WARN << __FUNCTION__ << " Get the unique id is " << val;
 #endif
 		int retryCount = m_retryCount;
 		do {
@@ -212,7 +212,7 @@ namespace RedisLock {
 			printf("The resource validty time is %d, n is %d, quo is %d\n",
 				validityTime, n, m_quoRum);
 #else
-			LOG_WARN << __FUNCTION__ << " The resource validty time is " << validityTime << ", n is " << n << ", quo is " << m_quoRum;
+			//LOG_WARN << __FUNCTION__ << " The resource validty time is " << validityTime << ", n is " << n << ", quo is " << m_quoRum;
 #endif
 			if (n >= m_quoRum && validityTime > 0) {
 				lock.m_validityTime = validityTime;
@@ -252,7 +252,7 @@ namespace RedisLock {
 #if 0
 			printf("Set return: %s [null == fail, OK == success]\n", reply->str);
 #else
-			LOG_WARN << __FUNCTION__ << " Set return: " << reply->str << " [null == fail, OK == success]";
+			//LOG_WARN << __FUNCTION__ << " Set return: " << reply->str << " [null == fail, OK == success]";
 #endif
 		}
 		if (reply && reply->str && strcmp(reply->str, "OK") == 0) {
@@ -286,7 +286,7 @@ namespace RedisLock {
 #if 0
 			printf("Set return: %s [null == fail, OK == success]\n", reply->str);
 #else
-			LOG_WARN << __FUNCTION__ << " Set return: " << reply->str << " [null == fail, OK == success]";
+			//LOG_WARN << __FUNCTION__ << " Set return: " << reply->str << " [null == fail, OK == success]";
 #endif
 		}
 		if (reply && reply->str && strcmp(reply->str, "OK") == 0) {
@@ -333,7 +333,7 @@ namespace RedisLock {
 #if 0
 			printf("RedisCommandArgv return: %lld\n", reply->integer);
 #else
-			LOG_WARN << __FUNCTION__ << " RedisCommandArgv return: " << reply->integer;
+			//LOG_WARN << __FUNCTION__ << " RedisCommandArgv return: " << reply->integer;
 #endif
 		}
 		free(argvlen);
@@ -360,7 +360,7 @@ namespace RedisLock {
 #if 0
 			printf("Error: GetUniqueLockId %d\n", __LINE__);
 #else
-			LOG_WARN << __FUNCTION__ << " Error: GetUniqueLockId " << __LINE__;
+			//LOG_WARN << __FUNCTION__ << " Error: GetUniqueLockId " << __LINE__;
 #endif
 		}
 		return NULL;

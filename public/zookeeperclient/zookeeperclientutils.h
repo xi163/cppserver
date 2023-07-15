@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INCLUDE_ZKCLIENTUTILS_H
+#define INCLUDE_ZKCLIENTUTILS_H
 
 #include <iostream>
 #include <string>
@@ -59,5 +60,5 @@ public:
 };
 
 
-
+#endif
 

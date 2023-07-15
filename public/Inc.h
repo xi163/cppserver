@@ -8,6 +8,8 @@
 #include <dirent.h>
 #include <string.h>// memset
 #include <assert.h>
+
+//被 *.c 文件包含会有问题
 #include <algorithm>
 #include <utility>
 #include <random>
@@ -82,7 +84,7 @@
 #include <boost/archive/iterators/transform_width.hpp>
 
 #include <muduo/base/Logging.h>
-#include <muduo/base/AsyncLogging.h>
+//#include <muduo/base/AsyncLogging.h>
 #include <muduo/base/noncopyable.h>
 #include <muduo/base/Exception.h>
 #include <muduo/base/Mutex.h>
@@ -115,6 +117,8 @@
 using boost::serialization::singleton;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
+
+#include "Logger.h"
 
 #include "Env.h"
 #include "StdRandom.h"

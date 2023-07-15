@@ -15,15 +15,19 @@ void GateServ::onHallConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "网关服[" << conn->localAddress().toIpPort() << "] -> 大厅服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("网关服[%s] -> 大厅服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "网关服[" << conn->localAddress().toIpPort() << "] -> 大厅服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("网关服[%s] -> 大厅服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 	}
 }
 
@@ -127,7 +131,7 @@ void GateServ::asyncHallHandler(
 			boost::algorithm::split(vec, conn->name(), boost::is_any_of(":"));
 			std::string const& name = vec[0] + ":" + vec[1];
 			ClientConn clientConn(name, conn);
-			LOG_WARN << __FUNCTION__ << " --- *** " << "登陆成功，大厅节点 >>> " << name;
+			_LOG_WARN("%d 登陆成功，大厅节点 >>> %s", userId, name.c_str());
 			entryContext->setClientConn(servTyE::kHallTy, clientConn);
 			//顶号处理 userid -> conn -> entryContext -> session
 			muduo::net::TcpConnectionPtr old(sessions_.add(userId, muduo::net::WeakTcpConnectionPtr(peer)).lock());
@@ -167,7 +171,7 @@ void GateServ::asyncHallHandler(
 				if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
 					//与目标游戏节点不一致，重新指定
 					if (clientConn.first != serverIp) {
-						LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 当前游戏节点[" << clientConn.first << "]与目标游戏节点[" << serverIp << "]不一致，重新指定";
+						_LOG_WARN("%d 游戏节点[%s] [%s]不一致，重新指定",userId, clientConn.first.c_str(), serverIp.c_str());
 						//获取目标游戏节点
 						ClientConn clientConn;
 						clients_[servTyE::kGameTy].clients_->get(serverIp, clientConn);
@@ -175,11 +179,11 @@ void GateServ::asyncHallHandler(
 						if (gameConn) {
 							//更新用户游戏节点
 							entryContext->setClientConn(servTyE::kGameTy, clientConn);
-							LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 目标游戏节点[" << serverIp << "]，更新成功";
+							_LOG_INFO("%d 游戏节点[%s] 更新成功", userId, serverIp.c_str());
 						}
 						else {
 							//目标游戏节点不可用，要求zk实时监控
-							LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 目标游戏节点[" << serverIp << "]不可用，更新失败!";
+							_LOG_ERROR("%d 游戏节点[%s]不可用，更新失败!", userId, serverIp.c_str());
 						}
 					}
 				}
@@ -187,10 +191,10 @@ void GateServ::asyncHallHandler(
 			else {
 				//用户当前游戏节点不存在/不可用，需要指定
 				if (clientConn.first.empty()) {
-					LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 当前游戏节点不存在，需要指定";
+					_LOG_WARN("%d 游戏节点不存在，需要指定", userId);
 				}
 				else {
-					LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 当前游戏节点[" << clientConn.first << "]不可用，需要指定";
+					_LOG_ERROR("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
 				}
 				std::string serverIp;
 				//serverIp = roomid:ip:port
@@ -202,11 +206,11 @@ void GateServ::asyncHallHandler(
 					if (gameConn) {
 						//指定用户游戏节点
 						entryContext->setClientConn(servTyE::kGameTy, clientConn);
-						LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 目标游戏节点[" << serverIp << "]，指定成功";
+						_LOG_INFO("%d 游戏节点[%s]，指定成功!", userId, serverIp.c_str());
 					}
 					else {
 						//目标游戏节点不可用，要求zk实时监控
-						LOG_ERROR << __FUNCTION__ << " --- *** " << userId << " 目标游戏节点[" << serverIp << "]不可用，指定失败!";
+						_LOG_INFO("%d 游戏节点[%s]不可用，指定失败!", userId, serverIp.c_str());
 					}
 				}
 			}
@@ -217,7 +221,7 @@ void GateServ::asyncHallHandler(
 
 //跨网关顶号处理(异地登陆)
 void GateServ::onUserLoginNotify(std::string const& msg) {
-	LOG_WARN << __FUNCTION__ << " " << msg;
+	//_LOG_WARN(msg.c_str());
 	std::stringstream ss(msg);
 	boost::property_tree::ptree root;
 	boost::property_tree::read_json(ss, root);
@@ -275,14 +279,14 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 		}
 	}
 	catch (boost::property_tree::ptree_error& e) {
-		LOG_ERROR << __FUNCTION__ << " " << e.what();
+		//_LOG_ERROR(e.what());
 	}
 }
 
 void GateServ::sendHallMessage(
 	Context /*const*/& entryContext,
 	BufferPtr const& buf, int64_t userId) {
-	//printf("%s %s(%d)\n", __FUNCTION__, __FILE__, __LINE__);
+	//_LOG_INFO("...");
 	ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
 	muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 	if (hallConn) {
@@ -301,12 +305,12 @@ void GateServ::sendHallMessage(
 			clients_[servTyE::kHallTy].clients_->check(clientConn.first, true);
 #endif
 			if (buf) {
-				//printf("len = %d\n", buf->readableBytes());
+				//_LOG_DEBUG("len = %d\n", buf->readableBytes());
 				hallConn->send(buf.get());
 			}
 		}
 		else {
-			LOG_ERROR << __FUNCTION__ << " --- *** " << "用户大厅服维护，重新分配";
+			_LOG_ERROR("用户大厅服维护，重新分配");
 			//用户大厅服维护，重新分配
 			ClientConnList clients;
 			//异步获取全部有效大厅连接
@@ -325,7 +329,7 @@ void GateServ::sendHallMessage(
 							//账号已经登陆，但登陆大厅维护中，重新指定账号登陆大厅
 							entryContext.setClientConn(servTyE::kHallTy, clientConn);
 							if (buf) {
-								//printf("len = %d\n", buf->readableBytes());
+								//_LOG_DEBUG("len = %d\n", buf->readableBytes());
 								hallConn->send(buf.get());
 							}
 						}
@@ -338,7 +342,7 @@ void GateServ::sendHallMessage(
 		}
 	}
 	else {
-		LOG_ERROR << __FUNCTION__ << " --- *** " << "用户大厅服失效，重新分配";
+		_LOG_ERROR("用户大厅服失效，重新分配");
 		//用户大厅服失效，重新分配
 		ClientConnList clients;
 		//异步获取全部有效大厅连接
@@ -360,7 +364,7 @@ void GateServ::sendHallMessage(
 							entryContext.setClientConn(servTyE::kHallTy, clientConn);
 						}
 						if (buf) {
-							//printf("len = %d\n", buf->readableBytes());
+							//_LOG_DEBUG("len = %d\n", buf->readableBytes());
 							hallConn->send(buf.get());
 						}
 					}
@@ -374,7 +378,7 @@ void GateServ::sendHallMessage(
 }
 
 void GateServ::onUserOfflineHall(Context /*const*/& entryContext) {
-	MY_TRY()
+	//MY_TRY()
 	int64_t userId = entryContext.getUserID();
 	uint32_t clientip = entryContext.getFromIp();
 	std::string const& session = entryContext.getSession();
@@ -397,5 +401,5 @@ void GateServ::onUserOfflineHall(Context /*const*/& entryContext) {
 			sendHallMessage(entryContext, buffer, userId);
 		}
 	}
-	MY_CATCH()
+	//MY_CATCH()
 }

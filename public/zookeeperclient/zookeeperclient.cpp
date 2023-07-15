@@ -1,3 +1,5 @@
+#include "public/Inc.h"
+
 #include "zookeeperclient.h"
 
 #include <string>
@@ -12,34 +14,34 @@
 
 using namespace std;
 
-void logzk(const char* fmt,...)
-{
-    va_list va;
-    char sztime[64]={0};
-    char buf[1024]={0};
-    va_start(va,fmt);
-    vsnprintf(buf,sizeof(buf),fmt,va);
-    va_end(va);
-
-    time_t tt;
-    time( &tt);
-    struct tm* tm = localtime(&tt);
-    snprintf(sztime, sizeof(sztime), "%4d%02d%02d %02d:%02d:%02d ",
-        tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
-        tm->tm_hour, tm->tm_min, tm->tm_sec);
-    string content = sztime;
-    content += buf;
-    content += "\n";
-    // try to write the special log content.
-    FILE* fp = fopen("zookeeper.log","a");
-    fputs(content.c_str(),fp);
-    fclose(fp);
-}
+// void logzk(const char* fmt,...)
+// {
+//     va_list va;
+//     char sztime[64]={0};
+//     char buf[1024]={0};
+//     va_start(va,fmt);
+//     vsnprintf(buf,sizeof(buf),fmt,va);
+//     va_end(va);
+// 
+//     time_t tt;
+//     time( &tt);
+//     struct tm* tm = localtime(&tt);
+//     snprintf(sztime, sizeof(sztime), "%4d%02d%02d %02d:%02d:%02d ",
+//         tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+//         tm->tm_hour, tm->tm_min, tm->tm_sec);
+//     string content = sztime;
+//     content += buf;
+//     content += "\n";
+//     // try to write the special log content.
+//     FILE* fp = fopen("zookeeper.log","a");
+//     fputs(content.c_str(),fp);
+//     fclose(fp);
+// }
 
 ZookeeperClient::ZookeeperClient()
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    logzk("ZookeeperClient::ZookeeperClient()");
+    _LOG_DEBUG("ZookeeperClient::ZookeeperClient()");
 
     ZooLogLevel log_level = ZOO_LOG_LEVEL_ERROR;//ZOO_LOG_LEVEL_INFO;
     zoo_set_debug_level(log_level);
@@ -49,7 +51,7 @@ ZookeeperClient::ZookeeperClient()
 ZookeeperClient::ZookeeperClient(const string &server, int timeout, bool debug)
 {
 //    cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    logzk("ZookeeperClient::ZookeeperClient(%s,%d,%d)",server.c_str(),timeout,debug);
+    _LOG_DEBUG("ZookeeperClient::ZookeeperClient(%s,%d,%d)",server.c_str(),timeout,debug);
 
     ZooLogLevel log_level = debug ? ZOO_LOG_LEVEL_DEBUG : ZOO_LOG_LEVEL_ERROR;
     zoo_set_debug_level(log_level);
@@ -62,7 +64,7 @@ ZookeeperClient::ZookeeperClient(const string &server, int timeout, bool debug)
 ZookeeperClient::~ZookeeperClient()
 {
 //    cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    logzk("ZookeeperClient::~ZookeeperClient()");
+    _LOG_DEBUG("ZookeeperClient::~ZookeeperClient()");
 
     closeServer();
 }
@@ -83,7 +85,7 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
                                                const shared_ptr<ZookeeperClient> &zkClientPtr, void *context)
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    logzk("ZookeeperClient::connectingSessionWatcher()");
+    _LOG_DEBUG("ZookeeperClient::connectingSessionWatcher()");
 
     if(ZOO_SESSION_EVENT == type)
     {
@@ -95,7 +97,7 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
         {
             // 连接建立
             m_session_timeout = zoo_recv_timeout(m_zkHandle);
-            printf("session_timeout=%ld\n", m_session_timeout);
+            _LOG_ERROR("session_timeout=%ld\n", m_session_timeout);
             if(m_connectedWatcherHandler)
                 m_connectedWatcherHandler();
 
@@ -117,7 +119,7 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
 bool ZookeeperClient::connectServer()
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    logzk("ZookeeperClient::connectServer()");
+    _LOG_DEBUG("ZookeeperClient::connectServer()");
 
     const clientid_t *clientid = zoo_client_id(m_zkHandle);
     ZkWatcherOperateContext *context = new ZkWatcherOperateContext(server_, (void*)"connect server", shared_from_this());
@@ -143,7 +145,7 @@ bool ZookeeperClient::connectServer()
 void ZookeeperClient::closeServer()
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    logzk("ZookeeperClient::closeServer()");
+    _LOG_DEBUG("ZookeeperClient::closeServer()");
 
     if(m_zkHandle)
     {
@@ -155,7 +157,7 @@ void ZookeeperClient::closeServer()
 bool ZookeeperClient::reConnectServer()
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    logzk("ZookeeperClient::reConnectServer()");
+    _LOG_DEBUG("ZookeeperClient::reConnectServer()");
 
     closeServer();
     return connectServer();
@@ -220,7 +222,7 @@ int ZookeeperClient::setNodeValue(const string &path,
 int ZookeeperClient::existsNode(const string &path, struct Stat *stat)
 {
     if (!m_zkHandle) {
-        logzk("ZookeeperClient::existsNode, but zkhandle=NULL,reconnect...");
+        _LOG_DEBUG("ZookeeperClient::existsNode, but zkhandle=NULL,reconnect...");
         reConnectServer();
     }
 
@@ -314,7 +316,7 @@ void ZookeeperClient::sessionWatcher(zhandle_t *zh, int type, int state, const c
 //  cout<<"[sessionWatcher] type:{"<<ZookeeperClientUtils::watcherEventType2String(type)<<"} ,state:{"<<ZookeeperClientUtils::state2String(state)<<"}";
 
     string strtype = ZookeeperClientUtils::watcherEventType2String(type);
-    logzk("ZookeeperClient::sessionWatcher(zh=%x,type=%s,state=%d)",zh,strtype.c_str(),state);
+    _LOG_DEBUG("ZookeeperClient::sessionWatcher(zh=%x,type=%s,state=%d)",zh,strtype.c_str(),state);
 
     ZkWatcherOperateContext *context = (ZkWatcherOperateContext *)watcherCtx;
     if (context && context->m_sessionWatcherHandler && context->m_zkClientPtr)

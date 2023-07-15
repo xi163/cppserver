@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef INCLUDE_ZKCLIENT_H
+#define INCLUDE_ZKCLIENT_H
 
 #include "zookeeper/zookeeper.h"
 
@@ -474,3 +474,5 @@ private:
   string path;
   shared_ptr<ZookeeperClient> zk;
 };
+
+#endif

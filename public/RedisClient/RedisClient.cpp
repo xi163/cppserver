@@ -1,3 +1,4 @@
+#include "public/Inc.h"
 #include "RedisClient.h"
 
 #include <thread>
@@ -19,9 +20,9 @@ extern "C" {
 #define REDIS_ACCOUNT_PREFIX        "h.uid."
 #define REDIS_ONLINE_PREFIX         "h.online.uid.gameinfo."
 #define MAX_USER_ONLINE_INFO_IDLE_TIME   (60*3)
-#include <muduo/base/Logging.h>
-#include <boost/algorithm/string.hpp>
-#include <algorithm>
+//#include <muduo/base/Logging.h>
+//#include <boost/algorithm/string.hpp>
+//#include <algorithm>
 //#include "../crypto/crypto.h"
 
 const string passWord = "AliceLandy@20181024";
@@ -66,7 +67,7 @@ bool RedisClient::initRedisCluster(string ip)
     redisClusterConnect2(m_redisClientContext);
     if (m_redisClientContext != NULL && m_redisClientContext->err)
     {
-        printf("Error: %s\n\n\n\n", m_redisClientContext->errstr);
+        _LOG_ERROR("Error: %s\n\n\n\n", m_redisClientContext->errstr);
         // handle error
         return false;
     }else
@@ -82,7 +83,7 @@ bool RedisClient::initRedisCluster(string ip)
     m_redisClientContext = redisConnect(ip.c_str(), 6379);
 
     if(m_redisClientContext->err)
-        printf("redis %s\n\n\n\n", m_redisClientContext->errstr);
+        _LOG_ERROR("redis %s\n\n\n\n", m_redisClientContext->errstr);
     return !m_redisClientContext->err;
 }
 
@@ -157,7 +158,7 @@ bool RedisClient::initRedisCluster(string ip, string password)
     m_redisClientContext = redisConnectWithTimeout(masterIp.c_str(), masterPort, timev);
     if(m_redisClientContext->err)
     {
-        printf("redis %s\n\n\n\n", m_redisClientContext->errstr);
+        _LOG_ERROR("redis %s\n\n\n\n", m_redisClientContext->errstr);
         return false;
     }else
     {
@@ -195,7 +196,7 @@ bool RedisClient::initRedisCluster(string ip, map<string, string> &addrMap, stri
     m_redisClientContext = redisConnectWithTimeout(masterIp.c_str(), masterPort, timev);
     if(m_redisClientContext->err)
     {
-        printf("redis %s\n\n\n\n", m_redisClientContext->errstr);
+        _LOG_ERROR("redis %s\n\n\n\n", m_redisClientContext->errstr);
         return false;
     }else
     {
@@ -221,12 +222,12 @@ int RedisClient::getMasterAddr(const vector<string> &addVec, struct timeval time
         vector<string> vec;
         boost::algorithm::split(vec, addVec[i], boost::is_any_of( ":" ));
 
-        printf("i[%d], ip[%s], port[%d]", i, vec[0].c_str(), stoi(vec[1]));
+        _LOG_INFO("i[%d], ip[%s], port[%d]", i, vec[0].c_str(), stoi(vec[1]));
         context = redisConnectWithTimeout(vec[0].c_str(), stoi(vec[1]), timeOut);
 //        context = redisConnect(vec[0].c_str(), stoi(vec[1]));
         if (context == NULL || context->err)
         {
-            printf("Connection error: can't allocate redis context,will find next");
+            _LOG_ERROR("Connection error: can't allocate redis context,will find next");
             redisFree(context);//断开连接并释放redisContext空间
             continue;
         }
@@ -235,7 +236,7 @@ int RedisClient::getMasterAddr(const vector<string> &addVec, struct timeval time
         reply = static_cast<redisReply*> ( redisCommand(context,"SENTINEL get-master-addr-by-name mymaster") );
         if(reply->type != REDIS_REPLY_ARRAY || reply -> elements != 2)
         {
-            printf("use sentinel to get-master-addr-by-name failure, will find next\n");
+            _LOG_ERROR("use sentinel to get-master-addr-by-name failure, will find next");
             freeReplyObject(reply);
             continue;
         }

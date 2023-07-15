@@ -42,23 +42,23 @@ enum IpVisitE {
 	HTTP/1.1 600 访问量限制(1500)\r\n\r\n
 */
 
-#define MY_TRY()	\
-	try {
-
-#define MY_CATCH() \
-	} \
-catch (const muduo::Exception & e) { \
-	LOG_ERROR << __FUNCTION__ << " --- *** " << "exception caught " << e.what(); \
-	abort(); \
-	} \
-catch (const std::exception & e) { \
-	LOG_ERROR << __FUNCTION__ << " --- *** " << "exception caught " << e.what(); \
-	abort(); \
-} \
-catch (...) { \
-	LOG_ERROR << __FUNCTION__ << " --- *** " << "exception caught "; \
-	throw; \
-} \
+// #define MY_TRY()	\
+// 	try {
+// 
+// #define MY_CATCH() \
+// 	} \
+// catch (const muduo::Exception & e) { \
+// 	_LOG_ERROR << __FUNCTION__ << " --- *** " << "exception caught " << e.what(); \
+// 	abort(); \
+// 	} \
+// catch (const std::exception & e) { \
+// 	LOG_ERROR << __FUNCTION__ << " --- *** " << "exception caught " << e.what(); \
+// 	abort(); \
+// } \
+// catch (...) { \
+// 	LOG_ERROR << __FUNCTION__ << " --- *** " << "exception caught "; \
+// 	throw; \
+// } \
 
 static void setFailedResponse(muduo::net::HttpResponse& rsp,
 	muduo::net::HttpResponse::HttpStatusCode code = muduo::net::HttpResponse::k200Ok,

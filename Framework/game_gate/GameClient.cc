@@ -15,15 +15,19 @@ void GateServ::onGameConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "网关服[" << conn->localAddress().toIpPort() << "] -> 游戏服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("网关服[%s] -> 游戏服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "网关服[" << conn->localAddress().toIpPort() << "] -> 游戏服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("网关服[%s] -> 游戏服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 	}
 }
 
@@ -119,7 +123,7 @@ void GateServ::asyncGameHandler(
 void GateServ::sendGameMessage(
 	Context /*const*/& entryContext,
 	BufferPtr const& buf, int64_t userId) {
-	//printf("%s %s(%d)\n", __FUNCTION__, __FILE__, __LINE__);
+	//_LOG_INFO("...");
 	ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
 	muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 	if (gameConn) {
@@ -135,7 +139,7 @@ void GateServ::sendGameMessage(
 		clients_[servTyE::kGameTy].clients_->check(clientConn.first, true);
 #endif
 		if (buf) {
-			//printf("len = %d\n", buf->readableBytes());
+			//_LOG_DEBUG("len = %d", buf->readableBytes());
 			gameConn->send(buf.get());
 		}
 	}
@@ -143,7 +147,7 @@ void GateServ::sendGameMessage(
 
 void GateServ::onUserOfflineGame(
 	Context /*const*/& entryContext, bool leave) {
-	MY_TRY()
+	//MY_TRY()
 	int64_t userId = entryContext.getUserID();
 	uint32_t clientIp = entryContext.getFromIp();
 	std::string const& session = entryContext.getSession();
@@ -166,5 +170,5 @@ void GateServ::onUserOfflineGame(
 			sendGameMessage(entryContext, buffer, userId);
 		}
 	}
-	MY_CATCH()
+	//MY_CATCH()
 }

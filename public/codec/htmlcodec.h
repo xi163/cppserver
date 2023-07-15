@@ -1,13 +1,15 @@
 #ifndef HTMLCODE_INCLUDE_H
 #define HTMLCODE_INCLUDE_H
 	
-#include <algorithm>
-#include <iostream>
-#include <string>
+#include "public/Inc.h"
+#include "Logger.h"
+//#include <algorithm>
+//#include <iostream>
+//#include <string>
 
-#include <boost/filesystem.hpp>
+//#include <boost/filesystem.hpp>
 //#include <boost/algorithm/algorithm.hpp>
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
 
 #define array_length(a) (sizeof (a) / sizeof (a)[0])
 

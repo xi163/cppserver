@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INCLUDE_ZKLOCKER_H
+#define INCLUDE_ZKLOCKER_H
 
 #include <zookeeper/zookeeper.h>
 
@@ -96,3 +97,4 @@ private:
 
 };
 
+#endif

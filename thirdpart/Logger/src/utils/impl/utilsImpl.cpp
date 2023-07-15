@@ -13,6 +13,21 @@
 #include <locale> 
 //#include <codecvt>
 //#include <xlocbuf>
+
+__thread int t_cachedTid;
+__thread char t_tidString[32];
+__thread int t_tidStringLength;
+
+static tid_t gettid() {
+	return static_cast<tid_t>(::syscall(SYS_gettid));
+}
+
+static void cacheTid() {
+	if (t_cachedTid == 0) {
+		t_cachedTid = gettid();
+		t_tidStringLength = snprintf(t_tidString, sizeof t_tidString, "%5d ", t_cachedTid);
+	}
+}
 #endif
 
 #include "../../log/impl/LoggerImpl.h"
@@ -20,10 +35,17 @@
 
 namespace utils {
 	
-	/*tid_t*/std::string _gettid() {
+	std::string _gettid() {
+#ifdef _windows_
 		std::ostringstream oss;
 		oss << std::this_thread::get_id();
 		return oss.str();//(tid_t)std::stoull(oss.str());
+#elif defined(_linux_)
+		if (__builtin_expect(t_cachedTid == 0, 0)) {
+			cacheTid();
+		}
+		return std::to_string(t_cachedTid);
+#endif
 	}
 
 	void _trim_file(char const* _FILE_, char* buf, size_t size) {

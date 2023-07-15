@@ -231,7 +231,7 @@ std::string const strMessageID(
 	if ((mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL ||
 		mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) &&
 		strSubID.empty()) {
-		//屏蔽跟踪心跳包 ///
+		//屏蔽跟踪心跳包
 		return "";
 	}
 	//字符串格式：

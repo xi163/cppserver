@@ -66,7 +66,7 @@ void Container::add(std::string const& name) {
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
 		//name：ip:port
 		muduo::net::InetAddress serverAddr(vec[0], atoi(vec[1].c_str()));
-		LOG_WARN << __FUNCTION__ << " >>> 大厅服[" << vec[0] << ":" << vec[1] << "]";
+		_LOG_WARN(">>> 大厅服[%s:%s]", vec[0].c_str(), vec[1].c_str());
 		//try add & connect
 		clients_->add(name, serverAddr);
 		//try remove from repair
@@ -78,7 +78,7 @@ void Container::add(std::string const& name) {
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
 		//name：roomid:ip:port
 		muduo::net::InetAddress serverAddr(vec[1], atoi(vec[2].c_str()));
-		LOG_WARN << __FUNCTION__ << " >>> 游戏服[" << vec[1] << ":" << vec[2] << "] 房间号[" << vec[0] << "]";
+		_LOG_WARN(">>> 游戏服[%s:%s] 房间号[%s]", vec[1].c_str(), vec[2].c_str(), vec[0].c_str());
 		//try add & connect
 		clients_->add(name, serverAddr);
 		//try remove from repair
@@ -91,7 +91,7 @@ void Container::add(std::string const& name) {
 void Container::remove(std::string const& name) {
 	switch (ty_) {
 	case servTyE::kHallTy: {
-		LOG_WARN << __FUNCTION__ << " >>> 大厅服[" << name << "]";
+		_LOG_WARN(">>> 大厅服[%s]", name.c_str());
 		//try remove
 		clients_->remove(name, true);
 		//try remove from repair
@@ -99,7 +99,7 @@ void Container::remove(std::string const& name) {
 		break;
 	}
 	case servTyE::kGameTy: {
-		LOG_WARN << __FUNCTION__ << " >>> 游戏服[" << name << "]";
+		_LOG_WARN(">>> 游戏服[%s]", name.c_str());
 		//try remove
 		clients_->remove(name, true);
 		//try remove from repair

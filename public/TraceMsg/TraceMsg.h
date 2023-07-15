@@ -27,7 +27,7 @@ for (int i = 0; i < ARRAYSIZE(var); ++i) { \
 #define TraceMessageID(mainId, subId) { \
 	std::string s = strMessageID(mainId, subId, false, false); \
 	if(!s.empty()) { \
-		LOG_DEBUG << "--- *** " << s; \
+		_LOG_DEBUG(s.c_str()); \
 	} \
 }
 

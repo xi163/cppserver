@@ -76,20 +76,20 @@ Entry::~Entry() {
 			//////////////////////////////////////////////////////////////////////////
 			//早已空闲超时，业务处理完毕，响应客户端时间(>timeout)
 			//////////////////////////////////////////////////////////////////////////
-			LOG_WARN << __FUNCTION__ << " "
-				<< peerName_ << "[" << conn->peerAddress().toIpPort() << "] -> "
-				<< localName_ << "[" << conn->localAddress().toIpPort() << "] Entry::dtor["
-				<< entryContext->getSession() << "] finished processing";
+			_LOG_WARN("%s[%s] -> %s[%s] Entry::dtor[%s] finished processing",
+				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
+				localName_.c_str(), conn->localAddress().toIpPort().c_str(),
+				entryContext->getSession().c_str());
 			break;
 		}
 		default: {
 			//////////////////////////////////////////////////////////////////////////
 			//已经空闲超时，没有业务处理，响应客户端时间(<timeout)
 			//////////////////////////////////////////////////////////////////////////
-			LOG_WARN << __FUNCTION__ << " "
-				<< peerName_ << "[" << conn->peerAddress().toIpPort() << "] -> "
-				<< localName_ << "[" << conn->localAddress().toIpPort() << "] Entry::dtor["
-				<< entryContext->getSession() << "] timeout closing";
+			_LOG_WARN("%s[%s] -> %s[%s] Entry::dtor[%s] timeout closing",
+				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
+				localName_.c_str(), conn->localAddress().toIpPort().c_str(),
+				entryContext->getSession().c_str());
 			onIdleTimeout(conn, ty_);
 			break;
 		}
@@ -101,14 +101,14 @@ Entry::~Entry() {
 			//////////////////////////////////////////////////////////////////////////
 			//业务处理完毕，连接被提前关闭，响应客户端时间(<timeout)
 			//////////////////////////////////////////////////////////////////////////
-			//LOG_WARN << __FUNCTION__ << " Entry::dtor - ahead of finished processing";
+			_LOG_WARN("ahead of finished processing");
 			break;
 		}
 		default: {
 			//////////////////////////////////////////////////////////////////////////
 			//其它非法原因，连接被提前关闭，响应客户端时间(<timeout)
 			//////////////////////////////////////////////////////////////////////////
-			//LOG_WARN << __FUNCTION__ << " Entry::dtor - unknown closed";
+			_LOG_WARN("unknown closed");
 			break;
 		}
 		}

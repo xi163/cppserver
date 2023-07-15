@@ -15,15 +15,19 @@ void GateServ::onInnConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "网关服[" << conn->localAddress().toIpPort() << "] <- 推送服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("网关服[%s] <- 推送服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "网关服[" << conn->localAddress().toIpPort() << "] <- 推送服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("网关服[%s] <- 推送服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 	}
 }
 
@@ -117,6 +121,6 @@ void GateServ::asyncInnHandler(
 }
 
 void GateServ::onMarqueeNotify(std::string const& msg) {
-	LOG_WARN << "跑马灯消息\n" << msg;
+	_LOG_INFO("跑马灯消息\n%s", msg.c_str());
 	broadcastNoticeMsg("跑马灯消息", msg, 0, 2);
 }

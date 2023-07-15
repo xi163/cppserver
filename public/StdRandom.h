@@ -129,7 +129,7 @@ namespace STD {
 			assert(weight_.size() > 0);
 #ifdef DEBUG_PRINT
 			for (int i = 0; i < weight_.size(); ++i) {
-				printf("w[%d]=%d\n", indxId_[i], weight_[i]);
+				_LOG_DEBUG("w[%d]=%d\n", indxId_[i], weight_[i]);
 			}
 #endif
 			int r = rand_.randInt_mt(bv), c = r;
@@ -137,8 +137,8 @@ namespace STD {
 				c -= weight_[i];
 				if (c <= 0) {
 #ifdef DEBUG_PRINT
-					printf("sum=%d r=%d i=%d\n", sum_, r, indxId_[i]);
-					printf("-------------------------\n\n\n");
+					_LOG_DEBUG("sum=%d r=%d i=%d\n", sum_, r, indxId_[i]);
+					_LOG_DEBUG("-------------------------\n\n\n");
 #endif
 					return indxId_[i];
 				}
@@ -232,7 +232,7 @@ namespace STD {
 			}
 			fflush(fp);
 			fclose(fp);
-			printf("c:%d:%d scale:%d ratioExC:%d exC:%d:ratio:%.02f\n",
+			_LOG_DEBUG("c:%d:%d scale:%d ratioExC:%d exC:%d:ratio:%.02f\n",
 				c, exC + noExC, scale, ratioExC,
 				exC, ((float)exC) / (float)(exC + noExC));
 		}

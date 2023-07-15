@@ -50,7 +50,7 @@ struct ConnBucket : public muduo::noncopyable {
 		//心跳间隔时间(interval)
 		buckets_.resize(size);
 #ifdef _DEBUG_BUCKETS_
-		LOG_WARN << __FUNCTION__ << " loop[" << index << "] timeout = " << size << "s";
+		_LOG_WARN("loop[%d] timeout = %ds", index, size);
 #endif
 	}
 	//定时器弹出操作，强行关闭空闲超时连接!
@@ -63,7 +63,7 @@ struct ConnBucket : public muduo::noncopyable {
 		//////////////////////////////////////////////////////////////////////////
 		buckets_.push_back(Bucket());
 #ifdef _DEBUG_BUCKETS_
-		LOG_WARN << __FUNCTION__ << " loop[" << index_ << "] timeout[" << buckets_.size() << "]";
+		_LOG_WARN("loop[%d] timeout = %ds", index, buckets_.size());
 #endif
 		loop_->runAfter(1.0f, std::bind(&ConnBucket::onTick, this));
 	}
@@ -76,8 +76,7 @@ struct ConnBucket : public muduo::noncopyable {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				LOG_WARN << __FUNCTION__ << " loop[" << index_ << "] timeout[" << buckets_.size() << "] 客户端[" << conn->peerAddress().toIpPort() << "] -> 网关服["
-					<< conn->localAddress().toIpPort() << "]";
+				_LOG_WARN("loop[%d] timeout = %ds 客户端[%s] -> 网关服[%s]", index, buckets_.size(), conn->peerAddress().toIpPort().c_str(), conn->localAddress().toIpPort().c_str());
 #endif
 			}
 		}
@@ -94,8 +93,7 @@ struct ConnBucket : public muduo::noncopyable {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				LOG_WARN << __FUNCTION__ << " loop[" << index_ << "] timeout[" << buckets_.size() << "] 客户端[" << conn->peerAddress().toIpPort() << "] -> 网关服["
-					<< conn->localAddress().toIpPort() << "]";
+				_LOG_WARN("loop[%d] timeout = %ds 客户端[%s] -> 网关服[%s]", index, buckets_.size(), conn->peerAddress().toIpPort().c_str(), conn->localAddress().toIpPort().c_str());
 #endif
 			}
 		}
@@ -130,7 +128,7 @@ struct Context : public muduo::noncopyable {
 		reset();
 	}
 	~Context() {
-		//LOG_WARN << __FUNCTION__ << " Context::dtor";
+		//_LOG_WARN("Context::dtor");
 		reset();
 	}
 	inline void reset() {

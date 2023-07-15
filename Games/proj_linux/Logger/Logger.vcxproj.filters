@@ -65,6 +65,21 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.h">
       <Filter>src\op\file\impl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\ini\ini.h">
+      <Filter>src\ini</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.h">
+      <Filter>src\ini\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.h">
+      <Filter>src\log\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_win.h">
+      <Filter>src\log\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color.h">
+      <Filter>src\log\impl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -114,6 +129,12 @@
     </Filter>
     <Filter Include="src\op\file\impl">
       <UniqueIdentifier>{d367e0a4-980c-4e9c-9f24-61f91aae4856}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ini">
+      <UniqueIdentifier>{f7e96968-b0ec-41fa-926d-8f04075e2e02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ini\impl">
+      <UniqueIdentifier>{10dc40b7-4cda-4195-8b42-e97b29fddcfe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +188,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.cpp">
       <Filter>src\op\file\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\ini.cpp">
+      <Filter>src\ini\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cpp">
+      <Filter>src\ini\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.cc">
+      <Filter>src\log\impl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -53,17 +53,17 @@ static bool CheckSubnetIpstr(char const* srcIpstr, char const* dstIpstr) {
 	sockaddr_in sinaddr, dinaddr, minaddr;
 	//char const* srcIpstr = "192.168.161.12";
 	if (inet_pton(AF_INET, srcIpstr, &sinaddr.sin_addr) < 1) {
-		printf("inet_pton error:%s\n", srcIpstr);
+		_LOG_ERROR("inet_pton error:%s", srcIpstr);
 		assert(false);
 	}
 	//char const* dstIpstr = "192.168.160.2";
 	if (inet_pton(AF_INET, dstIpstr, &dinaddr.sin_addr) < 1) {
-		printf("inet_pton error:%s\n", dstIpstr);
+		_LOG_ERROR("inet_pton error:%s", dstIpstr);
 		assert(false);
 	}
 	char const* maskIpstr = "255.255.255.0";
 	if (inet_pton(AF_INET, maskIpstr, &minaddr.sin_addr) < 1) {
-		printf("inet_pton error:%s\n", maskIpstr);
+		_LOG_ERROR("inet_pton error:%s", maskIpstr);
 		assert(false);
 	}
 	//11000000 10101000 10100001 00001100
@@ -76,12 +76,10 @@ static bool CheckSubnetIpstr(char const* srcIpstr, char const* dstIpstr) {
 	uint32_t srcmask = sinetaddr & minetaddr;
 	uint32_t dstmask = dinetaddr & minetaddr;
 	if (srcmask == dstmask) {
-		printf("\n\n=======================================================\n");
-		printf("same subnet: %#X:%s & %#X:%s\n\n", sinetaddr, srcIpstr, dinetaddr, dstIpstr);
+		_LOG_WARN("same subnet: %#X:%s & %#X:%s", sinetaddr, srcIpstr, dinetaddr, dstIpstr);
 	}
 	else {
-		printf("\n\n=======================================================\n");
-		printf("different subnet: %#X:%s & %#X:%s\n\n", sinetaddr, srcIpstr, dinetaddr, dstIpstr);
+		_LOG_WARN("different subnet: %#X:%s & %#X:%s", sinetaddr, srcIpstr, dinetaddr, dstIpstr);
 	}
 	return srcmask == dstmask;
 }
@@ -90,7 +88,7 @@ static bool CheckSubnetInetIp(uint32_t srcInetIp, uint32_t dstInetIp) {
 	sockaddr_in sinaddr, dinaddr, minaddr;
 	char const* maskIpstr = "255.255.255.0";
 	if (inet_pton(AF_INET, maskIpstr, &minaddr.sin_addr) < 1) {
-		printf("inet_pton error:%s\n", maskIpstr);
+		_LOG_ERROR("inet_pton error:%s\n", maskIpstr);
 		assert(false);
 	}
 	//11000000 10101000 10100001 00001100
@@ -105,12 +103,10 @@ static bool CheckSubnetInetIp(uint32_t srcInetIp, uint32_t dstInetIp) {
 	char const* srcIpstr = Inet2Ipstr(srcInetIp).c_str();
 	char const* dstIpstr = Inet2Ipstr(dstInetIp).c_str();
 	if (srcmask == dstmask) {
-		printf("\n\n=======================================================\n");
-		printf("same subnet: %#X:%s & %#X:%s\n\n", sinetaddr, srcIpstr, dinetaddr, dstIpstr);
+		_LOG_WARN("same subnet: %#X:%s & %#X:%s", sinetaddr, srcIpstr, dinetaddr, dstIpstr);
 	}
 	else {
-		printf("\n\n=======================================================\n");
-		printf("different subnet: %#X:%s & %#X:%s\n\n", sinetaddr, srcIpstr, dinetaddr, dstIpstr);
+		_LOG_WARN("different subnet: %#X:%s & %#X:%s", sinetaddr, srcIpstr, dinetaddr, dstIpstr);
 	}
 	return srcmask == dstmask;
 }

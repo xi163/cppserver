@@ -107,9 +107,7 @@ bool GateServ::InitZookeeper(std::string const& ipaddr) {
 	zkclient_->SetConnectedWatcherHandler(
 		std::bind(&GateServ::onZookeeperConnected, this));
 	if (!zkclient_->connectServer()) {
-		LOG_FATAL << __FUNCTION__ << " --- *** " << "initZookeeper error";
-		abort();
-		return false;
+		_LOG_FATAL("initZookeeper error");
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
 	return true;
@@ -153,10 +151,11 @@ void GateServ::onZookeeperConnected() {
 				std::placeholders::_3, std::placeholders::_4,
 				std::placeholders::_5),
 			this)) {
-			LOG_WARN << __FUNCTION__ << " --- *** 可用大厅服列表";
+			std::string s;
 			for (std::string const& name : names) {
-				printf("%s\n", name.c_str());
+				s += "\n" + name;
 			}
+			_LOG_WARN("可用大厅服列表%s", s.c_str());
 			clients_[servTyE::kHallTy].add(names);
 		}
 	}
@@ -172,10 +171,11 @@ void GateServ::onZookeeperConnected() {
 				std::placeholders::_3, std::placeholders::_4,
 				std::placeholders::_5),
 			this)) {
-			LOG_WARN << __FUNCTION__ << " --- *** 可用游戏服列表";
+			std::string s;
 			for (std::string const& name : names) {
-				printf("%s\n", name.c_str());
+				s += "\n" + name;
 			}
+			_LOG_WARN("可用游戏服列表%s", s.c_str());
 			clients_[servTyE::kGameTy].add(names);
 		}
 	}
@@ -195,10 +195,11 @@ void GateServ::onHallWatcher(
 			std::placeholders::_3, std::placeholders::_4,
 			std::placeholders::_5),
 		this)) {
-		LOG_WARN << __FUNCTION__ << " --- *** 可用大厅服列表";
+		std::string s;
 		for (std::string const& name : names) {
-			printf("%s\n", name.c_str());
+			s += "\n" + name;
 		}
+		_LOG_WARN("可用大厅服列表%s", s.c_str());
 		clients_[servTyE::kHallTy].process(names);
 	}
 }
@@ -217,10 +218,11 @@ void GateServ::onGameWatcher(
 			std::placeholders::_3, std::placeholders::_4,
 			std::placeholders::_5),
 		this)) {
-		LOG_WARN << __FUNCTION__ << " --- *** 可用游戏服列表";
+		std::string s;
 		for (std::string const& name : names) {
-			printf("%s\n", name.c_str());
+			s += "\n" + name;
 		}
+		_LOG_WARN("可用游戏服列表%s", s.c_str());
 		clients_[servTyE::kGameTy].process(names);
 	}
 }
@@ -231,7 +233,7 @@ void GateServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
 		zkclient_->createNode("/GAME/ProxyServers", "ProxyServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
-		LOG_ERROR << __FUNCTION__ << " " << nodePath_;
+		_LOG_ERROR(nodePath_.c_str());
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
@@ -240,8 +242,7 @@ void GateServ::registerZookeeper() {
 bool GateServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
 	if (!redisClient_->initRedisCluster(ipaddr, passwd)) {
-		LOG_FATAL << __FUNCTION__ << " --- *** " << "initRedisCluster error";
-		abort();
+		_LOG_FATAL("initRedisCluster error");
 		return false;
 	}
 	redisIpaddr_ = ipaddr;
@@ -260,7 +261,7 @@ bool GateServ::InitRedisCluster(std::string const& ipaddr, std::string const& pa
 bool GateServ::InitMongoDB(std::string const& url) {
 #if 0
 	//http://mongocxx.org/mongocxx-v3/tutorial/
-	LOG_INFO << __FUNCTION__ << " --- *** " << url;
+	_LOG_INFO(url.c_str());
 	mongocxx::instance instance{};
 	//mongoDBUrl_ = url;
 	//http://mongocxx.org/mongocxx-v3/tutorial/
@@ -276,21 +277,23 @@ static __thread mongocxx::database* dbgamemain_;
 
 void GateServ::threadInit() {
 	if (!REDISCLIENT.initRedisCluster(redisIpaddr_, redisPasswd_)) {
-		LOG_FATAL << __FUNCTION__ << " --- *** " << "initRedisCluster error";
-		abort();
+		_LOG_FATAL("initRedisCluster error");
 	}
 #if 0
 	static __thread mongocxx::database db = MONGODBCLIENT["gamemain"];
 	dbgamemain_ = &db;
 #endif
 #if 0
+	std::string s;
 	for (std::vector<std::string>::const_iterator it = redlockVec_.begin();
 		it != redlockVec_.end(); ++it) {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, *it, boost::is_any_of(":"));
-		LOG_INFO << __FUNCTION__ << " --- *** " << "\nredisLock " << vec[0].c_str() << ":" << vec[1].c_str();
+		s += "\n" + vec[0];
+		s += ":" + vec[1];
 		REDISLOCK.AddServerUrl(vec[0].c_str(), atol(vec[1].c_str()));
 	}
+	_LOG_WARN("redisLock%s", s.c_str());
 #endif
 }
 
@@ -306,11 +309,8 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 
-	LOG_INFO << __FUNCTION__ << " --- *** "
-		<< "\nGateSrv = " << server_.ipPort()
-		<< " numThreads: I/O = " << numThreads
-		<< ", worker = " << numWorkerThreads;
-
+	_LOG_INFO("GateSrv = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, numWorkerThreads);
+	
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == IpVisitCtrlE::kOpenAccept) {
 		server_.setConditionCallback(std::bind(&GateServ::onCondition, this, std::placeholders::_1));

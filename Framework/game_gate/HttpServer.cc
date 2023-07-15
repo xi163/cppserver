@@ -40,9 +40,11 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "WEB前端[" << conn->peerAddress().toIpPort() << "] -> 网关服["
-			<< conn->localAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("WEB端[%s] -> 网关服[%s] %s %d",
+			conn->peerAddress().toIpPort().c_str(),
+			conn->localAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 		numTotalReq_.incrementAndGet();
 		if (num > kMaxConnections_) {
 			muduo::net::HttpResponse rsp(false);
@@ -92,9 +94,11 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "WEB前端[" << conn->peerAddress().toIpPort() << "] -> 网关服["
-			<< conn->localAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("WEB端[%s] -> 网关服[%s] %s %d",
+			conn->peerAddress().toIpPort().c_str(),
+			conn->localAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"),
+			num);
 	}
 }
 
@@ -106,11 +110,8 @@ void GateServ::onHttpMessage(
 	if (!conn || conn->getContext().empty()) {
 		return;
 	}
-
-	//LOG_ERROR << __FUNCTION__ << " --- *** ";
-	//printf("----------------------------------------------\n");
-	//printf("%.*s\n", buf->readableBytes(), buf->peek());
-
+	//_LOG_ERROR("%.*s", buf->readableBytes(), buf->peek());
+	
 	//先确定是HTTP数据报文，再解析
 	//assert(buf->readableBytes() > 4 && buf->findCRLFCRLF());
 
@@ -215,7 +216,7 @@ void GateServ::onHttpMessage(
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			LOG_ERROR << __FUNCTION__ << " --- *** " << "entry invalid";
+			_LOG_ERROR("entry invalid");
 		}
 		return;
 	}
@@ -251,7 +252,6 @@ void GateServ::asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp 
 		entry->setLocked();
 		muduo::net::TcpConnectionPtr conn(entry->getWeakConnPtr().lock());
 		if (conn) {
-			//LOG_ERROR << __FUNCTION__ << " bufsz = " << buf->readableBytes();
 #if 0
 			//Accept时候判断，socket底层控制，否则开启异步检查
 			if (whiteListControl_ == IpVisitCtrlE::kOpen) {
@@ -310,17 +310,17 @@ void GateServ::asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp 
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			//LOG_ERROR << __FUNCTION__ << " --- *** " << "TcpConnectionPtr.conn invalid";
+			_LOG_ERROR("TcpConnectionPtr.conn invalid");
 		}
 	}
 	else {
 		numTotalBadReq_.incrementAndGet();
-		//LOG_ERROR << __FUNCTION__ << " --- *** " << "entry invalid";
+		_LOG_ERROR("entry invalid");
 	}
 }
 
 void GateServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
-	LOG_WARN << __FUNCTION__;
+	_LOG_WARN("...");
 	conn->getLoop()->assertInLoopThread();
 #if 0
 	//不再发送数据
@@ -353,7 +353,7 @@ static std::string getRequestStr(muduo::net::HttpRequest const& req) {
 
 static bool parseQuery(std::string const& queryStr, HttpParams& params, std::string& errmsg) {
 	params.clear();
-	LOG_DEBUG << "--- *** " << "\n" << queryStr;
+	_LOG_DEBUG(queryStr.c_str());
 	do {
 		std::string subStr;
 		std::string::size_type npos = queryStr.find_first_of('?');
@@ -395,9 +395,9 @@ static bool parseQuery(std::string const& queryStr, HttpParams& params, std::str
 	} while (0);
 	std::string keyValues;
 	for (auto param : params) {
-		keyValues += "\n--- **** " + param.first + "=" + param.second;
+		keyValues += "\n" + param.first + "=" + param.second;
 	}
-	//LOG_DEBUG << "--- *** " << keyValues;
+	//_LOG_DEBUG(keyValues.c_str());
 	return true;
 }
 
@@ -405,7 +405,7 @@ void GateServ::processHttpRequest(
 	const muduo::net::HttpRequest& req, muduo::net::HttpResponse& rsp,
 	muduo::net::InetAddress const& peerAddr,
 	muduo::Timestamp receiveTime) {
-	//LOG_INFO << __FUNCTION__ << " --- *** " << getRequestStr(req);
+	//_LOG_INFO(getRequestStr(req).c_str());
 	rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
 	rsp.setStatusMessage("OK");
 	//注意要指定connection状态
@@ -423,7 +423,7 @@ void GateServ::processHttpRequest(
 #endif
 	}
 	else if (req.path() == "/GameHandle") {
-		LOG_ERROR << "--- *** " << req.methodString() << "\n" << req.query();
+		_LOG_ERROR("%s\n%s", req.methodString(), req.query().c_str());
 		rsp.setContentType("application/xml;charset=utf-8");
 		rsp.setBody(getRequestStr(req));
 	}
@@ -529,11 +529,12 @@ bool GateServ::refreshWhiteListSync() {
 		WRITE_LOCK(whiteList_mutex_);
 		whiteList_.clear();
 	}
+	std::string s;
 	for (std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.begin();
 		it != whiteList_.end(); ++it) {
-		LOG_DEBUG << "--- *** " << "IP访问白名单\n"
-			<< "--- *** ipaddr[" << Inet2Ipstr(it->first) << "] status[" << it->second << "]";
+		s += std::string("\nipaddr[") + Inet2Ipstr(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
+	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
 	return false;
 }
 
@@ -542,11 +543,12 @@ bool GateServ::refreshWhiteListInLoop() {
 	assert(whiteListControl_ == IpVisitCtrlE::kOpenAccept);
 	httpServer_.getLoop()->assertInLoopThread();
 	whiteList_.clear();
+	std::string s;
 	for (std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.begin();
 		it != whiteList_.end(); ++it) {
-		LOG_DEBUG << "--- *** " << "IP访问白名单\n"
-			<< "--- *** ipaddr[" << Inet2Ipstr(it->first) << "] status[" << it->second << "]";
+		s += std::string("\nipaddr[") + Inet2Ipstr(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
+	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
  	return false;
 }
 
@@ -576,7 +578,7 @@ static std::string createResponse(
 
 //请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
 bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
-	LOG_ERROR << __FUNCTION__ << " --- *** " << "name[" << name << "] status[" << status << "]";
+	_LOG_WARN("name[%s] status[%d]", name.c_str(), status);
 	static std::string path[kMaxServTy] = {
 		"/GAME/HallServers/",
 		"/GAME/GameServers/",
@@ -597,7 +599,7 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 			if (clients_[servTy].exist(name) && !clients_[servTy].isRepairing(name)) {
 				//当前仅有一个提供服务的节点，禁止挂维护
 				if (clients_[servTy].remaining() <= 1) {
-					LOG_ERROR << __FUNCTION__ << " --- *** " << "当前仅有一个提供服务的节点，禁止挂维护!!!";
+					_LOG_ERROR("当前仅有一个提供服务的节点，禁止挂维护!!!");
 					rspdata = createResponse(status, servname, name, 2, "仅剩余一个服务节点，禁止挂维护");
 					break;
 				}
@@ -608,14 +610,14 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 					//zkclient_->createNode(repairnode, name, true);
 					//挂维护中状态
 					clients_[servTy].repair(name);
-					LOG_ERROR << __FUNCTION__ << " --- *** " << "创建维护节点 " << repairnode;
+					_LOG_ERROR("创建维护节点 %s", repairnode.c_str());
 				//}
 				//删除 servicenode
 				std::string servicenode = path[servTy] + name;
 				//if (ZNONODE != zkclient_->existsNode(servicenode)) {
 					//删除服务节点
 					//zkclient_->deleteNode(servicenode);
-					LOG_ERROR << __FUNCTION__ << " --- *** " << "删除服务节点 " << servicenode;
+					_LOG_ERROR("删除服务节点 %s", servicenode.c_str());
 				//}
 				rspdata = createResponse(status, servname, name, 0, "success");
 			}
@@ -640,14 +642,14 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 					//zkclient_->createNode(servicenode, name, true);
 					//恢复服务状态
 					clients_[servTy].recover(name);
-					LOG_ERROR << __FUNCTION__ << " --- *** " << "创建服务节点 " << servicenode;
+					_LOG_ERROR("创建服务节点 %s", servicenode.c_str());
 				//}
 				//删除 repairnode
 				std::string repairnode = pathrepair[servTy] + name;
 				//if (ZNONODE != zkclient_->existsNode(repairnode)) {
 					//删除维护节点
 					//zkclient_->deleteNode(repairnode);
-					LOG_ERROR << __FUNCTION__ << " --- *** " << "删除维护节点 " << repairnode;
+					_LOG_ERROR("删除维护节点 %s", repairnode.c_str());
 				//}
 				rspdata = createResponse(status, servname, name, 0, "success");
 			}
@@ -752,6 +754,6 @@ void GateServ::repairServerNotify(std::string const& msg, std::string& rspdata) 
 		} while (0);
 	}
 	catch (boost::property_tree::ptree_error & e) {
-		LOG_ERROR << __FUNCTION__ << " " << e.what();
+		_LOG_ERROR(e.what());
 	}
 }

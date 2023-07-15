@@ -28,6 +28,9 @@
     <Filter Include="public\codec">
       <UniqueIdentifier>{9968559f-9990-4841-9feb-b71c23640ebf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Logger">
+      <UniqueIdentifier>{384c178e-6f10-431b-a9cb-60b72e519eec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
@@ -118,6 +121,18 @@
     <ClInclude Include="..\..\..\Framework\game_gate\Gateway.h">
       <Filter>nodes</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
@@ -126,7 +141,7 @@
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp">
       <Filter>public\zookeeperclient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.c">
+    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.cc">
       <Filter>public\zookeeperclient</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp">
