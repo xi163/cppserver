@@ -67,7 +67,6 @@
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperlocker.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />

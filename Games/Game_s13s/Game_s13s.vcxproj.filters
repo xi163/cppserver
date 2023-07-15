@@ -10,6 +10,9 @@
     <Filter Include="pb">
       <UniqueIdentifier>{1452a95f-dda3-446a-b0d7-f0360b82b642}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Logger">
+      <UniqueIdentifier>{752d8197-5a24-4afb-bce8-ae5ecb1c6290}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="funcC.cpp">
@@ -66,5 +69,14 @@
       <Filter>pb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Framework\game_serv\gameDefine.h" />
+    <ClInclude Include="..\..\thirdpart\Logger\src\Macro.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdpart\Logger\src\log\Logger.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdpart\Logger\src\utils\utils.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

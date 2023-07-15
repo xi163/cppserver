@@ -1304,7 +1304,7 @@ bool CGameTable::OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* d
 	if (chairId == INVALID_CHAIR || !bPlaying_[chairId]) {
 		return false;
 	}
-	_LOG_INFO"[%s][%d][%s] %d %d %s %s",
+	_LOG_INFO("[%s][%d][%s] %d %d %s %s",
 		strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 		chairId, UserIdBy(chairId), (ByChairId(chairId)->IsRobot() ? "robot" : "real"),
 		StringSubId(subId).c_str());

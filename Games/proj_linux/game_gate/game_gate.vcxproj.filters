@@ -130,9 +130,6 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h">
       <Filter>Logger</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">

@@ -46,6 +46,9 @@
     <ClInclude Include="..\..\Framework\game_serv\interface\ITable.h" />
     <ClInclude Include="..\..\Framework\game_serv\interface\ITableDelegate.h" />
     <ClInclude Include="..\..\proto\s13s.Message.pb.h" />
+    <ClInclude Include="..\..\thirdpart\Logger\src\log\Logger.h" />
+    <ClInclude Include="..\..\thirdpart\Logger\src\Macro.h" />
+    <ClInclude Include="..\..\thirdpart\Logger\src\utils\utils.h" />
     <ClInclude Include="AndroidUserItemSink.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
