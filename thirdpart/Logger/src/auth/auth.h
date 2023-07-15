@@ -3,7 +3,7 @@
 
 #include "../Macro.h"
 
-#define AUTHORIZATION_SUPPORT
+//#define AUTHORIZATION_SUPPORT
 
 namespace utils {
 

@@ -5,7 +5,10 @@
 #ifdef _windows_
 #include <process.h>
 #include "../../utils/impl/gettimeofday.h"
+#elif defined(_linux_)
 #endif
+
+#include "color.h"
 
 #ifdef QT_SUPPORT
 #include <QDebug>
@@ -584,15 +587,45 @@ namespace LOGGER {
 		switch (level) {
 		case LVL_FATAL:
 		case LVL_TRACE: {
-			printf("%.*s", (int)len, msg);
-			printf("%.*s", (int)stacklen, stack);//stack
+			if ((flag & F_TMSTMP)) {
+				//::SetConsoleTextAttribute(h, color[level][0]);
+				Printf(color[level][0], "%.*s", (int)pos - 1, msg + 1);
+				//::SetConsoleTextAttribute(h, color[level][1]);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				//::SetConsoleTextAttribute(h, color[level][0]);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);//stack
+			}
+			else if ((flag & F_DETAIL)) {
+				//::SetConsoleTextAttribute(h, color[level][0]);
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				//::SetConsoleTextAttribute(h, color[level][1]);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				//::SetConsoleTextAttribute(h, color[level][0]);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);//stack
+			}
+			else {
+				//::SetConsoleTextAttribute(h, color[level][0]);
+				Printf(color[level][0], "%.*s", (int)len - (int)pos, msg + pos);
+				//::SetConsoleTextAttribute(h, color[level][0]);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);//stack
+			}
 			break;
 		}
 		case LVL_ERROR:
 		case LVL_WARN:
 		case LVL_INFO:
 		case LVL_DEBUG: {
-			printf("%.*s", (int)len, msg);
+			if ((flag & F_TMSTMP)) {
+				Printf(color[level][0], "%.*s", (int)pos - 1, msg + 1);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+			}
+			else if ((flag & F_DETAIL)) {
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+			}
+			else {
+				Printf(color[level][0], "%.*s", (int)len - (int)pos, msg + pos);
+			}
 			break;
 		}
 		}
