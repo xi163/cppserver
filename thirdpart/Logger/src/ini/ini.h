@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef INCLUDE_INI_H
+#define INCLUDE_INI_H
 
 #include "../Macro.h"
 
@@ -44,3 +45,5 @@ namespace utils {
 		};
 	}
 }
+
+#endif
