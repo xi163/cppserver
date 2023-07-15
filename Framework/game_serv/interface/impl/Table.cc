@@ -266,10 +266,10 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
 			if (player && player->Valid()) {
                 int64_t userId = player->GetUserId();
 				if (!OnUserStandup(player, sendState)) {
-                    LOG_ERROR << __FUNCTION__ << " " << (player->IsRobot() ? "<robot>" : "<real>") << " " << chairId << " " << userId << " err, sPlaying!";
+                    _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
 				}
 				else {
-                    LOG_WARN << __FUNCTION__ << " " << (player->IsRobot() ? "<robot>" : "<real>") << " " << chairId << " " << userId << " ok";
+                    _LOG_ERROR("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
 				}
 			}
 		}
@@ -282,10 +282,10 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
 		if (player && player->Valid()) {
             int64_t userId = player->GetUserId();
 			if (!OnUserStandup(player, sendState)) {
-                LOG_ERROR << __FUNCTION__ << " " << (player->IsRobot() ? "<robot>" : "<real>") << " " << chairId << " " << userId << " err, sPlaying!";
+                _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
 			}
 			else {
-                LOG_WARN << __FUNCTION__ << " " << (player->IsRobot() ? "<robot>" : "<real>") << " " << chairId << " " << userId << " ok";
+                _LOG_ERROR("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
 			}
 		}
 	}
@@ -412,7 +412,7 @@ void CTable::SetUserReady(uint32_t chairId) {
 //点击离开按钮
 bool CTable::OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf, bool forceLeave) {
     if (!player->IsRobot()) {
-        LOG_WARN << __FUNCTION__ << " " << player->GetUserId() << " 点击离开按钮";
+        _LOG_INFO("%d 点击离开按钮", player->GetUserId());
     }
 //	if (status_ >= GAME_STATUS_START && status_ < GAME_STATUS_END) {
         //tableContext_->DelContext(player->GetUserId());
@@ -431,7 +431,7 @@ bool CTable::OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf,
 //关闭页面
 bool CTable::OnUserOffline(std::shared_ptr<IPlayer> const& player, bool leave) {
     if (!player->IsRobot()) {
-        LOG_WARN << __FUNCTION__ << " " << player->GetUserId() << " 关闭页面";
+        _LOG_INFO("%d 关闭页面", player->GetUserId());
     }
     //tableContext_->DelContext(player->GetUserId());
 	player->setOffline();
@@ -597,7 +597,7 @@ bool CTable::OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendStat
 		//assert(player->GetTableId() == GetTableId());
 		//assert(player.get() == GetChairPlayer(chairId).get());
 		if (player->IsRobot()) {
-            LOG_ERROR << __FUNCTION__ << " <robot> " << chairId << " " << userId;
+            _LOG_WARN("<robot> %d %d", chairId, userId);
 			//清理机器人数据
 			CRobotMgr::get_mutable_instance().Delete(userId);
 		}
@@ -615,7 +615,7 @@ bool CTable::OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendStat
 				response.set_errormsg("游戏维护请进入其他房间");
 				send(player, &response, mainId, subId);
 			}
-            LOG_ERROR << __FUNCTION__ << " <real> " << chairId << " " << userId;
+            _LOG_WARN("<real> %d %d", chairId, userId);
 			//清理真人数据
 			tableContext_->DelContext(userId);
 			DelUserOnlineInfo(userId);
@@ -941,7 +941,7 @@ bool CTable::WriteUserScore(tagScoreInfo* pScoreInfo, uint32_t nCount, std::stri
 //                }
                 }else
                 {
-                    LOG_WARN << " >>> WriteUserScore player is NULL! <<<";
+                    //LOG_WARN << " >>> WriteUserScore player is NULL! <<<";
                     continue;
                 }
             }
@@ -949,7 +949,7 @@ bool CTable::WriteUserScore(tagScoreInfo* pScoreInfo, uint32_t nCount, std::stri
         }catch(std::exception &e)
         {
 //            dbSession.abort_transaction();
-            LOG_ERROR << "MongoDB WriteData Error:"<<e.what();
+            //LOG_ERROR << "MongoDB WriteData Error:"<<e.what();
         }
     }
     return true;
@@ -1122,7 +1122,7 @@ bool CTable::WriteSpecialUserScore(tagSpecialScoreInfo* pSpecialScoreInfo, uint3
         }catch(std::exception &e)
         {
             dbSession.abort_transaction();
-            LOG_ERROR << "MongoDB WriteData Error:"<<e.what();
+            //LOG_ERROR << "MongoDB WriteData Error:"<<e.what();
         }
     }
     return true;
@@ -1150,14 +1150,14 @@ bool CTable::UpdateUserScoreToDB(int64_t userId, tagScoreInfo* pScoreInfo) {
                 res = REDISCLIENT.hget(key,REDIS_ADDSCORE,addscorestr);
                 if(!res)
                 {
-                    LOG_ERROR << "read addscore from redis faild";
+                    //LOG_ERROR << "read addscore from redis faild";
                     break;
                 }
                 int64_t addscore = stod(addscorestr);
                 res = REDISCLIENT.hget(key,REDIS_SUBSCORE,addscorestr);
                 if(!res)
                 {
-                    LOG_ERROR << "read subscore from redis faild";
+                    //LOG_ERROR << "read subscore from redis faild";
                     break;
                 }
                 int64_t subscore = stod(addscorestr);
@@ -1165,7 +1165,7 @@ bool CTable::UpdateUserScoreToDB(int64_t userId, tagScoreInfo* pScoreInfo) {
                 res = REDISCLIENT.hget(key,REDIS_WINSCORE,addscorestr);
                 if(!res)
                 {
-                    LOG_ERROR << "read subscore from redis faild";
+                    //LOG_ERROR << "read subscore from redis faild";
                     break;
                 }
                 int64_t totalWinScore = stod(addscorestr);
@@ -1339,8 +1339,7 @@ bool CTable::AddUserGameInfoToDB(tagSpecialScoreInfo *scoreInfo, std::string &st
 
         auto doc = after_array << bsoncxx::builder::stream::finalize;
 
-        LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(doc);
-
+        //_LOG_DEBUG("Insert Document: %s", bsoncxx::to_json(doc).c_str());
         mongocxx::collection coll = MONGODBCLIENT["gamemain"]["play_record"];
         bsoncxx::stdx::optional<mongocxx::result::insert_one> result = coll.insert_one(doc.view());
         if(result)
@@ -1372,7 +1371,7 @@ bool CTable::AddScoreChangeRecordToDB(UserBaseInfo &userBaseInfo, int64_t source
                 << "logdate" << bsoncxx::types::b_date(chrono::system_clock::now())
                 << bsoncxx::builder::stream::finalize;
 
-        LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
+        //LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
 
 #if 1
         mongocxx::collection coll = MONGODBCLIENT["gamemain"]["user_score_record"];
@@ -1409,7 +1408,7 @@ bool CTable::AddScoreChangeRecordToDB(tagSpecialScoreInfo *scoreInfo) {
                 << "logdate" << bsoncxx::types::b_date(chrono::system_clock::now())
                 << bsoncxx::builder::stream::finalize;
 
-        LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
+        //LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
 
         mongocxx::collection coll = MONGODBCLIENT["gamemain"]["user_score_record"];
         bsoncxx::stdx::optional<mongocxx::result::insert_one> result = coll.insert_one(insert_value.view());
@@ -1443,7 +1442,7 @@ bool CTable::AddUserGameLogToDB(UserBaseInfo &userBaseInfo, tagScoreInfo *scoreI
                 << "logdate" << bsoncxx::types::b_date(chrono::system_clock::now())
                 << bsoncxx::builder::stream::finalize;
 
-        LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
+        //LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
 
 #if 1
         mongocxx::collection coll = MONGODBCLIENT["gamemain"]["game_log"];
@@ -1481,7 +1480,7 @@ bool CTable::AddUserGameLogToDB(tagSpecialScoreInfo *scoreInfo, std::string &str
                 << "logdate" << bsoncxx::types::b_date(chrono::system_clock::now())
                 << bsoncxx::builder::stream::finalize;
 
-        LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
+        //LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
 
         mongocxx::collection coll = MONGODBCLIENT["gamemain"]["game_log"];
         bsoncxx::stdx::optional<mongocxx::result::insert_one> result = coll.insert_one(insert_value.view());
@@ -1891,7 +1890,7 @@ void CTable::KickOffLine(std::shared_ptr<IPlayer> const& player, int32_t kickTyp
 }
 
 bool CTable::DelUserOnlineInfo(int64_t userId) {
-	LOG_ERROR << __FUNCTION__ << " " << userId;
+    _LOG_ERROR("%d", userId);
 	if (false) {
 		REDISCLIENT.ResetExpiredUserOnlineInfo(userId);
 	}
@@ -1904,7 +1903,7 @@ bool CTable::DelUserOnlineInfo(int64_t userId) {
 }
 
 bool CTable::SetUserOnlineInfo(int64_t userId) {
-    LOG_WARN << __FUNCTION__ << " " << userId << " " << gameInfo_->gameId << " " << roomInfo_->roomId;
+    _LOG_ERROR("%d %d %d", userId, gameInfo_->gameId, roomInfo_->roomId);
     REDISCLIENT.SetUserOnlineInfo(userId, gameInfo_->gameId, roomInfo_->roomId);
     return true;
 }

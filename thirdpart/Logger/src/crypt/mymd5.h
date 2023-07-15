@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INCLUDE_MYMD5_H
+#define INCLUDE_MYMD5_H
 
 // #ifdef __cplusplus
 // extern "C"
@@ -57,3 +58,5 @@ char const* MD5Encode32(char const *src, unsigned len, char dst[], int upper);
 // #ifdef __cplusplus
 // }
 // #endif
+
+#endif

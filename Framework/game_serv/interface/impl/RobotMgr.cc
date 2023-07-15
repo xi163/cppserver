@@ -12,21 +12,17 @@ static RobotDelegateCreator LoadLibrary(std::string const& serviceName) {
 	dllName.insert(0, "./lib");
 	dllName.append(".so");
 	dllName.insert(0, dllPath);
-	LOG_WARN << ">>> Loading " << dllName;
+	_LOG_WARN(dllName.c_str());
 	//getchar();
 	void* handle = dlopen(dllName.c_str(), RTLD_LAZY);
 	if (!handle) {
-		char buf[BUFSIZ] = { 0 };
-		snprintf(buf, BUFSIZ, " Can't Open %s, %s", dllName.c_str(), dlerror());
-		LOG_ERROR << __FUNCTION__ << buf;
+		_LOG_ERROR("Can't Open %s, %s", dllName.c_str(), dlerror());
 		exit(0);
 	}
 	RobotDelegateCreator creator = (RobotDelegateCreator)dlsym(handle, NameCreateRobotDelegate);
 	if (!creator) {
 		dlclose(handle);
-		char buf[BUFSIZ] = { 0 };
-		snprintf(buf, BUFSIZ, " Can't Find %s, %s", NameCreateRobotDelegate, dlerror());
-		LOG_ERROR << __FUNCTION__ << buf;
+		_LOG_ERROR("Can't Find %s, %s", NameCreateRobotDelegate, dlerror());
 		exit(0);
 	}
 	return creator;
@@ -71,7 +67,7 @@ void CRobotMgr::Load() {
 		bsoncxx::stdx::optional<bsoncxx::document::value> result = androidStrategy.find_one(query_value.view());
 		if (result) {
 			bsoncxx::document::view view = result->view();
-			//LOG_DEBUG << "Query Android Strategy:" << bsoncxx::to_json(view);
+			//_LOG_DEBUG(bsoncxx::to_json(view).c_str());
 			robotStrategy_.gameId = view["gameid"].get_int32();
 			robotStrategy_.roomId = view["roomid"].get_int32();
 			robotStrategy_.exitLowScore = view["exitLowScore"].get_int64();
@@ -95,7 +91,7 @@ void CRobotMgr::Load() {
 		bsoncxx::document::value query_value2 = document{} << "gameId" << (int32_t)roomInfo_->gameId << "roomId" << (int32_t)roomInfo_->roomId << finalize;
 		mongocxx::cursor cursor = coll.find({query_value2});
 		for (auto& doc : cursor) {
-			//LOG_DEBUG << "QueryResult:" << bsoncxx::to_json(doc);
+			//_LOG_DEBUG(bsoncxx::to_json(doc).c_str());
 			UserBaseInfo userInfo;
 			userInfo.userId = doc["userId"].get_int64();
 			userInfo.account = doc["account"].get_utf8().value.to_string();
@@ -116,7 +112,7 @@ void CRobotMgr::Load() {
 			//创建机器人
 			std::shared_ptr<CRobot> robot(new CRobot());
 			if (!robot || !robotDelegate) {
-				LOG_ERROR << __FUNCTION__ << " create robot userid = " << userInfo.userId << " Failed!";
+				_LOG_ERROR("robot %d Failed", userInfo.userId);
 				break;
 			}
             robot->SetUserBaseInfo(userInfo);
@@ -126,12 +122,12 @@ void CRobotMgr::Load() {
 			if (++robotCount >= needRobotCount) {
 				break;
 			}
-			LOG_DEBUG << "Robot userId:" << userInfo.userId << " score:" << userInfo.userScore;
+			_LOG_DEBUG("robot %d score:%ld", userInfo.userId, userInfo.userScore);
 		}
-		LOG_INFO << ">>> PreLoad Robot count:" << robotCount << " need:" << needRobotCount;
+		_LOG_WARN("robot count:%d need:%d", robotCount, needRobotCount);
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception:" << e.what();
+		_LOG_ERROR(e.what());
 	}
 #if 0
     logicThread_->getLoop()->runEvery(3.0, boost::bind(&CRobotMgr::OnTimerCheckIn, this));
@@ -168,7 +164,7 @@ void CRobotMgr::Delete(int64_t userId) {
 			freeItems_.emplace_back(robot);
 		}
 	}
-    LOG_ERROR << __FUNCTION__ << " " << userId << " used = " << items_.size() << " free = " << freeItems_.size();
+	_LOG_ERROR("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
 
 int64_t CRobotMgr::randScore(int64_t minScore, int64_t maxScore) {
@@ -212,7 +208,7 @@ void CRobotMgr::OnTimerCheckIn() {
 		return;
 	}
 	if (freeItems_.empty()) {
-		LOG_ERROR << __FUNCTION__ << " 机器人没有库存了";
+		_LOG_ERROR("机器人没有库存了");
 		return;
 	}
 	std::list<std::shared_ptr<CTable>> tables = CTableMgr::get_mutable_instance().GetUsedTables();
@@ -247,7 +243,7 @@ void CRobotMgr::OnTimerCheckIn() {
 					for (int i = 0; i < n; ++i) {
 						std::shared_ptr<CRobot> robot = Pick();
 						if (!robot) {
-							LOG_ERROR << __FUNCTION__ << " 机器人没有库存了";
+							_LOG_ERROR("机器人没有库存了");
 							continue;
 						}
 						int64_t score = randScore(
@@ -286,7 +282,7 @@ void CRobotMgr::OnTimerCheckIn() {
 					for (int i = 0; i < n; ++i) {
 						std::shared_ptr<CRobot> robot = Pick();
 						if (!robot) {
-							LOG_ERROR << __FUNCTION__ << " 机器人没有库存了";
+							_LOG_ERROR("机器人没有库存了");
 							continue;
 						}
 						int64_t score = randScore(

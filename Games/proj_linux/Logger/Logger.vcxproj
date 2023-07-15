@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\thirdpart\Logger\src\atomic\Atomic.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\auth\auth.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\mymd5.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\excp.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\impl\excpImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.h" />
@@ -65,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\mymd5.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\ini.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.cc" />

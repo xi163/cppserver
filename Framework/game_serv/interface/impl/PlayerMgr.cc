@@ -72,5 +72,5 @@ void CPlayerMgr::Delete(int64_t userId) {
 			freeItems_.emplace_back(player);
 		}
 	}
-	LOG_ERROR << __FUNCTION__ << " " << userId << " used = " << items_.size() << " free = " << freeItems_.size();
+	_LOG_ERROR("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }

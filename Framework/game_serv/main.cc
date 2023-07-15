@@ -10,7 +10,7 @@ static void StopService(int signo) {
 int main(int argc, char* argv[]) {
 	//检查命令行参数
 	if (argc < 3) {
-		LOG_INFO << "argc < 2, error param gameid & roomid";
+		_LOG_ERROR("argc < 2, error gameid & roomid");
 		exit(1);
 	}
 	uint32_t gameId = strtol(argv[1], NULL, 10);
@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
 	
 	//检查配置文件
 	if (!boost::filesystem::exists("./conf/game.conf")) {
-		LOG_INFO << "./conf/game.conf not exists";
+		_LOG_ERROR("./conf/game.conf not exists");
 		return -1;
 	}
     
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	if (setEnv(logdir, logname, loglevel) < 0) {
 		return -1;
 	}
-	LOG_INFO << __FUNCTION__ << " --- *** " << logdir + logname << " 日志级别 = " << loglevel;
+	_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
 	
 	//获取指定网卡ipaddr
 	std::string strIpAddr;
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 		LOG_FATAL << __FUNCTION__ << " --- *** 获取网卡IP失败";
 		return -1;
 	}
-    LOG_INFO << __FUNCTION__ << " --- *** " << "网卡名称 = " << netcardName << " 绑定IP = " << strIpAddr;
+	_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), strIpAddr.c_str());
 	
 	//////////////////////////////////////////////////////////////////////////
 	//zookeeper服务器集群IP
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
 				strZookeeperIps += child.second.get_value<std::string>();
 			}
 		}
-		LOG_INFO << __FUNCTION__ << " --- *** " << "ZookeeperIP = " << strZookeeperIps;
+		_LOG_INFO("ZookeeperIP = %s", strZookeeperIps.c_str());
 	}
 	//////////////////////////////////////////////////////////////////////////
 	//RedisCluster服务器集群IP
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 				mapRedisIps[vec[0]] = vec[1];
 			}
 		}
-		LOG_INFO << __FUNCTION__ << " --- *** " << "RedisClusterIP = " << strRedisIps;
+		_LOG_INFO("RedisClusterIP = %s", strRedisIps.c_str());
 	}
 	//////////////////////////////////////////////////////////////////////////
 	//redisLock分布式锁
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
 				strRedisLockIps += child.second.get_value<std::string>();
 			}
 		}
-		LOG_INFO << __FUNCTION__ << " --- *** " << "RedisLockIP = " << strRedisLockIps;
+		_LOG_INFO("RedisLockIP = %s", strRedisLockIps.c_str());
 	}
 	//////////////////////////////////////////////////////////////////////////
 	 //MongoDB

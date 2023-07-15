@@ -80,6 +80,9 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color.h">
       <Filter>src\log\impl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\mymd5.h">
+      <Filter>src\crypt</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -135,6 +138,9 @@
     </Filter>
     <Filter Include="src\ini\impl">
       <UniqueIdentifier>{10dc40b7-4cda-4195-8b42-e97b29fddcfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\crypt">
+      <UniqueIdentifier>{0f327970-7c1f-4d24-9748-9d4fda8a5d8d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -197,6 +203,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.cc">
       <Filter>src\log\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\mymd5.cpp">
+      <Filter>src\crypt</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

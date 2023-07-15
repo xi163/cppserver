@@ -107,7 +107,7 @@ bool GateServ::InitZookeeper(std::string const& ipaddr) {
 	zkclient_->SetConnectedWatcherHandler(
 		std::bind(&GateServ::onZookeeperConnected, this));
 	if (!zkclient_->connectServer()) {
-		_LOG_FATAL("initZookeeper error");
+		_LOG_FATAL("error");
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
 	return true;
@@ -233,7 +233,7 @@ void GateServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
 		zkclient_->createNode("/GAME/ProxyServers", "ProxyServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
-		_LOG_ERROR(nodePath_.c_str());
+		_LOG_INFO(nodePath_.c_str());
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
@@ -242,7 +242,7 @@ void GateServ::registerZookeeper() {
 bool GateServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
 	if (!redisClient_->initRedisCluster(ipaddr, passwd)) {
-		_LOG_FATAL("initRedisCluster error");
+		_LOG_FATAL("error");
 		return false;
 	}
 	redisIpaddr_ = ipaddr;
@@ -289,9 +289,9 @@ void GateServ::threadInit() {
 		it != redlockVec_.end(); ++it) {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, *it, boost::is_any_of(":"));
+		REDISLOCK.AddServerUrl(vec[0].c_str(), atol(vec[1].c_str()));
 		s += "\n" + vec[0];
 		s += ":" + vec[1];
-		REDISLOCK.AddServerUrl(vec[0].c_str(), atol(vec[1].c_str()));
 	}
 	_LOG_WARN("redisLock%s", s.c_str());
 #endif

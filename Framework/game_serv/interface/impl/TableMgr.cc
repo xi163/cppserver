@@ -11,21 +11,17 @@ static TableDelegateCreator LoadLibrary(std::string const& serviceName) {
 	dllName.insert(0, "./lib");
 	dllName.append(".so");
 	dllName.insert(0, dllPath);
-	LOG_WARN << ">>> Loading " << dllName;
+	_LOG_WARN(dllName.c_str());
 	//getchar();
 	void* handle = dlopen(dllName.c_str(), RTLD_LAZY);
 	if (!handle) {
-		char buf[BUFSIZ] = { 0 };
-		snprintf(buf, BUFSIZ, " Can't Open %s, %s", dllName.c_str(), dlerror());
-		LOG_ERROR << __FUNCTION__ << buf;
+		_LOG_ERROR("Can't Open %s, %s", dllName.c_str(), dlerror());
 		exit(0);
 	}
 	TableDelegateCreator creator = (TableDelegateCreator)dlsym(handle, NameCreateTableDelegate);
 	if (!creator) {
 		dlclose(handle);
-		char buf[BUFSIZ] = { 0 };
-		snprintf(buf, BUFSIZ, " Can't Find %s, %s", NameCreateTableDelegate, dlerror());
-		LOG_ERROR << __FUNCTION__ << buf;
+		_LOG_ERROR("Can't Find %s, %s", NameCreateTableDelegate, dlerror());
 		exit(0);
 	}
 	return creator;
@@ -64,7 +60,7 @@ void CTableMgr::Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shar
 		//创建桌子
 		std::shared_ptr<CTable> table(new CTable());
 		if (!table || !tableDelegate) {
-			LOG_ERROR << __FUNCTION__ << " create tableId = " << i << " Failed!";
+			_LOG_ERROR("table = %d Failed", i);
 			break;
 		}
 		TableState state = { 0 };
@@ -85,9 +81,9 @@ void CTableMgr::Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shar
 #endif
 		items_.emplace_back(table);
 		freeItems_.emplace_back(table);
-		//LOG_DEBUG << "tableId:" << state.tableId << " gameId:" << gameInfo_->gameId << " roomId:" << roomInfo_->roomId << " stock:" << roomInfo_->totalStock;
+		//_LOG_DEBUG("table:%d %d %d stock:%ld", roomInfo->tableCount, gameInfo_->gameId, roomInfo_->roomId, roomInfo_->totalStock);
     }
-	LOG_INFO << __FUNCTION__ << " Table count:" << roomInfo->tableCount << " gameId:" << gameInfo_->gameId << " roomId:" << roomInfo_->roomId << " stock:" << roomInfo_->totalStock;
+	_LOG_WARN("table count:%d %d %d stock:%ld", roomInfo->tableCount, gameInfo_->gameId, roomInfo_->roomId, roomInfo_->totalStock);
 }
 
 std::list<std::shared_ptr<CTable>> CTableMgr::GetUsedTables() {
@@ -183,7 +179,7 @@ void CTableMgr::FreeNormalTable(uint32_t tableId) {
 			freeItems_.emplace_back(table);
 		}
 	}
-	LOG_ERROR << __FUNCTION__ << " " << tableId << " used = " << usedItems_.size() << " free = " << freeItems_.size();
+	_LOG_ERROR("%d used = %d free = %d", tableId, usedItems_.size(), freeItems_.size());
 }
 
 // struct CountsStat {

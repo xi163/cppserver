@@ -18,16 +18,14 @@ void GateServ::onGameConnection(const muduo::net::TcpConnectionPtr& conn) {
 		_LOG_INFO("网关服[%s] -> 游戏服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
-			(conn->connected() ? "UP" : "DOWN"),
-			num);
+			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
 		_LOG_INFO("网关服[%s] -> 游戏服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
-			(conn->connected() ? "UP" : "DOWN"),
-			num);
+			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 }
 

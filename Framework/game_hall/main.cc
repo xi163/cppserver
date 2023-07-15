@@ -10,7 +10,7 @@ static void StopService(int signo) {
 int main(int argc, char* argv[]) {
 	//检查配置文件
 	if (!boost::filesystem::exists("./conf/game.conf")) {
-		LOG_INFO << "./conf/game.conf not exists";
+		_LOG_ERROR("./conf/game.conf not exists");
 		return -1;
 	}
     
@@ -25,16 +25,16 @@ int main(int argc, char* argv[]) {
 	if (setEnv(logdir, logname, loglevel) < 0) {
 		return -1;
 	}
-	LOG_INFO << __FUNCTION__ << " --- *** " << logdir + logname << " 日志级别 = " << loglevel;
+	_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
 	
 	//获取指定网卡ipaddr
 	std::string strIpAddr;
 	std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
 	if (IpByNetCardName(netcardName, strIpAddr) < 0) {
-		LOG_FATAL << __FUNCTION__ << " --- *** 获取网卡IP失败";
+		_LOG_FATAL("获取网卡 %s IP失败", netcardName.c_str());
 		return -1;
 	}
-    LOG_INFO << __FUNCTION__ << " --- *** " << "网卡名称 = " << netcardName << " 绑定IP = " << strIpAddr;
+	_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), strIpAddr.c_str());
 	
 	//////////////////////////////////////////////////////////////////////////
 	//zookeeper服务器集群IP
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 				strZookeeperIps += child.second.get_value<std::string>();
 			}
 		}
-		LOG_INFO << __FUNCTION__ << " --- *** " << "ZookeeperIP = " << strZookeeperIps;
+		_LOG_INFO("ZookeeperIP = %s", strZookeeperIps.c_str());
 	}
 	//////////////////////////////////////////////////////////////////////////
 	//RedisCluster服务器集群IP
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
 				mapRedisIps[vec[0]] = vec[1];
 			}
 		}
-		LOG_INFO << __FUNCTION__ << " --- *** " << "RedisClusterIP = " << strRedisIps;
+		_LOG_INFO("RedisClusterIP = %s", strRedisIps.c_str());
 	}
 	//////////////////////////////////////////////////////////////////////////
 	//redisLock分布式锁
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 				strRedisLockIps += child.second.get_value<std::string>();
 			}
 		}
-		LOG_INFO << __FUNCTION__ << " --- *** " << "RedisLockIP = " << strRedisLockIps;
+		_LOG_INFO("RedisLockIP = %s", strRedisLockIps.c_str());
 	}
 	//////////////////////////////////////////////////////////////////////////
 	 //MongoDB

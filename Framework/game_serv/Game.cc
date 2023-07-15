@@ -87,7 +87,7 @@ bool GameServ::InitZookeeper(std::string const& ipaddr) {
 	zkclient_->SetConnectedWatcherHandler(
 		std::bind(&GameServ::onZookeeperConnected, this));
 	if (!zkclient_->connectServer()) {
-		LOG_FATAL << __FUNCTION__ << " --- *** " << "initZookeeper error";
+		_LOG_FATAL("error");
 		abort();
 		return false;
 	}
@@ -127,10 +127,11 @@ void GameServ::onZookeeperConnected() {
 				placeholders::_1, std::placeholders::_2,
 				placeholders::_3, std::placeholders::_4,
 				placeholders::_5), this)) {
-			LOG_WARN << __FUNCTION__ << " --- *** 可用网关服列表";
+			std::string s;
 			for (std::string const& name : names) {
-				printf("%s\n", name.c_str());
+				s += "\n" + name;
 			}
+			_LOG_WARN("可用网关服列表%s", s.c_str());
 		}
 	}
 	{
@@ -144,10 +145,11 @@ void GameServ::onZookeeperConnected() {
 				placeholders::_1, std::placeholders::_2,
 				placeholders::_3, std::placeholders::_4,
 				placeholders::_5), this)) {
-			LOG_WARN << __FUNCTION__ << " --- *** 可用大厅服列表";
+			std::string s;
 			for (std::string const& name : names) {
-				printf("%s\n", name.c_str());
+				s += "\n" + name;
 			}
+			_LOG_WARN("可用大厅服列表%s", s.c_str());
 		}
 	}
 }
@@ -166,10 +168,11 @@ void GameServ::onGateWatcher(
 			placeholders::_1, std::placeholders::_2,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
-		LOG_WARN << __FUNCTION__ << " --- *** 可用网关服列表";
+		std::string s;
 		for (std::string const& name : names) {
-			printf("%s\n", name.c_str());
+			s += "\n" + name;
 		}
+		_LOG_WARN("可用网关服列表%s", s.c_str());
 	}
 }
 
@@ -186,10 +189,11 @@ void GameServ::onHallWatcher(int type, int state,
 			placeholders::_1, std::placeholders::_2,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
-		LOG_WARN << __FUNCTION__ << " --- *** 可用大厅服列表";
+		std::string s;
 		for (std::string const& name : names) {
-			printf("%s\n", name.c_str());
+			s += "\n" + name;
 		}
+		_LOG_WARN("可用大厅服列表%s", s.c_str());
 	}
 }
 
@@ -199,7 +203,7 @@ void GameServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME/GameServers"))
 		zkclient_->createNode("/GAME/GameServers", "GameServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
-		LOG_ERROR << __FUNCTION__ << " " << nodePath_;
+		_LOG_INFO(nodePath_.c_str());
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
 	server_.getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
@@ -208,8 +212,7 @@ void GameServ::registerZookeeper() {
 bool GameServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
 	if (!redisClient_->initRedisCluster(ipaddr, passwd)) {
-		LOG_FATAL << __FUNCTION__ << " --- *** " << "initRedisCluster error";
-		abort();
+		_LOG_FATAL("error");
 		return false;
 	}
 	redisIpaddr_ = ipaddr;
@@ -222,7 +225,7 @@ bool GameServ::InitRedisCluster(std::string const& ipaddr, std::string const& pa
 
 bool GameServ::InitMongoDB(std::string const& url) {
 	//http://mongocxx.org/mongocxx-v3/tutorial/
-	LOG_INFO << __FUNCTION__ << " --- *** " << url;
+	_LOG_INFO(url.c_str());
 	mongocxx::instance instance{};
 	//mongoDBUrl_ = url;
 	//http://mongocxx.org/mongocxx-v3/tutorial/
@@ -235,20 +238,20 @@ static __thread mongocxx::database* dbgamemain_;
 
 void GameServ::threadInit() {
 	if (!REDISCLIENT.initRedisCluster(redisIpaddr_, redisPasswd_)) {
-		LOG_FATAL << __FUNCTION__ << " --- *** " << "initRedisCluster error";
-		abort();
+		_LOG_FATAL("initRedisCluster error");
 	}
-
 	static __thread mongocxx::database db = MONGODBCLIENT["gamemain"];
 	dbgamemain_ = &db;
-
+	std::string s;
 	for (std::vector<std::string>::const_iterator it = redlockVec_.begin();
 		it != redlockVec_.end(); ++it) {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, *it, boost::is_any_of(":"));
-		LOG_INFO << __FUNCTION__ << " --- *** " << "\nredisLock " << vec[0].c_str() << ":" << vec[1].c_str();
 		REDISLOCK.AddServerUrl(vec[0].c_str(), atol(vec[1].c_str()));
+		s += "\n" + vec[0];
+		s += ":" + vec[1];
 	}
+	_LOG_WARN("redisLock%s", s.c_str());
 }
 
 bool GameServ::InitServer() {
@@ -259,10 +262,9 @@ bool GameServ::InitServer() {
 			CRobotMgr::get_mutable_instance().Init(&gameInfo_, &roomInfo_, logicThread_, this);
 			CRobotMgr::get_mutable_instance().Load();
 		}
-		else {
-			LOG_WARN << __FUNCTION__ << " roomId = " << roomId_
-				<< " Robot Enabled  = " << roomInfo_.bEnableAndroid << " maxRobotNum = " << roomInfo_.androidCount;
+		else {	
 		}
+		_LOG_WARN("roomId = %d robot enabled = %d maxRobotCount = %d", roomId_, roomInfo_.bEnableAndroid, roomInfo_.maxAndroidCount);
 	}
 }
 
@@ -272,11 +274,8 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	
 	logicThread_->startLoop();
 	
-	LOG_INFO << __FUNCTION__ << " --- *** "
-		<< "\GameServ = " << server_.ipPort()
-		<< " numThreads: I/O = " << numThreads
-		<< ", worker = " << 1;
-
+	_LOG_INFO("GameServ = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, 1);
+	
 	server_.start(true);
 
 	server_.getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
@@ -304,9 +303,10 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			mapGateConns_[conn->peerAddress().toIpPort()] = conn;
 		}
 		int32_t num = numConnected_.incrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "大厅服[" << conn->localAddress().toIpPort() << "] <- 网关服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("游戏服[%s] <- 网关服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
 		{
@@ -314,9 +314,10 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			mapGateConns_.erase(conn->peerAddress().toIpPort());
 		}
 		int32_t num = numConnected_.decrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "大厅服[" << conn->localAddress().toIpPort() << "] <- 网关服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("游戏服[%s] <- 网关服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 }
 
@@ -393,6 +394,7 @@ void GameServ::asyncLogicHandler(
 					handler(conn, buf);
 				}
 				else {
+					_LOG_ERROR("unregister handler %d:%d", header->mainId, header->subId);
 				}
 				break;
 			}
@@ -866,7 +868,7 @@ boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_
 }
 
 void GameServ::DelContext(int64_t userId) {
-	LOG_ERROR << __FUNCTION__ << " " << userId;
+	_LOG_ERROR("%d", userId);
 	WRITE_LOCK(mutexUserGates_);
 	mapUserGates_.erase(userId);
 }
@@ -878,7 +880,7 @@ bool GameServ::LoadGameRoomKindInfo(uint32_t gameid, uint32_t roomid) {
 		bsoncxx::document::value query_value = document{} << "gameid" << (int32_t)gameid << finalize;
 		bsoncxx::stdx::optional<bsoncxx::document::value> result = kindCollection.find_one(query_value.view());
 		if (result) {
-			LOG_DEBUG << " QueryResult: " << bsoncxx::to_json(result->view());
+			_LOG_DEBUG("QueryResult:%s", bsoncxx::to_json(result->view()).c_str());
 			bsoncxx::document::view view = result->view();
 			//int32_t gameid_ = view["gameid"].get_int32();
 			std::string gamename = view["gamename"].get_utf8().value.to_string();
@@ -977,7 +979,7 @@ bool GameServ::LoadGameRoomKindInfo(uint32_t gameid, uint32_t roomid) {
 		}
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 	return bok;
 }
@@ -1018,7 +1020,7 @@ bool GameServ::GetUserBaseInfo(int64_t userid, UserBaseInfo& baseInfo) {
 		}
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 	return (false);
 }
@@ -1057,7 +1059,7 @@ bool GameServ::redis_get_token_info(
 		}
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 	return false;
 }
@@ -1086,7 +1088,7 @@ bool GameServ::db_update_online_status(int64_t userid, int32_t status) {
 		bok = true;
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 	return bok;
 }

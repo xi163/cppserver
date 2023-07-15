@@ -23,8 +23,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
-			(conn->connected() ? "UP" : "DOWN"),
-			num);
+			(conn->connected() ? "UP" : "DOWN"), num);
 		numTotalReq_.incrementAndGet();
 		if (num > kMaxConnections_) {
 #if 0
@@ -80,8 +79,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
-			(conn->connected() ? "UP" : "DOWN"),
-			num);
+			(conn->connected() ? "UP" : "DOWN"), num);
 		assert(!conn->getContext().empty());
 		//////////////////////////////////////////////////////////////////////////
 		//websocket::Context::dtor
@@ -253,6 +251,9 @@ void GateServ::asyncClientHandler(
 						if (it != handlers_.end()) {
 							CmdCallback const& handler = it->second;
 							handler(conn, buf);
+						}
+						else {
+							_LOG_ERROR("unregister handler %d:%d", header->mainId, header->subId);
 						}
 						break;
 					}

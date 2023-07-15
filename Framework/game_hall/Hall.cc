@@ -116,7 +116,7 @@ bool HallServ::InitZookeeper(std::string const& ipaddr) {
 	zkclient_->SetConnectedWatcherHandler(
 		std::bind(&HallServ::onZookeeperConnected, this));
 	if (!zkclient_->connectServer()) {
-		LOG_FATAL << __FUNCTION__ << " --- *** " << "InitZookeeper error";
+		_LOG_FATAL("error");
 		abort();
 		return false;
 	}
@@ -157,10 +157,11 @@ void HallServ::onZookeeperConnected() {
 				placeholders::_1, std::placeholders::_2,
 				placeholders::_3, std::placeholders::_4,
 				placeholders::_5), this)) {
-			LOG_WARN << __FUNCTION__ << " --- *** 可用网关服列表";
+			std::string s;
 			for (std::string const& name : names) {
-				printf("%s\n", name.c_str());
+				s += "\n" + name;
 			}
+			_LOG_WARN("可用网关服列表%s", s.c_str());
 		}
 	}
 	{
@@ -174,16 +175,16 @@ void HallServ::onZookeeperConnected() {
 				placeholders::_1, std::placeholders::_2,
 				placeholders::_3, std::placeholders::_4,
 				placeholders::_5), this)) {
-
+			std::string s;
 			WRITE_LOCK(room_servers_mutex_);
-			LOG_WARN << __FUNCTION__ << " --- *** 可用游戏服列表";
 			for (std::string const& name : names) {
-				printf("%s\n", name.c_str());
+				s += "\n" + name;
 				std::vector<string> vec;
 				boost::algorithm::split(vec, name, boost::is_any_of(":"));
 				std::vector<std::string>& room = room_servers_[stoi(vec[0])];
 				room.emplace_back(name);
 			}
+			_LOG_WARN("可用游戏服列表%s", s.c_str());
 		}
 	}
 }
@@ -201,10 +202,11 @@ void HallServ::onGateWatcher(int type, int state,
 			placeholders::_1, std::placeholders::_2,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
-		LOG_WARN << __FUNCTION__ << " --- *** 可用网关服列表";
+		std::string s;
 		for (std::string const& name : names) {
-			printf("%s\n", name.c_str());
+			s += "\n" + name;
 		}
+		_LOG_WARN("可用网关服列表%s", s.c_str());
 	}
 }
 
@@ -221,15 +223,16 @@ void HallServ::onGameWatcher(int type, int state,
 			placeholders::_1, std::placeholders::_2,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
+		std::string s;
 		WRITE_LOCK(room_servers_mutex_);
-		LOG_WARN << __FUNCTION__ << " --- *** 可用游戏服列表";
 		for (std::string const& name : names) {
-			printf("%s\n", name.c_str());
+			s += "\n" + name;
 			std::vector<string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 			std::vector<std::string>& room = room_servers_[stoi(vec[0])];
 			room.emplace_back(name);
 		}
+		_LOG_WARN("可用游戏服列表%s", s.c_str());
 	}
 }
 
@@ -239,6 +242,7 @@ void HallServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME/HallServers"))
 		zkclient_->createNode("/GAME/HallServers", "HallServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
+		_LOG_INFO(nodePath_.c_str());
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&HallServ::registerZookeeper, this));
@@ -248,8 +252,7 @@ void HallServ::registerZookeeper() {
 bool HallServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
 	if (!redisClient_->initRedisCluster(ipaddr, passwd)) {
-		LOG_FATAL << __FUNCTION__ << " --- *** " << "initRedisCluster error";
-		abort();
+		_LOG_FATAL("error");
 		return false;
 	}
 	redisIpaddr_ = ipaddr;
@@ -262,7 +265,7 @@ bool HallServ::InitRedisCluster(std::string const& ipaddr, std::string const& pa
 
 bool HallServ::InitMongoDB(std::string const& url) {
 	//http://mongocxx.org/mongocxx-v3/tutorial/
-	LOG_INFO << __FUNCTION__ << " --- *** " << url;
+	_LOG_INFO(url.c_str());
 	mongocxx::instance instance{};
 	//mongoDBUrl_ = url;
 	//http://mongocxx.org/mongocxx-v3/tutorial/
@@ -275,19 +278,20 @@ static __thread mongocxx::database* dbgamemain_;
 
 void HallServ::threadInit() {
 	if (!REDISCLIENT.initRedisCluster(redisIpaddr_, redisPasswd_)) {
-		LOG_FATAL << __FUNCTION__ << " --- *** " << "initRedisCluster error";
-		abort();
+		_LOG_FATAL("initRedisCluster error");
 	}
 	static __thread mongocxx::database db = MONGODBCLIENT["gamemain"];
 	dbgamemain_ = &db;
-
+	std::string s;
 	for (std::vector<std::string>::const_iterator it = redlockVec_.begin();
 		it != redlockVec_.end(); ++it) {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, *it, boost::is_any_of(":"));
-		LOG_INFO << __FUNCTION__ << " --- *** " << "\nredisLock " << vec[0].c_str() << ":" << vec[1].c_str();
 		REDISLOCK.AddServerUrl(vec[0].c_str(), atol(vec[1].c_str()));
+		s += "\n" + vec[0];
+		s += ":" + vec[1];
 	}
+	_LOG_WARN("redisLock%s", s.c_str());
 }
 
 void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
@@ -302,10 +306,7 @@ void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 
-	LOG_INFO << __FUNCTION__ << " --- *** "
-		<< "\HallServ = " << server_.ipPort()
-		<< " numThreads: I/O = " << numThreads
-		<< ", worker = " << numWorkerThreads;
+	_LOG_INFO("HallServ = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, numWorkerThreads);
 
 	server_.start(true);
 
@@ -317,15 +318,17 @@ void HallServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "大厅服[" << conn->localAddress().toIpPort() << "] <- 网关服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("大厅服[%s] <- 网关服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		LOG_INFO << __FUNCTION__ << " --- *** " << "大厅服[" << conn->localAddress().toIpPort() << "] <- 网关服["
-			<< conn->peerAddress().toIpPort() << "] "
-			<< (conn->connected() ? "UP" : "DOWN") << " " << num;
+		_LOG_INFO("大厅服[%s] <- 网关服[%s] %s %d",
+			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
+			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 }
 
@@ -405,7 +408,7 @@ void HallServ::asyncLogicHandler(
 					handler(conn, buf);
 				}
 				else {
-					LOG_ERROR << __FUNCTION__ << " --- *** not CmdCallback handler !";
+					_LOG_ERROR("unregister handler %d:%d", header->mainId, header->subId);
 				}
 				break;
 			}
@@ -531,8 +534,7 @@ void HallServ::cmd_on_user_login(
 			//不能频繁登陆操作(间隔5s)
 			std::string key = REDIS_LOGIN_3S_CHECK + token;
 			if (REDISCLIENT.exists(key)) {
-				LOG_ERROR << __FUNCTION__ << " token = " << token
-					<< " IP = " << loginIp << " " << location << " 登陆太频繁了";
+				_LOG_ERROR("%s IP:%s 频繁登陆", location.c_str(), loginIp.c_str());
 				return;
 			}
 			else {
@@ -547,7 +549,7 @@ void HallServ::cmd_on_user_login(
 				bsoncxx::stdx::optional<bsoncxx::document::value> result = coll.find_one(query_value.view());
 				if (result) {
 					//查询用户数据
-					//LOG_DEBUG << " Query result: " << bsoncxx::to_json(*result);
+					//_LOG_DEBUG("Query result:\n%s", bsoncxx::to_json(*result).c_str());
 					bsoncxx::document::view view = result->view();
 					std::string account_ = view["account"].get_utf8().value.to_string();
 					int32_t agentid_ = view["agentid"].get_int32();
@@ -612,14 +614,10 @@ void HallServ::cmd_on_user_login(
 						REDISCLIENT.SetUserLoginInfo(userid, "lastlogintime", std::to_string(chrono::system_clock::to_time_t(now)));
 						//redis更新token过期时间
 						REDISCLIENT.resetExpired("k.token."+token);
-						LOG_DEBUG << " LOGIN SERVER OK!";
+						_LOG_DEBUG("%d LOGIN SERVER OK!", userid);
 					}
 					else {
 						//账号不一致
-						LOG_ERROR << __FUNCTION__ << " token = " << token << " userid = " << userid
-							<< "\naccount = " << account << " agentid = " << agentid
-							<< "\naccount = " << account_ << " agentid = " << agentid_
-							<< "\nNot Same Error.";
 						rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
 						rspdata.set_errormsg("account/agentid Not Exist Error.");
 						db_add_login_logger(userid, loginIp, location, now, 2, agentid);
@@ -627,7 +625,7 @@ void HallServ::cmd_on_user_login(
 				}
 				else {
 					//账号不存在
-					LOG_ERROR << __FUNCTION__ << " token = " << token << " userid = " << userid << " Not Exist Error.";
+					_LOG_ERROR("%d Not Exist Error", userid);
 					rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
 					rspdata.set_errormsg("userid Not Exist Error.");
 					db_add_login_logger(userid, loginIp, location, now, 3, agentid);
@@ -635,14 +633,14 @@ void HallServ::cmd_on_user_login(
 			}
 			else {
 				//token不存在或已过期
-				LOG_ERROR << __FUNCTION__ << " token = " << token << " Not Exist Error.";
+				_LOG_ERROR("%s Not Exist Error", token.c_str());
 				rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
 				rspdata.set_errormsg("Session Not Exist Error.");
 				db_add_login_logger(userid, loginIp, location, now, 4, agentid);
 			}
 		}
 		catch (std::exception& e) {
-			LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+			_LOG_ERROR(e.what());
 			rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_NETBREAK);
 			rspdata.set_errormsg("Database/redis Update Error.");
 		}
@@ -836,7 +834,7 @@ void HallServ::cmd_set_headid(
 			rspdata.set_headid(headid);
 		}
 		catch (std::exception& e) {
-			LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+			_LOG_ERROR(e.what());
 			rspdata.set_retcode(1);
 			rspdata.set_errormsg("Database  Error.");
 		}
@@ -886,7 +884,7 @@ void HallServ::cmd_get_userscore(
 			}
 		}
 		catch (std::exception& e) {
-			LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+			_LOG_ERROR(e.what());
 			rspdata.set_retcode(2);
 			rspdata.set_errormsg("Database  Error.");
 		}
@@ -939,7 +937,7 @@ void HallServ::cmd_get_play_record(
 			rspdata.set_errormsg("CMD GET USER SCORE OK.");
 		}
 		catch (std::exception& e) {
-			LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+			_LOG_ERROR(e.what());
 			rspdata.set_retcode(1);
 			rspdata.set_errormsg("MongoDB  Error.");
 		}
@@ -980,7 +978,7 @@ void HallServ::cmd_get_play_record_detail(
 						break;
 					case bsoncxx::type::k_utf8:
 						jsondata = view["detail"].get_utf8().value.to_string();
-						LOG_ERROR << __FUNCTION__ << "\n" << jsondata;
+						_LOG_ERROR(jsondata.c_str());
 						rspdata.set_detailinfo(jsondata);
 						break;
 					case bsoncxx::type::k_binary:
@@ -993,7 +991,7 @@ void HallServ::cmd_get_play_record_detail(
 			}
 		}
 		catch (std::exception& e) {
-			LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+			_LOG_ERROR(e.what());
 			rspdata.set_retcode(1);
 			rspdata.set_errormsg("MongoDB Error.");
 		}
@@ -1052,7 +1050,7 @@ void HallServ::db_update_game_room_info() {
 		mongocxx::collection kindCollection = MONGODBCLIENT["gameconfig"]["game_kind"];
 		mongocxx::cursor cursor = kindCollection.find({});
 		for (auto& doc : cursor) {
-			//LOG_DEBUG << " QueryResult: " << bsoncxx::to_json(doc);
+			//_LOG_DEBUG("%s", bsoncxx::to_json(doc).c_str());
 			gameid = doc["gameid"].get_int32();						//游戏ID
 			gamename = doc["gamename"].get_utf8().value.to_string();//游戏名称
 			gamesortid = doc["sort"].get_int32();					//游戏排序0 1 2 3 4
@@ -1111,7 +1109,7 @@ void HallServ::db_update_game_room_info() {
 		//redis_update_room_player_nums();
 	}
 	catch (exception& e) {
-		LOG_ERROR << "MongoDBException: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 }
 
@@ -1149,12 +1147,12 @@ void HallServ::redis_update_room_player_nums() {
 				roomPlayerNum->set_roomid(roomid);
 				roomPlayerNum->set_playernum(playerNums);
 				const_cast<::HallServer::GameRoomMessage&>(roominfo).set_playernum(playerNums);
-				//LOG_ERROR << __FUNCTION__ << " roomid = " << roomid << " playerNums = " << playerNums;
+				//_LOG_DEBUG("roomId=%d playerCount=%d", roomid, playerNums);
 			}
 		}
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 }
 
@@ -1198,7 +1196,7 @@ bool HallServ::redis_get_token_info(
 		}
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 	return false;
 }
@@ -1254,7 +1252,7 @@ bool HallServ::db_update_login_info(
 		bok = true;
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 	return bok;
 }
@@ -1284,7 +1282,7 @@ bool HallServ::db_update_online_status(int64_t userid, int32_t status) {
 		bok = true;
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 	return bok;
 }
@@ -1307,14 +1305,12 @@ bool HallServ::db_add_login_logger(
 			<< "agentid" << (int32_t)agentid
 			<< "logintime" << bsoncxx::types::b_date(now)
 			<< bsoncxx::builder::stream::finalize;
-
-		LOG_DEBUG << " Insert Document:" << bsoncxx::to_json(insert_value);
-
+		//_LOG_DEBUG("Insert Document: %s", bsoncxx::to_json(insert_value).c_str());
 		bsoncxx::stdx::optional<mongocxx::result::insert_one> result = loginLogCollection.insert_one(insert_value.view());
 		bok = true;
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 	return bok;
 }
@@ -1348,7 +1344,7 @@ bool HallServ::db_add_logout_logger(
 		bok = true;
 	}
 	catch (std::exception& e) {
-		LOG_ERROR << __FUNCTION__ << " exception: " << e.what();
+		_LOG_ERROR(e.what());
 	}
 	return bok;
 }

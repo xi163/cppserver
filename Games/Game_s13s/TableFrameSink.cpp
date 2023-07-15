@@ -98,7 +98,6 @@ bool CGameTable::OnUserEnter(int64_t userId, bool islookon) {
 	std::shared_ptr<IPlayer> player = table_->GetPlayer(userId);
 	assert(player);
 	writeRealLog_ = (table_->GetRealPlayerCount() > 0);
-	char msg[1024];
 	//if (!bPlaying_[player->GetChairId()]) {
 		m_bPlayerOperated[player->GetChairId()] = true;
 		m_bRoundEndExit[player->GetChairId()] = false;
@@ -109,18 +108,16 @@ bool CGameTable::OnUserEnter(int64_t userId, bool islookon) {
 		//assert(table_->GetPlayerCount() == 1);
 		//assert(table_->GetRealPlayerCount() == 1);
 		if (!player->IsRobot()) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d)\n",
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d)",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
 				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId,
 				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-			LOG_INFO << __FUNCTION__ << msg;
 		}
 		else if (writeRealLog_) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d)\n",
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d)",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
 				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId,
 				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-			LOG_INFO << __FUNCTION__ << msg;
 		}
 		table_->SetGameStatus(GAME_STATUS_READY);
 		gameStatus_ = GAME_STATUS_READY;
@@ -132,18 +129,16 @@ bool CGameTable::OnUserEnter(int64_t userId, bool islookon) {
 	}
 	else {
 		if (!player->IsRobot()) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d)\n",
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d)",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
 				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId, (bPlaying_[player->GetChairId()] ? "重连" : "新加"),
 				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-			LOG_INFO << __FUNCTION__ << msg;
 		}
 		else if (writeRealLog_) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d)\n",
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d)",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
 				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId, (bPlaying_[player->GetChairId()] ? "重连" : "新加"),
 				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-			LOG_INFO << __FUNCTION__ << msg;
 		}
 		OnGameScene(player->GetChairId(), false);
 	}
@@ -156,7 +151,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		if (player->GetUserId() >= MIN_SYS_USER_ID) {//断线重连可以进
 			std::shared_ptr<IPlayer> player = table_->GetPlayer(player->GetUserId());
 			if (player) {
-				LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 0";
+				//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 0";
 				return true;
 			}
 		}
@@ -184,20 +179,20 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 	else if (player->GetUserId() == 0) { //new real user enter
 		//游戏开始了真人新玩家不准进入
 		if (table_->GetGameStatus() >= GAME_STATUS_START) {
-			LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 3";
+			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 3";
 			return false;
 		}
-		LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 2";
+		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 2";
 		return true;
 	}
 	else if (player->GetUserId() >= MIN_SYS_USER_ID) {//断线重连
 		std::shared_ptr<IPlayer> player = table_->GetPlayer(player->GetUserId());
 		if (player) {
-			LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 3";
+			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 3";
 			return true;
 		}
 	}
-	LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 4";
+	//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 4";
 	return false;
 }
 
@@ -220,7 +215,6 @@ bool CGameTable::OnUserReady(int64_t userId, bool islookon) {
 }
 
 bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
-	char msg[1024];
 	assert(table_);
 	std::shared_ptr<IPlayer> player = ByUserId(userId); //assert(player);
 	if (!player) {
@@ -236,10 +230,9 @@ bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
 		/*table_->GetGameStatus()*/gameStatus_ >= GAME_STATUS_END ||
 		!bPlaying_[chairId]) {
 		if (writeRealLog_) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %s[%d][%d]准备离桌 real=%d AI=%d total=%d",
+			_LOG_INFO("tableID[%d][%s] %s[%d][%d]准备离桌 real=%d AI=%d total=%d",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
 				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-			LOG_INFO << __FUNCTION__ << msg;
 		}
         bPlaying_[chairId] = false;
         m_bRoundEndExit[chairId] = false;
@@ -249,10 +242,9 @@ bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
 		if (/*table_->GetGameStatus()*/gameStatus_ == GAME_STATUS_READY &&
 			table_->GetRealPlayerCount()/*table_->GetPlayerCount()*/ == 0) {
 			if (writeRealLog_) {
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %s[%d][%d]已经离桌(real=%d AI=%d total=%d) 重置桌子",
+				_LOG_INFO("tableID[%d][%s] %s[%d][%d]已经离桌(real=%d AI=%d total=%d) 重置桌子",
 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
 					table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-				LOG_INFO << __FUNCTION__ << msg;
 			}
 			for (int i = 0; i < GAME_PLAYER; ++i) {
 				if (!table_->ExistUser(i)) {
@@ -270,19 +262,17 @@ bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
 		}
 		else {
 			if (writeRealLog_) {
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %s[%d][%d]已经离桌(real=%d AI=%d total=%d) 等待重置",
+				_LOG_INFO("tableID[%d][%s] %s[%d][%d]已经离桌(real=%d AI=%d total=%d) 等待重置",
 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
 					table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-				LOG_INFO << __FUNCTION__ << msg;
 			}
 		}
 		return true;
 	}
 	else {
-		snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %s[%d][%d] 游戏中禁止离桌(real=%d AI=%d total=%d)",
+		_LOG_WARN("tableID[%d][%s] %s[%d][%d] 游戏中禁止离桌(real=%d AI=%d total=%d)",
 			table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
 			table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-		LOG_WARN << __FUNCTION__ << msg;
 	}
 	return false;
 }
@@ -290,7 +280,6 @@ bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
 //准备定时器
 void CGameTable::OnTimerGameReadyOver() {
 	writeRealLog_ = (table_->GetRealPlayerCount() > 0);
-	char msg[1024];
 	//匹配中有真人玩家
 	//assert(table_->GetRealPlayerCount() > 0);
 	//匹配中准备状态
@@ -302,17 +291,15 @@ void CGameTable::OnTimerGameReadyOver() {
 		if (table_->GetPlayerCount() < GAME_PLAYER) {
 			if (writeRealLog_ > 0) {
 				//不满游戏人数，继续等待
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]匹配真人时间(dt=%.1f|%.1f)，不满游戏人数(real=%d AI=%d total=%d)，继续等待\n",
-					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-				//LOG_INFO << __FUNCTION__ << msg;
+// 				_LOG_INFO("tableID[%d][%s]匹配真人时间(dt=%.1f|%.1f)，不满游戏人数(real=%d AI=%d total=%d)，继续等待",
+// 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 			}
 		}
 		else {
 			if (writeRealLog_ > 0) {
 				//满足游戏人数，开始游戏
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]匹配真人时间(dt=%.1f|%.1f)，满足游戏人数(real=%d AI=%d total=%d)，开始游戏!\n",
+				_LOG_INFO("tableID[%d][%s]匹配真人时间(dt=%.1f|%.1f)，满足游戏人数(real=%d AI=%d total=%d)，开始游戏!",
 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-				LOG_INFO << __FUNCTION__ << msg;
 			}
 			GameTimerReadyOver();
 		}
@@ -323,17 +310,15 @@ void CGameTable::OnTimerGameReadyOver() {
 		if (table_->GetPlayerCount() < GAME_PLAYER) {
 			if (writeRealLog_ > 0) {
 				//不满游戏人数，继续等待
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]补充机器人(max=%d)时间(dt=%.1f|%.1f)，不满游戏人数(real=%d AI=%d total=%d)，继续等待\n",
-					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-				//LOG_INFO << __FUNCTION__ << msg;
+// 				_LOG_INFO("tableID[%d][%s]补充机器人(max=%d)时间(dt=%.1f|%.1f)，不满游戏人数(real=%d AI=%d total=%d)，继续等待",
+// 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 			}
 		}
 		else {
 			if (writeRealLog_ > 0) {
 				//满足游戏人数，开始游戏
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]补充机器人(max=%d)时间(dt=%.1f|%.1f)，满足游戏人数(real=%d AI=%d total=%d)，开始游戏!\n",
+				_LOG_INFO("tableID[%d][%s]补充机器人(max=%d)时间(dt=%.1f|%.1f)，满足游戏人数(real=%d AI=%d total=%d)，开始游戏!",
 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-				LOG_INFO << __FUNCTION__ << msg;
 			}
 			GameTimerReadyOver();
 		}
@@ -343,9 +328,8 @@ void CGameTable::OnTimerGameReadyOver() {
 		if (table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
 			if (writeRealLog_ > 0) {
 				//满足最小游戏人数，开始游戏
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]补充机器人(max=%d)超时(dt=%.1f|%.1f)，满足最小游戏人数(real=%d AI=%d total=%d)，开始游戏!\n",
+				_LOG_INFO("tableID[%d][%s]补充机器人(max=%d)超时(dt=%.1f|%.1f)，满足最小游戏人数(real=%d AI=%d total=%d)，开始游戏!",
 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-				LOG_INFO << __FUNCTION__ << msg;
 			}
 			GameTimerReadyOver();
 		}
@@ -353,10 +337,9 @@ void CGameTable::OnTimerGameReadyOver() {
 			//匹配很久，不满最小游戏人数，重置桌子
 			if (totalMatchSeconds_ > (timeoutMatchSeconds_ + timeoutAddAndroidSeconds_) + 10 && table_->GetRealPlayerCount() == 0) {
 				if (writeRealLog_ > 0) {
-					snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] 中止匹配 重置桌子 real=%d AI=%d total=%d",
+					_LOG_INFO("tableID[%d][%s] 中止匹配 重置桌子 real=%d AI=%d total=%d",
 						table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 						table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-					LOG_INFO << __FUNCTION__ << msg;
 				}
 				//totalMatchSeconds_ = 0;
 				for (int i = 0; i < GAME_PLAYER; ++i) {
@@ -376,9 +359,8 @@ void CGameTable::OnTimerGameReadyOver() {
 			else {
 				if (writeRealLog_ > 0) {
 					//不满最小游戏人数，继续等待
-					snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]补充机器人(max=%d)超时(dt=%.1f|%.1f)，不满最小游戏人数(real=%d AI=%d total=%d)，继续等待\n",
-						table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-					//LOG_INFO << __FUNCTION__ << msg;
+// 					_LOG_INFO("tableID[%d][%s]补充机器人(max=%d)超时(dt=%.1f|%.1f)，不满最小游戏人数(real=%d AI=%d total=%d)，继续等待\n",
+// 						table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 				}
 			}
 		}
@@ -435,8 +417,8 @@ void CGameTable::GameTimerReadyOver() {
 		for (int i = 0; i < GAME_PLAYER; ++i) {
 			std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i);
 			if (player) {
-				//非离线状态
-				////LOG_INFO << __FUNCTION__ << " --- *** chairID=" << i << " stat=" << StringPlayerStat(player->GetUserStatus());
+				//非离线状态\
+				//_LOG_WARN("%d %d %s", i, player->GetUserId(), StringPlayerStat(player->GetUserStatus()).c_str());
 				//assert(player->GetUserStatus() != sOffline);
 				player->SetUserStatus(sPlaying);
 				bPlaying_[i] = true;
@@ -451,11 +433,9 @@ void CGameTable::GameTimerReadyOver() {
 	else if (table_->GetRealPlayerCount() > 0) {
 	//else if (table_->GetPlayerCount() > 0) {
 		if (writeRealLog_) {
-			char msg[1024];
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
+			_LOG_INFO("tableID[%d][%s][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
 				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-			LOG_INFO << __FUNCTION__ << msg;
 		}
 		//ClearGameData();
 		//table_->SetGameStatus(GAME_STATUS_READY);
@@ -467,11 +447,9 @@ void CGameTable::GameTimerReadyOver() {
 	//继续下一局可能走该流程
 	else {
 		if (writeRealLog_) {
-			char msg[1024];
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] 中断游戏 重置桌子 real=%d AI=%d total=%d",
+			_LOG_INFO("tableID[%d][%s] 中断游戏 重置桌子 real=%d AI=%d total=%d",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-			LOG_INFO << __FUNCTION__ << msg;
 		}
 		//没有真人玩家或不够游戏人数(<MIN_GAME_PLAYER)，清理腾出桌子
 		for (int i = 0; i < GAME_PLAYER; ++i) {
@@ -499,11 +477,9 @@ void CGameTable::OnGameStart() {
 	//系统当前库存
 	//table_->GetStorageScore(storageInfo_);
 	if (writeRealLog_) {
-		char msg[1024];
-		snprintf(msg, sizeof(msg), "\n--- *** tableID[%d][%s][%s] 当前库存=%s 开始游戏(real=%d AI=%d total=%d)!\n",
+		_LOG_INFO("tableID[%d][%s][%s] 当前库存=%s 开始游戏(real=%d AI=%d total=%d)!",
 			table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), std::to_string(StockScore).c_str(),
 			table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-		LOG_INFO << __FUNCTION__ << msg;
 	}
 	//本局开始时间
     roundStartTime_ = std::chrono::system_clock::now();
@@ -573,18 +549,12 @@ void CGameTable::OnGameStart() {
 			continue;
 		}
 		std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i); assert(player);
-		//snprintf(msg, sizeof(msg), "--- *** chairID = [%d]", i);
-		////LOG_INFO << msg;
 		//机器人AI
 		if (table_->IsRobot((uint32_t)i)) {
-			LOG_INFO << "\n========================================================================\n"
-				<< "--- *** [" << strRoundID_ << "] 机器人 [" << i << "] 手牌 ["
-				<< S13S::CGameLogic::StringCards(&(handCards_[i])[0], MAX_COUNT) << "]\n";
+			_LOG_INFO("[%s] 机器人 %d %d 手牌 [%s]", strRoundID_.c_str(), i, player->GetUserId(), S13S::CGameLogic::StringCards(&(handCards_[i])[0], MAX_COUNT).c_str());
 		}
 		else {
-			LOG_INFO << "\n========================================================================\n"
-				<< "--- *** [" << strRoundID_ << "] 玩家 [" << i << "] 手牌 ["
-				<< S13S::CGameLogic::StringCards(&(handCards_[i])[0], MAX_COUNT) << "]\n";
+			_LOG_INFO("[%s] 玩家 %d %d 手牌 [%s]", strRoundID_.c_str(), i, player->GetUserId(), S13S::CGameLogic::StringCards(&(handCards_[i])[0], MAX_COUNT).c_str());
 		}
 		//一副手牌
 		//S13S::CGameLogic::PrintCardList(&(handCards_[i])[0], MAX_COUNT);
@@ -606,8 +576,7 @@ void CGameTable::OnGameStart() {
 		//handInfos_[i].PrintEnumCards();
 		//查看重复牌型和散牌
 		//handInfos_[i].classify.PrintCardList();
-		//snprintf(msg, sizeof(msg), "--- *** c = %d %s\n\n\n\n", c, phandInfos_[i]->StringSpecialTy().c_str());
-		////LOG_INFO << msg;
+		//_LOG_INFO("c = %d %s\n\n\n\n", c, phandInfos_[i]->StringSpecialTy().c_str());
 	}
     //换牌策略分析
 	AnalysePlayerCards();
@@ -819,10 +788,8 @@ void CGameTable::OnGameStart() {
 }
 
 bool CGameTable::OnGameScene(uint32_t chairId, bool lookon) {
-	char msg[1024];
-	snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] chairId[%d]",
+	_LOG_INFO("tableID[%d][%s][%s] chairId[%d]",
 		table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), chairId);
-	LOG_INFO << __FUNCTION__ << msg;
 	assert(chairId >= 0);
 	assert(chairId < GAME_PLAYER);
 	switch (/*table_->GetGameStatus()*/gameStatus_)
@@ -1109,12 +1076,10 @@ void CGameTable::OnUserSelect(uint32_t chairId, int groupIndex, bool timeout) {
 	}
 	switch (timeout) {
 	case true:
-		char msg[1024];
-		snprintf(msg, sizeof(msg), "[%d][%s] %d %d %s %s",
-			table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
+		_LOG_INFO("[%s][%d][%s] %d %d %s %s",
+			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 			chairId, UserIdBy(chairId), (ByChairId(chairId)->IsRobot() ? "robot" : "real"),
 			"理牌超时，强制定牌 ...");
-		LOG_INFO << "--- *** [" << strRoundID_ << "]" << msg;
 	}
 	//确认玩家手牌三墩牌型
 	if (!phandInfos_[chairId]->Select(groupIndex)) {
@@ -1167,10 +1132,8 @@ void CGameTable::OnUserSelect(uint32_t chairId, int groupIndex, bool timeout) {
 
 //摊牌
 void CGameTable::OnTimerOpenCard() {
-	char msg[1024] = { 0 };
-	snprintf(msg, sizeof(msg), "[%d][%s]",
-		table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
-	LOG_INFO << "--- *** [" << strRoundID_ << "]" << msg << " 摊牌结束，开始结算 ......";
+	_LOG_INFO("[%s][%d][%s] 摊牌结束，开始结算 ......",
+		strRoundID_.c_str(),table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
 	//结算
 	OnGameConclude(INVALID_CHAIR, GER_NORMAL);
 	//IsTrustee();
@@ -1192,10 +1155,8 @@ void CGameTable::OnTimerGameEnd() {
 	clearKickUsers();
 	//有真人玩家且够游戏人数，继续下一局游戏
 	if (table_->GetRealPlayerCount() > 0 && table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
-		char msg[1024];
-		snprintf(msg, sizeof(msg), "\n--- *** [%s][%d][%s] 继续下一局游戏!",
+		_LOG_INFO("[%s][%d][%s] 继续下一局游戏!",
 			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
-		LOG_INFO << __FUNCTION__ << msg;
 		ClearGameData();
 		table_->SetGameStatus(GAME_STATUS_READY);
 	    gameStatus_ = GAME_STATUS_READY;
@@ -1205,11 +1166,9 @@ void CGameTable::OnTimerGameEnd() {
 	}
 	else if (table_->GetRealPlayerCount() > 0) {
 	//else if (table_->GetPlayerCount() > 0) {
-		char msg[1024];
-		snprintf(msg, sizeof(msg), "\n--- *** [%s][%d][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
+		_LOG_INFO("[%s][%d][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
 			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 			table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-		LOG_INFO << __FUNCTION__ << msg;
 		ClearGameData();
 		table_->SetGameStatus(GAME_STATUS_READY);
 	    gameStatus_ = GAME_STATUS_READY;
@@ -1220,11 +1179,9 @@ void CGameTable::OnTimerGameEnd() {
 	else {
 		//没有真人玩家或不够游戏人数(<MIN_GAME_PLAYER)，清理腾出桌子
 		if (writeRealLog_) {
-			char msg[1024];
-			snprintf(msg, sizeof(msg), "\n--- *** [%s][%d][%s] 终止游戏并退出(real=%d AI=%d total=%d)",
+			_LOG_INFO("[%s][%d][%s] 终止游戏并退出(real=%d AI=%d total=%d)",
 				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-			LOG_INFO << __FUNCTION__ << msg;
 		}
 		ClearGameData();
 		//清理房间内玩家
@@ -1309,27 +1266,21 @@ void CGameTable::clearKickUsers() {
 bool CGameTable::IsTrustee(void) {
 	//理牌动画
 	if (table_->GetGameStatus() == GAME_STATUS_GROUP) {
-		char msg[1024] = { 0 };
-		snprintf(msg, sizeof(msg), "[%d][%s]",
-			table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
-		LOG_INFO << "--- *** [" << strRoundID_ << "]" << msg << " 开始理牌动画 ...";
+		_LOG_INFO("[%s][%d][%s] 开始理牌动画 ...",
+			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
 		timerGroupID_ = ThisThreadTimer->runAfter(aniPlay_.Get_DELAY_time(GAME_STATUS_GROUP) + 1 + TIME_GAME_START_DELAY, boost::bind(&CGameTable::OnTimerGroupCard, this));
 	}
 	//摊牌动画
 	else if (table_->GetGameStatus() == GAME_STATUS_OPEN) {
-		char msg[1024] = { 0 };
-		snprintf(msg, sizeof(msg), "[%d][%s]",
-			table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
-		LOG_INFO << "--- *** [" << strRoundID_ << "]" << msg << " 开始摊牌动画 ...";
+		_LOG_INFO("[%s][%d][%s] 开始摊牌动画 ...",
+			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
 		ThisThreadTimer->cancel(timerGroupID_);
 		timerOpenCardID_ = ThisThreadTimer->runAfter(aniPlay_.Get_DELAY_time(GAME_STATUS_OPEN) + 1, boost::bind(&CGameTable::OnTimerOpenCard, this));
 	}
 	//结算动画
 	else if (table_->GetGameStatus() == GAME_STATUS_PREEND) {
-		char msg[1024] = { 0 };
-		snprintf(msg, sizeof(msg), "[%d][%s]",
-			table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
-		LOG_INFO << "--- *** [" << strRoundID_ << "]" << msg << " 开始结算动画 ...";
+		_LOG_INFO("[%s][%d][%s] 开始结算动画 ...",
+			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
 		ThisThreadTimer->cancel(timerOpenCardID_);
 		timerGameEndID_ = ThisThreadTimer->runAfter(aniPlay_.Get_DELAY_time(GAME_STATUS_PREEND) + 1, boost::bind(&CGameTable::OnTimerGameEnd, this));
 	}
@@ -1353,12 +1304,10 @@ bool CGameTable::OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* d
 	if (chairId == INVALID_CHAIR || !bPlaying_[chairId]) {
 		return false;
 	}
-	char msg[1024];
-	snprintf(msg, sizeof(msg), "[%d][%s] %d %d %s %s",
-		table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
+	_LOG_INFO"[%s][%d][%s] %d %d %s %s",
+		strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 		chairId, UserIdBy(chairId), (ByChairId(chairId)->IsRobot() ? "robot" : "real"),
 		StringSubId(subId).c_str());
-	LOG_INFO << "--- *** [" << strRoundID_ << "]" << msg;
     switch (subId) {
         //手动摆牌
 	case s13s::SUB_C_MANUALCARDS: {
@@ -1681,9 +1630,7 @@ bool CGameTable::OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* d
 
 //玩家之间两两比牌
 void CGameTable::StartCompareCards() {
-	char msg[1024];
-	snprintf(msg, sizeof(msg), "[%d][%s] 开始比牌 ...", table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
-	LOG_INFO << "--- *** [" << strRoundID_ << "]" << msg;	
+	_LOG_INFO("[%s][%d][%s] 开始比牌 ...", strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
 	//////////////////////////////////////////////////////////////
 	//玩家之间两两比牌，头墩与头墩比，中墩与中墩比，尾墩与尾墩比
 	//s13s::CMD_S_CompareCards compareCards_[GAME_PLAYER];
@@ -3968,7 +3915,7 @@ void CGameTable::LetSysWin(bool sysWin) {
 		}
 	}
 	if (writeRealLog_)
-		LOG_INFO << __FUNCTION__ << " [" << strRoundID_ << "] " << strmsg;
+		_LOG_INFO("[%s] %s", strRoundID_.c_str(), strmsg.c_str());
 }
 
 void CGameTable::ReadConfigInformation() {
@@ -3978,7 +3925,7 @@ void CGameTable::ReadConfigInformation() {
 	if (elapsed > (readIntervalTime_ + r.betweenInt(0, 10).randInt_mt())) {
 		assert(table_);
 		if (!boost::filesystem::exists(INI_FILENAME)) {
-			LOG_ERROR << __FUNCTION__ << " " << INI_FILENAME << " not exists";
+			_LOG_ERROR("%s not exists", INI_FILENAME);
 			return;
 		}
 		boost::property_tree::ptree pt;

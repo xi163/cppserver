@@ -112,9 +112,6 @@
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp">
       <Filter>public\zookeeperclient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.c">
-      <Filter>public\zookeeperclient</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp">
       <Filter>public\zookeeperclient</Filter>
     </ClCompile>
@@ -153,5 +150,8 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_hall\Hall.cc" />
     <ClCompile Include="..\..\..\Framework\game_hall\main.cc" />
+    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.cc">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
