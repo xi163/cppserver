@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef INCLUDE_MEM_H
+#define INCLUDE_MEM_H
 
 #include "../../Macro.h"
 #include "../IOperation.h"
@@ -54,3 +55,5 @@ namespace Operation {
 		MemImpl* impl_;
 	};
 }
+
+#endif

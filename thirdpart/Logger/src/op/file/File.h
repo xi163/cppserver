@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef INCLUDE_FILE_H
+#define INCLUDE_FILE_H
 
 #include "../../Macro.h"
 #include "../IOperation.h"
@@ -77,3 +78,5 @@ namespace Operation {
 		FileImpl* impl_;
 	};
 }
+
+#endif

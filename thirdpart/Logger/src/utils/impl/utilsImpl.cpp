@@ -94,6 +94,7 @@ namespace utils {
 #endif
 	}
 
+	//https://en.cppreference.com/w/c/chrono/gmtime
 	//https://www.cplusplus.com/reference/ctime/gmtime/
 	//https://www.cplusplus.com/reference/ctime/mktime/?kw=mktime
 	//https://www.runoob.com/cprogramming/c-standard-library-time-h.html
@@ -103,7 +104,7 @@ namespace utils {
 #ifdef _windows_
 			gmtime_s(&tm, &t);//UTC/GMT
 #else
-			//gmtime_s(&t, &tm);//UTC/GMT
+			gmtime_r(&t, &tm);//UTC/GMT
 #endif
 			if (tp) {
 				//tm -> time_t
@@ -129,7 +130,7 @@ namespace utils {
 #ifdef _windows_
 			gmtime_s(&tm_utc, &t);//UTC/GMT
 #else
-			//gmtime_s(&t, &tm_utc);//UTC/GMT
+			gmtime_r(&t, &tm_utc);//UTC/GMT
 #endif
 			//tm -> time_t
 			time_t t_utc = mktime(&tm_utc);

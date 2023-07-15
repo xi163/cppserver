@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef INCLUDE_FILEIMPL_H
+#define INCLUDE_FILEIMPL_H
 
 #include "../../../Macro.h"
 #include "../../IOperation.h"
@@ -66,3 +67,5 @@ namespace Operation {
 		std::string path_;
 	};
 }
+
+#endif

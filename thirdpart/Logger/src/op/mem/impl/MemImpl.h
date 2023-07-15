@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef INCLUDE_MEMIMPL_H
+#define INCLUDE_MEMIMPL_H
 
 #include "../../../Macro.h"
 #include "../../IOperation.h"
@@ -42,3 +43,5 @@ namespace Operation {
 		std::vector<char> buffer_;
 	};
 }
+
+#endif

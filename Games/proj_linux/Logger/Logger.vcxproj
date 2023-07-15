@@ -42,6 +42,12 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\file\File.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\IOperation.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\mem\impl\MemImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\mem\Mem.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\Operation.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\timer\timer.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.h" />
@@ -56,6 +62,11 @@
     <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\File.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\impl\Operation.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\Mem.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\MemImpl.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\timer\timer.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.cpp" />

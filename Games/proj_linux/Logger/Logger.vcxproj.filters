@@ -47,6 +47,24 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.h">
       <Filter>src\utils\impl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\IOperation.h">
+      <Filter>src\op</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\Operation.h">
+      <Filter>src\op</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\mem\Mem.h">
+      <Filter>src\op\mem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\mem\impl\MemImpl.h">
+      <Filter>src\op\mem\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\file\File.h">
+      <Filter>src\op\file</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.h">
+      <Filter>src\op\file\impl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -78,6 +96,24 @@
     </Filter>
     <Filter Include="src\utils\impl">
       <UniqueIdentifier>{63fcfbe7-af42-4bfd-8438-7b79641730e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\op">
+      <UniqueIdentifier>{b23f21be-1863-4d5f-aee2-450293649b67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\op\file">
+      <UniqueIdentifier>{56acf2b3-7d22-4ef1-9bbe-b86293a572e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\op\impl">
+      <UniqueIdentifier>{dacc767f-96fc-4512-9e93-50c500e7b2eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\op\mem">
+      <UniqueIdentifier>{8f995529-43b3-4ab1-ac77-982c88fc6b0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\op\mem\impl">
+      <UniqueIdentifier>{081319f7-c03b-4d2b-9e40-b6c81cb23b6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\op\file\impl">
+      <UniqueIdentifier>{d367e0a4-980c-4e9c-9f24-61f91aae4856}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +152,21 @@
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.cpp">
       <Filter>src\utils\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\Mem.cpp">
+      <Filter>src\op\mem\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\MemImpl.cpp">
+      <Filter>src\op\mem\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\impl\Operation.cpp">
+      <Filter>src\op\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\File.cpp">
+      <Filter>src\op\file\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.cpp">
+      <Filter>src\op\file\impl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
