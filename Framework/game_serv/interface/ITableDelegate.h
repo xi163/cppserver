@@ -10,8 +10,8 @@ class ITableDelegate {
 public:
 	ITableDelegate() = default;
 	virtual ~ITableDelegate() = default;
-	virtual bool SetTable(std::shared_ptr<ITable> const& table) = 0;
 	virtual void Reposition() = 0;
+	virtual bool SetTable(std::shared_ptr<ITable> const& table) = 0;
 	virtual bool CanJoinTable(std::shared_ptr<IPlayer> const& player) = 0;
 	virtual bool CanLeftTable(int64_t userId) = 0;
 	virtual bool OnUserEnter(int64_t userId, bool lookon) = 0;
