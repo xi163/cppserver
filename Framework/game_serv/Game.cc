@@ -741,7 +741,7 @@ void GameServ::cmd_on_user_left_room(
 				table->assertThisThread();
 				//KickOffLine(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
 				if (table->CanLeftTable(pre_header_->userId)) {
-					if (table->OnUserLeft(player, true, false)) {
+					if (table->OnUserLeft(player, true)) {
 						rspdata.set_retcode(0);
 						rspdata.set_errormsg("OK");
 					}

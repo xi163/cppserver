@@ -74,7 +74,7 @@ public:
 	virtual bool SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::Message* msg) = 0;
 	virtual bool SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len) = 0;
 	virtual bool SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t msgType, int64_t score = 0) = 0;
-	virtual void ClearTableUser(uint32_t chairId, bool sendState = true, bool sendToSelf = true) = 0;
+	virtual void ClearTableUser(uint32_t chairId, bool sendState = true, bool sendToSelf = true, uint8_t sendErrCode = 0) = 0;
 	virtual void BroadcastUserInfoToOther(std::shared_ptr<IPlayer> const& player) = 0;
 	virtual void SendAllOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player) = 0;
 	virtual void SendOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player, tagUserInfo& userInfo) = 0;

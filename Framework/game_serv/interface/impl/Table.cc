@@ -281,13 +281,24 @@ bool CTable::SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t m
     return false;
 }
 
-void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf) {
+void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, uint8_t sendErrCode) {
     if (INVALID_CHAIR == chairId) {
         for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
             std::shared_ptr<IPlayer> player = items_[i];
             if (player && player->Valid()) {
                 int64_t userId = player->GetUserId();
-                if (!OnUserStandup(player, sendState)) {
+                switch (sendErrCode) {
+                case 0:
+                default:
+					::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+					msg.mutable_header()->set_sign(HEADER_SIGN);
+					msg.set_retcode(sendErrCode);
+					msg.set_errormsg("");
+					send(player, &msg,
+						Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+						GameServer::SUB_S2C_ENTER_ROOM_RES);
+                }
+                if (!OnUserStandup(player, sendState, sendToSelf)) {
                     _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
                 }
                 else {
@@ -303,7 +314,18 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf) {
         std::shared_ptr<IPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             int64_t userId = player->GetUserId();
-            if (!OnUserStandup(player, sendState)) {
+			switch (sendErrCode) {
+			case 0:
+			default:
+				::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+				msg.mutable_header()->set_sign(HEADER_SIGN);
+				msg.set_retcode(sendErrCode);
+				msg.set_errormsg("");
+				send(player, &msg,
+					Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+					GameServer::SUB_S2C_ENTER_ROOM_RES);
+			}
+            if (!OnUserStandup(player, sendState, sendToSelf)) {
                 _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
             }
             else {
