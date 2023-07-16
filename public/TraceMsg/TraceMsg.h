@@ -2,8 +2,8 @@
 #define INCLUDE_TRACEMSG_H
 
 #define TraceMessageID(mainId, subId) { \
-	int lvl = LVL_DEBUG; \
-	std::string s = strMessageID(lvl, mainId, subId, false, false); \
+	std::string s; \
+	int lvl = fmtMessageID(s, mainId, subId, false, false); \
 	if(!s.empty()) { \
 		switch(lvl) { \
 			case LVL_DEBUG: \
@@ -27,10 +27,18 @@
 
 extern void initTraceMessageID();
 
-extern std::string const strMessageID(
-	int& lvl,
+extern void strMessageID(
+	std::string& strMainID,
+	std::string& strSubID,
+	uint8_t mainId, uint8_t subId);
+
+extern int fmtMessageID(
+	std::string& str,
 	uint8_t mainId, uint8_t subId,
 	bool trace_hall_heartbeat,
 	bool trace_game_heartbeat);
+
+extern std::string const fmtMessageID(
+	uint8_t mainId, uint8_t subId);
 
 #endif

@@ -162,12 +162,15 @@ MY_TAB_MAP(subid_client_to_match_server_, MY_SUBID_CLIENT_TO_MATCH_SERVER_MAP);
 
 #endif
 
-extern "C" std::string const traceMessageID(
-	int& lvl,
+extern "C" int strMessageID(
+	std::string& strMainID,
+	std::string& strMainDesc,
+	std::string& strSubID,
+	std::string& strSubDesc,
 	uint8_t mainId, uint8_t subId,
 	bool trace_hall_heartbeat,
 	bool trace_game_heartbeat) {
-	std::string strMainID, strMainDesc, strSubID, strSubDesc;
+	int lvl;
 	MY_CMD_DESC(mainId, mainid_, strMainID, strMainDesc, lvl);
 	switch (mainId)
 	{
@@ -226,16 +229,32 @@ extern "C" std::string const traceMessageID(
 	if ((mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL ||
 		mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) &&
 		strSubID.empty()) {
-		return "";
+		return lvl;
 	}
 	std::stringstream sm, ss;
 	sm << (int)mainId;
 	strMainID += ":" + sm.str();
 	ss << (int)subId;
 	strSubID += ":" + ss.str();
-	return
+	return lvl;
+}
+
+extern "C" int fmtMessageID(
+	std::string & str,
+	uint8_t mainId, uint8_t subId,
+	bool trace_hall_heartbeat,
+	bool trace_game_heartbeat) {
+	std::string strMainID, strMainDesc, strSubID, strSubDesc;
+	int lvl = strMessageID(strMainID, strMainDesc, strSubID, strSubDesc, mainId, subId, trace_hall_heartbeat, trace_game_heartbeat);
+	if ((mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL ||
+		mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) &&
+		strSubID.empty()) {
+		return lvl;
+	}
+	str =
 		"\n" +
 		(strMainDesc.empty() ? strMainID : (strMainID + " - " + strMainDesc)) +
 		"\n" +
 		(strSubDesc.empty() ? strSubID : (strSubID + " - " + strSubDesc));
+	return lvl;
 }
