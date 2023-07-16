@@ -36,7 +36,7 @@ void GateServ::onGameMessage(const muduo::net::TcpConnectionPtr& conn,
 	while (buf->readableBytes() >= packet::kMinPacketSZ) {
 		const uint16_t len = buf->peekInt16();
 		if (likely(len > packet::kMaxPacketSZ ||
-				   len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
+			len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
 			if (conn) {
 #if 0
 				//不再发送数据

@@ -12,8 +12,8 @@
 
 class CTable : public ITable/*, public IReplayRecord*/ {
 public:
-    CTable();
-    virtual ~CTable();
+	CTable();
+	virtual ~CTable();
 	virtual void Reset();
 	bool send(
 		std::shared_ptr<IPlayer> const& player,
@@ -44,7 +44,7 @@ public:
 	virtual std::string NewRoundId();
 	virtual bool DismissGame();
 	virtual bool ConcludeGame(uint8_t gameStatus);
-	virtual int64_t CalculateRevenue(int64_t score); 
+	virtual int64_t CalculateRevenue(int64_t score);
 	virtual std::shared_ptr<IPlayer> GetChairPlayer(uint32_t chairId);
 	virtual std::shared_ptr<IPlayer> GetPlayer(int64_t userId);
 	virtual bool ExistUser(uint32_t chairId);
@@ -54,9 +54,9 @@ public:
 	virtual bool GetUserTrustee(uint32_t chairId);
 	virtual void SetUserReady(uint32_t chairId);
 	//点击离开按钮
-	virtual bool OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf = true, bool forceLeave = false);
+	virtual bool OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf = true);
 	//关闭页面
-	virtual bool OnUserOffline(std::shared_ptr<IPlayer> const& player, bool leave = false);
+	virtual bool OnUserOffline(std::shared_ptr<IPlayer> const& player);
 	virtual bool CanJoinTable(std::shared_ptr<IPlayer> const& player);
 	virtual bool CanLeftTable(int64_t userId);
 	virtual uint32_t GetPlayerCount();
@@ -76,8 +76,9 @@ public:
 	virtual bool OnUserEnterAction(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
 	virtual void SendUserSitdownFinish(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
 	virtual bool OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendState = true, bool sendToSelf = false);
-	virtual bool SendTableData(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len, bool record = true);
-	virtual bool SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len, bool record = true);
+	virtual bool SendTableData(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len);
+	virtual bool SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::Message* msg);
+	virtual bool SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len);
 	virtual bool SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t msgType, int64_t score = 0);
 	virtual void ClearTableUser(uint32_t chairId = INVALID_CHAIR, bool sendState = true, bool sendToSelf = true, uint8_t sendErrorCode = 0);
 	virtual void BroadcastUserInfoToOther(std::shared_ptr<IPlayer> const& player);
@@ -87,45 +88,45 @@ public:
 	virtual void BroadcastUserStatus(std::shared_ptr<IPlayer> const& player, bool sendToSelf = true);
 	virtual bool WriteUserScore(tagScoreInfo* scoreInfo, uint32_t count, std::string& strRound);
 	virtual bool WriteSpecialUserScore(tagSpecialScoreInfo* scoreInfo, uint32_t count, std::string& strRound);
-    virtual int UpdateStorageScore(int64_t changeStockScore);
-    virtual bool GetStorageScore(tagStorageInfo& storageInfo);
-    bool WriteGameChangeStorage(int64_t changeStockScore);
-    static bool ReadStorageScore(tagGameRoomInfo* roomInfo);
-    void KickOffLine(std::shared_ptr<IPlayer> const& player, int32_t kickType = KICK_GS|KICK_CLOSEONLY);
+	virtual int UpdateStorageScore(int64_t changeStockScore);
+	virtual bool GetStorageScore(tagStorageInfo& storageInfo);
+	bool WriteGameChangeStorage(int64_t changeStockScore);
+	static bool ReadStorageScore(tagGameRoomInfo* roomInfo);
+	void KickOffLine(std::shared_ptr<IPlayer> const& player, int32_t kickType = KICK_GS | KICK_CLOSEONLY);
 	bool SetUserOnlineInfo(int64_t userId);
-    bool DelUserOnlineInfo(int64_t userId);
+	bool DelUserOnlineInfo(int64_t userId);
 	virtual int64_t CalculateAgentRevenue(uint32_t chairId, int64_t revenue);
-    virtual bool UpdateUserScoreToDB(int64_t userId, tagScoreInfo* pScoreInfo);
+	virtual bool UpdateUserScoreToDB(int64_t userId, tagScoreInfo* pScoreInfo);
 	virtual bool UpdateUserScoreToDB(int64_t userId, tagSpecialScoreInfo* pScoreInfo);
-	bool AddUserGameInfoToDB(UserBaseInfo &userBaseInfo, tagScoreInfo *scoreInfo, std::string &strRoundId, int32_t userCount, bool bAndroidUser = false);
-    bool AddUserGameInfoToDB(tagSpecialScoreInfo *scoreInfo, std::string &strRoundId, int32_t userCount, bool bAndroidUser = false);
-    bool AddScoreChangeRecordToDB(UserBaseInfo &userBaseInfo, int64_t sourceScore, int64_t addScore, int64_t targetScore);
-    bool AddScoreChangeRecordToDB(tagSpecialScoreInfo *scoreInfo);
-    bool AddUserGameLogToDB(UserBaseInfo &userBaseInfo, tagScoreInfo *scoreInfo, std::string &strRoundId);
-    bool AddUserGameLogToDB(tagSpecialScoreInfo *scoreInfo, std::string &strRoundId);
+	bool AddUserGameInfoToDB(UserBaseInfo& userBaseInfo, tagScoreInfo* scoreInfo, std::string& strRoundId, int32_t userCount, bool bAndroidUser = false);
+	bool AddUserGameInfoToDB(tagSpecialScoreInfo* scoreInfo, std::string& strRoundId, int32_t userCount, bool bAndroidUser = false);
+	bool AddScoreChangeRecordToDB(UserBaseInfo& userBaseInfo, int64_t sourceScore, int64_t addScore, int64_t targetScore);
+	bool AddScoreChangeRecordToDB(tagSpecialScoreInfo* scoreInfo);
+	bool AddUserGameLogToDB(UserBaseInfo& userBaseInfo, tagScoreInfo* scoreInfo, std::string& strRoundId);
+	bool AddUserGameLogToDB(tagSpecialScoreInfo* scoreInfo, std::string& strRoundId);
 	virtual bool SaveReplay(tagGameReplay& replay);
 	virtual bool SaveReplayRecord(tagGameRecPlayback& replay);
 	bool SaveReplayDetailJson(tagGameReplay& replay);
 	bool SaveReplayDetailBlob(tagGameReplay& replay);
 public:
 	STD::Weight weight_;
-    uint8_t status_;
-    TableState tableState_;
-    tagGameInfo* gameInfo_;
-    tagGameRoomInfo* roomInfo_;
+	uint8_t status_;
+	TableState tableState_;
+	tagGameInfo* gameInfo_;
+	tagGameRoomInfo* roomInfo_;
 	ITableContext* tableContext_;
-    std::vector<std::shared_ptr<IPlayer>> items_;//items_[chairId]
-    std::shared_ptr<ITableDelegate> tableDelegate_;
-    std::shared_ptr<muduo::net::EventLoopThread> logicThread_;//桌子逻辑线程/定时器
- public:
-    static std::atomic_llong curStorage_; //系统当前库存
-    static double lowStorage_;//系统最小库存，系统输分不得低于库存下限，否则赢分
-    static double highStorage_;//系统最大库存，系统赢分不得大于库存上限，否则输分
+	std::vector<std::shared_ptr<IPlayer>> items_;//items_[chairId]
+	std::shared_ptr<ITableDelegate> tableDelegate_;
+	std::shared_ptr<muduo::net::EventLoopThread> logicThread_;//桌子逻辑线程/定时器
+public:
+	static std::atomic_llong curStorage_; //系统当前库存
+	static double lowStorage_;//系统最小库存，系统输分不得低于库存下限，否则赢分
+	static double highStorage_;//系统最大库存，系统赢分不得大于库存上限，否则输分
 	static double secondLowStorage_;
 	static double secondHighStorage_;
-    static int sysKillAllRatio_; //系统通杀率
-    static int sysReduceRatio_;//系统库存衰减
-    static int sysChangeCardRatio_;//系统换牌率
+	static int sysKillAllRatio_; //系统通杀率
+	static int sysReduceRatio_;//系统库存衰减
+	static int sysChangeCardRatio_;//系统换牌率
 };
 
 #endif

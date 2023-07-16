@@ -13,11 +13,11 @@ int main(int argc, char* argv[]) {
 		_LOG_ERROR("./conf/game.conf not exists");
 		return -1;
 	}
-    
+
 	//读取配置文件
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
-	
+
 	//日志目录/文件 logdir/logname
 	std::string logdir = pt.get<std::string>("Hall.logdir", "./log/Hall/");
 	std::string logname = pt.get<std::string>("Hall.logname", "Hall");
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 	_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
-	
+
 	//获取指定网卡ipaddr
 	std::string strIpAddr;
 	std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 	_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), strIpAddr.c_str());
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	//zookeeper服务器集群IP
 	std::string strZookeeperIps = "";
@@ -123,5 +123,5 @@ int main(int argc, char* argv[]) {
 		gServer = &server;
 		loop.loop();
 	}
-    return 0;
+	return 0;
 }

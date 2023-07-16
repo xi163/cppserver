@@ -42,7 +42,7 @@ public:
 };
 
 struct Container {
-	
+
 	void add(std::vector<std::string> const& names);
 
 	void process(std::vector<std::string> const& names);
@@ -51,7 +51,7 @@ struct Container {
 	inline bool exist(std::string const& name) /*const*/ {
 		return clients_->exists(name);
 	}
-	
+
 	//活动节点数
 	inline size_t count() /*const*/ {
 		return clients_->count();
@@ -61,17 +61,17 @@ struct Container {
 	inline void repair(std::string const& name) {
 		repair_.add(name);
 	}
-	
+
 	//恢复服务
 	inline void recover(std::string const& name) {
 		repair_.remove(name);
 	}
-	
+
 	//判断是否在维护节点中
 	inline bool isRepairing(std::string const& name) /*const*/ {
 		return repair_.exist(name);
 	}
-	
+
 	//服务中节点数 = 活动节点数 - 维护中节点数
 	inline ssize_t remaining() /*const*/ {
 		return clients_->count() - repair_.count();

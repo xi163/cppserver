@@ -18,17 +18,17 @@
 
 enum ServiceStateE {
 	kRepairing = 0,//维护中
-	kRunning   = 1,//服务中
+	kRunning = 1,//服务中
 };
 
 enum IpVisitCtrlE {
-	kClose      = 0,
-	kOpen       = 1,//应用层IP截断
+	kClose = 0,
+	kOpen = 1,//应用层IP截断
 	kOpenAccept = 2,//网络底层IP截断
 };
 
 enum IpVisitE {
-	kEnable  = 0,//IP允许访问
+	kEnable = 0,//IP允许访问
 	kDisable = 1,//IP禁止访问
 };
 
@@ -211,7 +211,7 @@ public:
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 	//map[session] = weakConn
 	STR::Entities entities_;
-	
+
 #ifdef MAP_USERID_SESSION
 	//map[userid] = session
 	INT::Sessions sessions_;
@@ -240,13 +240,13 @@ public:
 	std::string strIpAddr_;
 
 	int kMaxConnections_;
-	
+
 	//指定时间轮盘大小(bucket桶大小)
 	//即环形数组大小(size) >=
 	//心跳超时清理时间(timeout) >
 	//心跳间隔时间(interval)
 	int kTimeoutSeconds_, kHttpTimeoutSeconds_;
-	
+
 	//管理员挂维护/恢复服务
 	std::map<in_addr_t, IpVisitE> adminList_;
 

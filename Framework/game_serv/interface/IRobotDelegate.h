@@ -22,7 +22,7 @@ public:
 	virtual tagAndroidStrategyParam* GetStrategy() = 0;
 };
 
-typedef std::shared_ptr<IRobotDelegate> (*RobotDelegateCreator)(void);
+typedef std::shared_ptr<IRobotDelegate>(*RobotDelegateCreator)(void);
 typedef void* (*RobotDelegateDeleter)(std::shared_ptr<IRobotDelegate>& robotDelegate);
 
 #define NameCreateRobotDelegate	("CreateRobotDelegate")

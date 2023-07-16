@@ -65,11 +65,11 @@ Entry::~Entry() {
 	muduo::net::TcpConnectionPtr conn(weakConn_.lock());
 	if (conn) {
 		//conn->getLoop()->assertInLoopThread();
-		
+
 		ContextPtr entryContext(boost::any_cast<ContextPtr>(conn->getContext()));
 		assert(entryContext);
 		//assert(!entryContext->getSession().empty());
-		
+
 		//判断是否锁定了同步业务操作
 		switch (getLocked()) {
 		case true: {

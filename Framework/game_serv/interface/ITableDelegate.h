@@ -11,15 +11,12 @@ public:
 	ITableDelegate() = default;
 	virtual ~ITableDelegate() = default;
 	virtual bool SetTable(std::shared_ptr<ITable> const& table) = 0;
-	virtual void Reposition() {}
-public:
+	virtual void Reposition() = 0;
 	virtual bool CanJoinTable(std::shared_ptr<IPlayer> const& player) = 0;
 	virtual bool CanLeftTable(int64_t userId) = 0;
-public:
 	virtual bool OnUserEnter(int64_t userId, bool lookon) = 0;
 	virtual bool OnUserReady(int64_t userId, bool lookon) = 0;
 	virtual bool OnUserLeft(int64_t userId, bool lookon) = 0;
-public:
 	virtual void OnGameStart() = 0;
 	virtual bool OnGameConclude(uint32_t chairId, uint8_t flags) = 0;
 	virtual bool OnGameScene(uint32_t chairId, bool lookon) = 0;
@@ -32,4 +29,4 @@ typedef void* (*TableDelegateDeleter)(std::shared_ptr<ITableDelegate>& tableDele
 #define NameCreateTableDelegate ("CreateTableDelegate")
 #define NameDeleteTableDelegate ("DeleteTableDelegate")
 
-#endif 
+#endif

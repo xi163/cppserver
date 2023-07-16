@@ -49,8 +49,8 @@ public:
 	virtual void SetUserTrustee(uint32_t chairId, bool trustee) = 0;
 	virtual bool GetUserTrustee(uint32_t chairId) = 0;
 	virtual void SetUserReady(uint32_t chairId) = 0;
-	virtual bool OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf = true, bool forceLeave = false) = 0;
-	virtual bool OnUserOffline(std::shared_ptr<IPlayer> const& player, bool leave = false) = 0;
+	virtual bool OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf = true) = 0;
+	virtual bool OnUserOffline(std::shared_ptr<IPlayer> const& player) = 0;
 	virtual bool CanJoinTable(std::shared_ptr<IPlayer> const& player) = 0;
 	virtual bool CanLeftTable(int64_t userId) = 0;
 	virtual uint32_t GetPlayerCount() = 0;
@@ -70,8 +70,9 @@ public:
 	virtual bool OnUserEnterAction(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header) = 0;
 	virtual void SendUserSitdownFinish(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header) = 0;
 	virtual bool OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendState = true, bool sendToSelf = false) = 0;
-	virtual bool SendTableData(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len, bool record = true) = 0;
-	virtual bool SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len, bool record = true) = 0;
+	virtual bool SendTableData(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len) = 0;
+	virtual bool SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::Message* msg) = 0;
+	virtual bool SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len) = 0;
 	virtual bool SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t msgType, int64_t score = 0) = 0;
 	virtual void ClearTableUser(uint32_t chairId, bool sendState = true, bool sendToSelf = true, uint8_t sendErrorCode = 0) = 0;
 	virtual void BroadcastUserInfoToOther(std::shared_ptr<IPlayer> const& player) = 0;
@@ -81,10 +82,10 @@ public:
 	virtual void BroadcastUserStatus(std::shared_ptr<IPlayer> const& player, bool sendToSelf = false) = 0;
 	virtual bool WriteUserScore(tagScoreInfo* scoreInfo, uint32_t count, std::string& strRound) = 0;
 	virtual bool WriteSpecialUserScore(tagSpecialScoreInfo* scoreInfo, uint32_t count, std::string& strRound) = 0;
-    virtual bool UpdateUserScoreToDB(int64_t userId, tagScoreInfo* scoreInfo) = 0;
+	virtual bool UpdateUserScoreToDB(int64_t userId, tagScoreInfo* scoreInfo) = 0;
 	virtual bool UpdateUserScoreToDB(int64_t userId, tagSpecialScoreInfo* pScoreInfo) = 0;
-    virtual int  UpdateStorageScore(int64_t changeStockScore) = 0;
-    virtual bool GetStorageScore(tagStorageInfo &storageInfo) = 0;
+	virtual int  UpdateStorageScore(int64_t changeStockScore) = 0;
+	virtual bool GetStorageScore(tagStorageInfo& storageInfo) = 0;
 	virtual int64_t CalculateAgentRevenue(uint32_t chairId, int64_t revenue) = 0;
 };
 

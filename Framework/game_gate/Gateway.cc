@@ -18,7 +18,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	std::string const& cert_path, std::string const& private_key_path,
 	std::string const& client_ca_cert_file_path,
 	std::string const& client_ca_cert_dir_path)
-    : server_(loop, listenAddr, "wsServer")
+	: server_(loop, listenAddr, "wsServer")
 	, innServer_(loop, listenAddrInn, "innServer")
 	, httpServer_(loop, listenAddrHttp, "httpServer")
 	, hallClients_(loop)
@@ -310,7 +310,7 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	}
 
 	_LOG_INFO("GateSrv = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, numWorkerThreads);
-	
+
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == IpVisitCtrlE::kOpenAccept) {
 		server_.setConditionCallback(std::bind(&GateServ::onCondition, this, std::placeholders::_1));
@@ -327,19 +327,19 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 
 	//sleep(2);
 
-	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool = 
+	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =
 		muduo::net::ReactorSingleton::threadPool();
 	std::vector<muduo::net::EventLoop*> loops = threadPool->getAllLoops();
-	
+
 	for (size_t index = 0; index < loops.size(); ++index) {
 #if 0
 		ConnBucketPtr bucket(new ConnBucket(
-				loops[index], index, kTimeoutSeconds_));
+			loops[index], index, kTimeoutSeconds_));
 		bucketsPool_.emplace_back(std::move(bucket));
 #else
 		bucketsPool_.emplace_back(
 			ConnBucketPtr(new ConnBucket(
-			loops[index], index, kTimeoutSeconds_)));
+				loops[index], index, kTimeoutSeconds_)));
 #endif
 		loops[index]->setContext(EventLoopContextPtr(new EventLoopContext(index)));
 	}

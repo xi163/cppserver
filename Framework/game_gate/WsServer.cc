@@ -53,7 +53,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 
 		EventLoopContextPtr context = boost::any_cast<EventLoopContextPtr>(conn->getLoop()->getContext());
 		assert(context);
-		
+
 		EntryPtr entry(new Entry(Entry::TypeE::TcpTy, muduo::net::WeakTcpConnectionPtr(conn), "客户端", "网关服"));
 
 		ContextPtr entryContext(new Context(WeakEntryPtr(entry)));
@@ -90,7 +90,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 #if !defined(MAP_USERID_SESSION) && 0
 		//userid
 		int64_t userid = entryContext->getUserID();
-		if (userid > 0) {		
+		if (userid > 0) {
 			//check before remove
 			sessions_.remove(userid, conn);
 		}
@@ -152,7 +152,7 @@ void GateServ::onMessage(
 	conn->getLoop()->assertInLoopThread();
 	const uint16_t len = buf->peekInt16();
 	if (likely(len > packet::kMaxPacketSZ ||
-			   len < packet::kHeaderLen)) {
+		len < packet::kHeaderLen)) {
 		if (conn) {
 #if 0
 			//不再发送数据
@@ -171,7 +171,7 @@ void GateServ::onMessage(
 			{
 				EventLoopContextPtr context = boost::any_cast<EventLoopContextPtr>(conn->getLoop()->getContext());
 				assert(context);
-				
+
 				int index = context->getBucketIndex();
 				assert(index >= 0 && index < bucketsPool_.size());
 
@@ -404,14 +404,14 @@ BufferPtr GateServ::packClientShutdownMsg(int64_t userid, int status) {
 	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
 	msg.set_userid(userid);
 	msg.set_status(status);
-	
+
 	BufferPtr buffer = packet::packMessage(
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY, &msg);
-	
+
 	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY);
-	
+
 	return buffer;
 }
 
@@ -424,11 +424,11 @@ BufferPtr GateServ::packNoticeMsg(
 	msg.set_title(title.c_str());
 	msg.set_message(content);
 	msg.set_msgtype(msgtype);
-	
+
 	BufferPtr buffer = packet::packMessage(
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY, &msg);
-	
+
 	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY);
 

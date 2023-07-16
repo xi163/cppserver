@@ -16,12 +16,12 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 	, ipFinder_("qqwry.dat")
 	, gameId_(gameId)
 	, roomId_(roomId) {
-    registerHandlers();
+	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
-    server_.setConnectionCallback(
-        std::bind(&GameServ::onConnection, this, std::placeholders::_1));
-    server_.setMessageCallback(
-        std::bind(&GameServ::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	server_.setConnectionCallback(
+		std::bind(&GameServ::onConnection, this, std::placeholders::_1));
+	server_.setMessageCallback(
+		std::bind(&GameServ::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 GameServ::~GameServ() {
@@ -262,7 +262,7 @@ bool GameServ::InitServer() {
 			CRobotMgr::get_mutable_instance().Init(&gameInfo_, &roomInfo_, logicThread_, this);
 			CRobotMgr::get_mutable_instance().Load();
 		}
-		else {	
+		else {
 		}
 		_LOG_WARN("roomId = %d robot enabled = %d maxRobotCount = %d", roomId_, roomInfo_.bEnableAndroid, roomInfo_.maxAndroidCount);
 		return true;
@@ -274,11 +274,11 @@ bool GameServ::InitServer() {
 void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
-	
+
 	logicThread_->startLoop();
-	
+
 	_LOG_INFO("GameServ = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, 1);
-	
+
 	server_.start(true);
 
 	server_.getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
@@ -332,7 +332,7 @@ void GameServ::onMessage(
 	while (buf->readableBytes() >= packet::kMinPacketSZ) {
 		const uint16_t len = buf->peekInt16();
 		if (likely(len > packet::kMaxPacketSZ ||
-				   len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
+			len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
 			if (conn) {
 #if 0
 				//不再发送数据
@@ -578,7 +578,7 @@ void GameServ::cmd_on_user_enter_room(
 		if (player && player->Valid()) {
 			player->setTrustee(false);
 			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().GetTable(player->GetTableId());
-			if (table ) {
+			if (table) {
 				table->assertThisThread();
 				if (table->CanJoinTable(player)) {
 					table->OnUserEnterAction(player, pre_header_, header_);
@@ -878,7 +878,7 @@ void GameServ::DelContext(int64_t userId) {
 
 bool GameServ::LoadGameRoomKindInfo(uint32_t gameid, uint32_t roomid) {
 	bool bok = false;
-	try{
+	try {
 		mongocxx::collection kindCollection = MONGODBCLIENT["gameconfig"]["game_kind"];
 		bsoncxx::document::value query_value = document{} << "gameid" << (int32_t)gameid << finalize;
 		bsoncxx::stdx::optional<bsoncxx::document::value> result = kindCollection.find_one(query_value.view());
@@ -1029,7 +1029,7 @@ bool GameServ::GetUserBaseInfo(int64_t userid, UserBaseInfo& baseInfo) {
 }
 
 void GameServ::db_refresh_game_room_info() {
-	
+
 }
 
 

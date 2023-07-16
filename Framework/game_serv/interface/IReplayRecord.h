@@ -6,8 +6,8 @@ struct tagGameReplay;
 
 class IReplayRecord {
 public:
-    virtual bool SaveReplay(tagGameReplay& replay) = 0;
-    virtual bool SaveReplayRecord(tagGameRecPlayback& replay) = 0;
+	virtual bool SaveReplay(tagGameReplay& replay) = 0;
+	virtual bool SaveReplayRecord(tagGameRecPlayback& replay) = 0;
 };
 
 #endif

@@ -12,7 +12,7 @@ public:
 	TcpClient(muduo::net::EventLoop* loop,
 		const muduo::net::InetAddress& serverAddr,
 		const std::string& name, Connector* owner);
-	
+
 	const std::string& name() const;
 	muduo::net::TcpConnectionPtr connection() const;
 	muduo::net::EventLoop* getLoop() const;

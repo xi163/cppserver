@@ -70,7 +70,7 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 		assert(context);
 
 		EntryPtr entry(new Entry(Entry::TypeE::HttpTy, muduo::net::WeakTcpConnectionPtr(conn), "WEB前端", "网关服"));
-		
+
 		ContextPtr entryContext(new Context(WeakEntryPtr(entry), muduo::net::HttpContext()));
 		conn->setContext(entryContext);
 		{
@@ -109,7 +109,7 @@ void GateServ::onHttpMessage(
 		return;
 	}
 	//_LOG_ERROR("%.*s", buf->readableBytes(), buf->peek());
-	
+
 	//先确定是HTTP数据报文，再解析
 	//assert(buf->readableBytes() > 4 && buf->findCRLFCRLF());
 
@@ -547,7 +547,7 @@ bool GateServ::refreshWhiteListInLoop() {
 		s += std::string("\nipaddr[") + Inet2Ipstr(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
- 	return false;
+	return false;
 }
 
 static void replace(std::string& json, const std::string& placeholder, const std::string& value) {
@@ -607,15 +607,15 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 					//创建维护节点
 					//zkclient_->createNode(repairnode, name, true);
 					//挂维护中状态
-					clients_[servTy].repair(name);
-					_LOG_ERROR("创建维护节点 %s", repairnode.c_str());
+				clients_[servTy].repair(name);
+				_LOG_ERROR("创建维护节点 %s", repairnode.c_str());
 				//}
 				//删除 servicenode
 				std::string servicenode = path[servTy] + name;
 				//if (ZNONODE != zkclient_->existsNode(servicenode)) {
 					//删除服务节点
 					//zkclient_->deleteNode(servicenode);
-					_LOG_ERROR("删除服务节点 %s", servicenode.c_str());
+				_LOG_ERROR("删除服务节点 %s", servicenode.c_str());
 				//}
 				rspdata = createResponse(status, servname, name, 0, "success");
 			}
@@ -639,15 +639,15 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 					//创建服务节点
 					//zkclient_->createNode(servicenode, name, true);
 					//恢复服务状态
-					clients_[servTy].recover(name);
-					_LOG_ERROR("创建服务节点 %s", servicenode.c_str());
+				clients_[servTy].recover(name);
+				_LOG_ERROR("创建服务节点 %s", servicenode.c_str());
 				//}
 				//删除 repairnode
 				std::string repairnode = pathrepair[servTy] + name;
 				//if (ZNONODE != zkclient_->existsNode(repairnode)) {
 					//删除维护节点
 					//zkclient_->deleteNode(repairnode);
-					_LOG_ERROR("删除维护节点 %s", repairnode.c_str());
+				_LOG_ERROR("删除维护节点 %s", repairnode.c_str());
 				//}
 				rspdata = createResponse(status, servname, name, 0, "success");
 			}
@@ -751,7 +751,7 @@ void GateServ::repairServerNotify(std::string const& msg, std::string& rspdata) 
 			repairServer(servTy, servname, name, status, rspdata);
 		} while (0);
 	}
-	catch (boost::property_tree::ptree_error & e) {
+	catch (boost::property_tree::ptree_error& e) {
 		_LOG_ERROR(e.what());
 	}
 }

@@ -6,12 +6,8 @@ void Container::add(std::vector<std::string> const& names) {
 		names_.assign(names.begin(), names.end());
 	}
 	{
-#if 0
-		READ_LOCK(mutex_);
-		for (std::string const& name : names_) {
-#else
+		//READ_LOCK(mutex_);
 		for (std::string const& name : names) {
-#endif
 			//添加新节点
 			Container::add(name);
 		}

@@ -6,7 +6,7 @@ TcpClient::TcpClient(
 	const std::string& name,
 	Connector* owner)
 	: client_(loop, serverAddr, name)
-    , owner_(owner) {
+	, owner_(owner) {
 	client_.setConnectionCallback(
 		std::bind(&TcpClient::onConnection, this, std::placeholders::_1));
 	client_.setMessageCallback(
@@ -55,9 +55,9 @@ void TcpClient::enableRetry() {
 }
 
 void TcpClient::onConnection(const muduo::net::TcpConnectionPtr& conn) {
-	
+
 	conn->getLoop()->assertInLoopThread();
-	
+
 	if (conn->connected()) {
 		owner_->onConnected(conn, shared_from_this());
 	}
@@ -155,7 +155,7 @@ void Connector::getInLoop(std::string const& name, ClientConn& client, bool& bok
 void Connector::getAllInLoop(ClientConnList& clients, bool& bok) {
 
 	loop_->assertInLoopThread();
-	
+
 	for (TcpClientMap::const_iterator it = clients_.begin();
 		it != clients_.end(); ++it) {
 		if (it->second->connection() &&
@@ -171,9 +171,9 @@ void Connector::getAllInLoop(ClientConnList& clients, bool& bok) {
 void Connector::addInLoop(
 	std::string const& name,
 	const muduo::net::InetAddress& serverAddr) {
-	
+
 	loop_->assertInLoopThread();
-	
+
 	TcpClientMap::iterator it = clients_.find(name);
 	if (it == clients_.end()) {
 		//name新节点
@@ -265,17 +265,17 @@ void Connector::closeAll() {
 }
 
 void Connector::onConnected(const muduo::net::TcpConnectionPtr& conn, const TcpClientPtr& client) {
-	
+
 	conn->getLoop()->assertInLoopThread();
-	
+
 	int32_t num = numConnected_.incrementAndGet();
-	
+
 	QueueInLoop(loop_,
 		std::bind(&Connector::newConnection, this, conn, client));
 }
 
 void Connector::newConnection(const muduo::net::TcpConnectionPtr& conn, const TcpClientPtr& client) {
-	
+
 	loop_->assertInLoopThread();
 	{
 #if 0
@@ -286,26 +286,26 @@ void Connector::newConnection(const muduo::net::TcpConnectionPtr& conn, const Tc
 		assert(it != clients_.end());
 #endif
 	}
-	
+
 	QueueInLoop(conn->getLoop(), std::bind(&Connector::connectionCallback, this, conn));
 }
 
 void Connector::onClosed(const muduo::net::TcpConnectionPtr& conn, const std::string& name) {
-	
+
 	conn->getLoop()->assertInLoopThread();
-	
+
 	int32_t num = numConnected_.decrementAndGet();
 	//if (num == 0) {
 	//	QueueInLoop(conn->getLoop(),
 	//		std::bind(&muduo::net::EventLoop::quit, conn->getLoop()));
 	//}
-	
+
 	QueueInLoop(loop_,
 		std::bind(&Connector::removeConnection, this, conn, name));
 }
 
 void Connector::removeConnection(const muduo::net::TcpConnectionPtr& conn, const std::string& name) {
-	
+
 	loop_->assertInLoopThread();
 	{
 #if 1
@@ -342,9 +342,9 @@ void Connector::connectionCallback(const muduo::net::TcpConnectionPtr& conn) {
 }
 
 void Connector::removeInLoop(std::string const& name, bool lazy) {
-	
+
 	loop_->assertInLoopThread();
-	
+
 	TcpClientMap::const_iterator it = clients_.find(name);
 	if (it != clients_.end()) {
 		//连接已经无效直接删除
@@ -382,7 +382,7 @@ void Connector::cleanupInLoop() {
 void Connector::closeAllInLoop() {
 
 	loop_->assertInLoopThread();
-	
+
 	RunInLoop(loop_,
 		std::bind(&Connector::cleanupInLoop, this));
 

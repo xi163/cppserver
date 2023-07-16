@@ -43,15 +43,15 @@ void CTableMgr::Clear() {
 }
 
 void CTableMgr::Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) {
-    if (!gameInfo || !roomInfo)  {
-        return;
-    }
-    TableDelegateCreator creator = LoadLibrary(gameInfo->gameServiceName);
-    if (!creator) {
-        exit(0);
-    }
-    gameInfo_ = gameInfo;
-    roomInfo_ = roomInfo;
+	if (!gameInfo || !roomInfo) {
+		return;
+	}
+	TableDelegateCreator creator = LoadLibrary(gameInfo->gameServiceName);
+	if (!creator) {
+		exit(0);
+	}
+	gameInfo_ = gameInfo;
+	roomInfo_ = roomInfo;
 	//muduo::AtomicInt32 int32_;
 	CTable::ReadStorageScore(roomInfo_);
 	for (uint32_t i = 0; i < roomInfo->tableCount; ++i) {
@@ -75,14 +75,14 @@ void CTableMgr::Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shar
 			}
 		}_x;
 #elif 0
-		if (int32_.getAndSet(1) != 0){
+		if (int32_.getAndSet(1) != 0) {
 			table->ReadStorageScore();
 		}
 #endif
 		items_.emplace_back(table);
 		freeItems_.emplace_back(table);
 		//_LOG_DEBUG("table:%d %d %d stock:%ld", roomInfo->tableCount, gameInfo_->gameId, roomInfo_->roomId, roomInfo_->totalStock);
-    }
+	}
 	_LOG_WARN("table count:%d %d %d stock:%ld", roomInfo->tableCount, gameInfo_->gameId, roomInfo_->roomId, roomInfo_->totalStock);
 }
 
@@ -102,7 +102,7 @@ std::list<std::shared_ptr<CTable>> CTableMgr::GetUsedTables() {
 			});
 #endif
 	}
-    return usedItems;
+	return usedItems;
 }
 
 std::shared_ptr<CTable> CTableMgr::GetTable(uint32_t tableId) {
@@ -128,7 +128,7 @@ std::shared_ptr<CTable> CTableMgr::FindNormalTable(uint32_t tableId) {
 			}
 		}
 	}
-    return std::shared_ptr<CTable>();
+	return std::shared_ptr<CTable>();
 }
 
 
@@ -144,18 +144,18 @@ std::shared_ptr<CTable> CTableMgr::FindSuitTable(std::shared_ptr<IPlayer> const&
 			});
 	}
 	for (auto it : usedItems) {
-        std::shared_ptr<CTable> table = it;
-        if(INVALID_TABLE == ignoreTableId || ignoreTableId == table->GetTableId()) {
-            continue;
-        }
-        if (table->GetPlayerCount() >= table->GetMaxPlayerCount()) {
-            continue;
-        }
-        if (table->CanJoinTable(player)) {
-            return table;
-        }
-    }
-    {
+		std::shared_ptr<CTable> table = it;
+		if (INVALID_TABLE == ignoreTableId || ignoreTableId == table->GetTableId()) {
+			continue;
+		}
+		if (table->GetPlayerCount() >= table->GetMaxPlayerCount()) {
+			continue;
+		}
+		if (table->CanJoinTable(player)) {
+			return table;
+		}
+	}
+	{
 		WRITE_LOCK(mutex_);
 		if (!freeItems_.empty()) {
 			std::shared_ptr<CTable> table = freeItems_.front();
@@ -164,8 +164,8 @@ std::shared_ptr<CTable> CTableMgr::FindSuitTable(std::shared_ptr<IPlayer> const&
 			usedItems_[table->GetTableId()] = table;
 			return table;
 		}
-    }
-    return std::shared_ptr<CTable>();
+	}
+	return std::shared_ptr<CTable>();
 }
 
 void CTableMgr::FreeNormalTable(uint32_t tableId) {
@@ -208,8 +208,8 @@ void CTableMgr::FreeNormalTable(uint32_t tableId) {
 //}
 
 bool CTableMgr::SetTableStockInfo(tagStockInfo& stockInfo) {
-    stockInfo_ = stockInfo;
-    return true;
+	stockInfo_ = stockInfo;
+	return true;
 }
 
 void CTableMgr::KickAllTableUsers() {
@@ -229,7 +229,7 @@ void CTableMgr::KickAllTableUsers() {
 			table->DismissGame();
 			for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
 				std::shared_ptr<IPlayer> player = table->items_[i];
-				if (player ) {
+				if (player) {
 					table->OnUserLeft(player);
 				}
 			}

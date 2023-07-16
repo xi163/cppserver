@@ -36,7 +36,7 @@ void GateServ::onHallMessage(const muduo::net::TcpConnectionPtr& conn,
 	while (buf->readableBytes() >= packet::kMinPacketSZ) {
 		const uint16_t len = buf->peekInt16();
 		if (likely(len > packet::kMaxPacketSZ ||
-			       len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
+			len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
 			if (conn) {
 #if 0
 				//不再发送数据
@@ -158,7 +158,7 @@ void GateServ::asyncHallHandler(
 			header->mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL &&
 			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_RES &&
 			pre_header->ok == 1) {
-			assert(userId &&&userId == entryContext->getUserID());
+			assert(userId && &userId == entryContext->getUserID());
 			//判断用户当前游戏节点
 			ClientConn const& clientConn = entryContext->getClientConn(servTyE::kGameTy);
 			muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
@@ -169,7 +169,7 @@ void GateServ::asyncHallHandler(
 				if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
 					//与目标游戏节点不一致，重新指定
 					if (clientConn.first != serverIp) {
-						_LOG_WARN("%d 游戏节点[%s] [%s]不一致，重新指定",userId, clientConn.first.c_str(), serverIp.c_str());
+						_LOG_WARN("%d 游戏节点[%s] [%s]不一致，重新指定", userId, clientConn.first.c_str(), serverIp.c_str());
 						//获取目标游戏节点
 						ClientConn clientConn;
 						clients_[servTyE::kGameTy].clients_->get(serverIp, clientConn);

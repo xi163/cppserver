@@ -150,7 +150,7 @@ struct Context : public muduo::noncopyable {
 	inline void setWorkerIndex(int index) {
 		index_ = index;
 		assert(index_ >= 0);
-}
+	}
 	inline int getWorkerIndex() const {
 		return index_;
 	}
@@ -166,9 +166,9 @@ struct Context : public muduo::noncopyable {
 	inline boost::any* getMutableContext() {
 		return &context_;
 	}
- 	inline WeakEntryPtr const& getWeakEntryPtr() {
- 		return weakEntry_;
- 	}
+	inline WeakEntryPtr const& getWeakEntryPtr() {
+		return weakEntry_;
+	}
 	inline void setFromIp(in_addr_t inaddr) { ipaddr_ = inaddr; }
 	inline in_addr_t getFromIp() { return ipaddr_; }
 	inline void setSession(std::string const& session) { session_ = session; }

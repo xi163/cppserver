@@ -2,16 +2,16 @@
 #include "Hall.h"
 
 HallServ::HallServ(muduo::net::EventLoop* loop,
-    const muduo::net::InetAddress& listenAddr) :
-          server_(loop, listenAddr, "HallServ")
-        , threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
-        , ipFinder_("qqwry.dat") {
-    registerHandlers();
+	const muduo::net::InetAddress& listenAddr) :
+	server_(loop, listenAddr, "HallServ")
+	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
+	, ipFinder_("qqwry.dat") {
+	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
-    server_.setConnectionCallback(
-        std::bind(&HallServ::onConnection, this, std::placeholders::_1));
-    server_.setMessageCallback(
-        std::bind(&HallServ::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	server_.setConnectionCallback(
+		std::bind(&HallServ::onConnection, this, std::placeholders::_1));
+	server_.setMessageCallback(
+		std::bind(&HallServ::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	threadTimer_->startLoop();
 }
 
@@ -340,7 +340,7 @@ void HallServ::onMessage(
 	while (buf->readableBytes() >= packet::kMinPacketSZ) {
 		const uint16_t len = buf->peekInt16();
 		if (likely(len > packet::kMaxPacketSZ ||
-				   len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
+			len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
 			if (conn) {
 #if 0
 				//不再发送数据
@@ -500,7 +500,7 @@ void HallServ::cmd_keep_alive_ping(
 		rspdata.set_errormsg("KEEP ALIVE PING OK.");
 		//用户登陆token
 		std::string const& token = reqdata.session();
-		REDISCLIENT.resetExpired("k.token."+token);
+		REDISCLIENT.resetExpired("k.token." + token);
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_SERVER_SUBID::KEEP_ALIVE_RES,
 			pre_header_, header_);
@@ -561,7 +561,7 @@ void HallServ::cmd_on_user_login(
 					std::chrono::system_clock::time_point lastLoginTime = view["lastlogintime"].get_date();//lastLoginTime
 					//userid(account,agentid)必须一致
 					//if (account == account_ && agentid == agentid_) {
-					 if (account == account_) {
+					if (account == account_) {
 						//////////////////////////////////////////////////////////////////////////
 						//玩家登陆网关服信息
 						//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
@@ -587,11 +587,11 @@ void HallServ::cmd_on_user_login(
 						boost::property_tree::write_json(s, root, false);
 						std::string msg = s.str();
 						REDISCLIENT.publishUserLoginMessage(msg);
-						
+
 						std::string uuid = createUUID();
 						std::string passwd = buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
 						REDISCLIENT.SetUserLoginInfo(userid, "dynamicPassword", passwd);
-						
+
 						rspdata.set_userid(userid);
 						rspdata.set_account(account);
 						rspdata.set_agentid(agentid);
@@ -613,7 +613,7 @@ void HallServ::cmd_on_user_login(
 						//redis更新登陆时间
 						REDISCLIENT.SetUserLoginInfo(userid, "lastlogintime", std::to_string(chrono::system_clock::to_time_t(now)));
 						//redis更新token过期时间
-						REDISCLIENT.resetExpired("k.token."+token);
+						REDISCLIENT.resetExpired("k.token." + token);
 						_LOG_DEBUG("%d LOGIN SERVER OK!", userid);
 					}
 					else {
@@ -1185,7 +1185,7 @@ bool HallServ::redis_get_token_info(
 	int64_t& userid, std::string& account, uint32_t& agentid) {
 	try {
 		std::string value;
-		if (REDISCLIENT.get("k.token."+token, value)) {
+		if (REDISCLIENT.get("k.token." + token, value)) {
 			boost::property_tree::ptree root;
 			std::stringstream s(value);
 			boost::property_tree::read_json(s, root);
@@ -1339,7 +1339,7 @@ bool HallServ::db_add_logout_logger(
 			<< "logouttime" << bsoncxx::types::b_date(now)						//离线时间
 			<< "agentid" << agentid
 			<< "playseconds" << bsoncxx::types::b_int64{ durationTime.count() } //在线时长
-			<< finalize;
+		<< finalize;
 		/*bsoncxx::stdx::optional<mongocxx::result::insert_one> result = */logoutLogCollection.insert_one(insert_value.view());
 		bok = true;
 	}

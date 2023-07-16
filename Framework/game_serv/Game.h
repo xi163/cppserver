@@ -9,11 +9,11 @@
 #if BOOST_VERSION < 104700
 namespace boost
 {
-template <typename T>
-inline size_t hash_value(const boost::shared_ptr<T> &x)
-{
-    return boost::hash_value(x.get());
-}
+	template <typename T>
+	inline size_t hash_value(const boost::shared_ptr<T>& x)
+	{
+		return boost::hash_value(x.get());
+	}
 } // namespace boost
 #endif
 
@@ -28,8 +28,8 @@ public:
 	typedef std::function<
 		void(const muduo::net::TcpConnectionPtr&, BufferPtr const&)> CmdCallback;
 	typedef std::map<uint32_t, CmdCallback> CmdCallbacks;
-    GameServ(muduo::net::EventLoop* loop, const muduo::net::InetAddress& listenAddr, uint32_t gameId, uint32_t roomId);
-    ~GameServ();
+	GameServ(muduo::net::EventLoop* loop, const muduo::net::InetAddress& listenAddr, uint32_t gameId, uint32_t roomId);
+	~GameServ();
 	void Quit();
 	void registerHandlers();
 	bool InitZookeeper(std::string const& ipaddr);
@@ -141,7 +141,7 @@ public:
 
 	//std::map<int, std::vector<std::string>> room_servers_;
 	//mutable boost::shared_mutex room_servers_mutex_;
-	
+
 	tagGameInfo gameInfo_;
 	tagGameRoomInfo roomInfo_;
 	tagGameReplay gameReplay_;
@@ -149,7 +149,7 @@ public:
 	CmdCallbacks handlers_;
 
 	CIpFinder ipFinder_;
-    
+
 	std::string strIpAddr_;
 
 	muduo::net::TcpServer server_;
@@ -165,4 +165,4 @@ public:
 	mutable boost::shared_mutex mutexUserGates_;
 };
 
-#endif 
+#endif

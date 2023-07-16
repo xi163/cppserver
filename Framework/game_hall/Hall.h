@@ -10,11 +10,11 @@
 #if BOOST_VERSION < 104700
 namespace boost
 {
-template <typename T>
-inline size_t hash_value(const boost::shared_ptr<T> &x)
-{
-    return boost::hash_value(x.get());
-}
+	template <typename T>
+	inline size_t hash_value(const boost::shared_ptr<T>& x)
+	{
+		return boost::hash_value(x.get());
+	}
 } // namespace boost
 #endif
 
@@ -23,8 +23,8 @@ public:
 	typedef std::function<
 		void(const muduo::net::TcpConnectionPtr&, BufferPtr const&)> CmdCallback;
 	typedef std::map<uint32_t, CmdCallback> CmdCallbacks;
-    HallServ(muduo::net::EventLoop* loop, const muduo::net::InetAddress& listenAddr);
-    ~HallServ();
+	HallServ(muduo::net::EventLoop* loop, const muduo::net::InetAddress& listenAddr);
+	~HallServ();
 	void Quit();
 	void registerHandlers();
 	bool InitZookeeper(std::string const& ipaddr);
@@ -158,15 +158,15 @@ public:
 	std::shared_ptr<RedisClient> redisClient_;
 	std::string redisIpaddr_;
 	std::string redisPasswd_;
-	
+
 	std::vector<std::string> redlockVec_;
-	
+
 	std::string mongoDBUrl_;
 private:
 	//所有游戏房间信息
-    ::HallServer::GetGameMessageResponse gameinfo_;
+	::HallServer::GetGameMessageResponse gameinfo_;
 	mutable boost::shared_mutex gameinfo_mutex_;
-    ::HallServer::GetServerPlayerNumResponse room_playernums_;
+	::HallServer::GetServerPlayerNumResponse room_playernums_;
 	mutable boost::shared_mutex room_playernums_mutex_;
 public:
 	//房间节点map[roomid] = iplist
@@ -176,23 +176,23 @@ public:
 	//房间节点map[roomid] = iplist
 	//std::map<int, std::vector<std::string>> room_servers_;
 	//mutable boost::shared_mutex room_servers_mutex_;
-	
+
 	//是否调试
 	bool isdebug_;
 
 	//命令消息回调处理函数
 	/*static*/ CmdCallbacks handlers_;
 
-    //IP地址定位国家地域
+	//IP地址定位国家地域
 	CIpFinder ipFinder_;
-    
+
 	//绑定网卡ipport
 	std::string strIpAddr_;
 
 	//最大连接数限制
 	int kMaxConnections_;
 
-    //监听网关客户端TCP请求
+	//监听网关客户端TCP请求
 	muduo::net::TcpServer server_;
 
 	//session hash运算得到用户worker线程
@@ -214,4 +214,4 @@ public:
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 };
 
-#endif // HallServ_H
+#endif

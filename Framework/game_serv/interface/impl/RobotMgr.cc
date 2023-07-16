@@ -29,35 +29,35 @@ static RobotDelegateCreator LoadLibrary(std::string const& serviceName) {
 }
 
 CRobotMgr::CRobotMgr() :
-    gameInfo_(NULL)
-    , roomInfo_(NULL)
-    , tableContext_(NULL)
-    //, logicThread_(NULL)
-    , percentage_(0) {
+	gameInfo_(NULL)
+	, roomInfo_(NULL)
+	, tableContext_(NULL)
+	//, logicThread_(NULL)
+	, percentage_(0) {
 }
 
 CRobotMgr::~CRobotMgr() {
-    freeItems_.clear();
-    items_.clear();
-    gameInfo_ = NULL;
-    roomInfo_ = NULL;
-    tableContext_ = NULL;
-    //logicThread_ = NULL;
+	freeItems_.clear();
+	items_.clear();
+	gameInfo_ = NULL;
+	roomInfo_ = NULL;
+	tableContext_ = NULL;
+	//logicThread_ = NULL;
 }
 
 void CRobotMgr::Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) {
 	if (!gameInfo || !roomInfo) {
 		return;
 	}
-    RobotDelegateCreator creator = LoadLibrary(gameInfo->gameServiceName);
+	RobotDelegateCreator creator = LoadLibrary(gameInfo->gameServiceName);
 	if (!creator) {
 		exit(0);
 	}
-    gameInfo_  = gameInfo;
-    roomInfo_  = roomInfo;
-    //logicThread_ = logicThread;
-    tableContext_ = tableContext;
-    creator_ = creator;
+	gameInfo_ = gameInfo;
+	roomInfo_ = roomInfo;
+	//logicThread_ = logicThread;
+	tableContext_ = tableContext;
+	creator_ = creator;
 }
 
 void CRobotMgr::Load() {
@@ -89,7 +89,7 @@ void CRobotMgr::Load() {
 		//机器人账号
 		mongocxx::collection coll = MONGODBCLIENT["gameconfig"]["android_user"];
 		bsoncxx::document::value query_value2 = document{} << "gameId" << (int32_t)roomInfo_->gameId << "roomId" << (int32_t)roomInfo_->roomId << finalize;
-		mongocxx::cursor cursor = coll.find({query_value2});
+		mongocxx::cursor cursor = coll.find({ query_value2 });
 		for (auto& doc : cursor) {
 			//_LOG_DEBUG(bsoncxx::to_json(doc).c_str());
 			UserBaseInfo userInfo;
@@ -115,10 +115,10 @@ void CRobotMgr::Load() {
 				_LOG_ERROR("robot %d Failed", userInfo.userId);
 				break;
 			}
-            robot->SetUserBaseInfo(userInfo);
+			robot->SetUserBaseInfo(userInfo);
 			robotDelegate->SetStrategy(&robotStrategy_);
 			robot->Init(robotDelegate);
-            freeItems_.emplace_back(robot);
+			freeItems_.emplace_back(robot);
 			if (++robotCount >= needRobotCount) {
 				break;
 			}
@@ -130,19 +130,19 @@ void CRobotMgr::Load() {
 		_LOG_ERROR(e.what());
 	}
 #if 0
-    logicThread_->getLoop()->runEvery(3.0, boost::bind(&CRobotMgr::OnTimerCheckIn, this));
+	logicThread_->getLoop()->runEvery(3.0, boost::bind(&CRobotMgr::OnTimerCheckIn, this));
 #endif
 }
 
 std::shared_ptr<CRobot> CRobotMgr::Pick() {
 	std::shared_ptr<CRobot> robot;
-    {
-        //WRITE_LOCK(mutex_);
+	{
+		//WRITE_LOCK(mutex_);
 		if (!freeItems_.empty()) {
 			robot = freeItems_.front();
 			freeItems_.pop_front();
 		}
-    }
+	}
 	if (robot) {
 		robot->Reset();
 		{
@@ -314,15 +314,15 @@ void CRobotMgr::OnTimerCheckIn() {
 }
 
 void CRobotMgr::Hourtimer() {
-    time_t now = time(NULL);
-    static time_t last = 0;
+	time_t now = time(NULL);
+	static time_t last = 0;
 	if (percentage_ == 0 || (now - last) > 3600) {
 		struct tm* local = localtime(&now);
 		uint8_t hour = (int)local->tm_hour;
 		float r = (weight_.rand_.betweenInt(0, 10).randInt_mt() + 95) * 0.01;//随机浮动一定比例0.9~1.1
-        percentage_ = roomInfo_->enterAndroidPercentage[hour] ?
+		percentage_ = roomInfo_->enterAndroidPercentage[hour] ?
 			roomInfo_->enterAndroidPercentage[hour] * (r) : 0.5 * (r);
 		last = now;
 	}
-    //logicThread_->getLoop()->runAfter(60,std::bind(&CRobotMgr::Hourtimer,&CRobotMgr::get_mutable_instance()));
+	//logicThread_->getLoop()->runAfter(60,std::bind(&CRobotMgr::Hourtimer,&CRobotMgr::get_mutable_instance()));
 }
