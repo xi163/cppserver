@@ -3757,10 +3757,10 @@ void CGameTable::AnalysePlayerCards() {
 			/ llabs(StockLowLimit - StockSecondLowLimit)
 			* (100 - m_i32LowerChangeRate);
 		if (rand_.betweenInt64(0, 99).randFloat_mt() > m_i32LowerChangeRate + weight) {
-			LOG_INFO << "StockLowLimit:" << StockLowLimit << " StockScore:" << StockScore << " StockHighLimit:" << StockHighLimit << " 算法 随机";
+			_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 随机", StockLowLimit, StockScore, StockHighLimit);
 			return;
 		}
-		LOG_INFO << "StockLowLimit:" << StockLowLimit << " StockScore:" << StockScore  << " StockHighLimit:" << StockHighLimit << " 算法 吸分";
+		_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 吸分", StockLowLimit, StockScore, StockHighLimit);
 		LetSysWin(true);
 	}
 	//库存高于上限值，需要放水
@@ -3770,14 +3770,14 @@ void CGameTable::AnalysePlayerCards() {
 			/ llabs(StockSecondHighLimit - StockHighLimit)
 			* (100 - m_i32HigherChangeRate);
 		if (rand_.betweenInt64(0, 99).randFloat_mt() > m_i32HigherChangeRate + weight) {
-			LOG_INFO << "StockLowLimit:" << StockLowLimit << " StockScore:" << StockScore << " StockHighLimit:" << StockHighLimit << " 算法 随机";
+			_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 随机", StockLowLimit, StockScore, StockHighLimit);
 			return;
 		}
-		LOG_INFO << "StockLowLimit:" << StockLowLimit << " StockScore:" << StockScore << " StockHighLimit:" << StockHighLimit << " 算法 吐分";
+		_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 吐分", StockLowLimit, StockScore, StockHighLimit);
 		LetSysWin(false);
 	}
 	else {
-		LOG_INFO << "StockLowLimit:" << StockLowLimit << " StockScore:" << StockScore << " StockHighLimit:" << StockHighLimit << " 算法 随机";
+		_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 随机", StockLowLimit, StockScore, StockHighLimit);
 	}
 }
 
@@ -3822,14 +3822,14 @@ void CGameTable::LetSysWin(bool sysWin) {
 			//如果是机器人
 			if (table_->IsRobot((uint32_t)(*it)->chairID) > 0) {
 				vinfo.push_back((*it)->chairID);
-				LOG_WARN << " 吸分 " << (*it)->chairID << " 机器人";
+				_LOG_WARN(" 吸分 %d %d 机器人", (*it)->chairID, UserIdBy((*it)->chairID));
 			}
 		}
 		else {
 			//如果是真实玩家
 			if (table_->IsRobot((uint32_t)(*it)->chairID) == 0) {
 				vinfo.push_back((*it)->chairID);
-				LOG_WARN << " 吐分 " << (*it)->chairID << " 玩家";
+				_LOG_WARN(" 吐分 %d %d 玩家", (*it)->chairID, UserIdBy((*it)->chairID));
 			}
 		}
 	}
@@ -3839,14 +3839,14 @@ void CGameTable::LetSysWin(bool sysWin) {
 			//如果是真实玩家
 			if (table_->IsRobot((uint32_t)(*it)->chairID) == 0) {
 				vinfo.push_back((*it)->chairID);
-				LOG_WARN << " 吸分 " << (*it)->chairID << " 玩家";
+				_LOG_WARN(" 吸分 %d %d 玩家", (*it)->chairID, UserIdBy((*it)->chairID));
 			}
 		}
 		else {
 			//如果是机器人
 			if (table_->IsRobot((uint32_t)(*it)->chairID) > 0) {
 				vinfo.push_back((*it)->chairID);
-				LOG_WARN << " 吐分 " << (*it)->chairID << " 机器人";
+				_LOG_WARN(" 吐分 %d %d 机器人", (*it)->chairID, UserIdBy((*it)->chairID));
 			}
 		}
 	}
