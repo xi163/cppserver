@@ -727,6 +727,7 @@ void HallServ::cmd_get_playing_game_info(
 			rspdata.set_roomid(roomid);
 			rspdata.set_retcode(0);
 			rspdata.set_errormsg("Get Playing Game Info OK.");
+			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = 1;
 		}
 		else {
 			rspdata.set_retcode(1);

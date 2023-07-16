@@ -211,7 +211,7 @@ void CRobotMgr::OnTimerCheckIn() {
 		_LOG_ERROR("机器人没有库存了");
 		return;
 	}
-	std::list<std::shared_ptr<CTable>> tables = CTableMgr::get_mutable_instance().GetUsedTables();
+	std::list<std::shared_ptr<CTable>> tables = CTableMgr::get_mutable_instance().UsedTables();
 	for (auto it : tables) {
 		std::shared_ptr<CTable>& table = it;
 		if (table) {

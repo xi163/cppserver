@@ -81,12 +81,12 @@ static std::string StringPlayerStat(uint8_t status) {
 	return "nil";
 }
 
-//游戏流程
 class CGameTable : public ITableDelegate {
 public:
     CGameTable(void);
     ~CGameTable(void);
 public:
+	virtual std::string GetRoundId();
     //游戏开始
     virtual void OnGameStart();
     //游戏结束
@@ -107,7 +107,7 @@ public:
     virtual bool CanLeftTable(int64_t userId);
     //设置指针
     virtual bool SetTable(std::shared_ptr<ITable> const& table);
-
+	//重置桌子
     virtual void Reposition() ;
 private:
 	int randomMaxAndroidCount();

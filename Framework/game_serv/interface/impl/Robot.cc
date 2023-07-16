@@ -49,7 +49,7 @@ bool CRobot::SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data,
 /// </summary>
 bool CRobot::SendTableMessage(uint8_t subId, uint8_t const* data, size_t len) {
 	if (INVALID_TABLE != tableId_) {
-		std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().GetTable(tableId_);
+		std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(tableId_);
 		if (table) {
 			return table->OnGameEvent(chairId_, subId, data, len);
 		}
@@ -63,7 +63,7 @@ bool CRobot::SendTableMessage(uint8_t subId, uint8_t const* data, size_t len) {
 
 void CRobot::setReady() {
 	if (INVALID_TABLE != tableId_) {
-		std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().GetTable(tableId_);
+		std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(tableId_);
 		if (table) {
 			uint32_t chairId = GetChairId();
 			table->SetUserReady(chairId);

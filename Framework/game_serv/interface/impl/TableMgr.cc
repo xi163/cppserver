@@ -31,12 +31,7 @@ CTableMgr::CTableMgr() :roomInfo_(NULL)
 , gameInfo_(NULL) {
 }
 
-
 CTableMgr::~CTableMgr() {
-	Clear();
-}
-
-void CTableMgr::Clear() {
 	items_.clear();
 	usedItems_.clear();
 	freeItems_.clear();
@@ -86,7 +81,7 @@ void CTableMgr::Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shar
 	_LOG_WARN("table count:%d %d %d stock:%ld", roomInfo->tableCount, gameInfo_->gameId, roomInfo_->roomId, roomInfo_->totalStock);
 }
 
-std::list<std::shared_ptr<CTable>> CTableMgr::GetUsedTables() {
+std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
 		READ_LOCK(mutex_);
@@ -105,7 +100,7 @@ std::list<std::shared_ptr<CTable>> CTableMgr::GetUsedTables() {
 	return usedItems;
 }
 
-std::shared_ptr<CTable> CTableMgr::GetTable(uint32_t tableId) {
+std::shared_ptr<CTable> CTableMgr::Get(uint32_t tableId) {
 	{
 		READ_LOCK(mutex_);
 		if (tableId < items_.size()) {
@@ -118,7 +113,7 @@ std::shared_ptr<CTable> CTableMgr::GetTable(uint32_t tableId) {
 /// <summary>
 /// 返回指定桌子，前提是桌子未满
 /// </summary>
-std::shared_ptr<CTable> CTableMgr::FindNormalTable(uint32_t tableId) {
+std::shared_ptr<CTable> CTableMgr::Find(uint32_t tableId) {
 	{
 		READ_LOCK(mutex_);
 		std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
@@ -135,7 +130,7 @@ std::shared_ptr<CTable> CTableMgr::FindNormalTable(uint32_t tableId) {
 /// <summary>
 /// 查找能进的桌子，没有则取空闲卓子
 /// </summary>
-std::shared_ptr<CTable> CTableMgr::FindSuitTable(std::shared_ptr<IPlayer> const& player, uint32_t ignoreTableId) {
+std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<IPlayer> const& player, uint32_t ignoreTableId) {
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
 		READ_LOCK(mutex_);
@@ -168,7 +163,7 @@ std::shared_ptr<CTable> CTableMgr::FindSuitTable(std::shared_ptr<IPlayer> const&
 	return std::shared_ptr<CTable>();
 }
 
-void CTableMgr::FreeNormalTable(uint32_t tableId) {
+void CTableMgr::Free(uint32_t tableId) {
 	{
 		WRITE_LOCK(mutex_);
 		std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);

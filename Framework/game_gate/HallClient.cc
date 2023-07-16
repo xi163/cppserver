@@ -155,8 +155,9 @@ void GateServ::asyncHallHandler(
 			//////////////////////////////////////////////////////////////////////////
 			//查询成功，指定用户游戏节点
 			//////////////////////////////////////////////////////////////////////////
-			header->mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL &&
-			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_RES &&
+			header->mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL && (
+			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_RES ||
+			header->subId == ::Game::Common::CLIENT_TO_HALL_GET_PLAYING_GAME_INFO_MESSAGE_RES) &&
 			pre_header->ok == 1) {
 			assert(userId && &userId == entryContext->getUserID());
 			//判断用户当前游戏节点

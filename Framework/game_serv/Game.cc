@@ -290,7 +290,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		if (gameInfo_.gameType == GameType_BaiRen) {
 			logicThread_->getLoop()->runEvery(3.0, std::bind(&CRobotMgr::OnTimerCheckIn, &CRobotMgr::get_mutable_instance()));
 			auto player = std::make_shared<CPlayer>();
-			CTableMgr::get_mutable_instance().FindSuitTable(player, INVALID_TABLE);
+			CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
 			CRobotMgr::get_mutable_instance().Hourtimer();
 		}
 		else if (gameInfo_.gameType == GameType_Confrontation) {
@@ -578,9 +578,12 @@ void GameServ::cmd_on_user_enter_room(
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player && player->Valid()) {
 			player->setTrustee(false);
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().GetTable(player->GetTableId());
+			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
+				_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
+					table->GetRoundId().c_str(), table_->GetTableId(), table_->StrGameStatus().c_str(),
+					player->GetUserId(), player->GetChairId());
 				if (table->CanJoinTable(player)) {
 					table->OnUserEnterAction(player, pre_header_, header_);
 				}
@@ -671,7 +674,7 @@ void GameServ::cmd_on_user_enter_room(
 			}
 			userInfo.ip = pre_header_->clientIp;
 			player->SetUserBaseInfo(userInfo);
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().FindSuitTable(player, INVALID_TABLE);
+			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
 			if (table) {
 				table->assertThisThread();
 				table->RoomSitChair(std::dynamic_pointer_cast<IPlayer>(player), pre_header_, header_);
@@ -701,7 +704,7 @@ void GameServ::cmd_on_user_ready(
 
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player) {
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().GetTable(player->GetTableId());
+			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
 				table->SetUserReady(player->GetChairId());
@@ -737,7 +740,7 @@ void GameServ::cmd_on_user_left_room(
 		rspdata.set_type(reqdata.type());
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player) {
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().GetTable(player->GetTableId());
+			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
 				//KickOffLine(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
@@ -781,7 +784,7 @@ void GameServ::cmd_on_user_offline(
 	if (!player) {
 		return;
 	}
-	std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().GetTable(player->GetTableId());
+	std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 	if (table) {
 		table->assertThisThread();
 		table->OnUserOffline(player);
@@ -802,7 +805,7 @@ void GameServ::cmd_on_game_message(
 		uint32_t len = reqdata.passdata().size();
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player) {
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().GetTable(player->GetTableId());
+			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
 				table->OnGameEvent(player->GetChairId(), header_->subId, data, len);

@@ -335,13 +335,17 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
     }
     if (GetPlayerCount() == 0) {
         if (gameInfo_->gameType == GameType_Confrontation) {
-            CTableMgr::get_mutable_instance().FreeNormalTable(tableState_.tableId);
+            CTableMgr::get_mutable_instance().Free(tableState_.tableId);
         }
     }
 }
 
 void CTable::GetTableInfo(TableState& tableState) {
     tableState = tableState_;
+}
+
+std::string CTable::GetRoundId() {
+    return tableDelegate_->GetRoundId();
 }
 
 uint32_t CTable::GetTableId() {
@@ -410,6 +414,21 @@ void CTable::SetGameStatus(uint8_t status) {
 
 uint8_t CTable::GetGameStatus() {
     return status_;
+}
+
+std::string CTable::StrGameStatus() {
+    switch (status_) {
+    case GAME_STATUS_INIT:
+        return "INIT";
+    case GAME_STATUS_FREE:
+        return "READY";
+    case GAME_STATUS_END:
+        return "END";
+    }
+    if (status_ >= GAME_STATUS_START && status_ < GAME_STATUS_END) {
+		return "START";
+	}
+	return "";
 }
 
 bool CTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {

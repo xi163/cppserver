@@ -59,6 +59,10 @@ void CGameTable::ClearGameData() {
 	strRoundID_.clear();
 }
 
+std::string CGameTable::GetRoundId() {
+	return strRoundID_;
+}
+
 void CGameTable::Reposition() {
 }
 
@@ -148,14 +152,10 @@ bool CGameTable::OnUserEnter(int64_t userId, bool islookon) {
 bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 	//达到房间最大人数不能进了
 	if (table_->GetPlayerCount() >= GAME_PLAYER) {
-		if (player->GetUserId() >= MIN_SYS_USER_ID) {//断线重连可以进
-			std::shared_ptr<IPlayer> player = table_->GetPlayer(player->GetUserId());
-			if (player) {
-				//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 0";
-				return true;
-			}
+		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
+		if (userItem && userItem->GetChairId() == player->GetChairId()) {//断线重连可以进
+			return true;
 		}
-		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 0";
 		return false;
 	}
 	if (player->GetUserId() == -1) { //new android enter
@@ -270,8 +270,8 @@ bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
 		return true;
 	}
 	else {
-		_LOG_WARN("tableID[%d][%s] %s[%d][%d] 游戏中禁止离桌(real=%d AI=%d total=%d)",
-			table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
+		_LOG_WARN("[%s][%d][%s] %s[%d][%d] 游戏中禁止离桌(real=%d AI=%d total=%d)",
+			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
 			table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 	}
 	return false;

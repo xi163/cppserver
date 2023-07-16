@@ -37,6 +37,7 @@ public:
 		TableState& tableState,
 		tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo,
 		std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
+	virtual std::string GetRoundId();
 	virtual uint32_t GetTableId();
 	virtual void GetTableInfo(TableState& tableState);
 	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread();
@@ -50,6 +51,7 @@ public:
 	virtual bool ExistUser(uint32_t chairId);
 	virtual void SetGameStatus(uint8_t status = GAME_STATUS_FREE);
 	virtual uint8_t GetGameStatus();
+	virtual std::string StrGameStatus();
 	virtual void SetUserTrustee(uint32_t chairId, bool trustee);
 	virtual bool GetUserTrustee(uint32_t chairId);
 	virtual void SetUserReady(uint32_t chairId);

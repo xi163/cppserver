@@ -23,21 +23,20 @@ class CTableMgr : public boost::serialization::singleton<CTableMgr> {
 public:
 	CTableMgr();
 	virtual ~CTableMgr();
-	void Clear();
-	std::list<std::shared_ptr<CTable>> GetUsedTables();
+	std::list<std::shared_ptr<CTable>> UsedTables();
 	void Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
-	std::shared_ptr<CTable> GetTable(uint32_t tableId);
-	void KickAllTableUsers();
+	std::shared_ptr<CTable> Get(uint32_t tableId);
 	/// <summary>
 	/// 返回指定桌子，前提是桌子未满
 	/// </summary>
-	std::shared_ptr<CTable> FindNormalTable(uint32_t tableId);
+	std::shared_ptr<CTable> Find(uint32_t tableId);
 	/// <summary>
 	/// 查找能进的桌子，没有则取空闲卓子
 	/// </summary>
-	std::shared_ptr<CTable> FindSuitTable(std::shared_ptr<IPlayer> const& player, uint32_t exceptTableId = INVALID_TABLE);
-	void FreeNormalTable(uint32_t tableId);
+	std::shared_ptr<CTable> FindSuit(std::shared_ptr<IPlayer> const& player, uint32_t exceptTableId = INVALID_TABLE);
+	void Free(uint32_t tableId);
 	bool SetTableStockInfo(tagStockInfo& stockInfo);
+	void KickAllTableUsers();
 protected:
 	tagGameInfo* gameInfo_;
 	tagGameRoomInfo* roomInfo_;
