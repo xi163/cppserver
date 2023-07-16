@@ -339,7 +339,7 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
     }
     if (GetPlayerCount() == 0) {
         if (gameInfo_->gameType == GameType_Confrontation) {
-            CTableMgr::get_mutable_instance().Free(tableState_.tableId);
+            CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
         }
     }
 }

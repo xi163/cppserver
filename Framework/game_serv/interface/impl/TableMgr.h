@@ -34,7 +34,7 @@ public:
 	/// 查找能进的桌子，没有则取空闲桌子
 	/// </summary>
 	std::shared_ptr<CTable> FindSuit(std::shared_ptr<IPlayer> const& player, uint32_t exceptTableId = INVALID_TABLE);
-	void Free(uint32_t tableId);
+	void Delete(uint32_t tableId);
 	bool SetTableStockInfo(tagStockInfo& stockInfo);
 	void KickAllTableUsers();
 protected:

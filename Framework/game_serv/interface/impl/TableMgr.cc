@@ -163,7 +163,7 @@ std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<IPlayer> const& play
 	return std::shared_ptr<CTable>();
 }
 
-void CTableMgr::Free(uint32_t tableId) {
+void CTableMgr::Delete(uint32_t tableId) {
 	{
 		WRITE_LOCK(mutex_);
 		std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
