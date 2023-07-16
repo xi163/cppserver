@@ -25,14 +25,15 @@
 	}
 
 #define MY_CMD_DESC(id, var, name, desc, lvl) \
-for (int i = 0; i < ARRAYSIZE(var); ++i) { \
-	if (var[i].id_ == id) { \
-		name = var[i].name_; \
-		desc = var[i].desc_; \
-		lvl = var[i].level_; \
-		break; \
-	}\
-}
+	int const n = ARRAYSIZE(var); \
+	for (int i = 0; i < n; ++i) { \
+		if (var[i].id_ == id) { \
+			name = var[i].name_; \
+			desc = var[i].desc_; \
+			lvl = var[i].level_; \
+			break; \
+		} \
+	}
 
 #define MY_MAINID_MAP(XX) \
 	XX(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_ID_BEGIN, "", LVL_DEBUG) \
@@ -174,7 +175,6 @@ extern "C" std::string const traceMessageID(
 		break;
 	}
 	case ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL: {
-		//大厅服心跳包
 		if (trace_hall_heartbeat) {
 			MY_CMD_DESC(subId, subid_client_to_server_, strSubID, strSubDesc, lvl);
 		}
@@ -184,7 +184,6 @@ extern "C" std::string const traceMessageID(
 		break;
 	}
 	case ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER: {
-		//游戏服心跳包
 		if (trace_game_heartbeat) {
 			MY_CMD_DESC(subId, subid_client_to_server_, strSubID, strSubDesc, lvl);
 		}
@@ -225,7 +224,6 @@ extern "C" std::string const traceMessageID(
 	if ((mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL ||
 		mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) &&
 		strSubID.empty()) {
-		//屏蔽跟踪心跳包
 		return "";
 	}
 	std::stringstream sm, ss;
