@@ -31,7 +31,7 @@ public:
 	/// </summary>
 	std::shared_ptr<CTable> Find(uint32_t tableId);
 	/// <summary>
-	/// 查找能进的桌子，没有则取空闲卓子
+	/// 查找能进的桌子，没有则取空闲桌子
 	/// </summary>
 	std::shared_ptr<CTable> FindSuit(std::shared_ptr<IPlayer> const& player, uint32_t exceptTableId = INVALID_TABLE);
 	void Free(uint32_t tableId);
