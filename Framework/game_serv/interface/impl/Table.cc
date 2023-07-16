@@ -281,7 +281,7 @@ bool CTable::SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t m
     return false;
 }
 
-void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, uint8_t sendErrorCode) {
+void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf) {
     if (INVALID_CHAIR == chairId) {
         for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
             std::shared_ptr<IPlayer> player = items_[i];

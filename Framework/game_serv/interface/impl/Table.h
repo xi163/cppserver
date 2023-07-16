@@ -80,7 +80,7 @@ public:
 	virtual bool SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::Message* msg);
 	virtual bool SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len);
 	virtual bool SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t msgType, int64_t score = 0);
-	virtual void ClearTableUser(uint32_t chairId = INVALID_CHAIR, bool sendState = true, bool sendToSelf = true, uint8_t sendErrorCode = 0);
+	virtual void ClearTableUser(uint32_t chairId = INVALID_CHAIR, bool sendState = true, bool sendToSelf = true);
 	virtual void BroadcastUserInfoToOther(std::shared_ptr<IPlayer> const& player);
 	virtual void SendAllOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player);
 	virtual void SendOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player, tagUserInfo& userInfo);
