@@ -33,12 +33,12 @@ public:
 	virtual void Init(std::shared_ptr<ITableDelegate>& tableDelegate, TableState& tableState,
 		tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo,
 		std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) = 0;
-	virtual std::string GetRoundId() = 0;
 	virtual uint32_t GetTableId() = 0;
 	virtual void GetTableInfo(TableState& TableInfo) = 0;
 	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread() = 0;
 	virtual void assertThisThread() = 0;
 	virtual std::string NewRoundId() = 0;
+	virtual std::string GetRoundId() = 0;
 	virtual bool DismissGame() = 0;
 	virtual bool ConcludeGame(uint8_t gameStatus) = 0;
 	virtual int64_t CalculateRevenue(int64_t score) = 0;

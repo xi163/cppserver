@@ -37,12 +37,12 @@ public:
 		TableState& tableState,
 		tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo,
 		std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
-	virtual std::string GetRoundId();
 	virtual uint32_t GetTableId();
 	virtual void GetTableInfo(TableState& tableState);
 	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread();
 	virtual void assertThisThread();
 	virtual std::string NewRoundId();
+	virtual std::string GetRoundId();
 	virtual bool DismissGame();
 	virtual bool ConcludeGame(uint8_t gameStatus);
 	virtual int64_t CalculateRevenue(int64_t score);

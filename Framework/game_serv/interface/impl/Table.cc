@@ -72,6 +72,10 @@ std::string CTable::NewRoundId() {
     return strRoundId;
 }
 
+std::string CTable::GetRoundId() {
+	return tableDelegate_->GetRoundId();
+}
+
 bool CTable::send(
     std::shared_ptr<IPlayer> const& player,
     uint8_t const* msg, size_t len,
@@ -342,10 +346,6 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
 
 void CTable::GetTableInfo(TableState& tableState) {
     tableState = tableState_;
-}
-
-std::string CTable::GetRoundId() {
-    return tableDelegate_->GetRoundId();
 }
 
 uint32_t CTable::GetTableId() {
