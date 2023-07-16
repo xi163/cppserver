@@ -116,12 +116,12 @@ MY_TAB_MAP(subid_client_to_hall_, MY_SUBID_CLIENT_TO_HALL_MAP);
 //XX(::GameServer::SUBID::SUB_GF_SYSTEM_MESSAGE, "系统消息", LVL_DEBUG)
 #define MY_SUBID_CLIENT_TO_GAME_SERVER_MAP(XX) \
 	XX(::GameServer::SUBID::SUBID_BEGIN, "", LVL_DEBUG) \
-	XX(::GameServer::SUBID::SUB_C2S_ENTER_ROOM_REQ, "进入房间REQ", LVL_WARN) \
-	XX(::GameServer::SUBID::SUB_S2C_ENTER_ROOM_RES, "进入房间RSP", LVL_WARN) \
+	XX(::GameServer::SUBID::SUB_C2S_ENTER_ROOM_REQ, "进入房间REQ", LVL_INFO) \
+	XX(::GameServer::SUBID::SUB_S2C_ENTER_ROOM_RES, "进入房间RSP", LVL_INFO) \
 	XX(::GameServer::SUBID::SUB_C2S_USER_READY_REQ, "用户准备REQ", LVL_INFO) \
 	XX(::GameServer::SUBID::SUB_S2C_USER_READY_RES, "用户准备RSP", LVL_INFO) \
-	XX(::GameServer::SUBID::SUB_C2S_USER_LEFT_REQ, "用户离开REQ", LVL_WARN) \
-	XX(::GameServer::SUBID::SUB_S2C_USER_LEFT_RES, "用户离开RSP", LVL_WARN) \
+	XX(::GameServer::SUBID::SUB_C2S_USER_LEFT_REQ, "用户离开REQ", LVL_INFO) \
+	XX(::GameServer::SUBID::SUB_S2C_USER_LEFT_RES, "用户离开RSP", LVL_INFO) \
 	
 MY_TAB_MAP(subid_client_to_game_server_, MY_SUBID_CLIENT_TO_GAME_SERVER_MAP);
 

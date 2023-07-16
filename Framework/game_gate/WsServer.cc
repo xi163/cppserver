@@ -245,7 +245,7 @@ void GateServ::asyncClientHandler(
 				case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_PROXY: {
 					switch (header->enctype) {
 					case packet::PUBENC_PROTOBUF_NONE: {
-						//TraceMessageID(header->mainId, header->subId);
+						TraceMessageID(header->mainId, header->subId);
 						int cmd = packet::enword(header->mainId, header->subId);
 						CmdCallbacks::const_iterator it = handlers_.find(cmd);
 						if (it != handlers_.end()) {
@@ -265,7 +265,7 @@ void GateServ::asyncClientHandler(
 					break;
 				}
 				case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL: {
-					//TraceMessageID(header->mainId, header->subId);
+					TraceMessageID(header->mainId, header->subId);
 					{
 						ContextPtr entryContext(boost::any_cast<ContextPtr>(conn->getContext()));
 						assert(entryContext);
@@ -409,8 +409,8 @@ BufferPtr GateServ::packClientShutdownMsg(int64_t userid, int status) {
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY, &msg);
 
-	//TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
-	//	::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY);
+	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+		::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY);
 
 	return buffer;
 }
@@ -429,8 +429,8 @@ BufferPtr GateServ::packNoticeMsg(
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY, &msg);
 
-	//TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
-	//	::Game::Common::PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY);
+	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+		::Game::Common::PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY);
 
 	return buffer;
 }
@@ -452,7 +452,7 @@ void GateServ::broadcastNoticeMsg(
 void GateServ::broadcastMessage(int mainId, int subId, ::google::protobuf::Message* msg) {
 	BufferPtr buffer = packet::packMessage(mainId, subId, msg);
 	if (buffer) {
-		//TraceMessageID(mainId, subId);
+		TraceMessageID(mainId, subId);
 		entities_.broadcast(buffer);
 	}
 }
