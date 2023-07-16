@@ -144,7 +144,7 @@ void GateServ::sendGameMessage(
 	else {
 		packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 		packet::header_t const* header = packet::get_header(buf);
-		_LOG_ERROR("%s error",fmtMessageID(header->mainId,header->subId).c_str());
+		_LOG_ERROR("%s error", fmtMessageID(header->mainId, header->subId).c_str());
 	}
 }
 
