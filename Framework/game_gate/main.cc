@@ -167,6 +167,7 @@ int main() {
 		server.InitRedisCluster(strRedisIps, redisPasswd)) {
 		//registerSignalHandler(SIGINT, StopService);
 		registerSignalHandler(SIGTERM, StopService);
+		initTraceMessageID();
 		server.Start(numThreads, numWorkerThreads, kMaxQueueSize);
 		gServer = &server;
 		loop.loop();

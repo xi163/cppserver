@@ -1,14 +1,35 @@
-#include "public/Inc.h"
-
-#include "TraceMsg.h"
+#include <string.h>
+#include <stdint.h>
+#include <string>
+#include <sstream>
 
 #include "proto/Game.Common.pb.h"
 #include "proto/ProxyServer.Message.pb.h"
 #include "proto/HallServer.Message.pb.h"
-//#include "proto/GameServer.Message.pb.h"
-//#include "proto/MatchServer.Message.pb.h"
+#include "proto/GameServer.Message.pb.h"
 
-//mainid
+#define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
+
+#define MY_CMD_STR(n, s) { n, ""#n, s },
+
+#define MY_TAB_MAP(var, MY_CMD_MAP_) \
+	static struct { \
+		int id_; \
+		char const *name_; \
+		char const* desc_; \
+	}var[] = { \
+		MY_CMD_MAP_(MY_CMD_STR) \
+	}
+
+#define MY_CMD_DESC(id, var, name, desc) \
+for (int i = 0; i < ARRAYSIZE(var); ++i) { \
+	if (var[i].id_ == id) { \
+		name = var[i].name_; \
+		desc = var[i].desc_; \
+		break; \
+	}\
+}
+
 #define MY_MAINID_MAP(XX) \
 	XX(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_ID_BEGIN, "") \
 	XX(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_PROXY, "网关服") \
@@ -23,14 +44,12 @@
 	XX(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_MATCH_SERVER, "比赛服")
 MY_TAB_MAP(mainid_, MY_MAINID_MAP);
 
-//subid CLIENT_TO_SERVER Client <-> GameServer/HallServer
 #define MY_SUBID_CLIENT_TO_SERVER_MAP(XX) \
 	XX(::Game::Common::MESSAGE_CLIENT_TO_SERVER_SUBID::MESSAGE_CLIENT_TO_SERVER_SUBID_BEGIN, "") \
 	XX(::Game::Common::MESSAGE_CLIENT_TO_SERVER_SUBID::KEEP_ALIVE_REQ, "心跳 SYN") \
 	XX(::Game::Common::MESSAGE_CLIENT_TO_SERVER_SUBID::KEEP_ALIVE_RES, "心跳 ACK")
 MY_TAB_MAP(subid_client_to_server_, MY_SUBID_CLIENT_TO_SERVER_MAP);
 
-//subid CLIENT_TO_PROXY Client <-> ProxyServer
 #define MY_SUBID_CLIENT_TO_PROXY_MAP(XX) \
 	XX(::Game::Common::MESSAGE_CLIENT_TO_PROXY_SUBID::MESSAGE_CLIENT_TO_PROXY_SUBID_BEGIN, "") \
 	XX(::Game::Common::MESSAGE_CLIENT_TO_PROXY_SUBID::CLIENT_TO_PROXY_GET_AES_KEY_MESSAGE_REQ, "查询AESKey REQ") \
@@ -44,7 +63,6 @@ MY_TAB_MAP(subid_client_to_server_, MY_SUBID_CLIENT_TO_SERVER_MAP);
 	XX(::Game::Common::MESSAGE_CLIENT_TO_PROXY_SUBID::PROXY_NOTIFY_USER_ORDER_SCORE_MESSAGE, "用户上下分通知!!!")
 MY_TAB_MAP(subid_client_to_proxy_, MY_SUBID_CLIENT_TO_PROXY_MAP);
 
-//subid CLIENT_TO_HALL Client <-> HallServer
 #define MY_SUBID_CLIENT_TO_HALL_MAP(XX) \
 	XX(::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::MESSAGE_CLIENT_TO_HALL_SUBID_BEGIN, "") \
 	XX(::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ, "登陆大厅REQ") \
@@ -77,9 +95,6 @@ MY_TAB_MAP(subid_client_to_proxy_, MY_SUBID_CLIENT_TO_PROXY_MAP);
 	XX(::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_SWICTH_LUCKY_GAME_RES, "")
 MY_TAB_MAP(subid_client_to_hall_, MY_SUBID_CLIENT_TO_HALL_MAP);
 
-#if 0
-
-//subid CLIENT_TO_GAME_SERVER Client <-> GameServer
 #define MY_SUBID_CLIENT_TO_GAME_SERVER_MAP(XX) \
 	XX(::GameServer::SUBID::SUBID_BEGIN, "") \
 	XX(::GameServer::SUBID::SUB_C2S_ENTER_ROOM_REQ, "进入房间REQ") \
@@ -103,35 +118,25 @@ MY_TAB_MAP(subid_client_to_hall_, MY_SUBID_CLIENT_TO_HALL_MAP);
 	XX(::GameServer::SUBID::SUB_GF_SYSTEM_MESSAGE, "系统消息")
 MY_TAB_MAP(subid_client_to_game_server_, MY_SUBID_CLIENT_TO_GAME_SERVER_MAP);
 
-//subid CLIENT_TO_GAME_LOGIC Client <-> GameServer libGame_xxx.so
-#endif
-
-//subid PROXY_TO_HALL ProxyServer -> HallServer
 #define MY_SUBID_PROXY_TO_HALL_MAP(XX) \
 	XX(::Game::Common::MESSAGE_PROXY_TO_HALL_SUBID::HALL_ON_USER_OFFLINE, "用户离线")
 MY_TAB_MAP(subid_proxy_to_hall_, MY_SUBID_PROXY_TO_HALL_MAP);
 
-//subid HALL_TO_PROXY HallServer -> ProxyServer
-
-//subid PROXY_TO_GAME_SERVER ProxyServer -> GameServer
 #define MY_SUBID_PROXY_TO_GAME_SERVER_MAP(XX) \
 	XX(::Game::Common::MESSAGE_PROXY_TO_GAME_SERVER_SUBID::GAME_SERVER_ON_USER_OFFLINE, "用户离线")
 MY_TAB_MAP(subid_proxy_to_game_server_, MY_SUBID_PROXY_TO_GAME_SERVER_MAP);
 
-//subid GAME_SERVER_TO_PROXY GameServer -> ProxyServer
 #define MY_SUBID_GAME_SERVER_TO_PROXY_MAP(XX) \
 	XX(::Game::Common::MESSAGE_GAME_SERVER_TO_PROXY_SUBID::MESSAGE_GAME_SERVER_TO_PROXY_SUBID_BEGIN, "") \
 	XX(::Game::Common::MESSAGE_GAME_SERVER_TO_PROXY_SUBID::PROXY_NOTIFY_KILL_BOSS_MESSAGE_REQ, "踢出玩家")
 MY_TAB_MAP(subid_game_server_to_proxy_, MY_SUBID_GAME_SERVER_TO_PROXY_MAP);
 
-//subid HTTP_TO_SERVER
 #define MY_SUBID_HTTP_TO_SERVER_MAP(XX) \
 	XX(::Game::Common::MESSAGE_HTTP_TO_SERVER_SUBID::MESSAGE_NOTIFY_REPAIR_SERVER, "Http修复")
 MY_TAB_MAP(subid_http_to_server_, MY_SUBID_HTTP_TO_SERVER_MAP);
 
 #if 0
 
-//subid CLIENT_TO_MATCH_SERVER Client <-> MatchServer
 #define MY_SUBID_CLIENT_TO_MATCH_SERVER_MAP(XX) \
 	XX(::MatchServer::SUBID::SUBID_BEGIN, "") \
 	XX(::MatchServer::SUBID::SUB_C2S_ENTER_MATCH_REQ, "报名 REQ") \
@@ -150,101 +155,82 @@ MY_TAB_MAP(subid_client_to_match_server_, MY_SUBID_CLIENT_TO_MATCH_SERVER_MAP);
 
 #endif
 
-//strMessageID 格式化输入mainId，subId
-std::string const strMessageID(
+extern "C" std::string const traceMessageID(
 	uint8_t mainId, uint8_t subId,
 	bool trace_hall_heartbeat,
 	bool trace_game_heartbeat) {
 	std::string strMainID, strMainDesc, strSubID, strSubDesc;
-	//格式化mainId
 	MY_CMD_DESC(mainId, mainid_, strMainID, strMainDesc);
-	//格式化subId
 	switch (mainId)
 	{
 	case ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_PROXY: {
-		//CLIENT_TO_SERVER
 		//MY_CMD_DESC(subId, subid_client_to_server_, strSubID, strSubDesc);
-		//CLIENT_TO_PROXY
 		MY_CMD_DESC(subId, subid_client_to_proxy_, strSubID, strSubDesc);
 		break;
 	}
 	case ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL: {
-		//CLIENT_TO_SERVER 大厅服心跳包
+		//大厅服心跳包
 		if (trace_hall_heartbeat) {
 			MY_CMD_DESC(subId, subid_client_to_server_, strSubID, strSubDesc);
 		}
-		//CLIENT_TO_HALL
 		if (strSubID.empty()) {
 			MY_CMD_DESC(subId, subid_client_to_hall_, strSubID, strSubDesc);
 		}
 		break;
 	}
-// 	case ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER: {
-// 		//CLIENT_TO_SERVER 游戏服心跳包
-// 		if (trace_game_heartbeat) {
-// 			MY_CMD_DESC(subId, subid_client_to_server_, strSubID, strSubDesc);
-// 		}
-// 		//CLIENT_TO_GAME_SERVER
-// 		if (strSubID.empty()) {
-// 			MY_CMD_DESC(subId, subid_client_to_game_server_, strSubID, strSubDesc);
-// 		}
-// 		break;
-// 	}
+	case ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER: {
+		//游戏服心跳包
+		if (trace_game_heartbeat) {
+			MY_CMD_DESC(subId, subid_client_to_server_, strSubID, strSubDesc);
+		}
+		if (strSubID.empty()) {
+			MY_CMD_DESC(subId, subid_client_to_game_server_, strSubID, strSubDesc);
+		}
+		break;
+	}
 // 	case ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC: {
-// 		//CLIENT_TO_GAME_LOGIC 针对每个字游戏
-// 
 // 		break;
 // 	}
 	case ::Game::Common::MAINID::MAIN_MESSAGE_PROXY_TO_HALL: {
-		//PROXY_TO_HALL
 		MY_CMD_DESC(subId, subid_proxy_to_hall_, strSubID, strSubDesc);
 		break;
 	}
 	case ::Game::Common::MAINID::MAIN_MESSAGE_HALL_TO_PROXY: {
-		//HALL_TO_PROXY
 		break;
 	}
 	case ::Game::Common::MAINID::MAIN_MESSAGE_PROXY_TO_GAME_SERVER: {
-		//PROXY_TO_GAME_SERVER
 		MY_CMD_DESC(subId, subid_proxy_to_game_server_, strSubID, strSubDesc);
 		break;
 	}
 // 	case ::Game::Common::MAINID::MAIN_MESSAGE_GAME_SERVER_TO_PROXY: {
-// 		//GAME_SERVER_TO_PROXY
 // 		MY_CMD_DESC(subId, subid_game_server_to_proxy_, strSubID, strSubDesc);
 // 		break;
 // 	}
 	case ::Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER: {
-		//HTTP_TO_SERVER
 		MY_CMD_DESC(subId, subid_http_to_server_, strSubID, strSubDesc);
 		break;
 	}
 // 	case ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_MATCH_SERVER: {
-// 		//CLIENT_TO_MATCH_SERVER
 // 		MY_CMD_DESC(subId, subid_client_to_match_server_, strSubID, strSubDesc);
 // 		break;
 // 	}
 	default:
 		break;
 	}
-	//mainid CLIENT_TO_HALL/CLIENT_TO_GAME_SERVER
 	if ((mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL ||
 		mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) &&
 		strSubID.empty()) {
 		//屏蔽跟踪心跳包
 		return "";
 	}
-	//字符串格式：
-	//strMainID:mainId[strMainDesc]
-	//strSubID:subId[strSubDesc]
-	std::stringstream ss1, ss2;
-	ss1 << (int)mainId;
-	strMainID += ":" + ss1.str();
-	ss2 << (int)subId;
-	strSubID += ":" + ss2.str();
+	std::stringstream sm, ss;
+	sm << (int)mainId;
+	strMainID += ":" + sm.str();
+	ss << (int)subId;
+	strSubID += ":" + ss.str();
 	return
 		"\n" +
-		(strMainDesc.empty() ? strMainID : (strMainID + "[" + strMainDesc + "]")) +
+		(strMainDesc.empty() ? strMainID : (strMainID + " - " + strMainDesc)) +
 		"\n" +
-		(strSubDesc.empty() ? strSubID : (strSubID + "[" + strSubDesc + "]"));
+		(strSubDesc.empty() ? strSubID : (strSubID + " - " + strSubDesc));
 }

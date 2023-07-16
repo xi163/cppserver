@@ -86,20 +86,8 @@
     <ClInclude Include="..\..\..\public\codec\base64.h">
       <Filter>public\codec</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h">
-      <Filter>public\TraceMsg</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\Utils.h">
       <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\proto\MatchServer.Message.pb.h">
-      <Filter>pb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
@@ -129,6 +117,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h">
       <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h">
+      <Filter>public\TraceMsg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -179,18 +170,6 @@
     <ClCompile Include="..\..\..\public\codec\base64.cpp">
       <Filter>public\codec</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\TraceMsg\TraceMsg.cc">
-      <Filter>public\TraceMsg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\proto\MatchServer.Message.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
@@ -207,6 +186,9 @@
     <ClCompile Include="..\..\..\Framework\game_gate\Clients.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\Gateway.cc">
       <Filter>nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc">
+      <Filter>public\TraceMsg</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

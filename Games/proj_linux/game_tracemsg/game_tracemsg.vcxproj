@@ -35,76 +35,31 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Framework\game_gate\Clients.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate\Container.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate\Gateway.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
+    <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h" />
+    <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h" />
-    <ClInclude Include="..\..\..\public\codec\aes.h" />
-    <ClInclude Include="..\..\..\public\codec\base64.h" />
-    <ClInclude Include="..\..\..\public\codec\htmlcodec.h" />
-    <ClInclude Include="..\..\..\public\codec\mymd5.h" />
-    <ClInclude Include="..\..\..\public\codec\urlcodec.h" />
-    <ClInclude Include="..\..\..\public\ConsoleClr.h" />
-    <ClInclude Include="..\..\..\public\Env.h" />
-    <ClInclude Include="..\..\..\public\Inc.h" />
-    <ClInclude Include="..\..\..\public\IPFinder.h" />
-    <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h" />
-    <ClInclude Include="..\..\..\public\NetCardIP.h" />
-    <ClInclude Include="..\..\..\public\Packet.h" />
-    <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
-    <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
-    <ClInclude Include="..\..\..\public\StdRandom.h" />
-    <ClInclude Include="..\..\..\public\SubNetIP.h" />
-    <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h" />
-    <ClInclude Include="..\..\..\public\Utils.h" />
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperlocker.h" />
-    <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Framework\game_gate\Clients.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\Container.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\GameClient.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\Gateway.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\HallClient.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\HttpServer.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\InnServer.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\main.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\WsServer.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
+    <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc" />
+    <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc" />
-    <ClCompile Include="..\..\..\public\codec\base64.cpp" />
-    <ClCompile Include="..\..\..\public\codec\mymd5.cpp" />
-    <ClCompile Include="..\..\..\public\codec\urlcodec.cpp" />
-    <ClCompile Include="..\..\..\public\IPFinder.cpp" />
-    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp" />
-    <ClCompile Include="..\..\..\public\Packet.cc" />
-    <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />
-    <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp" />
-    <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc" />
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp" />
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp" />
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp" />
-    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.cc" />
+    <ClCompile Include="..\..\..\public\TraceMsg\TraceMsg.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{54C2217D-3020-4202-B441-ACD09B413D5C}</ProjectGuid>
+    <ProjectGuid>{F79C32CD-369F-461B-9AEE-E430EE199C2B}</ProjectGuid>
     <Keyword>Linux</Keyword>
-    <RootNamespace>game_gate</RootNamespace>
+    <RootNamespace>game_tracemsg</RootNamespace>
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
     <ApplicationType>Linux</ApplicationType>
     <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
     <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
     <LinuxProjectType>{D51BCBC9-82E9-4017-911E-C93873C4EA2B}</LinuxProjectType>
-    <ProjectName>game_gate</ProjectName>
+    <ProjectName>game_tracemsg</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
@@ -121,7 +76,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfStl>libstdc++_shared</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -140,8 +95,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>Y:\include;Y:\local\include;Y:\local\include\bsoncxx\v_noabi;Y:\local\include\mongocxx\v_noabi;Y:\local\include\google\protobuf;Y:\local\include\hiredis-vip;Y:\local\include\zookeeper;X:\andy\cppserver;X:\andy\cppserver\public;X:\andy\cppserver\proto;X:\andy\cppserver\thirdpart\muduo-vip;X:\andy\cppserver\public\TraceMsg;X:\andy\cppserver\public\MongoDB;X:\andy\cppserver\public\RedisClient;X:\andy\cppserver\public\RedisLock;X:\andy\cppserver\public\zookeeperclient;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include.linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\asm-generic;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++\5;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\x86_64-linux-gnu;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.34.31933\include;X:\andy\cppserver\thirdpart;X:\andy\cppserver\thirdpart\Logger\src;X:\andy\cppserver\thirdpart\Logger\src\log;X:\andy\cppserver\thirdpart\Logger\src\auth;X:\andy\cppserver\thirdpart\Logger\src\atomic;X:\andy\cppserver\thirdpart\Logger\src\utils;X:\andy\cppserver\thirdpart\Logger\src\log\impl;$(IncludePath)</IncludePath>
-    <TargetName>game_gate</TargetName>
-    <TargetExt />
+    <TargetName>libgame_tracemsg</TargetName>
+    <TargetExt>.so</TargetExt>
     <OutDir>/home/andy/cppserver/bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
