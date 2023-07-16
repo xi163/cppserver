@@ -40,6 +40,7 @@ public:
 	bool InitRedisCluster(std::string const& ipaddr, std::string const& passwd);
 	bool InitMongoDB(std::string const& url);
 	void threadInit();
+	bool InitServer();
 	void Start(int numThreads, int numWorkerThreads, int maxSize);
 private:
 	void onConnection(const muduo::net::TcpConnectionPtr& conn);
@@ -85,12 +86,12 @@ private:
 	void cmd_on_user_offline(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	/// <summary>
-	/// 查询游戏房间数据
+	/// 查询游戏房间列表
 	/// </summary>
 	void cmd_get_game_info(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	/// <summary>
-	/// 查询正在玩的游戏节点
+	/// 查询正在玩的游戏
 	/// </summary>
 	void cmd_get_playing_game_info(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);

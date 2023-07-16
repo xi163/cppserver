@@ -50,16 +50,25 @@ void HallServ::registerHandlers() {
 		::Game::Common::MESSAGE_PROXY_TO_HALL_SUBID::HALL_ON_USER_OFFLINE)]
 		= std::bind(&HallServ::cmd_on_user_offline, this,
 			std::placeholders::_1, std::placeholders::_2);
+	/// <summary>
+	/// 查询游戏房间列表
+	/// </summary>
 	handlers_[packet::enword(
 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL,
 		::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_ROOM_INFO_REQ)]
 		= std::bind(&HallServ::cmd_get_game_info, this,
 			std::placeholders::_1, std::placeholders::_2);
+	/// <summary>
+	/// 查询正在玩的游戏
+	/// </summary>
 	handlers_[packet::enword(
 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL,
 		::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_PLAYING_GAME_INFO_MESSAGE_REQ)]
 		= std::bind(&HallServ::cmd_get_playing_game_info, this,
 			std::placeholders::_1, std::placeholders::_2);
+	/// <summary>
+	/// 查询指定游戏节点
+	/// </summary>
 	handlers_[packet::enword(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL,
 		::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_REQ)]
 		= std::bind(&HallServ::cmd_get_game_server_message, this,
@@ -292,6 +301,11 @@ void HallServ::threadInit() {
 		s += ":" + vec[1];
 	}
 	_LOG_WARN("redisLock%s", s.c_str());
+}
+
+bool HallServ::InitServer() {
+	initTraceMessageID();
+	return true;
 }
 
 void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
@@ -669,7 +683,7 @@ void HallServ::cmd_on_user_offline(
 }
 
 /// <summary>
-/// 查询游戏房间数据
+/// 查询游戏房间列表
 /// </summary>
 void HallServ::cmd_get_game_info(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
@@ -694,7 +708,7 @@ void HallServ::cmd_get_game_info(
 }
 
 /// <summary>
-/// 查询正在玩的游戏节点
+/// 查询正在玩的游戏
 /// </summary>
 void HallServ::cmd_get_playing_game_info(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
@@ -707,7 +721,6 @@ void HallServ::cmd_get_playing_game_info(
 		::HallServer::GetPlayingGameInfoMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		int64_t userid = pre_header_->userId;
-		//查询玩家正在玩的游戏
 		uint32_t gameid = 0, roomid = 0;
 		if (REDISCLIENT.GetUserOnlineInfo(userid, gameid, roomid)) {
 			rspdata.set_gameid(gameid);
@@ -744,7 +757,6 @@ void HallServ::cmd_get_game_server_message(
 		uint32_t gameid = reqdata.gameid();
 		uint32_t roomid = reqdata.roomid();
 		int64_t userid = pre_header_->userId;
-		//查询玩家正在玩的游戏
 		uint32_t gameid_ = 0, roomid_ = 0;
 		if (REDISCLIENT.GetUserOnlineInfo(userid, gameid_, roomid_)) {
 			if (gameid != gameid_ || roomid != roomid_) {

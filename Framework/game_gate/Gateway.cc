@@ -297,6 +297,11 @@ void GateServ::threadInit() {
 #endif
 }
 
+bool GateServ::InitServer() {
+	initTraceMessageID();
+	return true;
+}
+
 void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();

@@ -255,6 +255,7 @@ void GameServ::threadInit() {
 }
 
 bool GameServ::InitServer() {
+	initTraceMessageID();
 	if (LoadGameRoomKindInfo(gameId_, roomId_)) {
 		CPlayerMgr::get_mutable_instance().Init(&roomInfo_);
 		CTableMgr::get_mutable_instance().Init(&gameInfo_, &roomInfo_, logicThread_, this);

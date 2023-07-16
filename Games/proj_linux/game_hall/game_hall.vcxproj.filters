@@ -133,9 +133,6 @@
     <ClCompile Include="..\..\..\public\codec\base64.cpp">
       <Filter>public\codec</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\TraceMsg\TraceMsg.cc">
-      <Filter>public\TraceMsg</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
@@ -152,6 +149,9 @@
     <ClCompile Include="..\..\..\Framework\game_hall\main.cc" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.cc">
       <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc">
+      <Filter>public\TraceMsg</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

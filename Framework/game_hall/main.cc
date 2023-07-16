@@ -117,6 +117,7 @@ int main(int argc, char* argv[]) {
 		server.InitZookeeper(strZookeeperIps) &&
 		server.InitMongoDB(strMongoDBUrl) &&
 		server.InitRedisCluster(strRedisIps, redisPasswd)) {
+		server.InitServer();
 		//registerSignalHandler(SIGINT, StopService);
 		registerSignalHandler(SIGTERM, StopService);
 		server.Start(numThreads, numWorkerThreads, kMaxQueueSize);

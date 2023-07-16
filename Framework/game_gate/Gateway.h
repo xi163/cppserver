@@ -110,6 +110,7 @@ public:
 	bool InitRedisCluster(std::string const& ipaddr, std::string const& passwd);
 	bool InitMongoDB(std::string const& url);
 	void threadInit();
+	bool InitServer();
 	void Start(int numThreads, int numWorkerThreads, int maxSize);
 public:
 	bool onCondition(const muduo::net::InetAddress& peerAddr);

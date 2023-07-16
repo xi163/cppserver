@@ -165,9 +165,9 @@ int main() {
 		server.InitZookeeper(strZookeeperIps) &&
 		server.InitMongoDB(strMongoDBUrl) &&
 		server.InitRedisCluster(strRedisIps, redisPasswd)) {
+		server.InitServer();
 		//registerSignalHandler(SIGINT, StopService);
 		registerSignalHandler(SIGTERM, StopService);
-		initTraceMessageID();
 		server.Start(numThreads, numWorkerThreads, kMaxQueueSize);
 		gServer = &server;
 		loop.loop();
