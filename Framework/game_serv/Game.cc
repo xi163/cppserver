@@ -582,8 +582,8 @@ void GameServ::cmd_on_user_enter_room(
 			if (table) {
 				table->assertThisThread();
 				_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
-					table->GetRoundId().c_str(), table_->GetTableId(), table_->StrGameStatus().c_str(),
-					player->GetUserId(), player->GetChairId());
+					table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
+					player->GetChairId(), player->GetUserId());
 				if (table->CanJoinTable(player)) {
 					table->OnUserEnterAction(player, pre_header_, header_);
 				}
