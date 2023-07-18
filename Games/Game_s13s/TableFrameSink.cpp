@@ -3867,7 +3867,7 @@ void CGameTable::LetSysWin(bool sysWin) {
 						break;
 					}
 				}
-				////LOG_WARN << " 恢复 " << vinfo[i] << " -> " << vinfo[j];
+				//_LOG_WARN("恢复 %d -> %d", vinfo[i], vinfo[j]);
 				//恢复原来的位置
 				std::swap(vinfo[i], vinfo[j]);
 			}
