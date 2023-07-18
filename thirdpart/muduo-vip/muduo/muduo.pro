@@ -36,7 +36,7 @@ LIBS += /usr/local/lib/libboost_filesystem.a
 LIBS += /usr/local/lib/libboost_system.a
 LIBS += /usr/local/lib/libboost_system.a
 
-LIBS += $$PWD/../../../libs/libwebsocket.a
+LIBS += $$PWD/../../libs/libwebsocket.a
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
