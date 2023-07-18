@@ -18,7 +18,7 @@ __thread int t_cachedTid;
 __thread char t_tidString[32];
 __thread int t_tidStringLength;
 
-static tid_t gettid() {
+static inline tid_t gettid() {
 	return static_cast<tid_t>(::syscall(SYS_gettid));
 }
 

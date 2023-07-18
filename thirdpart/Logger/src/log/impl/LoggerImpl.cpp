@@ -51,7 +51,7 @@ namespace LOGGER {
 	//update
 	void LoggerImpl::update(struct tm& tm, struct timeval& tv) {
 		{
-			read_lock(tm_mutex_); {
+			write_lock(tm_mutex_); {
 				gettimeofday(&tv_, NULL);
 				time_t t = tv_.tv_sec;
 				utils::_convertUTC(t, tm_, NULL, timezone_);
@@ -588,25 +588,17 @@ namespace LOGGER {
 		case LVL_FATAL:
 		case LVL_TRACE: {
 			if ((flag & F_TMSTMP)) {
-				//::SetConsoleTextAttribute(h, color[level][0]);
 				Printf(color[level][0], "%.*s", (int)pos - 1, msg + 1);
-				//::SetConsoleTextAttribute(h, color[level][1]);
 				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
-				//::SetConsoleTextAttribute(h, color[level][0]);
 				Printf(color[level][0], "%.*s", (int)stacklen, stack);//stack
 			}
 			else if ((flag & F_DETAIL)) {
-				//::SetConsoleTextAttribute(h, color[level][0]);
 				Printf(color[level][0], "%.*s", (int)pos, msg);
-				//::SetConsoleTextAttribute(h, color[level][1]);
 				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
-				//::SetConsoleTextAttribute(h, color[level][0]);
 				Printf(color[level][0], "%.*s", (int)stacklen, stack);//stack
 			}
 			else {
-				//::SetConsoleTextAttribute(h, color[level][0]);
 				Printf(color[level][0], "%.*s", (int)len - (int)pos, msg + pos);
-				//::SetConsoleTextAttribute(h, color[level][0]);
 				Printf(color[level][0], "%.*s", (int)stacklen, stack);//stack
 			}
 			break;
