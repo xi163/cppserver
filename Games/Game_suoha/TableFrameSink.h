@@ -136,12 +136,13 @@ public:
     CGameTable(void);
     ~CGameTable(void);
 public:
+	virtual std::string GetRoundId();
 	//游戏开始
 	virtual void OnGameStart();
 	//游戏结束
-	virtual bool OnEventGameConclude(uint32_t chairId, uint8_t flags);
+	virtual bool OnGameConclude(uint32_t chairId, uint8_t flags);
 	//发送场景
-	virtual bool OnEventGameScene(uint32_t chairId, bool lookon);
+	virtual bool OnGameScene(uint32_t chairId, bool lookon);
 	//游戏消息
 	virtual bool OnGameMessage(uint32_t chairId, uint8_t subid, uint8_t const* data, size_t len);
 	//用户进入

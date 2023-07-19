@@ -7,8 +7,11 @@
     <Filter Include="Game_suoha">
       <UniqueIdentifier>{99f9db34-02b5-4dc0-8545-1f0978bfd43c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public">
-      <UniqueIdentifier>{2e9b4cc7-7892-44cb-9527-8ab4388a9f5e}</UniqueIdentifier>
+    <Filter Include="Logger">
+      <UniqueIdentifier>{f0d26dd3-8bf7-4fbe-bf6c-77298ec7357a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{eb17c31b-1d31-4b02-8c54-13c063006e37}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,9 +33,6 @@
     <ClCompile Include="cfg.cpp">
       <Filter>Game_suoha</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Framework\public\GlobalFunc.cpp">
-      <Filter>public</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TableFrameSink.h">
@@ -50,8 +50,29 @@
     <ClInclude Include="cfg.h">
       <Filter>Game_suoha</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Framework\public\GlobalFunc.h">
-      <Filter>public</Filter>
+    <ClInclude Include="..\..\thirdpart\Logger\src\log\Logger.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdpart\Logger\src\Macro.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdpart\Logger\src\utils\utils.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IPlayer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IReplayRecord.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IRobotDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\ITable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\ITableDelegate.h">
+      <Filter>interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
