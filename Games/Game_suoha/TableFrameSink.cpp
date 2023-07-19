@@ -189,16 +189,18 @@ bool CGameTable::OnUserEnter(int64_t userId, bool lookon) {
 		//assert(table_->GetPlayerCount() == 1);
 		//assert(table_->GetRealPlayerCount() == 1);
 		if (!player->IsRobot()) {
-			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d)",
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
 				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId,
-				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount(),
+				player->GetUserScore(), takeScore_[player->GetChairId()]);
 		}
 		else if (writeRealLog_) {
-			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d)",
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
 				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId,
-				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount(),
+				player->GetUserScore(), takeScore_[player->GetChairId()]);
 		}
 		table_->SetGameStatus(GAME_STATUS_READY);
 		gameStatus_ = GAME_STATUS_READY;
@@ -210,16 +212,18 @@ bool CGameTable::OnUserEnter(int64_t userId, bool lookon) {
 	}
 	else {
 		if (!player->IsRobot()) {
-			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d)",
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
 				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId, (bPlaying_[player->GetChairId()] ? "重连" : "新加"),
-				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount(),
+				player->GetUserScore(), takeScore_[player->GetChairId()]);
 		}
 		else if (writeRealLog_) {
-			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d)",
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
 				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId, (bPlaying_[player->GetChairId()] ? "重连" : "新加"),
-				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount(),
+				player->GetUserScore(), takeScore_[player->GetChairId()]);
 		}
 		OnGameScene(player->GetChairId(), false);
 	}
@@ -345,7 +349,6 @@ bool CGameTable::OnUserReady(int64_t userId, bool lookon) {
 }
 
 bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
-	char msg[1024];
 	assert(table_);
 	std::shared_ptr<IPlayer> player = ByUserId(userId); //assert(player);
 	if (!player) {
@@ -1991,8 +1994,8 @@ bool CGameTable::OnUserAddScore(uint32_t chairId, int opValue, int64_t addScore)
 		addScore_[CurrentTurn()][chairId] += addScore;
 		updateReferenceUser(chairId, OP_ADD);
 		uint32_t nowsec =
-			chrono::system_clock::to_time_t(chrono::system_clock::now()) -
-			chrono::system_clock::to_time_t(roundStartTime_);
+			std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) -
+			std::chrono::system_clock::to_time_t(roundStartTime_);
 		//对局日志
 		//m_replay.addStep(nowsec, to_string(addScore), currentTurn_ + 1, opAddBet, chairId, -1);
 	}
@@ -2015,8 +2018,8 @@ bool CGameTable::OnUserAddScore(uint32_t chairId, int opValue, int64_t addScore)
 		operate_[CurrentTurn()][chairId] = OP_FOLLOW;
 		addScore_[CurrentTurn()][chairId] += followScore;
 		uint32_t nowsec =
-			chrono::system_clock::to_time_t(chrono::system_clock::now()) -
-			chrono::system_clock::to_time_t(roundStartTime_);
+			std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) -
+			std::chrono::system_clock::to_time_t(roundStartTime_);
 		//对局日志
 		//m_replay.addStep(nowsec, to_string(followScore), currentTurn_ + 1, opFollow, chairId, -1);
 	}
@@ -2289,8 +2292,8 @@ bool CGameTable::OnUserLookCard(uint32_t chairId) {
 	if (!isLooked_[chairId]) {
 		isLooked_[chairId] = true;
 		uint32_t nowsec =
-			chrono::system_clock::to_time_t(chrono::system_clock::now()) -
-			chrono::system_clock::to_time_t(roundStartTime_);
+			std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) -
+			std::chrono::system_clock::to_time_t(roundStartTime_);
 		//对局日志
 		//m_replay.addStep(nowsec, "", currentTurn_ + 1, opLkOrCall, chairId, -1);
 	}
@@ -2726,7 +2729,7 @@ bool CGameTable::OnGameConclude(uint32_t chairId, uint8_t flags) {
 	//清理所有定时器
 	ClearAllTimer();
 	//游戏结束时间
-	roundEndTime_ = chrono::system_clock::now();
+	roundEndTime_ = std::chrono::system_clock::now();
 	//消息结构
 	suoha::CMD_S_GameEnd rspdata;
 	//计算玩家积分
@@ -2830,7 +2833,7 @@ bool CGameTable::OnGameConclude(uint32_t chairId, uint8_t flags) {
 			SetScoreInfoBase(scoreInfo, i, NULL);			//基本信息
 			//写入玩家积分
 			if (!debug_)
-				table_->WriteSpecialUserScore(&scoreInfo, 1, strRoundID_, roundId_);
+				table_->WriteSpecialUserScore(&scoreInfo, 1, strRoundID_/*, roundId_*/);
 #endif
 		}
 	}
@@ -3225,7 +3228,7 @@ void CGameTable::initUserTakeScore(std::shared_ptr<IPlayer> player) {
 					minScore = player->GetUserScore();
 				}
 				assert(EnterMinScore <= minScore);
-				int64_t curScore = 0;//GlobalFunc::RandomInt64(EnterMinScore, minScore);
+				int64_t curScore = rand_.betweenInt64(EnterMinScore, minScore).randInt64_re();
 				if (curScore > 0) {
 					curScore = 100 * (int64_t)(curScore / 100);
 					minScore = std::min(player->GetUserScore(), curScore);

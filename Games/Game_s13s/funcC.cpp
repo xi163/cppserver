@@ -1,18 +1,4 @@
-﻿
-#include <time.h>
-#include <algorithm>
-#include "math.h"
-#include <iostream>
-#include <memory>
-#include <utility>
-#include <sys/types.h>
-#include <sstream>
-#include <fstream>
-#include <stdio.h>
-#include <string>
-#include <stdlib.h>
-
-#include "funcC.h"
+﻿#include "funcC.h"
 
 //求组合C(n,k)
 CFuncC::CFuncC() :c(0) {

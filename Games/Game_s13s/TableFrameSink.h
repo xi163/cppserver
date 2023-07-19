@@ -107,7 +107,7 @@ public:
     virtual bool CanLeftTable(int64_t userId);
     //设置指针
     virtual bool SetTable(std::shared_ptr<ITable> const& table);
-	//重置桌子
+	//复位桌子
     virtual void Reposition() ;
 private:
 	int randomMaxAndroidCount();

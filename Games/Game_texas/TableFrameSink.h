@@ -1,13 +1,10 @@
 #pragma once
 
-#include <map>
-#include <muduo/net/EventLoopThread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TimerId.h>
-
-#include "ITableFrameSink.h"
-#include "ITableFrame.h"
-#include "ISaveReplayRecord.h"
+#include "public/Inc.h"
+#include "gameDefine.h"
+#include "ITableDelegate.h"
+#include "ITable.h"
+#include "IPlayer.h"
 
 #include "texas.h"
 
@@ -16,22 +13,22 @@
 #define GAME_STATUS_START						GameStatus::GAME_STATUS_START//进行状态
 #define GAME_STATUS_END				    	    GameStatus::GAME_STATUS_END  //游戏结束
 
-#define FloorScore		(m_pTableFrame->GetGameRoomInfo()->floorScore)//底注
-#define CeilScore		(m_pTableFrame->GetGameRoomInfo()->ceilScore)//顶注
-#define JettionList     (m_pTableFrame->GetGameRoomInfo()->jettons)//筹码表
+#define FloorScore		(table_->GetRoomInfo()->floorScore)//底注
+#define CeilScore		(table_->GetRoomInfo()->ceilScore)//顶注
+#define JettionList     (table_->GetRoomInfo()->jettons)//筹码表
 
-#define ThisTableId		(m_pTableFrame->GetTableId())
-#define ThisGameId		(m_pTableFrame->GetGameRoomInfo()->gameId)
-#define ThisRoomId		(m_pTableFrame->GetGameRoomInfo()->roomId)
-#define ThisRoomName	(m_pTableFrame->GetGameRoomInfo()->roomName)
-#define ThisThreadTimer	(m_pTableFrame->GetLoopThread()->getLoop())
+#define ThisTableId		(table_->GetTableId())
+#define ThisGameId		(table_->GetRoomInfo()->gameId)
+#define ThisRoomId		(table_->GetRoomInfo()->roomId)
+#define ThisRoomName	(table_->GetRoomInfo()->roomName)
+#define ThisThreadTimer	(table_->GetLoopThread()->getLoop())
 
-#define EnterMinScore (m_pTableFrame->GetGameRoomInfo()->enterMinScore)//进入最小分
-#define EnterMaxScore (m_pTableFrame->GetGameRoomInfo()->enterMaxScore)//进入最大分
-#define MIN_GAME_PLAYER (m_pTableFrame->GetGameRoomInfo()->minPlayerNum)
+#define EnterMinScore (table_->GetRoomInfo()->enterMinScore)//进入最小分
+#define EnterMaxScore (table_->GetRoomInfo()->enterMaxScore)//进入最大分
+#define MIN_GAME_PLAYER (table_->GetRoomInfo()->minPlayerNum)
 
-#define ByChairId(chairId)	(m_pTableFrame->GetTableUserItem(chairId))
-#define ByUserId(userId)	(m_pTableFrame->GetUserItemByUserId(userId))
+#define ByChairId(chairId)	(table_->GetChairPlayer(chairId))
+#define ByUserId(userId)	(table_->GetPlayer(userId))
 
 #define UserIdBy(chairId) ByChairId(chairId)->GetUserId()
 #define ChairIdBy(userId) ByUserId(userId)->GetChairId()
@@ -42,34 +39,49 @@
 //#define TakeScoreByChairId(chairId) ByChairId(chairId)->GetCurTakeScore()
 //#define TakeScoreByUserId(userId) ByUserId(userId)->GetCurTakeScore()
 
-#define StockScore m_pTableFrame->GetGameRoomInfo()->totalStock//(storageInfo_.i64CurStock) //系统当前库存
-#define StockLowLimit m_pTableFrame->GetGameRoomInfo()->totalStockLowerLimit//(storageInfo_.i64LowestStock)//系统输分不得低于库存下限，否则赢分
-#define StockHighLimit m_pTableFrame->GetGameRoomInfo()->totalStockHighLimit//(storageInfo_.i64HighestStock)//系统赢分不得大于库存上限，否则输分
+#define StockScore table_->GetRoomInfo()->totalStock//系统当前库存
+#define StockLowLimit table_->GetRoomInfo()->totalStockLowerLimit//系统输分不得低于库存下限，否则赢分
+#define StockHighLimit table_->GetRoomInfo()->totalStockHighLimit//系统赢分不得大于库存上限，否则输分
 
-#define StockSecondLowLimit m_pTableFrame->GetGameRoomInfo()->totalStockSecondLowerLimit
-#define StockSecondHighLimit m_pTableFrame->GetGameRoomInfo()->totalStockSecondHighLimit
+#define StockSecondLowLimit table_->GetRoomInfo()->totalStockSecondLowerLimit
+#define StockSecondHighLimit table_->GetRoomInfo()->totalStockSecondHighLimit
 
 //赋值tagSpecialScoreInfo基础数据
+// #define SetScoreInfoBase(scoreInfo, x, p) { \
+// 	if(!(p)) { \
+// 		std::shared_ptr<IPlayer> userItem = ByChairId(x); \
+// 		assert(userItem); \
+// 		scoreInfo.chairId = (x); \
+// 		scoreInfo.userId = userItem->GetUserId(); \
+// 		scoreInfo.promoterId = userItem->GetPromoterId(); \
+// 		scoreInfo.beforeScore = ScoreByChairId(x); \
+// 		scoreInfo.bankScore = userItem->GetBankScore(); \
+// 		scoreInfo.bIsAndroid = (userItem->IsRobot() > 0); \
+// 	} \
+// 	else { \
+// 		assert(dynamic_cast<userinfo_t*>((userinfo_t*)(p))); \
+// 		assert((x) == ((userinfo_t*)(p))->chairId); \
+// 		scoreInfo.chairId = (x); \
+// 		scoreInfo.userId = ((userinfo_t*)(p))->userId; \
+// 		scoreInfo.promoterId = ((userinfo_t*)(p))->promoterId; \
+// 		scoreInfo.beforeScore = ((userinfo_t*)(p))->userScore; \
+// 		scoreInfo.bankScore = ((userinfo_t*)(p))->bankScore; \
+// 		scoreInfo.bIsAndroid = (((userinfo_t*)(p))->IsRobot > 0); \
+// 	} \
+// }
+
 #define SetScoreInfoBase(scoreInfo, x, p) { \
 	if(!(p)) { \
-		shared_ptr<CServerUserItem> userItem = ByChairId(x); \
+		std::shared_ptr<IPlayer> userItem = ByChairId(x); \
 		assert(userItem); \
 		scoreInfo.chairId = (x); \
 		scoreInfo.userId = userItem->GetUserId(); \
-		scoreInfo.promoterId = userItem->GetPromoterId(); \
-		scoreInfo.beforeScore = ScoreByChairId(x); \
-		scoreInfo.bankScore = userItem->GetBankScore(); \
-		scoreInfo.bIsAndroid = (userItem->IsAndroidUser() > 0); \
 	} \
 	else { \
 		assert(dynamic_cast<userinfo_t*>((userinfo_t*)(p))); \
 		assert((x) == ((userinfo_t*)(p))->chairId); \
 		scoreInfo.chairId = (x); \
 		scoreInfo.userId = ((userinfo_t*)(p))->userId; \
-		scoreInfo.promoterId = ((userinfo_t*)(p))->promoterId; \
-		scoreInfo.beforeScore = ((userinfo_t*)(p))->userScore; \
-		scoreInfo.bankScore = ((userinfo_t*)(p))->bankScore; \
-		scoreInfo.bIsAndroid = (((userinfo_t*)(p))->isAndroidUser > 0); \
 	} \
 }
 
@@ -99,7 +111,7 @@ static std::string StringPlayerStat(uint8_t status) {
 	case sPlaying: return "sPlaying";
 	case sOffline: return "sOffline";
 	case sLookon: return "sLookon";
-	case sGetoutAtplaying: return "sGetoutAtplaying";
+	//case sGetoutAtplaying: return "sGetoutAtplaying";
 	}
 	return "nil";
 }
@@ -117,8 +129,7 @@ enum eOperate {
 };
 
 //游戏流程
-class CTableFrameSink : public ITableFrameSink
-{
+class CGameTable : public ITableDelegate {
 	//各玩家投注结构
 	struct bet_t {
 		bet_t() {
@@ -156,34 +167,36 @@ class CTableFrameSink : public ITableFrameSink
 		std::set<uint32_t> ids;
 	};
 public:
-    CTableFrameSink(void);
-    ~CTableFrameSink(void);
+    CGameTable(void);
+    ~CGameTable(void);
 public:
+	virtual std::string GetRoundId();
 	//游戏开始
 	virtual void OnGameStart();
 	//游戏结束
-	virtual bool OnEventGameConclude(uint32_t dchairId, uint8_t GETag);
+	virtual bool OnGameConclude(uint32_t chairId, uint8_t flags);
 	//发送场景
-	virtual bool OnEventGameScene(uint32_t dchairId, bool bIsLookUser);
+	virtual bool OnGameScene(uint32_t chairId, bool lookon);
 	//游戏消息
-	virtual bool OnGameMessage(uint32_t chairId, uint8_t subid, const uint8_t* data, uint32_t datasize);
+	virtual bool OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len);
 	//用户进入
-	virtual bool OnUserEnter(int64_t dwUserID, bool bIsLookUser);
+	virtual bool OnUserEnter(int64_t userId, bool lookon);
 	//用户准备
-	virtual bool OnUserReady(int64_t dwUserID, bool bIsLookUser);
+	virtual bool OnUserReady(int64_t userId, bool lookon);
 	//用户离开
-	virtual bool OnUserLeft(int64_t dwUserID, bool bIsLookUser);
+	virtual bool OnUserLeft(int64_t userId, bool lookon);
 	//能否加入
-	virtual bool CanJoinTable(int64_t userId);
+	virtual bool CanJoinTable(std::shared_ptr<IPlayer> const& player);
 	//梭哈、德州使用当前携带金币
-	virtual bool CanJionGame(int64_t userId, int64_t score);
+	virtual bool CanJionTableSpecial(int64_t userId, int64_t score);
 	//能否离开
 	virtual bool CanLeftTable(int64_t userId);
 	//设置指针
-	virtual bool SetTableFrame(shared_ptr<ITableFrame>& pTableFrame);
+	virtual bool SetTable(std::shared_ptr<ITable> const& table);
 	//复位桌子
-	virtual void RepositionSink();
+	virtual void Reposition();
 private:
+	int randomMaxAndroidCount();
 	void BroadcastTakeScore(uint32_t chairId, int64_t userId);
 	//计算机器人税收
 	int64_t CalculateAndroidRevenue(int64_t score);
@@ -210,9 +223,9 @@ private:
 	//游戏结束，清理数据
     void OnTimerGameEnd();
 	//初始化玩家当前携带
-	void initUserTakeScore(shared_ptr<CServerUserItem> userItem);
+	void initUserTakeScore(std::shared_ptr<IPlayer> player);
 	//更新玩家当前携带
-	void upateUserTakeScore(shared_ptr<CServerUserItem> userItem);
+	void upateUserTakeScore(std::shared_ptr<IPlayer> player);
 	//踢人用户清理
 	void clearKickUsers();
 	//读取库存配置
@@ -317,8 +330,8 @@ protected:
 	int offset_;
 	int cardsC_[GAME_PLAYER];
 	//本局开始时间/本局结束时间
-	chrono::system_clock::time_point roundStartTime_;
-	chrono::system_clock::time_point roundEndTime_;
+	std::chrono::system_clock::time_point roundStartTime_;
+	std::chrono::system_clock::time_point roundEndTime_;
 	//庄家用户
 	uint32_t bankerUser_;
 	//小盲注玩家
@@ -413,7 +426,7 @@ private:
 	muduo::net::TimerId timerIdSendCard_;
 	muduo::net::TimerId timerIdLookCardNotify_;
 	//桌子指针
-	std::shared_ptr<ITableFrame> m_pTableFrame;
+	std::shared_ptr<ITable> table_;
 	//造牌配置文件路径
 	std::string INI_CARDLIST_;
 	//对局日志
@@ -431,8 +444,8 @@ private:
 			bankScore = 0;
 			takeScore = 0;
 			userScore = 0;
-			isAndroidUser = false;
-			isSystemUser = false;
+			IsRobot = false;
+			IsOfficial = false;
 			isLeave = false;
 		}
 		uint32_t chairId;
@@ -449,9 +462,9 @@ private:
 		//携带积分
 		int64_t userScore;
 		//是否机器人
-		int8_t isAndroidUser;
+		int8_t IsRobot;
 		//是否官方账号
-		int8_t isSystemUser;
+		int8_t IsOfficial;
 		bool isLeave;
 	};
 	typedef std::map<int64_t, userinfo_t> UserInfoList;

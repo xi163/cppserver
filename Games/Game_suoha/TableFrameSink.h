@@ -189,9 +189,9 @@ private:
 	//游戏结束，清理数据
     void OnTimerGameEnd();
 	//初始化玩家当前携带
-	void initUserTakeScore(std::shared_ptr<IPlayer> userItem);
+	void initUserTakeScore(std::shared_ptr<IPlayer> player);
 	//更新玩家当前携带
-	void upateUserTakeScore(std::shared_ptr<IPlayer> userItem);
+	void upateUserTakeScore(std::shared_ptr<IPlayer> player);
 	//踢人用户清理
 	void clearKickUsers();
 	//读取库存配置
@@ -277,7 +277,7 @@ protected:
 	STD::Random rand_;
 	int maxAndroid_;
 	//牌局编号
-	string strRoundID_;
+	std::string strRoundID_;
 	int64_t roundId_;
 	//游戏逻辑
 	SUOHA::CGameLogic g;
@@ -288,8 +288,8 @@ protected:
 	int cardsCount_;
 	int cardsC_[GAME_PLAYER];
 	//本局开始时间/本局结束时间
-	chrono::system_clock::time_point roundStartTime_;
-	chrono::system_clock::time_point roundEndTime_;
+	std::chrono::system_clock::time_point roundStartTime_;
+	std::chrono::system_clock::time_point roundEndTime_;
 	//庄家用户
 	uint32_t bankerUser_;
 	//操作用户

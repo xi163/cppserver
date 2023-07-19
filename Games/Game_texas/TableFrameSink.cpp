@@ -1,70 +1,19 @@
-#include <stdio.h>
-#include <time.h>
-#include <vector>
-#include <algorithm>
-#include <math.h>
-#include <stdarg.h>
-
-#include <boost/filesystem.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/algorithm/algorithm.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include <muduo/net/EventLoopThread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TimerId.h>
-
-#include <glog/logging.h>
-
 #include "proto/texas.Message.pb.h"
 
+#include "texas.h"
+#include "funcC.h"
 #include "cfg.h"
-#include "StdRandom.h"
 
-#include "GlobalFunc.h"
-#include "ToolTime.h"
+//#include "pb2Json.h"
 
 #include "TableFrameSink.h"
-
-class CGLogInit
-{
-public:
-	CGLogInit()
-	{
-		string logPath;
-		GlobalFunc::getLogPath(GAME_CONF_PATH, logPath);
-		logPath += "/TEXAS/";
-
-		FLAGS_colorlogtostderr = true;
-		FLAGS_log_dir = logPath;
-		FLAGS_logbufsecs = 1;
-		if (!boost::filesystem::exists(FLAGS_log_dir))
-		{
-			boost::filesystem::create_directories(FLAGS_log_dir);
-		}
-		google::InitGoogleLogging("texas");
-		// set std output special log content value.
-		google::SetStderrLogging(google::GLOG_INFO);
-		mkdir(logPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-
-	}
-
-	virtual ~CGLogInit()
-	{
-		//google::ShutdownGoogleLogging();
-	}
-};
-
-CGLogInit glog_init;
 
 #define TIME_GAME_ADD_SCORE       15 //下注时长(second)
 #define TIME_GAME_COMPARE_DELAY   4  //比牌动画时长
 #define TIME_GAME_START_DELAY     2
 
-CTableFrameSink::CTableFrameSink(void)
-{
+CGameTable::CGameTable(void) {
+	maxAndroid_ = 0;
     bankerUser_ = INVALID_CHAIR;
     currentUser_ = INVALID_CHAIR;
     firstUser_ = INVALID_CHAIR;
@@ -110,21 +59,17 @@ CTableFrameSink::CTableFrameSink(void)
 	gameStatus_ = GAME_STATUS_INIT;
 }
 
-CTableFrameSink::~CTableFrameSink(void)
-{
+CGameTable::~CGameTable(void) {
 }
 
-//复位桌子
-void CTableFrameSink::RepositionSink()
-{
+void CGameTable::Reposition() {
 
 }
 
-//设置指针
-bool CTableFrameSink::SetTableFrame(shared_ptr<ITableFrame>& pTableFrame)
+bool CGameTable::SetTable(std::shared_ptr<ITable> const& table)
 {
 	//桌子指针
-	m_pTableFrame = pTableFrame; assert(m_pTableFrame);
+	table_ = table; assert(table_);
 	//对局日志
 	m_replay.cellscore = FloorScore;
 	m_replay.roomname = ThisRoomName;
@@ -134,9 +79,11 @@ bool CTableFrameSink::SetTableFrame(shared_ptr<ITableFrame>& pTableFrame)
     return true;
 }
 
-//清理游戏数据
-void CTableFrameSink::ClearGameData()
-{
+std::string CGameTable::GetRoundId() {
+	return strRoundID_;
+}
+
+void CGameTable::ClearGameData() {
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		tableScore_[i] = 0;
 		tableChip_[i].clear();
@@ -185,10 +132,8 @@ void CTableFrameSink::ClearGameData()
 	strRoundID_.clear();
 }
 
-//初始化游戏数据
-void CTableFrameSink::InitGameData()
-{
-	assert(m_pTableFrame);
+void CGameTable::InitGameData() {
+	assert(table_);
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		tableScore_[i] = 0;
 		tableChip_[i].clear();
@@ -236,108 +181,99 @@ void CTableFrameSink::InitGameData()
 	showPots_.clear();
 }
 
+int CGameTable::randomMaxAndroidCount() {
+	//return rand_.betweenInt(1, table_->GetRoomInfo()->maxAndroidCount).randInt_mt();
+	return table_->GetRoomInfo()->maxAndroidCount;
+}
 
-//清除所有定时器
-void CTableFrameSink::ClearAllTimer()
-{
+void CGameTable::ClearAllTimer() {
 	ThisThreadTimer->cancel(timerIdGameReadyOver_);
     ThisThreadTimer->cancel(timerIdWaiting_);
 	ThisThreadTimer->cancel(timerIdGameEnd_);
 }
 
-//用户进入
-bool CTableFrameSink::OnUserEnter(int64_t userId, bool islookon)
-{
-	assert(m_pTableFrame);
-	shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetUserItemByUserId(userId);
-	assert(userItem);
-	writeRealLog_ = (m_pTableFrame->GetRealPlayerCount() > 0);
-	char msg[1024];
-	//if (!bPlaying_[userItem->GetChairId()]) {
-		m_bPlayerOperated[userItem->GetChairId()] = true;
-		m_bRoundEndExit[userItem->GetChairId()] = false;
-		m_bShowCard[userItem->GetChairId()] = false;
+bool CGameTable::OnUserEnter(int64_t userId, bool lookon) {
+	assert(table_);
+	std::shared_ptr<IPlayer> player = table_->GetPlayer(userId);
+	assert(player);
+	writeRealLog_ = (table_->GetRealPlayerCount() > 0);
+	//if (!bPlaying_[player->GetChairId()]) {
+		m_bPlayerOperated[player->GetChairId()] = true;
+		m_bRoundEndExit[player->GetChairId()] = false;
+		m_bShowCard[player->GetChairId()] = false;
 	//}
-	initUserTakeScore(userItem);
+	initUserTakeScore(player);
 	//准备时启动定时器
-	if (m_pTableFrame->GetGameStatus() < GAME_STATUS_READY) {
+	if (table_->GetGameStatus() < GAME_STATUS_READY) {
 		//必须真人玩家
-		//assert(m_pTableFrame->GetPlayerCount() == 1);
-		//assert(m_pTableFrame->GetRealPlayerCount() == 1);
-		if (!userItem->IsAndroidUser()) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]\n",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(),
-				(userItem->IsAndroidUser() ? "AI" : "真人"), userItem->GetChairId(), userId,
-				m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount(),
-				userItem->GetUserScore(), takeScore_[userItem->GetChairId()]);
-			LOG(INFO) << __FUNCTION__ << msg;
+		//assert(table_->GetPlayerCount() == 1);
+		//assert(table_->GetRealPlayerCount() == 1);
+		if (!player->IsRobot()) {
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]",
+				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
+				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId,
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount(),
+				player->GetUserScore(), takeScore_[player->GetChairId()]);
 		}
 		else if (writeRealLog_) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]\n",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(),
-				(userItem->IsAndroidUser() ? "AI" : "真人"), userItem->GetChairId(), userId,
-				m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount(),
-				userItem->GetUserScore(), takeScore_[userItem->GetChairId()]);
-			LOG(INFO) << __FUNCTION__ << msg;
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld 首次入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]",
+				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
+				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId,
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount(),
+				player->GetUserScore(), takeScore_[player->GetChairId()]);
 		}
-		m_pTableFrame->SetGameStatus(GAME_STATUS_READY);
+		table_->SetGameStatus(GAME_STATUS_READY);
 		gameStatus_ = GAME_STATUS_READY;
 		totalMatchSeconds_ = 0;
 		if (maxAndroid_ == 0)
-			maxAndroid_ = rand_.betweenInt(1, 8/*m_pTableFrame->GetGameRoomInfo()->maxAndroidCount*/).randInt_mt();
-		timerIdGameReadyOver_ = ThisThreadTimer->runEvery(sliceMatchSeconds_, boost::bind(&CTableFrameSink::OnTimerGameReadyOver, this));
-		OnEventGameScene(userItem->GetChairId(), false);
+			maxAndroid_ = randomMaxAndroidCount();
+		timerIdGameReadyOver_ = ThisThreadTimer->runEvery(sliceMatchSeconds_, boost::bind(&CGameTable::OnTimerGameReadyOver, this));
+		OnGameScene(player->GetChairId(), false);
 	}
 	else {
-		if (!userItem->IsAndroidUser()) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]\n",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(),
-				(userItem->IsAndroidUser() ? "AI" : "真人"), userItem->GetChairId(), userId, (bPlaying_[userItem->GetChairId()] ? "重连" : "新加"),
-				m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount(),
-				userItem->GetUserScore(), takeScore_[userItem->GetChairId()]);
-			LOG(INFO) << __FUNCTION__ << msg;
+		if (!player->IsRobot()) {
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]",
+				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
+				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId, (bPlaying_[player->GetChairId()] ? "重连" : "新加"),
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount(),
+				player->GetUserScore(), takeScore_[player->GetChairId()]);
 		}
 		else if (writeRealLog_) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]\n",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(),
-				(userItem->IsAndroidUser() ? "AI" : "真人"), userItem->GetChairId(), userId, (bPlaying_[userItem->GetChairId()] ? "重连" : "新加"),
-				m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount(),
-				userItem->GetUserScore(), takeScore_[userItem->GetChairId()]);
-			LOG(INFO) << __FUNCTION__ << msg;
+			_LOG_INFO("tableID[%d][%s][%s] %s %d %lld %s入桌(real=%d AI=%d total=%d) userScore[%lld] takeScore[%lld]",
+				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
+				(player->IsRobot() ? "AI" : "真人"), player->GetChairId(), userId, (bPlaying_[player->GetChairId()] ? "重连" : "新加"),
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount(),
+				player->GetUserScore(), takeScore_[player->GetChairId()]);
 		}
-		OnEventGameScene(userItem->GetChairId(), false);
+		OnGameScene(player->GetChairId(), false);
 	}
 	//机器人中途加入
-// 	if (m_pTableFrame->GetGameStatus() == GAME_STATUS_START &&
-// 		userItem->IsAndroidUser() && !bPlaying_[userItem->GetChairId()]) {
+// 	if (table_->GetGameStatus() == GAME_STATUS_START &&
+// 		player->IsRobot() && !bPlaying_[player->GetChairId()]) {
 // 		texas::CMD_S_AndroidEnter rspdata;
-// 		rspdata.set_chairid(userItem->GetChairId());//发空包协议，机器人收不到消息
-// 		string content = rspdata.SerializeAsString();
-// 		//m_pTableFrame->SendTableData(userItem->GetChairId(), texas::SUB_S_ANDROID_ENTER, NULL, 0);
-// 		m_pTableFrame->SendTableData(userItem->GetChairId(), texas::SUB_S_ANDROID_ENTER, (uint8_t*)content.data(), content.size());
+// 		rspdata.set_chairid(player->GetChairId());//发空包协议，机器人收不到消息
+// 		//table_->SendTableData(player->GetChairId(), texas::SUB_S_ANDROID_ENTER, NULL, 0);
+// 		table_->SendTableData(player->GetChairId(), texas::SUB_S_ANDROID_ENTER, &rspdata);
 // 	}
 	return true;
 }
 
-//判断桌子能否进人
-bool CTableFrameSink::CanJoinTable(int64_t userId) {
+bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 	//达到房间最大人数不能进了
-	if (m_pTableFrame->GetPlayerCount() >= GAME_PLAYER) {
-		if (userId >= MIN_SYS_USER_ID) {//断线重连可以进
-			shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetUserItemByUserId(userId);
-			if (userItem) {
- 				return true;
-			}
+	if (table_->GetPlayerCount() >= GAME_PLAYER) {
+		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
+		if (userItem && userItem->GetChairId() == player->GetChairId()) {//断线重连可以进
+			return true;
 		}
 		return false;
 	}
-	if (userId == -1) { //new android enter
+	if (player->GetUserId() == -1) { //new android enter
 		//机器人先入桌的话要初始化
 		if (maxAndroid_ == 0)
-			maxAndroid_ = rand_.betweenInt(1, 8/*m_pTableFrame->GetGameRoomInfo()->maxAndroidCount*/).randInt_mt();
+			maxAndroid_ = randomMaxAndroidCount();
 		//游戏开始了机器人新玩家不准进入
-		if (m_pTableFrame->GetGameStatus() >= GAME_STATUS_START) {
-			if (m_pTableFrame->GetAndroidPlayerCount() >= maxAndroid_) {
+		if (table_->GetGameStatus() >= GAME_STATUS_START) {
+			if (table_->GetRobotPlayerCount() >= maxAndroid_) {
 				return false;
 			}
 			static STD::Random r(1, 100);
@@ -347,17 +283,17 @@ bool CTableFrameSink::CanJoinTable(int64_t userId) {
 			return false;
 		}
 		//匹配真人时间或没有真人玩家，机器人不准进入
-		if (totalMatchSeconds_ < timeoutMatchSeconds_ || m_pTableFrame->GetRealPlayerCount() < 1) {
+		if (totalMatchSeconds_ < timeoutMatchSeconds_ || table_->GetRealPlayerCount() < 1) {
 			return false;
 		}
 		//根据房间机器人配置来决定补充多少机器人
-		return m_pTableFrame->GetAndroidPlayerCount() < maxAndroid_;
+		return table_->GetRobotPlayerCount() < maxAndroid_;
 	}
-	else if (userId == 0) { //new real user enter
+	else if (player->GetUserId() == 0) { //new real user enter
 		return true;
 	}
-	else if (userId >= MIN_SYS_USER_ID) {//断线重连
-		shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetUserItemByUserId(userId);
+	else if (player->GetUserId() >= MIN_SYS_USER_ID) {//断线重连
+		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
 		if (userItem) {
 			return true;
 		}
@@ -366,10 +302,10 @@ bool CTableFrameSink::CanJoinTable(int64_t userId) {
 }
 
 //梭哈、德州使用当前携带金币
-bool CTableFrameSink::CanJionGame(int64_t userId, int64_t score) {
+bool CGameTable::CanJionTableSpecial(int64_t userId, int64_t score) {
 // 	char msg[1024] = { 0 };
 // 	if (userId >= MIN_SYS_USER_ID) {
-// 		shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetUserItemByUserId(userId);
+// 		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(userId);
 // 		if (userItem) {
 // 			assert(score == userItem->GetCurTakeScore());
 // 			LOG(INFO) << __FUNCTION__ << msg;
@@ -379,19 +315,19 @@ bool CTableFrameSink::CanJionGame(int64_t userId, int64_t score) {
 // 				if ((userItem->GetTakeMinScore() > 0 && userItem->GetCurTakeScore() < userItem->GetTakeMinScore()) ||
 // 					(userItem->GetTakeMaxScore() > 0 && userItem->GetCurTakeScore() > userItem->GetTakeMaxScore())) {
 // 					snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %d %d 携带金额=%lld false 1-----------------------",
-// 						m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(),
+// 						table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 // 						userItem->GetChairId(), userId, score);
 // 					LOG(INFO) << __FUNCTION__ << msg;
 // 					return false;
 // 				}
 // 				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %d %d 携带金额=%lld true-----------------------",
-// 					m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(),
+// 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 // 					userItem->GetChairId(), userId, score);
 // 				LOG(INFO) << __FUNCTION__ << msg;
 // 				return true;
 // 			}
 // 			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %d %d 携带金额=%lld false 2-----------------------",
-// 				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(),
+// 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
 // 				userItem->GetChairId(), userId, userItem->GetCurTakeScore());
 // 			LOG(INFO) << __FUNCTION__ << msg;
 // 		}
@@ -401,98 +337,90 @@ bool CTableFrameSink::CanJionGame(int64_t userId, int64_t score) {
 				return true;
 			}
 // 			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %d 携带金额=%lld false 3-----------------------",
-// 				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), userId, score);
+// 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), userId, score);
 // 			LOG(INFO) << __FUNCTION__ << msg;
 // 			return false;
 // 		}
 // 	}
 // 	else {
 // 		snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %d 携带金额=%lld false 4-----------------------",
-// 			m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), userId, score);
+// 			table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), userId, score);
 // 		LOG(INFO) << __FUNCTION__ << msg;
 // 	}
 	return false;
 }
 
-bool CTableFrameSink::CanLeftTable(int64_t userId)
-{
-	shared_ptr<CServerUserItem> userItem = ByUserId(userId);
+bool CGameTable::CanLeftTable(int64_t userId) {
+	std::shared_ptr<IPlayer> userItem = ByUserId(userId);
 	if (!userItem) {
 		return true;
 	}
 	uint32_t chairId = userItem->GetChairId();
-	if (/*m_pTableFrame->GetGameStatus()*/gameStatus_ < GAME_STATUS_START ||
-		/*m_pTableFrame->GetGameStatus()*/gameStatus_ >= GAME_STATUS_END ||
+	if (/*table_->GetGameStatus()*/gameStatus_ < GAME_STATUS_START ||
+		/*table_->GetGameStatus()*/gameStatus_ >= GAME_STATUS_END ||
 		!bPlaying_[chairId] || isGiveup_[chairId]) {
 		return true;
 	}
 	return false;
 }
 
-bool CTableFrameSink::OnUserReady(int64_t userId, bool islookon)
-{
+bool CGameTable::OnUserReady(int64_t userId, bool lookon) {
     return true;
 }
 
-//用户离开
-bool CTableFrameSink::OnUserLeft(int64_t userId, bool bIsLookUser)
-{
-	char msg[1024];
-	assert(m_pTableFrame);
-	shared_ptr<CServerUserItem> userItem = ByUserId(userId); //assert(userItem);
-	if (!userItem) {
+bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
+	assert(table_);
+	std::shared_ptr<IPlayer> player = ByUserId(userId); //assert(player);
+	if (!player) {
 		//assert(false);
 		return false;
 	}
-	assert(userItem->GetChairId() >= 0);
-	assert(userItem->GetChairId() < GAME_PLAYER);
-	bool isAndroid = userItem->IsAndroidUser();
-	uint32_t chairId = userItem->GetChairId();
+	assert(player->GetChairId() >= 0);
+	assert(player->GetChairId() < GAME_PLAYER);
+	bool isAndroid = player->IsRobot();
+	uint32_t chairId = player->GetChairId();
 	//游戏未开始/已结束/非参与玩家
-	if (/*m_pTableFrame->GetGameStatus()*/gameStatus_ < GAME_STATUS_START ||
-		/*m_pTableFrame->GetGameStatus()*/gameStatus_ >= GAME_STATUS_END ||
+	if (/*table_->GetGameStatus()*/gameStatus_ < GAME_STATUS_START ||
+		/*table_->GetGameStatus()*/gameStatus_ >= GAME_STATUS_END ||
 		!bPlaying_[chairId] || isGiveup_[chairId]) {
 		if (writeRealLog_) {
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %s[%d][%d]准备离桌 real=%d AI=%d total=%d",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
-				m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-			LOG(INFO) << __FUNCTION__ << msg;
+			_LOG_INFO("tableID[%d][%s] %s[%d][%d]准备离桌 real=%d AI=%d total=%d",
+				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 		}
 		bPlaying_[chairId] = false;
 		m_bRoundEndExit[chairId] = false;
 		m_bShowCard[chairId] = false;
-		userItem->SetUserStatus(sOffline);
-		m_pTableFrame->ClearTableUser(chairId, true, true);
+		player->SetUserStatus(sOffline);
+		table_->ClearTableUser(chairId, true, true);
 		//匹配中没有真人玩家，清理腾出桌子
-		if (/*m_pTableFrame->GetGameStatus()*/gameStatus_ == GAME_STATUS_READY &&
-			/*m_pTableFrame->GetRealPlayerCount()*/m_pTableFrame->GetPlayerCount() == 0) {
+		if (/*table_->GetGameStatus()*/gameStatus_ == GAME_STATUS_READY &&
+			table_->GetRealPlayerCount()/*table_->GetPlayerCount()*/ == 0) {
 			if (writeRealLog_) {
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %s[%d][%d]已经离桌(real=%d AI=%d total=%d) 重置桌子",
-					m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
-					m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-				LOG(INFO) << __FUNCTION__ << msg;
+				_LOG_INFO("tableID[%d][%s] %s[%d][%d]已经离桌(real=%d AI=%d total=%d) 重置桌子",
+					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
+					table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 			}
 			for (int i = 0; i < GAME_PLAYER; ++i) {
-				if (!m_pTableFrame->IsExistUser(i)) {
+				if (!table_->ExistUser(i)) {
 					continue;
 				}
 				bPlaying_[chairId] = false;
 				m_bRoundEndExit[chairId] = false;
 				m_bShowCard[chairId] = false;
 				ByChairId(i)->SetUserStatus(sOffline);
-				m_pTableFrame->ClearTableUser(i, true, true);
+				table_->ClearTableUser(i, true, true);
 			}
 			ClearAllTimer();
-			m_pTableFrame->SetGameStatus(GAME_STATUS_INIT);
+			table_->SetGameStatus(GAME_STATUS_INIT);
 			gameStatus_ = GAME_STATUS_INIT;
 			writeRealLog_ = false;
 		}
 		else {
 			if (writeRealLog_) {
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] %s[%d][%d]已经离桌(real=%d AI=%d total=%d) 等待重置",
-					m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
-					m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-				LOG(INFO) << __FUNCTION__ << msg;
+				_LOG_INFO("tableID[%d][%s] %s[%d][%d]已经离桌(real=%d AI=%d total=%d) 等待重置",
+					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
+					table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 			}
 		}
 		UserInfoList::iterator it = userinfos_.find(userId);
@@ -502,35 +430,37 @@ bool CTableFrameSink::OnUserLeft(int64_t userId, bool bIsLookUser)
 		}
 		return true;
 	}
+	else {
+		_LOG_WARN("[%s][%d][%s] %s[%d][%d] 游戏中禁止离桌(real=%d AI=%d total=%d)",
+			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
+			table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
+	}
 	return false;
 }
 
 //准备定时器
-void CTableFrameSink::OnTimerGameReadyOver() {
-	writeRealLog_ = (m_pTableFrame->GetRealPlayerCount() > 0);
-	char msg[1024];
+void CGameTable::OnTimerGameReadyOver() {
+	writeRealLog_ = (table_->GetRealPlayerCount() > 0);
 	//匹配中有真人玩家
-	//assert(m_pTableFrame->GetRealPlayerCount() > 0);
+	//assert(table_->GetRealPlayerCount() > 0);
 	//匹配中准备状态
-	assert((int)m_pTableFrame->GetGameStatus() == GAME_STATUS_READY);
+	assert((int)table_->GetGameStatus() == GAME_STATUS_READY);
 	//累计匹配时间
 	totalMatchSeconds_ += sliceMatchSeconds_;
 	//匹配真人时间
 	if (totalMatchSeconds_ <= timeoutMatchSeconds_) {
-		if (m_pTableFrame->GetPlayerCount() < GAME_PLAYER) {
+		if (table_->GetPlayerCount() < GAME_PLAYER) {
 			if (writeRealLog_) {
 				//不满游戏人数，继续等待
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]匹配真人时间(dt=%.1f|%.1f)，不满游戏人数(real=%d AI=%d total=%d)，继续等待\n",
-					m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), sliceMatchSeconds_, totalMatchSeconds_, m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-				LOG(INFO) << __FUNCTION__ << msg;
+// 				_LOG_INFO("tableID[%d][%s]匹配真人时间(dt=%.1f|%.1f)，不满游戏人数(real=%d AI=%d total=%d)，继续等待",
+// 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 			}
 		}
 		else {
 			if (writeRealLog_) {
 				//满足游戏人数，开始游戏
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]匹配真人时间(dt=%.1f|%.1f)，满足游戏人数(real=%d AI=%d total=%d)，开始游戏!\n",
-					m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), sliceMatchSeconds_, totalMatchSeconds_, m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-				LOG(INFO) << __FUNCTION__ << msg;
+				_LOG_INFO("tableID[%d][%s]匹配真人时间(dt=%.1f|%.1f)，满足游戏人数(real=%d AI=%d total=%d)，开始游戏!",
+					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 			}
 			GameTimerReadyOver();
 		}
@@ -538,152 +468,146 @@ void CTableFrameSink::OnTimerGameReadyOver() {
 	//匹配真人超时，补充机器人时间
 	else if (totalMatchSeconds_ > timeoutMatchSeconds_ &&
 		(totalMatchSeconds_ <= (timeoutMatchSeconds_ + timeoutAddAndroidSeconds_))) {
-		if (m_pTableFrame->GetPlayerCount() < GAME_PLAYER) {
+		if (table_->GetPlayerCount() < GAME_PLAYER) {
 			if (writeRealLog_) {
 				//不满游戏人数，继续等待
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]补充机器人(max=%d)时间(dt=%.1f|%.1f)，不满游戏人数(real=%d AI=%d total=%d)，继续等待\n",
-					m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-				LOG(INFO) << __FUNCTION__ << msg;
+// 				_LOG_INFO("tableID[%d][%s]补充机器人(max=%d)时间(dt=%.1f|%.1f)，不满游戏人数(real=%d AI=%d total=%d)，继续等待",
+// 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 			}
 		}
 		else {
 			if (writeRealLog_) {
 				//满足游戏人数，开始游戏
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]补充机器人(max=%d)时间(dt=%.1f|%.1f)，满足游戏人数(real=%d AI=%d total=%d)，开始游戏!\n",
-					m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-				LOG(INFO) << __FUNCTION__ << msg;
+				_LOG_INFO("tableID[%d][%s]补充机器人(max=%d)时间(dt=%.1f|%.1f)，满足游戏人数(real=%d AI=%d total=%d)，开始游戏!",
+					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 			}
 			GameTimerReadyOver();
 		}
 	}
 	//补充机器人超时
 	else /*if (totalMatchSeconds_ > (timeoutMatchSeconds_ + timeoutAddAndroidSeconds_))*/ {
-		if (m_pTableFrame->GetPlayerCount() >= MIN_GAME_PLAYER) {
+		if (table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
 			if (writeRealLog_) {
 				//满足最小游戏人数，开始游戏
-				snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]补充机器人(max=%d)超时(dt=%.1f|%.1f)，满足最小游戏人数(real=%d AI=%d total=%d)，开始游戏!\n",
-					m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-				LOG(INFO) << __FUNCTION__ << msg;
+				_LOG_INFO("tableID[%d][%s]补充机器人(max=%d)超时(dt=%.1f|%.1f)，满足最小游戏人数(real=%d AI=%d total=%d)，开始游戏!",
+					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 			}
 			GameTimerReadyOver();
 		}
 		else {
 			//匹配很久，不满最小游戏人数，重置桌子
-			if (totalMatchSeconds_ > (timeoutMatchSeconds_ + timeoutAddAndroidSeconds_) + 10 && m_pTableFrame->GetRealPlayerCount() == 0) {
+			if (totalMatchSeconds_ > (timeoutMatchSeconds_ + timeoutAddAndroidSeconds_) + 10 && table_->GetRealPlayerCount() == 0) {
 				if (writeRealLog_) {
-					snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] 中止匹配 重置桌子 real=%d AI=%d total=%d",
-						m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(),
-						m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-					LOG(INFO) << __FUNCTION__ << msg;
+					_LOG_INFO("tableID[%d][%s] 中止匹配 重置桌子 real=%d AI=%d total=%d",
+						table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
+						table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 				}
 				//totalMatchSeconds_ = 0;
 				for (int i = 0; i < GAME_PLAYER; ++i) {
-					if (!m_pTableFrame->IsExistUser(i)) {
+					if (!table_->ExistUser(i)) {
 						continue;
 					}
 					bPlaying_[i] = false;
 					m_bRoundEndExit[i] = false;
 					ByChairId(i)->SetUserStatus(sOffline);
-					m_pTableFrame->ClearTableUser(i, true, true);
+					table_->ClearTableUser(i, true, true);
 				}
 				ClearAllTimer();
-				m_pTableFrame->SetGameStatus(GAME_STATUS_INIT);
+				table_->SetGameStatus(GAME_STATUS_INIT);
 				gameStatus_ = GAME_STATUS_INIT;
 				writeRealLog_ = false;
 			}
 			else {
 				if (writeRealLog_) {
 					//不满最小游戏人数，继续等待
-					snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s]补充机器人(max=%d)超时(dt=%.1f|%.1f)，不满最小游戏人数(real=%d AI=%d total=%d)，继续等待\n",
-						m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-					LOG(INFO) << __FUNCTION__ << msg;
+// 					_LOG_INFO("tableID[%d][%s]补充机器人(max=%d)超时(dt=%.1f|%.1f)，不满最小游戏人数(real=%d AI=%d total=%d)，继续等待\n",
+// 						table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), maxAndroid_, sliceMatchSeconds_, totalMatchSeconds_, table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 				}
 			}
 		}
 	}
 }
 
-//游戏开局前检查
-void CTableFrameSink::CheckGameStart() {
+void CGameTable::CheckGameStart() {
 	for (int i = 0; i < GAME_PLAYER; ++i) {
-		shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(i);
-		if (userItem) {
+		std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i);
+		if (player) {
 			//离线，踢出玩家
-			if (userItem->GetUserStatus() == sOffline) {
+			if (player->GetUserStatus() == sOffline) {
 				bPlaying_[i] = false;
 				m_bRoundEndExit[i] = false;
-				m_pTableFrame->ClearTableUser(i, true, true);
+				table_->ClearTableUser(i, true, true);
 			}
 			//账号停用，踢出玩家
-			else if (userItem->GetUserStatus() == sStop) {
+			else if (player->GetUserStatus() == sStop) {
 				bPlaying_[i] = false;
 				m_bRoundEndExit[i] = false;
-				userItem->SetUserStatus(sOffline);
-				m_pTableFrame->ClearTableUser(i, true, true, ERROR_ENTERROOM_STOP_CUR_USER);
+				player->SetUserStatus(sOffline);
+				table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_STOP_CUR_USER);
 			}
 			//积分不足，踢出玩家
-			else if (userItem->GetUserScore() < EnterMinScore) {
+			else if (player->GetUserScore() < EnterMinScore) {
 				bPlaying_[i] = false;
 				m_bRoundEndExit[i] = false;
-				userItem->SetUserStatus(sOffline);
-				m_pTableFrame->ClearTableUser(i, true, true, ERROR_ENTERROOM_SCORENOENOUGH);
+				player->SetUserStatus(sOffline);
+				table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_SCORENOENOUGH);
 			}
 			//积分太多，踢出玩家
- 			//else if (EnterMaxScore > 0 && userItem->GetUserScore() > EnterMaxScore) {
+ 			//else if (EnterMaxScore > 0 && player->GetUserScore() > EnterMaxScore) {
 			//	bPlaying_[i] = false;
  			//	m_bRoundEndExit[i] = false;
- 			//	userItem->SetUserStatus(sOffline);
- 			//	m_pTableFrame->ClearTableUser(i, true, true, ERROR_ENTERROOM_SCORELIMIT);
+ 			//	player->SetUserStatus(sOffline);
+ 			//	table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_SCORELIMIT);
  			//}
 		}
 	}
 }
 
 //结束准备，开始游戏
-void CTableFrameSink::GameTimerReadyOver() {
-	writeRealLog_ = (m_pTableFrame->GetRealPlayerCount() > 0);
+void CGameTable::GameTimerReadyOver() {
+	writeRealLog_ = (table_->GetRealPlayerCount() > 0);
 	ThisThreadTimer->cancel(timerIdGameReadyOver_);
 	CheckGameStart();
 	//有真人玩家且够游戏人数，开始游戏
-	if (/*m_pTableFrame->GetRealPlayerCount() > 0 &&*/ m_pTableFrame->GetPlayerCount() >= MIN_GAME_PLAYER) {
+	if (table_->GetRealPlayerCount() > 0 && table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
 		InitGameData();
 		//游戏状态
-		m_pTableFrame->SetGameStatus(GAME_STATUS_START);
+		table_->SetGameStatus(GAME_STATUS_START);
 		gameStatus_ = GAME_STATUS_START;
 		//玩家状态
 		for (int i = 0; i < GAME_PLAYER; ++i) {
-			shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(i);
-			if (userItem) {
+			std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i);
+			if (player) {
 				//非离线状态
-				//LOG(INFO) << __FUNCTION__ << " --- *** chairID=" << i << " stat=" << StringPlayerStat(userItem->GetUserStatus());
-				//assert(userItem->GetUserStatus() != sOffline);
-				userItem->SetUserStatus(sPlaying);
+				//LOG(INFO) << __FUNCTION__ << " --- *** chairID=" << i << " stat=" << StringPlayerStat(player->GetUserStatus());
+				//assert(player->GetUserStatus() != sOffline);
+				player->SetUserStatus(sPlaying);
 				bPlaying_[i] = true;
 				//玩家出局(弃牌/比牌输)，若离开房间，信息将被清理，用户数据副本用来写记录
-				GSUserBaseInfo& baseinfo = userItem->GetUserBaseInfo();
-				assert(baseinfo.userId == userItem->GetUserId());
-				userinfo_t& userinfo = userinfos_[userItem->GetUserId()];
+				UserBaseInfo& baseinfo = player->GetUserBaseInfo();
+				assert(baseinfo.userId == player->GetUserId());
+				userinfo_t& userinfo = userinfos_[player->GetUserId()];
 				userinfo.init();//不用构造，防止被隐式析构
 				userinfo.chairId = i;
 				userinfo.userId = baseinfo.userId;
-				userinfo.promoterId = userItem->GetPromoterId();
-				userinfo.bankScore = userItem->GetBankScore();
+				//userinfo.promoterId = player->GetPromoterId();
+				//userinfo.bankScore = player->GetBankScore();
 				userinfo.headerId = baseinfo.headId;
 				userinfo.nickName = baseinfo.nickName;
 				userinfo.location = baseinfo.location;
-				userinfo.vipLevel = baseinfo.vip;
-				userinfo.headboxId = baseinfo.headboxId;
-				userinfo.headImgUrl = baseinfo.headImgUrl;
+				//userinfo.vipLevel = baseinfo.vip;
+				//userinfo.headboxId = baseinfo.headboxId;
+				//userinfo.headImgUrl = baseinfo.headImgUrl;
 				//userinfo.account = baseinfo.account;
 				//userinfo.agentId = baseinfo.agentId;
 				//userinfo.lineCode = baseinfo.lineCode;
 				userinfo.takeScore = takeScore_[i];
-				userinfo.userScore = userItem->GetUserScore();
-				userinfo.isAndroidUser = m_pTableFrame->IsAndroidUser((uint32_t)i);
-				userinfo.isSystemUser = m_pTableFrame->IsSystemUser((uint32_t)i);
-				if (!together_ && userinfo.isAndroidUser == 0) {
+				userinfo.userScore = player->GetUserScore();
+				userinfo.IsRobot = table_->IsRobot((uint32_t)i);
+				userinfo.IsOfficial = table_->IsOfficial((uint32_t)i);
+				if (!together_ && userinfo.IsRobot == 0) {
 					m_GameParticipant.insert(baseinfo.userId);
-					m_pTableFrame->SetUserTogetherPlaying(m_GameParticipant);
+					//table_->SetUserTogetherPlaying(m_GameParticipant);
 				}
 			}
 			else {
@@ -694,65 +618,59 @@ void CTableFrameSink::GameTimerReadyOver() {
 		//开始游戏
 		OnGameStart();
 	}
-	else if (m_pTableFrame->GetPlayerCount() > 0) {
+	else if (table_->GetRealPlayerCount() > 0) {
+	//else if (table_->GetPlayerCount() > 0) {
 		if (writeRealLog_) {
-			char msg[1024];
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(),
-				m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-			LOG(INFO) << __FUNCTION__ << msg;
+			_LOG_INFO("tableID[%d][%s][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
+				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 		}
 		//ClearGameData();
-		//m_pTableFrame->SetGameStatus(GAME_STATUS_READY);
+		//table_->SetGameStatus(GAME_STATUS_READY);
 		//gameStatus_ = GAME_STATUS_READY;
 		//totalMatchSeconds_ = 0;
-		maxAndroid_ = rand_.betweenInt(1, 8/*m_pTableFrame->GetGameRoomInfo()->maxAndroidCount*/).randInt_mt();
-		timerIdGameReadyOver_ = ThisThreadTimer->runEvery(sliceMatchSeconds_, boost::bind(&CTableFrameSink::OnTimerGameReadyOver, this));
+		maxAndroid_ = randomMaxAndroidCount();
+		timerIdGameReadyOver_ = ThisThreadTimer->runEvery(sliceMatchSeconds_, boost::bind(&CGameTable::OnTimerGameReadyOver, this));
 	}
 	//继续下一局可能走该流程
 	else {
 		if (writeRealLog_) {
-			char msg[1024];
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s] 中断游戏 重置桌子 real=%d AI=%d total=%d",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(),
-				m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-			LOG(INFO) << __FUNCTION__ << msg;
+			_LOG_INFO("tableID[%d][%s] 中断游戏 重置桌子 real=%d AI=%d total=%d",
+				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 		}
 		//没有真人玩家或不够游戏人数(<MIN_GAME_PLAYER)，清理腾出桌子
 		for (int i = 0; i < GAME_PLAYER; ++i) {
-			if (!m_pTableFrame->IsExistUser(i)) {
+			if (!table_->ExistUser(i)) {
 				continue;
 			}
 			bPlaying_[i] = false;
 			m_bRoundEndExit[i] = false;
 			m_bShowCard[i] = false;
 			ByChairId(i)->SetUserStatus(sOffline);
-			m_pTableFrame->ClearTableUser(i, true, true);
+			table_->ClearTableUser(i, true, true);
 		}
 		ClearAllTimer();
-		m_pTableFrame->SetGameStatus(GAME_STATUS_INIT);
+		table_->SetGameStatus(GAME_STATUS_INIT);
 		gameStatus_ = GAME_STATUS_INIT;
 		writeRealLog_ = false;
 	}
 }
 
 //游戏开始
-void CTableFrameSink::OnGameStart()
-{
+void CGameTable::OnGameStart() {
 	ReadConfigInformation();
 	//牌局编号
-    strRoundID_ = m_pTableFrame->GetNewRoundId();
-	roundId_ = m_pTableFrame->GetNewRoundInt64Id();
+    strRoundID_ = table_->NewRoundId();
+	roundId_ = 0;//table_->GetNewRoundInt64Id();
 	//对局日志
 	m_replay.gameinfoid = strRoundID_;
 	//系统当前库存
-	//m_pTableFrame->GetStorageScore(storageInfo_);
+	//table_->GetStorageScore(storageInfo_);
 	if (writeRealLog_) {
-		char msg[1024];
-		snprintf(msg, sizeof(msg), "\n--- *** tableID[%d][%s][%s][%d] 当前库存=%s 开始游戏(real=%d AI=%d total=%d)!\n",
-			m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, std::to_string(StockScore).c_str(),
-			m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-		LOG(INFO) << __FUNCTION__ << msg;
+		_LOG_INFO("tableID[%d][%s][%s] 当前库存=%s 开始游戏(real=%d AI=%d total=%d)!",
+			table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), std::to_string(StockScore).c_str(),
+			table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 	}
 	//本局开始时间
     roundStartTime_ = chrono::system_clock::now();
@@ -824,8 +742,8 @@ void CTableFrameSink::OnGameStart()
 		memcpy(&(combCards_[i])[0], &(handCards_[i])[0], MAX_COUNT);
 		memcpy(&(combCards_[i])[MAX_COUNT], &tableCards_[0], TBL_CARDS);
 		TEXAS::CGameLogic::AnalyseCards(&(combCards_[i])[0], MAX_TOTAL, all_[i]);
-		shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(i); assert(userItem);
-		//m_replay.addPlayer(userItem->GetUserId(), userItem->GetNickName(), takeScore_[i], i);
+		std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i); assert(player);
+		//m_replay.addPlayer(player->GetUserId(), player->GetNickName(), takeScore_[i], i);
 	}
 	//换牌策略分析
 	AnalysePlayerCards();
@@ -867,29 +785,29 @@ void CTableFrameSink::OnGameStart()
 			player->set_userscore(takeScore_[i]);
 		}
 		for (int i = 0; i < GAME_PLAYER; ++i) {
-			if (!m_pTableFrame->IsExistUser(i)) {
+			if (!table_->ExistUser(i)) {
 				continue;
 			}
-			if (m_pTableFrame->IsAndroidUser(i) == 0) {
+			if (table_->IsRobot(i) == 0) {
 				continue;
 			}
 			string content = reqdata.SerializeAsString();
-			m_pTableFrame->SendTableData(i, texas::SUB_S_ANDROID_CARD, (uint8_t *)content.data(), content.size());
+			table_->SendTableData(i, texas::SUB_S_ANDROID_CARD, (uint8_t *)content.data(), content.size());
 		}
 	}
 	//确定庄家
 	if (bankerUser_ == INVALID_CHAIR) {
-		bankerUser_ = GlobalFunc::RandomInt64(0, GAME_PLAYER - 1);
+		bankerUser_ = rand_.betweenInt(0, GAME_PLAYER - 1).randInt_mt();
 	}
 	else {
 		bankerUser_ = (bankerUser_ + 1) % GAME_PLAYER;
 	}
-	while (!m_pTableFrame->IsExistUser(bankerUser_) || !bPlaying_[bankerUser_]) {
+	while (!table_->ExistUser(bankerUser_) || !bPlaying_[bankerUser_]) {
 		bankerUser_ = (bankerUser_ + 1) % GAME_PLAYER;
 	}
 	//小盲注玩家
 	smallBlindUser_ = (bankerUser_ + ((userinfos_.size() == MIN_GAME_PLAYER) ? 0 : 1)) % GAME_PLAYER;
-	while (!m_pTableFrame->IsExistUser(smallBlindUser_) || !bPlaying_[smallBlindUser_]) {
+	while (!table_->ExistUser(smallBlindUser_) || !bPlaying_[smallBlindUser_]) {
 		smallBlindUser_ = (smallBlindUser_ + 1) % GAME_PLAYER;
 	}
 	//小盲注
@@ -900,7 +818,7 @@ void CTableFrameSink::OnGameStart()
 	updateMainSidePots(smallBlindUser_, tableScore_[smallBlindUser_]);
 	//大盲注玩家
 	bigBlindUser_ = (smallBlindUser_ + 1) % GAME_PLAYER;
-	while (!m_pTableFrame->IsExistUser(bigBlindUser_) || !bPlaying_[bigBlindUser_]) {
+	while (!table_->ExistUser(bigBlindUser_) || !bPlaying_[bigBlindUser_]) {
 		bigBlindUser_ = (bigBlindUser_ + 1) % GAME_PLAYER;
 	}
 	//大盲注
@@ -911,7 +829,7 @@ void CTableFrameSink::OnGameStart()
 	updateMainSidePots(bigBlindUser_, tableScore_[bigBlindUser_]);
 	//待操作玩家
 	currentUser_ = (/*(userinfos_.size() == MIN_GAME_PLAYER) ? smallBlindUser_ : */(bigBlindUser_ + 1)) % GAME_PLAYER;
-	while (!m_pTableFrame->IsExistUser(currentUser_) || !bPlaying_[currentUser_]) {
+	while (!table_->ExistUser(currentUser_) || !bPlaying_[currentUser_]) {
 		currentUser_ = (currentUser_ + 1) % GAME_PLAYER;
 	}
 	std::map<int, int64_t> chips;
@@ -926,17 +844,12 @@ void CTableFrameSink::OnGameStart()
 		if (!bPlaying_[i]) {
 			continue;
 		}
-		shared_ptr<CServerUserItem> userItem = ByChairId(i); assert(userItem);
+		std::shared_ptr<IPlayer> userItem = ByChairId(i); assert(userItem);
 		int64_t userScore = ScoreByChairId(i) - tableScore_[i];
 		int64_t takeScore = takeScore_[i] - tableScore_[i];
 		if (takeScore <= 0) {
-			LOG(ERROR) << __FUNCTION__
-				<< " " << i
-				<< " " << UserIdBy(i)
-				<< " " << " userScore=" << ScoreByChairId(i)
-				<< " " << " takeScore=" << takeScore_[i]
-				<< " " << " tableScore=" << tableScore_[i]
-				<< " " << " leftScore=" << takeScore;
+			_LOG_ERROR("%d %ld userScore=%ld takeScore=%ld tableScore=%ld leftScore=%ld", i, UserIdBy(i), ScoreByChairId(i), takeScore_[i], tableScore_[i], takeScore);
+
 		}
 		assert(takeScore > 0);
 		assert(userScore > 0);
@@ -1009,7 +922,7 @@ void CTableFrameSink::OnGameStart()
 	//操作剩余时间
 	nextStep->set_wtimeleft(wTimeLeft);
 	for (int i = 0; i < GAME_PLAYER; ++i) {
-		if (!m_pTableFrame->IsExistUser(i)) {
+		if (!table_->ExistUser(i)) {
 			continue;
 		}
 		for (int j = 0; j < rspdata.players_size(); ++j) {
@@ -1027,20 +940,20 @@ void CTableFrameSink::OnGameStart()
 		rspdata.set_needtip(needTip_[i]);
 		rspdata.set_setscoretip(setscore_[i]);
 		std::string content = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(i, texas::SUB_S_GAME_START, (uint8_t*)content.data(), content.size());
+		table_->SendTableData(i, texas::SUB_S_GAME_START, (uint8_t*)content.data(), content.size());
 		needTip_[i] = false;
 		setscore_[i] = false;
 	}
 	//等待操作定时器
 	ThisThreadTimer->cancel(timerIdWaiting_);
-	timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1 + TIME_GAME_START_DELAY, boost::bind(&CTableFrameSink::OnTimerWaitingOver, this));
+	timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1 + TIME_GAME_START_DELAY, boost::bind(&CGameTable::OnTimerWaitingOver, this));
 }
 
 //换牌策略分析
 //收分时概率性玩家拿小牌，AI拿大牌
 //放水时概率性AI拿小牌，玩家拿大牌
-void CTableFrameSink::AnalysePlayerCards() {
-	if (m_pTableFrame->GetAndroidPlayerCount() == 0) {
+void CGameTable::AnalysePlayerCards() {
+	if (table_->GetRobotPlayerCount() == 0) {
 		return;
 	}
 	//库存低于下限值，需要收分
@@ -1049,11 +962,11 @@ void CTableFrameSink::AnalysePlayerCards() {
 		int64_t weight = ((double)llabs(StockLowLimit - StockScore))
 			/ llabs(StockLowLimit - StockSecondLowLimit)
 			* (100 - m_i32LowerChangeRate);
-		if (GlobalFunc::RandomInt64(0, 99) > m_i32LowerChangeRate + weight) {
-			//LOG(INFO) << "+++++++++++++++++++++算法 随机++++++++++++++++++";
+		if (rand_.betweenInt64(0, 99).randFloat_mt() > m_i32LowerChangeRate + weight) {
+			_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 随机", StockLowLimit, StockScore, StockHighLimit);
 			return;
 		}
-		//LOG(INFO) << "+++++++++++++++++++++算法 吸分++++++++++++++++++";
+		_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 吸分", StockLowLimit, StockScore, StockHighLimit);
 		LetSysWin(true);
 	}
 	//库存高于上限值，需要放水
@@ -1062,21 +975,21 @@ void CTableFrameSink::AnalysePlayerCards() {
 		int64_t weight = ((double)llabs(StockScore - StockHighLimit))
 			/ llabs(StockSecondHighLimit - StockHighLimit)
 			* (100 - m_i32HigherChangeRate);
-		if (GlobalFunc::RandomInt64(0, 99) > m_i32HigherChangeRate + weight) {
-			//LOG(INFO) << "+++++++++++++++++++++算法 随机++++++++++++++++++";
+		if (rand_.betweenInt64(0, 99).randFloat_mt() > m_i32HigherChangeRate + weight) {
+			_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 随机", StockLowLimit, StockScore, StockHighLimit);
 			return;
 		}
-		//LOG(INFO) << "+++++++++++++++++++++算法 吐分++++++++++++++++++";
+		_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 吐分", StockLowLimit, StockScore, StockHighLimit);
 		LetSysWin(false);
 	}
 	else {
-		//LOG(INFO) << "+++++++++++++++++++++算法 随机++++++++++++++++++";
+		_LOG_INFO("StockLowLimit:%ld StockScore:%ld StockHighLimit:%ld 算法 随机", StockLowLimit, StockScore, StockHighLimit);
 	}
 }
 
 //让系统赢或输
-void CTableFrameSink::LetSysWin(bool sysWin) {
-	if (m_pTableFrame->GetAndroidPlayerCount() == 0 || m_pTableFrame->GetRealPlayerCount() == 0) {
+void CGameTable::LetSysWin(bool sysWin) {
+	if (table_->GetRobotPlayerCount() == 0 || table_->GetRealPlayerCount() == 0) {
 		return;
 	}
 	std::vector<TEXAS::CGameLogic::handinfo_t const*> v;
@@ -1101,16 +1014,16 @@ void CTableFrameSink::LetSysWin(bool sysWin) {
 		info[c++] = (*it)->chairID;
 		if (sysWin) {
 			//如果是机器人
-			if (m_pTableFrame->IsAndroidUser((uint32_t)(*it)->chairID) > 0) {
+			if (table_->IsRobot((uint32_t)(*it)->chairID) > 0) {
 				vinfo.push_back((*it)->chairID);
-				//LOG(INFO) << " 吸分 " << (*it)->chairID << " 机器人";
+				_LOG_WARN(" 吸分 %d %d 机器人", (*it)->chairID, UserIdBy((*it)->chairID));
 			}
 		}
 		else {
 			//如果是真实玩家
-			if (m_pTableFrame->IsAndroidUser((uint32_t)(*it)->chairID) == 0) {
+			if (table_->IsRobot((uint32_t)(*it)->chairID) == 0) {
 				vinfo.push_back((*it)->chairID);
-				//LOG(INFO) << " 吐分 " << (*it)->chairID << " 玩家";
+				_LOG_WARN(" 吐分 %d %d 玩家", (*it)->chairID, UserIdBy((*it)->chairID));
 			}
 		}
 	}
@@ -1118,16 +1031,16 @@ void CTableFrameSink::LetSysWin(bool sysWin) {
 		it != v.end(); ++it) {
 		if (sysWin) {
 			//如果是真实玩家
-			if (m_pTableFrame->IsAndroidUser((uint32_t)(*it)->chairID) == 0) {
+			if (table_->IsRobot((uint32_t)(*it)->chairID) == 0) {
 				vinfo.push_back((*it)->chairID);
-				//LOG(INFO) << " 吸分 " << (*it)->chairID << " 玩家";
+				_LOG_WARN(" 吸分 %d %d 玩家", (*it)->chairID, UserIdBy((*it)->chairID));
 			}
 		}
 		else {
 			//如果是机器人
-			if (m_pTableFrame->IsAndroidUser((uint32_t)(*it)->chairID) > 0) {
+			if (table_->IsRobot((uint32_t)(*it)->chairID) > 0) {
 				vinfo.push_back((*it)->chairID);
-				//LOG(INFO) << " 吐分 " << (*it)->chairID << " 机器人";
+				_LOG_WARN(" 吐分 %d %d 机器人", (*it)->chairID, UserIdBy((*it)->chairID));
 			}
 		}
 	}
@@ -1137,10 +1050,10 @@ void CTableFrameSink::LetSysWin(bool sysWin) {
 		if (info[i] != vinfo[i]) {
 			//同是机器人或真实玩家，保持原来位置不变
 			if ((
-				m_pTableFrame->IsAndroidUser((uint32_t)info[i]) > 0 &&
-				m_pTableFrame->IsAndroidUser((uint32_t)vinfo[i]) > 0) ||
-				(m_pTableFrame->IsAndroidUser((uint32_t)info[i]) == 0 &&
-					m_pTableFrame->IsAndroidUser((uint32_t)vinfo[i]) == 0)) {
+				table_->IsRobot((uint32_t)info[i]) > 0 &&
+				table_->IsRobot((uint32_t)vinfo[i]) > 0) ||
+				(table_->IsRobot((uint32_t)info[i]) == 0 &&
+					table_->IsRobot((uint32_t)vinfo[i]) == 0)) {
 				int j = 0;
 				for (; j < vinfo.size(); ++j) {
 					//找出info[i]在vinfo中的位置
@@ -1148,7 +1061,7 @@ void CTableFrameSink::LetSysWin(bool sysWin) {
 						break;
 					}
 				}
-				//LOG(INFO) << " 恢复 " << vinfo[i] << " -> " << vinfo[j];
+				//_LOG_WARN("恢复 %d -> %d", vinfo[i], vinfo[j]);
 				//恢复原来的位置
 				std::swap(vinfo[i], vinfo[j]);
 			}
@@ -1159,24 +1072,24 @@ void CTableFrameSink::LetSysWin(bool sysWin) {
 	for (int i = 0; i < c; ++i) {
 		snprintf(msg, sizeof(msg), "[%d] chairID = %d %s\n",
 			i, info[i],
-			m_pTableFrame->IsAndroidUser((uint32_t)info[i]) > 0 ? "机器人" : "玩家");
+			table_->IsRobot((uint32_t)info[i]) > 0 ? "机器人" : "玩家");
 		strtmp += msg;
 	}
-	strmsg += std::string("\n\n--- *** 换牌前按牌大小座位排次\n") + strtmp;
+	strmsg += std::string("\n\n换牌前按牌大小座位排次\n") + strtmp;
 	for (int i = 0; i < vinfo.size(); ++i) {
 		snprintf(msg, sizeof(msg), "[%d] chairID = %d %s\n",
 			i, vinfo[i],
-			m_pTableFrame->IsAndroidUser((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家");
+			table_->IsRobot((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家");
 		strtmp2 += msg;
 	}
-	strmsg += std::string("--- *** 换牌后按牌大小座位排次\n") + strtmp2;
+	strmsg += std::string("换牌后按牌大小座位排次\n") + strtmp2;
 	for (int i = 0; i < vinfo.size(); ++i) {
 		//需要换牌，并且换牌后是机器人则换牌
 		if (info[i] != vinfo[i]) {
 			//系统赢，玩家牌换成机器人牌
 			//系统输，机器人牌换成玩家牌
-			if ((sysWin && (m_pTableFrame->IsAndroidUser((uint32_t)info[i]) == 0 && m_pTableFrame->IsAndroidUser((uint32_t)vinfo[i]) > 0)) ||
-				(!sysWin && (m_pTableFrame->IsAndroidUser((uint32_t)info[i]) > 0 && m_pTableFrame->IsAndroidUser((uint32_t)vinfo[i]) == 0))) {
+			if ((sysWin && (table_->IsRobot((uint32_t)info[i]) == 0 && table_->IsRobot((uint32_t)vinfo[i]) > 0)) ||
+				(!sysWin && (table_->IsRobot((uint32_t)info[i]) > 0 && table_->IsRobot((uint32_t)vinfo[i]) == 0))) {
 				
 				//交换手牌信息
 				{
@@ -1188,15 +1101,15 @@ void CTableFrameSink::LetSysWin(bool sysWin) {
 				{
 					uint8_t handcards[MAX_COUNT];
 					memcpy(handcards, &(handCards_[info[i]])[0], MAX_COUNT);
-					snprintf(msg, sizeof(msg), "--- *** 换牌前，%s %d 手牌 [%s]\n", (m_pTableFrame->IsAndroidUser((uint32_t)info[i]) > 0 ? "机器人" : "玩家"), info[i], TEXAS::CGameLogic::StringCards(&(handCards_[info[i]])[0], MAX_COUNT).c_str());
+					snprintf(msg, sizeof(msg), "换牌前，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)info[i]) > 0 ? "机器人" : "玩家"), info[i], TEXAS::CGameLogic::StringCards(&(handCards_[info[i]])[0], MAX_COUNT).c_str());
 					strmsg += msg;
 					memcpy(&(handCards_[info[i]])[0], &(handCards_[vinfo[i]])[0], MAX_COUNT);
-					snprintf(msg, sizeof(msg), "--- *** 换牌后，%s %d 手牌 [%s]\n", (m_pTableFrame->IsAndroidUser((uint32_t)info[i]) > 0 ? "机器人" : "玩家"), info[i], TEXAS::CGameLogic::StringCards(&(handCards_[info[i]])[0], MAX_COUNT).c_str());
+					snprintf(msg, sizeof(msg), "换牌后，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)info[i]) > 0 ? "机器人" : "玩家"), info[i], TEXAS::CGameLogic::StringCards(&(handCards_[info[i]])[0], MAX_COUNT).c_str());
 					strmsg += msg;
-					snprintf(msg, sizeof(msg), "--- *** 换牌前，%s %d 手牌 [%s]\n", (m_pTableFrame->IsAndroidUser((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家"), vinfo[i], TEXAS::CGameLogic::StringCards(&(handCards_[vinfo[i]])[0], MAX_COUNT).c_str());
+					snprintf(msg, sizeof(msg), "换牌前，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家"), vinfo[i], TEXAS::CGameLogic::StringCards(&(handCards_[vinfo[i]])[0], MAX_COUNT).c_str());
 					strmsg += msg;
 					memcpy(&(handCards_[vinfo[i]])[0], handcards, MAX_COUNT);
-					snprintf(msg, sizeof(msg), "--- *** 换牌后，%s %d 手牌 [%s]\n", (m_pTableFrame->IsAndroidUser((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家"), vinfo[i], TEXAS::CGameLogic::StringCards(&(handCards_[vinfo[i]])[0], MAX_COUNT).c_str());
+					snprintf(msg, sizeof(msg), "换牌后，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家"), vinfo[i], TEXAS::CGameLogic::StringCards(&(handCards_[vinfo[i]])[0], MAX_COUNT).c_str());
 					strmsg += msg;
 				}
 				{
@@ -1209,11 +1122,11 @@ void CTableFrameSink::LetSysWin(bool sysWin) {
 		}
 	}
 	if (writeRealLog_)
-		LOG(INFO) << __FUNCTION__ << " [" << strRoundID_ << "] " << strmsg;
+		_LOG_INFO("[%s] %s", strRoundID_.c_str(), strmsg.c_str());
 }
 
 //输出玩家手牌/对局日志初始化
-void CTableFrameSink::ListPlayerCards() {
+void CGameTable::ListPlayerCards() {
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		if (!bPlaying_[i]) {
 			continue;
@@ -1221,42 +1134,44 @@ void CTableFrameSink::ListPlayerCards() {
 		//对局日志
 		//m_replay.addPlayer(UserIdBy(i), ByChairId(i)->GetNickName(), takeScore_[i], i);
 		//机器人AI
-		if (m_pTableFrame->IsAndroidUser((uint32_t)i) > 0) {
+		if (table_->IsRobot((uint32_t)i) > 0) {
 			if (writeRealLog_) {
-				LOG(INFO) << "\n========================================================================\n"
-					<< "--- *** [" << strRoundID_ << "] 机器人 [" << i << "] " << UserIdBy(i) << " 手牌 ["
-					<< TEXAS::CGameLogic::StringCards(&(combCards_[i])[0], MAX_TOTAL)
-					<< "] 牌型 [" << TEXAS::CGameLogic::StringHandTy(TEXAS::HandTy(all_[i].ty_)) << "] takeScore_[" << takeScore_[i] << "]\n";
+				_LOG_INFO("[%s] 机器人 %d %d 手牌[%s][%s] takeScore_[%d]",
+					strRoundID_.c_str(), i, UserIdBy(i),
+					TEXAS::CGameLogic::StringCards(&(handCards_[i])[0], MAX_COUNT).c_str(),
+					TEXAS::CGameLogic::StringHandTy(TEXAS::HandTy(all_[i].ty_)).c_str(), takeScore_[i]);
 			}
 		}
 		else {
 			if (writeRealLog_) {
-				LOG(INFO) << "\n========================================================================\n"
-					<< "--- *** [" << strRoundID_ << "] 玩家 [" << i << "] " << UserIdBy(i) << " 手牌 ["
-					<< TEXAS::CGameLogic::StringCards(&(combCards_[i])[0], MAX_TOTAL)
-					<< "] 牌型 [" << TEXAS::CGameLogic::StringHandTy(TEXAS::HandTy(all_[i].ty_)) << "] takeScore_[" << takeScore_[i] << "]\n";
+				_LOG_INFO("[%s] 玩家 %d %d 手牌[%s][%s] takeScore_[%d]",
+					strRoundID_.c_str(), i, UserIdBy(i),
+					TEXAS::CGameLogic::StringCards(&(handCards_[i])[0], MAX_COUNT).c_str(),
+					TEXAS::CGameLogic::StringHandTy(TEXAS::HandTy(all_[i].ty_)).c_str(), takeScore_[i]);
 			}
 		}
 	}
 	assert(currentWinUser_ != INVALID_CHAIR);
-	if (m_pTableFrame->IsAndroidUser(currentWinUser_) > 0) {
+	if (table_->IsRobot(currentWinUser_) > 0) {
 		if (writeRealLog_) {
-			LOG(INFO) << "\n--- *** [" << strRoundID_ << "] 机器人 [" << currentWinUser_ << "] " << UserIdBy(currentWinUser_) << " 手牌 ["
-				<< TEXAS::CGameLogic::StringCards(&(combCards_[currentWinUser_])[0], MAX_TOTAL)
-				<< "] 牌型 [" << TEXAS::CGameLogic::StringHandTy(TEXAS::HandTy(all_[currentWinUser_].ty_)) << "] 最大牌\n\n\n";
+			_LOG_INFO("[%s] 机器人 %d %d 手牌[%s][%s] 最大牌",
+				strRoundID_.c_str(), currentWinUser_, UserIdBy(currentWinUser_),
+				TEXAS::CGameLogic::StringCards(&(handCards_[currentWinUser_])[0], MAX_COUNT).c_str(),
+				TEXAS::CGameLogic::StringHandTy(TEXAS::HandTy(all_[currentWinUser_].ty_)).c_str());
 		}
 	}
 	else {
 		if (writeRealLog_) {
-			LOG(INFO) << "\n--- *** [" << strRoundID_ << "] 玩家 [" << currentWinUser_ << "] " << UserIdBy(currentWinUser_) << " 手牌 ["
-				<< TEXAS::CGameLogic::StringCards(&(combCards_[currentWinUser_])[0], MAX_TOTAL)
-				<< "] 牌型 [" << TEXAS::CGameLogic::StringHandTy(TEXAS::HandTy(all_[currentWinUser_].ty_)) << "] 最大牌\n\n\n";
+			_LOG_INFO("[%s] 玩家 %d %d 手牌[%s][%s] 最大牌",
+				strRoundID_.c_str(), currentWinUser_, UserIdBy(currentWinUser_),
+				TEXAS::CGameLogic::StringCards(&(handCards_[currentWinUser_])[0], MAX_COUNT).c_str(),
+				TEXAS::CGameLogic::StringHandTy(TEXAS::HandTy(all_[currentWinUser_].ty_)).c_str());
 		}
 	}
 }
 
 //拼接各玩家手牌cardValue
-std::string CTableFrameSink::StringCardValue(bool flag) {
+std::string CGameTable::StringCardValue(bool flag) {
 	char ch[20] = { 0 };
 	std::string str;
 	for (UserInfoList::iterator it = userinfos_.begin();
@@ -1286,7 +1201,7 @@ std::string CTableFrameSink::StringCardValue(bool flag) {
 }
 
 //判断当轮操作
-bool CTableFrameSink::hasOperate(int k, eOperate opcode) {
+bool CGameTable::hasOperate(int k, eOperate opcode) {
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		if (!bPlaying_[i]) {
 			continue;
@@ -1302,7 +1217,7 @@ bool CTableFrameSink::hasOperate(int k, eOperate opcode) {
 }
 
 //判断是否梭哈
-bool CTableFrameSink::hasAllIn() {
+bool CGameTable::hasAllIn() {
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		if (!bPlaying_[i]) {
 			continue;
@@ -1318,7 +1233,7 @@ bool CTableFrameSink::hasAllIn() {
 }
 
 //判断是否梭哈
-bool CTableFrameSink::hasAllIn(uint32_t chairId) {
+bool CGameTable::hasAllIn(uint32_t chairId) {
 	if (allInTurn_[chairId] >= 0) {
 		assert(allInTurn_[chairId] < MAX_ROUND);
 		assert(operate_[allInTurn_[chairId]][chairId] == OP_ALLIN);
@@ -1329,19 +1244,19 @@ bool CTableFrameSink::hasAllIn(uint32_t chairId) {
 }
 
 //能否过牌操作
-bool CTableFrameSink::canPassScore(uint32_t chairId) {
+bool CGameTable::canPassScore(uint32_t chairId) {
 	int64_t followScore = CurrentFollowScore(chairId);
 	return followScore == 0;
 }
 
 //能否跟注操作
-bool CTableFrameSink::canFollowScore(uint32_t chairId) {
+bool CGameTable::canFollowScore(uint32_t chairId) {
 	int64_t followScore = CurrentFollowScore(chairId);
 	return followScore > 0 && (followScore + tableScore_[chairId]) < takeScore_[chairId];
 }
 
 //能否加注操作
-bool CTableFrameSink::canAddScore(uint32_t chairId) {
+bool CGameTable::canAddScore(uint32_t chairId) {
 #if 0
 	if (hasOperate(CurrentTurn(), OP_ALLIN)) {
 		return false;
@@ -1356,13 +1271,13 @@ bool CTableFrameSink::canAddScore(uint32_t chairId) {
 }
 
 //能否梭哈操作
-bool CTableFrameSink::canAllIn(uint32_t chairId) {
+bool CGameTable::canAllIn(uint32_t chairId) {
 	int64_t takeScore = takeScore_[chairId] - tableScore_[chairId];
 	return takeScore > 0/* && !canFollowScore(chairId) && !canAddScore(chairId)*/;
 }
 
 //可操作玩家数
-int CTableFrameSink::canOptPlayerCount() {
+int CGameTable::canOptPlayerCount() {
 	int c = 0;
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		if (!bPlaying_[i]) {
@@ -1381,7 +1296,7 @@ int CTableFrameSink::canOptPlayerCount() {
 }
 
 //剩余游戏人数
-int CTableFrameSink::leftPlayerCount(bool includeAndroid, uint32_t* currentUser) {
+int CGameTable::leftPlayerCount(bool includeAndroid, uint32_t* currentUser) {
 	int c = 0;
 	for (int32_t i = 0; i < GAME_PLAYER; ++i) {
 		if (!bPlaying_[i]) {
@@ -1390,7 +1305,7 @@ int CTableFrameSink::leftPlayerCount(bool includeAndroid, uint32_t* currentUser)
 		if (isGiveup_[i] || isLost_[i]) {
 			continue;
 		}
-		if (!includeAndroid && m_pTableFrame->IsAndroidUser((uint32_t)i) > 0) {
+		if (!includeAndroid && table_->IsRobot((uint32_t)i) > 0) {
 			continue;
 		}
 		if (currentUser) {
@@ -1402,7 +1317,7 @@ int CTableFrameSink::leftPlayerCount(bool includeAndroid, uint32_t* currentUser)
 }
 
 //判断当轮是否完成
-bool CTableFrameSink::checkFinished(int k) {
+bool CGameTable::checkFinished(int k) {
 	if (k < MAX_ROUND) {
 		for (int i = 0; i < GAME_PLAYER; ++i) {
 			if (!bPlaying_[i]) {
@@ -1427,7 +1342,7 @@ bool CTableFrameSink::checkFinished(int k) {
 }
 
 //下一个操作用户
-uint32_t CTableFrameSink::GetNextUser(bool& newflag, bool& exceed) {
+uint32_t CGameTable::GetNextUser(bool& newflag, bool& exceed) {
 	newflag = false;
 	exceed = false;
 	assert(currentUser_ != INVALID_CHAIR);
@@ -1469,7 +1384,7 @@ uint32_t CTableFrameSink::GetNextUser(bool& newflag, bool& exceed) {
 }
 
 //下一个操作用户，从小盲注开始查找
-uint32_t CTableFrameSink::GetNextUserBySmallBlindUser() {
+uint32_t CGameTable::GetNextUserBySmallBlindUser() {
 	//assert(!isExceed_ && isNewTurn_);
 	assert(smallBlindUser_ != INVALID_CHAIR);
 	for (int i = 0; i < GAME_PLAYER; ++i) {
@@ -1490,12 +1405,12 @@ uint32_t CTableFrameSink::GetNextUserBySmallBlindUser() {
 }
 
 //最近一轮加注分
-int64_t CTableFrameSink::GetLastAddScore(uint32_t chairId) {
+int64_t CGameTable::GetLastAddScore(uint32_t chairId) {
 	return addScore_[LastTurn()][chairId];
 }
 
 //最近一轮
-int CTableFrameSink::LastTurn() {
+int CGameTable::LastTurn() {
 	int n = isNewTurn_ ? (CurrentTurn() == 0 ? 0 : (CurrentTurn() - 1)) : CurrentTurn();
 	if (n < 0) {
 		n = 0;
@@ -1508,7 +1423,7 @@ int CTableFrameSink::LastTurn() {
 }
 
 //有效当前轮
-int CTableFrameSink::CurrentTurn() {
+int CGameTable::CurrentTurn() {
 #if 0
 	assert(currentTurn_ >= 0);
 	assert(currentTurn_ <= MAX_ROUND);
@@ -1521,7 +1436,7 @@ int CTableFrameSink::CurrentTurn() {
 }
 
 //筹码表可加注筹码范围[minIndex, maxIndex]
-bool CTableFrameSink::GetCurrentAddRange(int64_t minAddScore, int64_t userScore, int& minIndex, int& maxIndex, int64_t& deltaScore) {
+bool CGameTable::GetCurrentAddRange(int64_t minAddScore, int64_t userScore, int& minIndex, int& maxIndex, int64_t& deltaScore) {
 	minIndex = maxIndex = -1;
 	deltaScore = 0;
 	assert(minAddScore > 0);
@@ -1558,7 +1473,7 @@ restart:
 }
 
 //最小加注分
-int64_t CTableFrameSink::MinAddScore(uint32_t chairId) {
+int64_t CGameTable::MinAddScore(uint32_t chairId) {
 	assert(deltaAddScore_ > 0);
 // 	LOG(INFO) << __FUNCTION__ << "\n"
 // 		<< " referenceUser_=" << referenceUser_
@@ -1572,7 +1487,7 @@ int64_t CTableFrameSink::MinAddScore(uint32_t chairId) {
 }
 
 //当前跟注分
-int64_t CTableFrameSink::CurrentFollowScore(uint32_t chairId) {
+int64_t CGameTable::CurrentFollowScore(uint32_t chairId) {
 	if (referenceUser_ != INVALID_CHAIR) {
 // 		LOG(INFO) << __FUNCTION__ << "\n"
 // 			<< " referenceUser_=" << referenceUser_
@@ -1587,7 +1502,7 @@ int64_t CTableFrameSink::CurrentFollowScore(uint32_t chairId) {
 }
 
 //跟注参照用户
-void CTableFrameSink::updateReferenceUser(uint32_t chairId, eOperate op) {
+void CGameTable::updateReferenceUser(uint32_t chairId, eOperate op) {
 	switch (op) {
 	case OP_INVALID:
 		if (referenceUser_ == INVALID_CHAIR) {
@@ -1667,7 +1582,7 @@ void CTableFrameSink::updateReferenceUser(uint32_t chairId, eOperate op) {
 }
 
 //加注递增量
-void CTableFrameSink::updateDeltaAddScore(uint32_t chairId, int64_t addScore, eOperate op) {
+void CGameTable::updateDeltaAddScore(uint32_t chairId, int64_t addScore, eOperate op) {
 	switch (op) {
 	case OP_INVALID: {
 		if (addScore > 0) {
@@ -1733,7 +1648,7 @@ void CTableFrameSink::updateDeltaAddScore(uint32_t chairId, int64_t addScore, eO
 }
 
 //计算主(底)池，边池
-void CTableFrameSink::updateMainSidePots(uint32_t chairId, int64_t addScore) {
+void CGameTable::updateMainSidePots(uint32_t chairId, int64_t addScore) {
 	if (isNewTurn_) {
 		updateMainSidePots(pots_);
 		updateMainSidePots(potsT_);
@@ -1763,7 +1678,7 @@ void CTableFrameSink::updateMainSidePots(uint32_t chairId, int64_t addScore) {
 }
 
 //计算主(底)池，边池
-void CTableFrameSink::updateMainSidePots(std::map<int, pot_t>& pots) {
+void CGameTable::updateMainSidePots(std::map<int, pot_t>& pots) {
 	char msg[1024] = { 0 };
 	//测试用
 	{
@@ -1918,7 +1833,7 @@ void CTableFrameSink::updateMainSidePots(std::map<int, pot_t>& pots) {
 }
 
 //积分转换成筹码
-void CTableFrameSink::addScoreToChips(uint32_t chairId, int64_t score, std::map<int, int64_t>& chips) {
+void CGameTable::addScoreToChips(uint32_t chairId, int64_t score, std::map<int, int64_t>& chips) {
 	//
 	// 	1,2,5,
 	// 	10,20,50,
@@ -2016,7 +1931,7 @@ void CTableFrameSink::addScoreToChips(uint32_t chairId, int64_t score, std::map<
 }
 
 //结算筹码
-void CTableFrameSink::settleChips(int64_t score, std::map<int, int64_t>& chips) {
+void CGameTable::settleChips(int64_t score, std::map<int, int64_t>& chips) {
 	assert(score > 0);
 	int64_t leftScore = score / 100;
 	for (std::map<int, int64_t>::reverse_iterator it = settleChip_.rbegin();
@@ -2045,10 +1960,10 @@ void CTableFrameSink::settleChips(int64_t score, std::map<int, int64_t>& chips) 
 }
 
 //等待操作定时器
-void CTableFrameSink::OnTimerWaitingOver() {
+void CGameTable::OnTimerWaitingOver() {
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d]",
-	//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1);
+	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1);
 	//LOG(INFO) << __FUNCTION__ << msg;
 	ThisThreadTimer->cancel(timerIdWaiting_);
 	if (currentUser_ == INVALID_CHAIR) {
@@ -2069,16 +1984,16 @@ void CTableFrameSink::OnTimerWaitingOver() {
 }
 
 //操作错误通知消息
-void CTableFrameSink::SendNotify(uint32_t chairId, int opcode, std::string const& errmsg) {
+void CGameTable::SendNotify(uint32_t chairId, int opcode, std::string const& errmsg) {
 	texas::CMD_S_Operate_Notify  notify;
 	notify.set_opcode(opcode);
 	notify.set_errmsg(errmsg);
 	string data = notify.SerializeAsString();
-	m_pTableFrame->SendTableData(chairId, texas::SUB_S_OPERATE_NOTIFY, (uint8_t*)data.data(), data.size());
+	table_->SendTableData(chairId, texas::SUB_S_OPERATE_NOTIFY, (uint8_t*)data.data(), data.size());
 }
 
 //新一轮开始发牌
-void CTableFrameSink::SendCard(int left) {
+void CGameTable::SendCard(int left) {
 	//char msg[1024];
 	//assert(isNewTurn_);
 	if (left > 0) {
@@ -2094,7 +2009,7 @@ void CTableFrameSink::SendCard(int left) {
 			++cardsC_[i];
 		}
 		//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] turn=[%d] left=[%d]",
-		//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, left);
+		//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, left);
 		//LOG(INFO) << __FUNCTION__ << msg;
 		//当轮牌已发完
 		if (--left == 0) {
@@ -2109,7 +2024,7 @@ void CTableFrameSink::SendCard(int left) {
 				assert(!isGiveup_[nextUser_]);
 				if (userinfos_.size() == MIN_GAME_PLAYER) {
 					nextUser_ = (nextUser_ + 1) % GAME_PLAYER;
-					while (!m_pTableFrame->IsExistUser(nextUser_) || !bPlaying_[nextUser_]) {
+					while (!table_->ExistUser(nextUser_) || !bPlaying_[nextUser_]) {
 						nextUser_ = (nextUser_ + 1) % GAME_PLAYER;
 					}
 					assert(nextUser_ != INVALID_CHAIR);
@@ -2155,11 +2070,11 @@ void CTableFrameSink::SendCard(int left) {
 				opEndTime_ = opStartTime_ + wTimeLeft;
 				nextStep->set_wtimeleft(wTimeLeft);
 				//开启等待定时器
-				timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CTableFrameSink::OnTimerWaitingOver, this));
+				timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CGameTable::OnTimerWaitingOver, this));
 			}
 		}
 		for (int i = 0; i < GAME_PLAYER; ++i) {
-			if (!m_pTableFrame->IsExistUser(i))
+			if (!table_->ExistUser(i))
 				continue;
 			rspdata.clear_ty();
 			if (bPlaying_[i] && !isGiveup_[i] && !isLost_[i] && offset_ >= 3) {
@@ -2169,34 +2084,34 @@ void CTableFrameSink::SendCard(int left) {
 				rspdata.set_ty(cover_[i].ty_);
 			}
 			string content = rspdata.SerializeAsString();
-			m_pTableFrame->SendTableData(i, texas::SUB_S_SEND_CARD, (uint8_t*)content.data(), content.size());
+			table_->SendTableData(i, texas::SUB_S_SEND_CARD, (uint8_t*)content.data(), content.size());
 		}
 		if (left > 0) {
-			timerIdSendCard_ = ThisThreadTimer->runAfter(0.2f, boost::bind(&CTableFrameSink::SendCardOnTimer, this, left));
+			timerIdSendCard_ = ThisThreadTimer->runAfter(0.2f, boost::bind(&CGameTable::SendCardOnTimer, this, left));
 		}
 	}
 	if (left == 0) {
 		//超出轮数或有人梭哈了，结束游戏
 		if (isExceed_ || nextUser_ == INVALID_CHAIR || canOptPlayerCount() < 2) {
-			OnEventGameConclude(INVALID_CHAIR, GER_NORMAL);
+			OnGameConclude(INVALID_CHAIR, GER_NORMAL);
 		}
 	}
 }
 
-void CTableFrameSink::SendCardOnTimer(int left) {
+void CGameTable::SendCardOnTimer(int left) {
 	ThisThreadTimer->cancel(timerIdSendCard_);
 	SendCard(left);
 }
 
 //用户过牌
-bool CTableFrameSink::OnUserPassScore(uint32_t chairId) {
+bool CGameTable::OnUserPassScore(uint32_t chairId) {
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
-	//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
+	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
 	//LOG(INFO) << __FUNCTION__ << msg;
 	if (!canPassScore(chairId)) {
 		SendNotify(chairId, OP_PASS, "本轮有人加注，不能过牌");
-		LOG(INFO) << __FUNCTION__ << " 本轮有人加注，不能过牌";
+		//LOG(INFO) << __FUNCTION__ << " 本轮有人加注，不能过牌";
 		return false;
 	}
 	ThisThreadTimer->cancel(timerIdWaiting_);
@@ -2259,14 +2174,14 @@ bool CTableFrameSink::OnUserPassScore(uint32_t chairId) {
 		opEndTime_ = opStartTime_ + wTimeLeft;
 		nextStep->set_wtimeleft(wTimeLeft);
 		//开启等待定时器
-		timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CTableFrameSink::OnTimerWaitingOver, this));
+		timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CGameTable::OnTimerWaitingOver, this));
 		//LOG(INFO) << __FUNCTION__ << " turn=[" << CurrentTurn() + 1 << "] isExceed_=" << isExceed_ << " isNewTurn_=" << isNewTurn_ << " 当前轮 nextUser_=" << (int)nextUser_;
 	}
 	else {
 		//LOG(INFO) << __FUNCTION__ << " turn=[" << CurrentTurn() + 1 << "] isExceed_=" << isExceed_ << " isNewTurn_=" << isNewTurn_ << " 新一轮 nextUser_=" << (int)nextUser_;
 	}
 	string content = rspdata.SerializeAsString();
-	m_pTableFrame->SendTableData(INVALID_CHAIR, texas::SUB_S_PASS_SCORE, (uint8_t*)content.data(), content.size());
+	table_->SendTableData(INVALID_CHAIR, texas::SUB_S_PASS_SCORE, (uint8_t*)content.data(), content.size());
 	//新一轮开始发牌
 	if (isNewTurn_) {
 		SendCard((isExceed_ || nextUser_ == INVALID_CHAIR || canOptPlayerCount() < 2) ? (TBL_CARDS - offset_) : (offset_ == 0 ? 3 : 1));
@@ -2277,10 +2192,10 @@ bool CTableFrameSink::OnUserPassScore(uint32_t chairId) {
 }
 
 //用户梭哈
-bool CTableFrameSink::OnUserAllIn(uint32_t chairId) {
+bool CGameTable::OnUserAllIn(uint32_t chairId) {
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] 第[%d]轮 [%d]梭哈!",
-	//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
+	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
 	//LOG(INFO) << __FUNCTION__ << msg;
 	ThisThreadTimer->cancel(timerIdWaiting_);
 	texas::CMD_S_AllIn rspdata;
@@ -2291,7 +2206,7 @@ bool CTableFrameSink::OnUserAllIn(uint32_t chairId) {
 	int64_t maxAddScore = 4000000;
 	if (/*ThisRoomId >= 4204 && */addScore > maxAddScore) {
 		addScore = maxAddScore;
-		LOG(INFO) << __FUNCTION__ << " room=" << ThisRoomId << " 梭哈限额=" << maxAddScore;
+		//LOG(INFO) << __FUNCTION__ << " room=" << ThisRoomId << " 梭哈限额=" << maxAddScore;
 	}
 	updateDeltaAddScore(chairId, addScore, OP_ALLIN);
 	rspdata.set_addscore(addScore);
@@ -2375,14 +2290,14 @@ bool CTableFrameSink::OnUserAllIn(uint32_t chairId) {
 		opEndTime_ = opStartTime_ + wTimeLeft;
 		nextStep->set_wtimeleft(wTimeLeft);
 		//开启等待定时器
-		timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CTableFrameSink::OnTimerWaitingOver, this));
+		timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CGameTable::OnTimerWaitingOver, this));
 		//LOG(INFO) << __FUNCTION__ << " turn=[" << CurrentTurn() + 1 << "] isExceed_=" << isExceed_ << " isNewTurn_=" << isNewTurn_ << " 当前轮 nextUser_=" << (int)nextUser_;
 	}
 	else {
 		//LOG(INFO) << __FUNCTION__ << " turn=[" << CurrentTurn() + 1 << "] isExceed_=" << isExceed_ << " isNewTurn_=" << isNewTurn_ << " 新一轮 nextUser_=" << (int)nextUser_;
 	}
 	std::string content = rspdata.SerializeAsString();
-	m_pTableFrame->SendTableData(INVALID_CHAIR, texas::SUB_S_ALL_IN, (uint8_t*)content.data(), content.size());
+	table_->SendTableData(INVALID_CHAIR, texas::SUB_S_ALL_IN, (uint8_t*)content.data(), content.size());
 	//新一轮开始发牌
 	if (isNewTurn_) {
 		SendCard((isExceed_ || nextUser_ == INVALID_CHAIR || canOptPlayerCount() < 2) ? (TBL_CARDS - offset_) : (offset_ == 0 ? 3 : 1));
@@ -2391,10 +2306,10 @@ bool CTableFrameSink::OnUserAllIn(uint32_t chairId) {
 }
 
 //用户跟注/加注
-bool CTableFrameSink::OnUserAddScore(uint32_t chairId, int opValue, int64_t addScore) {
+bool CGameTable::OnUserAddScore(uint32_t chairId, int opValue, int64_t addScore) {
 	char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
-	//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
+	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
 	//LOG(INFO) << __FUNCTION__ << msg;
 	texas::CMD_S_AddScore rspdata;
 	assert(chairId == currentUser_);
@@ -2412,12 +2327,12 @@ bool CTableFrameSink::OnUserAddScore(uint32_t chairId, int opValue, int64_t addS
 		if (addScore < MinAddScore(chairId)) {
 			snprintf(msg, sizeof(msg), "加注金额(%s)不得低于最小加注金额(%s)", std::to_string(addScore).c_str(), std::to_string(MinAddScore(chairId)).c_str());
 			SendNotify(chairId, OP_ADD, msg);
-			LOG(INFO) << __FUNCTION__ << " " << msg;
+			//LOG(INFO) << __FUNCTION__ << " " << msg;
 			return false;
 		}
 		if ((addScore + tableScore_[chairId]) > takeScore_[chairId]) {
 			SendNotify(chairId, OP_ADD, "金币不足，不能加注");
-			LOG(INFO) << __FUNCTION__ << " 金币不足，不能加注";
+			//LOG(INFO) << __FUNCTION__ << " 金币不足，不能加注";
 			return false;
 		}
 		else if ((addScore + tableScore_[chairId]) == takeScore_[chairId]) {
@@ -2427,7 +2342,7 @@ bool CTableFrameSink::OnUserAddScore(uint32_t chairId, int opValue, int64_t addS
 			int64_t maxAddScore = 4000000;
 			if (/*ThisRoomId >= 4204 && */addScore > maxAddScore) {
 				addScore = maxAddScore;
-				LOG(INFO) << __FUNCTION__ << " room=" << ThisRoomId << " 加注限额=" << maxAddScore;
+				//LOG(INFO) << __FUNCTION__ << " room=" << ThisRoomId << " 加注限额=" << maxAddScore;
 			}
 		}
 // 		LOG(INFO) << __FUNCTION__ << "\n"
@@ -2462,7 +2377,7 @@ bool CTableFrameSink::OnUserAddScore(uint32_t chairId, int opValue, int64_t addS
 				return OnUserAllIn(chairId);
 			}
 			SendNotify(chairId, OP_FOLLOW, "本轮没人加注或者积分不够，不能跟注");
-			LOG(INFO) << __FUNCTION__ << " 本轮没人加注或者积分不够，不能跟注";
+			//LOG(INFO) << __FUNCTION__ << " 本轮没人加注或者积分不够，不能跟注";
 			return false;
 		}
 		addScore = followScore;
@@ -2481,7 +2396,7 @@ bool CTableFrameSink::OnUserAddScore(uint32_t chairId, int opValue, int64_t addS
 		//m_replay.addStep(nowsec, to_string(followScore), currentTurn_ + 1, opFollow, chairId, -1);
 	}
 	else {
-		LOG(INFO) << __FUNCTION__ << " 操作码错误";
+		//LOG(INFO) << __FUNCTION__ << " 操作码错误";
 		return false;
 	}
 	std::map<int, int64_t> chips;
@@ -2496,23 +2411,23 @@ bool CTableFrameSink::OnUserAddScore(uint32_t chairId, int opValue, int64_t addS
 	int64_t takeScore = takeScore_[chairId] - tableScore_[chairId];
 	int64_t userScore = ScoreByChairId(chairId) - tableScore_[chairId];
 	if (takeScore < 0) {
-		LOG(ERROR) << __FUNCTION__
-			<< " " << chairId
-			<< " " << UserIdBy(chairId)
-			<< " " << " userScore=" << ScoreByChairId(chairId)
-			<< " " << " takeScore=" << takeScore_[chairId]
-			<< " " << " tableScore=" << tableScore_[chairId]
-			<< " " << " leftScore=" << takeScore;
+// 		LOG(ERROR) << __FUNCTION__
+// 			<< " " << chairId
+// 			<< " " << UserIdBy(chairId)
+// 			<< " " << " userScore=" << ScoreByChairId(chairId)
+// 			<< " " << " takeScore=" << takeScore_[chairId]
+// 			<< " " << " tableScore=" << tableScore_[chairId]
+// 			<< " " << " leftScore=" << takeScore;
 	}
 	assert(takeScore >= 0);
 	if (userScore < 0) {
-		LOG(ERROR) << __FUNCTION__
-			<< " " << chairId
-			<< " " << UserIdBy(chairId)
-			<< " " << " userScore=" << ScoreByChairId(chairId)
-			<< " " << " takeScore=" << takeScore_[chairId]
-			<< " " << " tableScore=" << tableScore_[chairId]
-			<< " " << " leftScore=" << takeScore;
+// 		LOG(ERROR) << __FUNCTION__
+// 			<< " " << chairId
+// 			<< " " << UserIdBy(chairId)
+// 			<< " " << " userScore=" << ScoreByChairId(chairId)
+// 			<< " " << " takeScore=" << takeScore_[chairId]
+// 			<< " " << " tableScore=" << tableScore_[chairId]
+// 			<< " " << " leftScore=" << takeScore;
 	}
 	assert(userScore >= 0);
 	rspdata.set_takescore(takeScore);
@@ -2569,14 +2484,14 @@ bool CTableFrameSink::OnUserAddScore(uint32_t chairId, int opValue, int64_t addS
 		opEndTime_ = opStartTime_ + wTimeLeft;
 		nextStep->set_wtimeleft(wTimeLeft);
 		//开启等待定时器
-		timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CTableFrameSink::OnTimerWaitingOver, this));
+		timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CGameTable::OnTimerWaitingOver, this));
 		//LOG(INFO) << __FUNCTION__ << " turn=[" << CurrentTurn() + 1 << "] isExceed_=" << isExceed_ << " isNewTurn_=" << isNewTurn_ << " 当前轮 nextUser_=" << (int)nextUser_;
 	}
 	else {
 		//LOG(INFO) << __FUNCTION__ << " turn=[" << CurrentTurn() + 1 << "] isExceed_=" << isExceed_ << " isNewTurn_=" << isNewTurn_ << " 新一轮 nextUser_=" << (int)nextUser_;
 	}
 	string content = rspdata.SerializeAsString();
-	m_pTableFrame->SendTableData(INVALID_CHAIR, texas::SUB_S_ADD_SCORE, (uint8_t*)content.data(), content.size());
+	table_->SendTableData(INVALID_CHAIR, texas::SUB_S_ADD_SCORE, (uint8_t*)content.data(), content.size());
 	//新一轮开始发牌
 	if (isNewTurn_) {
 		SendCard((isExceed_ || nextUser_ == INVALID_CHAIR || canOptPlayerCount() < 2) ? (TBL_CARDS - offset_) : (offset_ == 0 ? 3 : 1));
@@ -2585,10 +2500,10 @@ bool CTableFrameSink::OnUserAddScore(uint32_t chairId, int opValue, int64_t addS
 }
 
 //用户弃牌
-bool CTableFrameSink::OnUserGiveUp(uint32_t chairId, bool timeout) {
-	shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(chairId);
-	if (userItem && !userItem->IsAndroidUser()) {
-		m_pTableFrame->RefreshRechargeScore(userItem->GetUserId(), chairId);
+bool CGameTable::OnUserGiveUp(uint32_t chairId, bool timeout) {
+	std::shared_ptr<IPlayer> userItem = table_->GetChairPlayer(chairId);
+	if (userItem && !userItem->IsRobot()) {
+		table_->RefreshRechargeScore(userItem);
 		UserInfoList::iterator it = userinfos_.find(userItem->GetUserId());
 		if (it != userinfos_.end()) {
 			it->second.userScore = userItem->GetUserScore();
@@ -2596,12 +2511,12 @@ bool CTableFrameSink::OnUserGiveUp(uint32_t chairId, bool timeout) {
 	}
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
-	//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
+	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
 	//LOG(INFO) << __FUNCTION__ << msg;
 	assert(!isGiveup_[chairId]);
 	isGiveup_[chairId] = true;
 	operate_[CurrentTurn()][chairId] = OP_GIVEUP;
-	if (m_pTableFrame->IsAndroidUser(chairId) > 0) {
+	if (table_->IsRobot(chairId) > 0) {
 		//机器人弃牌非超时弃牌
 		//assert(!timeout);
 		//机器人弃牌必须看过牌
@@ -2617,7 +2532,7 @@ bool CTableFrameSink::OnUserGiveUp(uint32_t chairId, bool timeout) {
 	//	bankerUser_ = maxShowCardChair();
 	//}
 	//真实玩家
-	/*if (m_pTableFrame->IsAndroidUser(chairId) == 0)*/ {
+	/*if (table_->IsRobot(chairId) == 0)*/ {
 		int64_t userScore = takeScore_[chairId] - tableScore_[chairId];
 		assert(userScore >= 0);
 		//计算积分
@@ -2631,13 +2546,13 @@ bool CTableFrameSink::OnUserGiveUp(uint32_t chairId, bool timeout) {
 		scoreInfo.cellScore.push_back(tableScore_[chairId]);	//玩家桌面分
 		scoreInfo.bWriteScore = true;                           //只写积分
 		scoreInfo.bWriteRecord = false;                         //不写记录
-		scoreInfo.validBetScore = tableScore_[chairId];
-		scoreInfo.winLostScore = -tableScore_[chairId];
-        scoreInfo.agentRevenue = m_pTableFrame->CalculateAgentRevenue(labs(scoreInfo.winLostScore));
+		//scoreInfo.validBetScore = tableScore_[chairId];
+		//scoreInfo.winLostScore = -tableScore_[chairId];
+        //scoreInfo.agentRevenue = table_->CalculateAgentRevenue(labs(scoreInfo.winLostScore));
         SetScoreInfoBase(scoreInfo, chairId, NULL);				//基本信息
 		//写入玩家积分
 		if (!debug_)
-			m_pTableFrame->WriteSpecialUserScore(&scoreInfo, 1, strRoundID_, roundId_);
+			table_->WriteSpecialUserScore(&scoreInfo, 1, strRoundID_/*, roundId_*/);
 	}
 	texas::CMD_S_GiveUp rspdata;
 	rspdata.set_giveupuser(chairId);
@@ -2691,7 +2606,7 @@ bool CTableFrameSink::OnUserGiveUp(uint32_t chairId, bool timeout) {
 				opEndTime_ = opStartTime_ + wTimeLeft;
 				nextStep->set_wtimeleft(wTimeLeft);
 				//开启等待定时器
-				timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CTableFrameSink::OnTimerWaitingOver, this));
+				timerIdWaiting_ = ThisThreadTimer->runAfter(wTimeLeft + 1, boost::bind(&CGameTable::OnTimerWaitingOver, this));
 				//LOG(INFO) << __FUNCTION__ << " turn=[" << CurrentTurn() + 1 << "] isExceed_=" << isExceed_ << " isNewTurn_=" << isNewTurn_ << " 当前轮 nextUser_=" << (int)nextUser_;
 			}
 			else {
@@ -2714,7 +2629,7 @@ bool CTableFrameSink::OnUserGiveUp(uint32_t chairId, bool timeout) {
 		rspdata.add_pots(it->second.score);
 	}
 	for (int i = 0; i < GAME_PLAYER; ++i) {
-		if (!m_pTableFrame->IsExistUser(i))
+		if (!table_->ExistUser(i))
 			continue;
 		rspdata.clear_cards();
 		rspdata.set_ty(0);
@@ -2741,7 +2656,7 @@ bool CTableFrameSink::OnUserGiveUp(uint32_t chairId, bool timeout) {
 			rspdata.set_ty(cover_[chairId].ty_);
 		}
 		std::string content = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(i, texas::SUB_S_GIVE_UP, (uint8_t*)content.data(), content.size());
+		table_->SendTableData(i, texas::SUB_S_GIVE_UP, (uint8_t*)content.data(), content.size());
 	}
 	if (leftPlayerCount() >= 2) {
 		//新一轮开始发牌
@@ -2753,22 +2668,22 @@ bool CTableFrameSink::OnUserGiveUp(uint32_t chairId, bool timeout) {
 		//}
 	}
 	else {
-		OnEventGameConclude(INVALID_CHAIR, GER_NORMAL);
+		OnGameConclude(INVALID_CHAIR, GER_NORMAL);
 	}
 	return true;
 }
 
 //用户看牌
-bool CTableFrameSink::OnUserLookCard(uint32_t chairId) {
+bool CGameTable::OnUserLookCard(uint32_t chairId) {
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
-	//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
+	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
 	//LOG(INFO) << __FUNCTION__ << msg;
 	if (!isLooked_[chairId]) {
 		isLooked_[chairId] = true;
 		uint32_t nowsec =
-			chrono::system_clock::to_time_t(chrono::system_clock::now()) -
-			chrono::system_clock::to_time_t(roundStartTime_);
+			std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) -
+			std::chrono::system_clock::to_time_t(roundStartTime_);
 		//对局日志
 		//m_replay.addStep(nowsec, "", currentTurn_ + 1, opLkOrCall, chairId, -1);
 	}
@@ -2778,11 +2693,11 @@ bool CTableFrameSink::OnUserLookCard(uint32_t chairId) {
 		rspdata.set_cards(&(handCards_[chairId])[0], 1);
 		rspdata.set_ty(cover_[chairId].ty_);
 		std::string content = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(chairId, texas::SUB_S_LOOK_CARD, (uint8_t*)content.data(), content.size());
+		table_->SendTableData(chairId, texas::SUB_S_LOOK_CARD, (uint8_t*)content.data(), content.size());
 		return true;
 	}
 	for (int i = 0; i < GAME_PLAYER; ++i) {
-		if (!m_pTableFrame->IsExistUser(i))
+		if (!table_->ExistUser(i))
 			continue;
 		if (i == chairId) {
 			rspdata.set_cards(&(handCards_[chairId])[0], 1);
@@ -2793,19 +2708,17 @@ bool CTableFrameSink::OnUserLookCard(uint32_t chairId) {
 			rspdata.clear_ty();
 		}
 		std::string content = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(i, texas::SUB_S_LOOK_CARD, (uint8_t*)content.data(), content.size());
+		table_->SendTableData(i, texas::SUB_S_LOOK_CARD, (uint8_t*)content.data(), content.size());
 	}
 	return true;
 }
 
-//游戏消息
-bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const uint8_t* pDataBuffer, uint32_t dwDataSize)
-{
+bool CGameTable::OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len) {
 	if (chairId == INVALID_CHAIR || chairId >= GAME_PLAYER || currentUser_ == INVALID_CHAIR) {
 		return false;
 	}
-	if (!m_pTableFrame->IsExistUser(chairId) ||
-		!m_pTableFrame->IsExistUser(currentUser_)) {
+	if (!table_->ExistUser(chairId) ||
+		!table_->ExistUser(currentUser_)) {
 		return false;
 	}
 	//if (isGiveup_[currentUser_] || isLost_[currentUser_]) {
@@ -2814,25 +2727,25 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 	if (!bPlaying_[chairId]) {
 		return false;
 	}
-	shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(chairId);
-	if (!userItem) {
+	std::shared_ptr<IPlayer> player = table_->GetChairPlayer(chairId);
+	if (!player) {
 		return false;
 	}
-	UserInfoList::const_iterator it = userinfos_.find(userItem->GetUserId());
+	UserInfoList::const_iterator it = userinfos_.find(player->GetUserId());
 	if (it == userinfos_.end() || chairId != it->second.chairId) {
 		return false;
 	}
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
-	//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
+	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
 	//LOG(INFO) << __FUNCTION__ << msg;
-	switch (dwSubCmdID)
+	switch (subId)
 	{
 	case texas::SUB_C_ANDROID_LEAVE: {//机器人离开
 		//texas::CMD_C_AndroidLeave  reqdata;
-		//reqdata.ParseFromArray(pDataBuffer, dwDataSize);
+		//reqdata.ParseFromArray(data, len);
 		//LOG(INFO) << __FUNCTION__ << " 机器人 " << chairId << " 离开处理 ...";
-		assert(m_pTableFrame->IsAndroidUser(chairId) > 0);
+		assert(table_->IsRobot(chairId) > 0);
 		//assert(!bPlaying_[chairId] || isGiveup_[chairId]);
 		return OnUserLeft(chairId, true);
 	}
@@ -2849,7 +2762,7 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 		if (takeScore_[chairId] <= tableScore_[chairId]) {
 			return false;
 		}
-		if (bPlaying_[chairId] && !userItem->IsAndroidUser()) {
+		if (bPlaying_[chairId] && !player->IsRobot()) {
 			m_bPlayerOperated[chairId] = true;
 		}
 		return OnUserPassScore(chairId);
@@ -2867,7 +2780,7 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 		if (takeScore_[chairId] <= tableScore_[chairId]) {
 			return false;
 		}
-		if (bPlaying_[chairId] && !userItem->IsAndroidUser()) {
+		if (bPlaying_[chairId] && !player->IsRobot()) {
 			m_bPlayerOperated[chairId] = true;
 		}
 		return OnUserAllIn(chairId);
@@ -2886,13 +2799,13 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 			return false;
 		}
 		texas::CMD_C_AddScore reqdata;
-		if (!reqdata.ParseFromArray(pDataBuffer, dwDataSize)) {
+		if (!reqdata.ParseFromArray(data, len)) {
 			return false;
 		}
 		if (reqdata.opvalue() != OP_FOLLOW && reqdata.opvalue() != OP_ADD) {
 			return false;
 		}
-		if (bPlaying_[chairId] && !userItem->IsAndroidUser()) {
+		if (bPlaying_[chairId] && !player->IsRobot()) {
 			m_bPlayerOperated[chairId] = true;
 		}
 		return OnUserAddScore(chairId, reqdata.opvalue(), reqdata.addscore());
@@ -2904,27 +2817,27 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 		if (hasAllIn(chairId)) {
 			return false;
 		}
-		if (bPlaying_[chairId] && !userItem->IsAndroidUser()) {
+		if (bPlaying_[chairId] && !player->IsRobot()) {
 			m_bPlayerOperated[chairId] = true;
 		}
 		return OnUserGiveUp(chairId);
 	}
 	case texas::SUB_C_LOOK_CARD: { //看牌
-		//if (bPlaying_[chairId] && !userItem->IsAndroidUser()) {
+		//if (bPlaying_[chairId] && !player->IsRobot()) {
 		//	m_bPlayerOperated[chairId] = true;
 		//}
 		return OnUserLookCard(chairId);
 	}
 	case texas::SUB_C_TAKESCORE: {
 		texas::CMD_C_TakeScore reqdata;
-		if (!reqdata.ParseFromArray(pDataBuffer, dwDataSize)) {
+		if (!reqdata.ParseFromArray(data, len)) {
 			return false;
 		}
 		texas::CMD_S_TakeScore rspdata;
 		if (reqdata.takescore() >= EnterMinScore &&
-			reqdata.takescore() <= userItem->GetUserScore()) {
-			userItem->SetAutoSetScore(reqdata.autoset());
-			userItem->SetCurTakeScore(reqdata.takescore());
+			reqdata.takescore() <= player->GetUserScore()) {
+			player->SetAutoSetScore(reqdata.autoset());
+			player->SetCurTakeScore(reqdata.takescore());
 			cfgTakeScore_[1][chairId] = reqdata.takescore();
 			rspdata.set_bok(1);
 			rspdata.set_autoset(reqdata.autoset());
@@ -2933,7 +2846,7 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 			rspdata.set_bok(false);
 		}
 		std::string data = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(chairId, texas::SUB_S_TAKESCORE, (uint8_t*)data.c_str(), data.size());
+		table_->SendTableData(chairId, texas::SUB_S_TAKESCORE, (uint8_t*)data.c_str(), data.size());
 		return true;
 	}
 	case texas::SUB_C_SHOW_CARD: {
@@ -2941,14 +2854,14 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 // 			return false;
 // 		}
 		texas::CMD_C_ShowCardSwitch  reqdata;
-		reqdata.ParseFromArray(pDataBuffer, dwDataSize);
+		reqdata.ParseFromArray(data, len);
 		m_bShowCard[chairId] = reqdata.isshowcard();
 
 		texas::CMD_C_ShowCardSwitch rspdata;
 		rspdata.set_isshowcard(m_bShowCard[chairId]);
 		//发送结果
 		std::string data = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(chairId, texas::SUB_S_SHOW_CARD, (uint8_t*)data.c_str(), data.size());
+		table_->SendTableData(chairId, texas::SUB_S_SHOW_CARD, (uint8_t*)data.c_str(), data.size());
 
 		break;
 	}
@@ -2957,34 +2870,34 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 		//	return false;
 		//}
 		texas::CMD_C_RoundEndExit  roundEndExit;
-		roundEndExit.ParseFromArray(pDataBuffer, dwDataSize);
+		roundEndExit.ParseFromArray(data, len);
 		m_bRoundEndExit[chairId] = roundEndExit.bexit();
 
 		texas::CMD_S_RoundEndExitResult roundEndExitResult;
 		roundEndExitResult.set_bexit(m_bRoundEndExit[chairId]);
 		//发送结果
 		std::string data = roundEndExitResult.SerializeAsString();
-		m_pTableFrame->SendTableData(chairId, texas::SUB_S_ROUND_END_EXIT_RESULT, (uint8_t*)data.c_str(), data.size());
+		table_->SendTableData(chairId, texas::SUB_S_ROUND_END_EXIT_RESULT, (uint8_t*)data.c_str(), data.size());
 
 		return true;
 	}
 	case texas::NN_SUB_C_MESSAGE:  //发送消息
 	{
-		int64_t userId = userItem->GetUserId();
+		int64_t userId = player->GetUserId();
 		//变量定义
 		texas::NN_CMD_C_Message recMessage;
-		recMessage.ParseFromArray(pDataBuffer, dwDataSize);
+		recMessage.ParseFromArray(data, len);
 
 		string message = recMessage.message();
 		int32_t faceId = recMessage.faceid();
 		int32_t type = recMessage.type();
 		texas::NN_CMD_S_MessageResult sendMessage;
-		sendMessage.set_sendchairid(chairId);
-		sendMessage.set_headerid(userItem->GetHeaderId());
-		sendMessage.set_headboxid(userItem->GetHeadboxId());
-		sendMessage.set_headimgurl(userItem->GetHeadImgUrl());
-		sendMessage.set_vip(userItem->GetVip());
-		sendMessage.set_nickname(userItem->GetNickName());
+		sendMessage.set_senchairId(chairId);
+		sendMessage.set_headerid(player->GetHeaderId());
+		sendMessage.set_headboxid(player->GetHeadboxId());
+		sendMessage.set_headimgurl(player->GetHeadImgUrl());
+		sendMessage.set_vip(player->GetVip());
+		sendMessage.set_nickname(player->GetNickName());
 		sendMessage.set_senduserid(userId);
 
 		sendMessage.set_message(message);
@@ -2992,7 +2905,7 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 		sendMessage.set_type(type);
 		//发送结果
 		std::string data = sendMessage.SerializeAsString();
-		m_pTableFrame->SendTableData(INVALID_CHAIR, texas::NN_SUB_S_MESSAGE_RESULT, (uint8_t*)data.c_str(), data.size());
+		table_->SendTableData(INVALID_CHAIR, texas::NN_SUB_S_MESSAGE_RESULT, (uint8_t*)data.c_str(), data.size());
 
 		return true;
 	}
@@ -3001,29 +2914,29 @@ bool CTableFrameSink::OnGameMessage(uint32_t chairId, uint8_t dwSubCmdID, const 
 }
 
 //发送场景
-bool CTableFrameSink::OnEventGameScene(uint32_t chairId, bool bIsLookUser) {
+bool CGameTable::OnGameScene(uint32_t chairId, bool lookon) {
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
-	//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
+	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
 	//LOG(INFO) << __FUNCTION__ << msg;
 	if (chairId == INVALID_CHAIR || chairId >= GAME_PLAYER) {
 		return false;
 	}
-	shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(chairId);
-	if (!userItem) {
+	std::shared_ptr<IPlayer> player = table_->GetChairPlayer(chairId);
+	if (!player) {
 		return false;
 	}
-	switch (/*m_pTableFrame->GetGameStatus()*/gameStatus_)
+	switch (/*table_->GetGameStatus()*/gameStatus_)
 	{
 	case GAME_STATUS_INIT:
 	case GAME_STATUS_READY: {		//空闲状态
 		texas::CMD_S_StatusFree rspdata;
 		rspdata.set_cellscore(FloorScore);//ceilscore
 		for (int i = 0; i < GAME_PLAYER; ++i) {
-			if (!m_pTableFrame->IsExistUser(i)) {
+			if (!table_->ExistUser(i)) {
 				continue;
 			}
-			shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(i); assert(userItem);
+			std::shared_ptr<IPlayer> userItem = table_->GetChairPlayer(i); assert(userItem);
 			::texas::PlayerItem* player = rspdata.add_players();
 			player->set_chairid(i);//chairID
 			player->set_userid(userItem->GetUserId());//userID
@@ -3048,7 +2961,7 @@ bool CTableFrameSink::OnEventGameScene(uint32_t chairId, bool bIsLookUser) {
 			player->set_headimgurl(userItem->GetHeadImgUrl());
 		}
 		std::string content = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(chairId, texas::SUB_SC_GAMESCENE_FREE, (uint8_t*)content.data(), content.size());
+		table_->SendTableData(chairId, texas::SUB_SC_GAMESCENE_FREE, (uint8_t*)content.data(), content.size());
 		break;
 	}
 	case GAME_STATUS_START: {	//游戏状态
@@ -3099,10 +3012,10 @@ bool CTableFrameSink::OnEventGameScene(uint32_t chairId, bool bIsLookUser) {
 			handcards->set_cards(&tableCards_[0], offset_);
 		}
 		for (int i = 0; i < GAME_PLAYER; ++i) {
-			if (!m_pTableFrame->IsExistUser(i)) {
+			if (!table_->ExistUser(i)) {
 				continue;
 			}
-			shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(i); assert(userItem);
+			std::shared_ptr<IPlayer> userItem = table_->GetChairPlayer(i); assert(userItem);
 			if (!bPlaying_[i]) {
 				::texas::PlayerItem* player = rspdata.add_players();
 				player->set_chairid(i);//chairID
@@ -3163,10 +3076,10 @@ bool CTableFrameSink::OnEventGameScene(uint32_t chairId, bool bIsLookUser) {
 			//LOG(INFO) << __FUNCTION__ << " chip=" << it->first << " count=" << it->second;
 		}
 		rspdata.set_istimeoutgiveup(noGiveUpTimeout_[chairId]);
-		rspdata.set_isautosetscore(userItem->GetAutoSetScore());
+		rspdata.set_isautosetscore(player->GetAutoSetScore());
 		rspdata.set_cfgtakescore(cfgTakeScore_[1][chairId]);
 		std::string content = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(chairId, texas::SUB_SC_GAMESCENE_PLAY, (uint8_t*)content.data(), content.size());
+		table_->SendTableData(chairId, texas::SUB_SC_GAMESCENE_PLAY, (uint8_t*)content.data(), content.size());
 		break;
 	}
 	case GAME_STATUS_END: {//结束状态
@@ -3174,17 +3087,17 @@ bool CTableFrameSink::OnEventGameScene(uint32_t chairId, bool bIsLookUser) {
 		rspdata.set_cellscore(FloorScore);
 		rspdata.set_wtimeleft(opEndTime_ - (uint32_t)time(NULL));
 		string content = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(chairId, texas::SUB_SC_GAMESCENE_END, (uint8_t*)content.data(), content.size());
+		table_->SendTableData(chairId, texas::SUB_SC_GAMESCENE_END, (uint8_t*)content.data(), content.size());
 	}
 						break;
 	default:
 		break;
 	}
-	BroadcastTakeScore(chairId, userItem->GetUserId());
+	BroadcastTakeScore(chairId, player->GetUserId());
 	return true;
 }
 
-void CTableFrameSink::BroadcastTakeScore(uint32_t chairId, int64_t userId) {
+void CGameTable::BroadcastTakeScore(uint32_t chairId, int64_t userId) {
 	texas::CMD_S_BroadcastTakeScore rspdata;
 	rspdata.set_chairid(chairId);
 	rspdata.set_userid(userId);
@@ -3205,32 +3118,32 @@ void CTableFrameSink::BroadcastTakeScore(uint32_t chairId, int64_t userId) {
 		//	<< " 参与者!";
 	}
 	std::string content = rspdata.SerializeAsString();
-	m_pTableFrame->SendTableData(INVALID_CHAIR, texas::SUB_S_BROADCASTTAKESCORE, (uint8_t*)content.data(), content.size());
+	table_->SendTableData(INVALID_CHAIR, texas::SUB_S_BROADCASTTAKESCORE, (uint8_t*)content.data(), content.size());
 }
 
 //计算机器人税收
-int64_t CTableFrameSink::CalculateAndroidRevenue(int64_t score)
+int64_t CGameTable::CalculateAndroidRevenue(int64_t score)
 {
-	return m_pTableFrame->CalculateRevenue(score);
+	return table_->CalculateRevenue(score);
 	//return score * stockWeak / 100;
 }
 
 //游戏结束
-bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
+bool CGameTable::OnGameConclude(uint32_t chairId, uint8_t flags)
 {
 	for (int i = 0; i < GAME_PLAYER; ++i) {
-		shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(i);
-		if (userItem && !userItem->IsAndroidUser()) {
-			m_pTableFrame->RefreshRechargeScore(userItem->GetUserId(), i);
-			UserInfoList::iterator it = userinfos_.find(userItem->GetUserId());
+		std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i);
+		if (player && !player->IsRobot()) {
+			table_->RefreshRechargeScore(player);
+			UserInfoList::iterator it = userinfos_.find(player->GetUserId());
 			if (it != userinfos_.end()) {
-				it->second.userScore = userItem->GetUserScore();
+				it->second.userScore = player->GetUserScore();
 			}
 		}
 	}
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d]",
-	//	m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1);
+	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1);
 	//LOG(INFO) << __FUNCTION__ << msg;
 	//清理所有定时器
 	ClearAllTimer();
@@ -3388,7 +3301,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 	//int c = leftPlayerCount(true, &currentUser_);
 	//assert(c == 1);
 	//assert(currentWinUser_ == currentUser_);
-	//bool bPlatformBanker = (m_pTableFrame->IsAndroidUser(bankerUser_) > 0 || m_pTableFrame->IsSystemUser(bankerUser_) > 0);
+	//bool bPlatformBanker = (table_->IsRobot(bankerUser_) > 0 || table_->IsOfficial(bankerUser_) > 0);
 	//LOG(INFO) << __FUNCTION__ << " 第[" << CurrentTurn() + 1 << "]轮 赢家[" << LastTurn() + 1 << "]轮时下注=" << GetLastAddScore(winUser);
 // 	for (int i = 0; i < GAME_PLAYER; ++i) {
 // 		if (!bPlaying_[i])
@@ -3407,7 +3320,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 // 			}
 // 		}
 // 		//真实玩家
-// 		/*if (m_pTableFrame->IsAndroidUser((uint32_t)i) == 0)*/ {
+// 		/*if (table_->IsRobot((uint32_t)i) == 0)*/ {
 // 			int64_t userScore = ScoreByChairId(i) - tableScore[i];
 // 			assert(userScore >= 0);
 // #if 0
@@ -3427,7 +3340,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 // 			SetScoreInfoBase(scoreInfo, i, NULL);			//基本信息
 // 			//写入玩家积分
 // 			if (!debug_)
-// 				m_pTableFrame->WriteSpecialUserScore(&scoreInfo, 1, strRoundID_, roundId_);
+// 				table_->WriteSpecialUserScore(&scoreInfo, 1, strRoundID_, roundId_);
 // #endif
 // 		}
 // 	}
@@ -3465,7 +3378,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 			tableScore[i] -= userWinPot[i];
 			tableAllScore -= userWinPot[i];
 		}
-		if (it->second.isAndroidUser == 0 && it->second.isSystemUser == 0) {
+		if (it->second.IsRobot == 0 && it->second.IsOfficial == 0) {
 			realUserWinScore += userWinScore[i];
 		}
 	}
@@ -3488,7 +3401,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 	int64_t realUserWinScoreTotal = 0, realUserLostScoreTotal = 0;
 	for (UserInfoList::const_iterator it = userinfos_.begin(); it != userinfos_.end(); ++it) {
 		uint32_t i = it->second.chairId;
-		if (it->second.isAndroidUser == 0 && it->second.isSystemUser == 0) {
+		if (it->second.IsRobot == 0 && it->second.IsOfficial == 0) {
 			if (userWinScore[i] > 0) {
 				realUserWinScoreTotal += userWinScore[i];
 			}
@@ -3504,16 +3417,16 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 		if (userWinScore[i] > 0) {
 			//assert(i == currentWinUser_);
 			//系统抽水，真实玩家和机器人都按照5%抽水计算，前端显示和玩家扣分一致
-			if (/*it->second.isAndroidUser > 0 ||*/ it->second.isSystemUser > 0) {
+			if (/*it->second.IsRobot > 0 ||*/ it->second.IsOfficial > 0) {
 				revenue[i] = 0;
 			}
 			else {
-				revenue[i] = m_pTableFrame->CalculateRevenue(userWinScore[i]);
+				revenue[i] = table_->CalculateRevenue(userWinScore[i]);
 			}
-			agentRevenue[i] = m_pTableFrame->CalculateAgentRevenue(userWinScore[i]);
+			//agentRevenue[i] = table_->CalculateAgentRevenue(userWinScore[i]);
 		}
 		else {
-			agentRevenue[i] = m_pTableFrame->CalculateAgentRevenue(-userWinScore[i]);
+			//agentRevenue[i] = table_->CalculateAgentRevenue(-userWinScore[i]);
 		}
 		//输赢积分，扣除系统抽水
 		userWinScorePure[i] = userWinScore[i] - revenue[i];
@@ -3522,15 +3435,15 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 		leftTakeScore[i] = takeScore[i] + userWinScorePure[i];
 		userWinScorePure_[i] = userWinScorePure[i];
 		//跑马灯消息
-		if (userWinScorePure[i] > m_pTableFrame->GetGameRoomInfo()->broadcastScore) {
+		if (userWinScorePure[i] > table_->GetRoomInfo()->broadcastScore) {
 		//if (userWinScorePure[i] >= m_lMarqueeMinScore) {
 			std::string msg = std::to_string(cover_[i].ty_);
-			m_pTableFrame->SendGameMessage(i, ""/*msg*/, SMT_GLOBAL | SMT_SCROLL, userWinScorePure[i]);
+			table_->SendGameMessage(i, ""/*msg*/, SMT_GLOBAL | SMT_SCROLL, userWinScorePure[i]);
 			//LOG(INFO) << " --- *** [" << strRoundID_ << "] 跑马灯信息 userid = " << it->second.userId
 			//	<< " " << msg << " score = " << userWinScorePure[i];
 		}
 		//若是机器人AI
-		if (it->second.isAndroidUser) {
+		if (it->second.IsRobot) {
 #ifdef _STORAGESCORE_SEPARATE_STAT_
 			//系统输赢积分，扣除系统抽水
 			systemWinScore += userWinScorePure[i];
@@ -3542,7 +3455,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 		//赢家
 		if (userWinScore[i] > 0/*i == currentWinUser_*/) {
 			//真实玩家
-			/*if(it->second.isAndroidUser == 0)*/ {
+			/*if(it->second.IsRobot == 0)*/ {
 				//计算积分
 				tagSpecialScoreInfo scoreInfo;
 				scoreInfo.cardValue = StringCardValue(isShowComparedCards_);		//本局开牌
@@ -3555,11 +3468,11 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 				scoreInfo.cellScore.push_back(tableScore_[i]);	//玩家桌面分
 				scoreInfo.bWriteScore = true;                   //写赢家分
 				scoreInfo.bWriteRecord =
-					(it->second.isAndroidUser == 0) ? true : false;//也写记录
-				scoreInfo.validBetScore = llabs(userWinScore[i]);// tableScore[i];
-				scoreInfo.winLostScore = userWinScore[i];
-				scoreInfo.agentRevenue = agentRevenue[i];
-				if (it->second.isAndroidUser == 0 && it->second.isSystemUser == 0) {
+					(it->second.IsRobot == 0) ? true : false;//也写记录
+				//scoreInfo.validBetScore = llabs(userWinScore[i]);// tableScore[i];
+				//scoreInfo.winLostScore = userWinScore[i];
+				//scoreInfo.agentRevenue = agentRevenue[i];
+				if (it->second.IsRobot == 0 && it->second.IsOfficial == 0) {
 #if 0
 					//平台赢，玩家只能赢玩家
 					if (bPlatformWin) {
@@ -3580,12 +3493,12 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 #else
 					//平台输
 					//if (!bPlatformWin)
-						scoreInfo.platformWinScore = -userWinScore[i];
+					//	scoreInfo.platformWinScore = -userWinScore[i];
 #endif
 				}
 				SetScoreInfoBase(scoreInfo, i, &it->second);	//基本信息
 				scoreInfos.push_back(scoreInfo);
-				if (it->second.isAndroidUser == 0) {
+				if (it->second.IsRobot == 0) {
 					//LOG(INFO) << __FUNCTION__ << " [" << strRoundID_ << "]"
 					//	<< "\n玩家得分=" << scoreInfo.winLostScore
 					//	<< "\n玩家输赢=" << scoreInfo.addScore
@@ -3601,7 +3514,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 		//输家
 		else {
 			//真实玩家
-			/*if (it->second.isAndroidUser == 0)*/ {
+			/*if (it->second.IsRobot == 0)*/ {
 				//计算积分
 				tagSpecialScoreInfo scoreInfo;
 				scoreInfo.cardValue = StringCardValue(isShowComparedCards_);		//本局开牌
@@ -3614,24 +3527,24 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 #if 0
 				scoreInfo.bWriteScore = false;                  //不用写分，出局前写了
 				scoreInfo.bWriteRecord =
-					(it->second.isAndroidUser == 0) ? true : false;//仅写记录
+					(it->second.IsRobot == 0) ? true : false;//仅写记录
 #else
 				if (isGiveup_[i]) {
 					scoreInfo.bWriteScore = false;                  //不用写分，出局前写了
 					scoreInfo.bWriteRecord =
-						(it->second.isAndroidUser == 0) ? true : false;//仅写记录
+						(it->second.IsRobot == 0) ? true : false;//仅写记录
 				}
 				else {
 					//assert(isLost_[i]);
 					scoreInfo.bWriteScore = true;                   //写输家分
 					scoreInfo.bWriteRecord =
-						(it->second.isAndroidUser == 0) ? true : false;//也写记录
+						(it->second.IsRobot == 0) ? true : false;//也写记录
 				}
 #endif
-				scoreInfo.validBetScore = llabs(userWinScore[i]);
-				scoreInfo.winLostScore = userWinScore[i];
-				scoreInfo.agentRevenue = agentRevenue[i];
-				if (it->second.isAndroidUser == 0 && it->second.isSystemUser == 0) {
+				//scoreInfo.validBetScore = llabs(userWinScore[i]);
+				//scoreInfo.winLostScore = userWinScore[i];
+				//scoreInfo.agentRevenue = agentRevenue[i];
+				if (it->second.IsRobot == 0 && it->second.IsOfficial == 0) {
 #if 0
 					//平台赢，计算玩家输给平台的部分
 					if (bPlatformWin) {
@@ -3652,12 +3565,12 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 #else
 					//平台赢
 					//if (bPlatformWin)
-						scoreInfo.platformWinScore = -userWinScore[i];
+					//	scoreInfo.platformWinScore = -userWinScore[i];
 #endif
 				}
 				SetScoreInfoBase(scoreInfo, i, &it->second);	//基本信息
 				scoreInfos.push_back(scoreInfo);
-				if (it->second.isAndroidUser == 0) {
+				if (it->second.IsRobot == 0) {
 					//LOG(INFO) << __FUNCTION__ << " [" << strRoundID_ << "]"
 					//	<< "\n玩家得分=" << scoreInfo.winLostScore
 					//	<< "\n玩家输赢=" << scoreInfo.addScore
@@ -3693,19 +3606,19 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 #ifndef _STORAGESCORE_SEPARATE_STAT_
 	//系统输赢积分，扣除系统抽水1%
 	if (systemWinScore > 0) {
-		//systemWinScore -= m_pTableFrame->CalculateRevenue(systemWinScore);
+		//systemWinScore -= table_->CalculateRevenue(systemWinScore);
 		systemWinScore -= CalculateAndroidRevenue(systemWinScore);
 	}
 #endif
 	//更新系统库存
-	//m_pTableFrame->UpdateStorageScore(systemWinScore);
+	//table_->UpdateStorageScore(systemWinScore);
 	//系统当前库存变化
 	//StockScore += systemWinScore;
 	//更新机器人配置
 	//UpdateConfig();
 	//写入玩家积分
 	if (!debug_)
-		m_pTableFrame->WriteSpecialUserScore(&scoreInfos[0], scoreInfos.size(), strRoundID_, roundId_);
+		table_->WriteSpecialUserScore(&scoreInfos[0], scoreInfos.size(), strRoundID_/*, roundId_*/);
 	//对局记录详情json
 	//if (!m_replay.saveAsStream) {
 	//}
@@ -3713,7 +3626,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 	//	m_replay.detailsData = details.SerializeAsString();
 	//}
 	//保存对局结果
-	//m_pTableFrame->SaveReplay(m_replay);
+	//table_->SaveReplay(m_replay);
 	//赢家用户
 	rspdata.set_winuser(currentWinUser_);
 	//玩家信息
@@ -3732,7 +3645,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 // 		handcards->set_cards(&(handCards_[i])[0], cardsC_[i]);
 // 		handcards->set_ty(cover_[i].ty_);
 //		//机器人AI
-// 		if (it->second.isAndroidUser > 0) {
+// 		if (it->second.IsRobot > 0) {
 // 			LOG(INFO) << __FUNCTION__
 // 				<< " [" << strRoundID_ << "] 机器人 [" << i << "] " << it->second.userId << " 手牌 ["
 // 				<< TEXAS::CGameLogic::StringCards(&(handCards_[i])[0], cardsC_[i])
@@ -3746,8 +3659,8 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 // 		}
 		//前端显示机器人和真实玩家抽水一致
 		if (userWinScore[i] > 0) {
-			if (it->second.isAndroidUser > 0 || it->second.isSystemUser > 0) {
-				revenue[i] = m_pTableFrame->CalculateRevenue(userWinScore[i]);
+			if (it->second.IsRobot > 0 || it->second.IsOfficial > 0) {
+				revenue[i] = table_->CalculateRevenue(userWinScore[i]);
 				//输赢积分，扣除系统抽水
 				userWinScorePure[i] = userWinScore[i] - revenue[i];
 				//剩余积分 = 携带积分 + 输赢积分
@@ -3787,7 +3700,7 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 	//    弃                    未比  暗牌
 	//    比                    比牌  明牌
 	for (int i = 0; i < GAME_PLAYER; ++i) {
-		if(!m_pTableFrame->IsExistUser(i))
+		if(!table_->ExistUser(i))
 			continue;
 		for (int j = 0; j < rspdata.players_size();++j) {
 			texas::CMD_S_GameEnd_Player* player = rspdata.mutable_players(j);//rspdata.players(j);
@@ -3827,269 +3740,263 @@ bool CTableFrameSink::OnEventGameConclude(uint32_t dchairId, uint8_t GETag)
 			}
 		}
 		std::string content = rspdata.SerializeAsString();
-		m_pTableFrame->SendTableData(i, texas::SUB_S_GAME_END, (uint8_t*)content.data(), content.size());
+		table_->SendTableData(i, texas::SUB_S_GAME_END, (uint8_t*)content.data(), content.size());
 	}
 	//std::string content = rspdata.SerializeAsString();
-	//m_pTableFrame->SendTableData(INVALID_CHAIR, texas::SUB_S_GAME_END, (uint8_t *)content.data(), content.size());
+	//table_->SendTableData(INVALID_CHAIR, texas::SUB_S_GAME_END, (uint8_t *)content.data(), content.size());
 	//通知框架结束游戏
-	//m_pTableFrame->ConcludeGame(GAME_STATUS_END);
+	//table_->ConcludeGame(GAME_STATUS_END);
 	//设置游戏结束状态
-	//m_pTableFrame->SetGameStatus(GAME_STATUS_END);
+	//table_->SetGameStatus(GAME_STATUS_END);
 	gameStatus_ = GAME_STATUS_END;
 	//延时清理桌子数据
-	timerIdGameEnd_ = ThisThreadTimer->runAfter((isShowComparedCards_ ? 4 : 2) + 1, boost::bind(&CTableFrameSink::OnTimerGameEnd, this));
+	timerIdGameEnd_ = ThisThreadTimer->runAfter((isShowComparedCards_ ? 4 : 2) + 1, boost::bind(&CGameTable::OnTimerGameEnd, this));
 	//OnTimerGameEnd();
 	//clearKickUsers();
 	return true;
 }
 
 //游戏结束，清理数据
-void CTableFrameSink::OnTimerGameEnd() {
+void CGameTable::OnTimerGameEnd() {
 	//通知框架结束游戏
-	m_pTableFrame->ConcludeGame(GAME_STATUS_END);
+	table_->ConcludeGame(GAME_STATUS_END);
 	//设置游戏结束状态
-	m_pTableFrame->SetGameStatus(GAME_STATUS_END);
+	table_->SetGameStatus(GAME_STATUS_END);
 	ClearAllTimer();
 	clearKickUsers();
 	//有真人玩家且够游戏人数，继续下一局游戏
-	if (/*m_pTableFrame->GetRealPlayerCount() > 0 && */m_pTableFrame->GetPlayerCount() >= MIN_GAME_PLAYER) {
+	if (/*table_->GetRealPlayerCount() > 0 && */table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
 		if (writeRealLog_) {
-			char msg[1024];
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] 继续下一局游戏!",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1);
-			LOG(INFO) << __FUNCTION__ << msg;
+			_LOG_INFO("[%s][%d][%s][%d] 继续下一局游戏!",
+				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), currentTurn_ + 1);
 		}
 		ClearGameData();
-		m_pTableFrame->SetGameStatus(GAME_STATUS_READY);
+		table_->SetGameStatus(GAME_STATUS_READY);
 		gameStatus_ = GAME_STATUS_READY;
-		maxAndroid_ = rand_.betweenInt(1, 8/*m_pTableFrame->GetGameRoomInfo()->maxAndroidCount*/).randInt_mt();
-		timerIdGameReadyOver_ = ThisThreadTimer->runAfter((isShowComparedCards_ ? 0 : 0) + 1, boost::bind(&CTableFrameSink::GameTimerReadyOver, this));
+		maxAndroid_ = rand_.betweenInt(1, 8/*table_->GetRoomInfo()->maxAndroidCount*/).randInt_mt();
+		timerIdGameReadyOver_ = ThisThreadTimer->runAfter((isShowComparedCards_ ? 0 : 0) + 1, boost::bind(&CGameTable::GameTimerReadyOver, this));
 	}
-	//else if (m_pTableFrame->GetRealPlayerCount() > 0) {
-	else if (m_pTableFrame->GetPlayerCount() > 0) {
+	else if (table_->GetRealPlayerCount() > 0) {
+	//else if (table_->GetPlayerCount() > 0) {
 		if (writeRealLog_) {
-			char msg[1024];
-			snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1,
-				m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-			LOG(INFO) << __FUNCTION__ << msg;
+			_LOG_INFO("[%s][%d][%s][%d] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
+				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), currentTurn_ + 1,
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 		}
 		ClearGameData();
-		m_pTableFrame->SetGameStatus(GAME_STATUS_READY);
+		table_->SetGameStatus(GAME_STATUS_READY);
 		gameStatus_ = GAME_STATUS_READY;
 		//totalMatchSeconds_ = 0;
-		maxAndroid_ = rand_.betweenInt(1, 8/*m_pTableFrame->GetGameRoomInfo()->maxAndroidCount*/).randInt_mt();
-		timerIdGameReadyOver_ = ThisThreadTimer->runEvery(sliceMatchSeconds_, boost::bind(&CTableFrameSink::OnTimerGameReadyOver, this));
+		maxAndroid_ = rand_.betweenInt(1, 8/*table_->GetRoomInfo()->maxAndroidCount*/).randInt_mt();
+		timerIdGameReadyOver_ = ThisThreadTimer->runEvery(sliceMatchSeconds_, boost::bind(&CGameTable::OnTimerGameReadyOver, this));
 	}
 	else {
 		//没有真人玩家或不够游戏人数(<MIN_GAME_PLAYER)，清理腾出桌子
 		if (writeRealLog_) {
-			char msg[1024];
-			snprintf(msg, sizeof(msg), "\n--- *** tableID[%d][%s][%s][%d] 终止游戏并退出(real=%d AI=%d total=%d)",
-				m_pTableFrame->GetTableId(), StringStat(m_pTableFrame->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1,
-				m_pTableFrame->GetRealPlayerCount(), m_pTableFrame->GetAndroidPlayerCount(), m_pTableFrame->GetPlayerCount());
-			LOG(INFO) << __FUNCTION__ << msg;
+			_LOG_INFO("[%s][%d][%s][%d] 终止游戏并退出(real=%d AI=%d total=%d)",
+				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), currentTurn_ + 1,
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
 		}
 		ClearGameData();
 		//清理房间内玩家
 		for (int i = 0; i < GAME_PLAYER; ++i) {
-			if (!m_pTableFrame->IsExistUser(i)) {
+			if (!table_->ExistUser(i)) {
 				continue;
 			}
 			bPlaying_[i] = false;
 			m_bRoundEndExit[i] = false;
 			m_bShowCard[i] = false;
-			shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(i); assert(userItem);
-			userItem->SetUserStatus(sOffline);
-			m_pTableFrame->ClearTableUser(i, true, true);
+			std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i); assert(player);
+			player->SetUserStatus(sOffline);
+			table_->ClearTableUser(i, true, true);
 		}
 		//重置游戏初始化
-		m_pTableFrame->SetGameStatus(GAME_STATUS_INIT);
+		table_->SetGameStatus(GAME_STATUS_INIT);
 		gameStatus_ = GAME_STATUS_INIT;
 		writeRealLog_ = false;
 	}
 }
 
 //初始化玩家当前携带
-void CTableFrameSink::initUserTakeScore(shared_ptr<CServerUserItem> userItem) {
-	if (!bPlaying_[userItem->GetChairId()]) {
+void CGameTable::initUserTakeScore(std::shared_ptr<IPlayer> player) {
+	if (!bPlaying_[player->GetChairId()]) {
 		if (take_) {
-			if (userItem->IsAndroidUser()) {
-				assert(userItem->GetUserScore() >= EnterMinScore);
+			if (player->IsRobot()) {
+				assert(player->GetUserScore() >= EnterMinScore);
 				int64_t minScore = 0;
 				if (EnterMaxScore >= EnterMinScore) {
-					minScore = std::min(userItem->GetUserScore(), EnterMaxScore);
+					minScore = std::min(player->GetUserScore(), EnterMaxScore);
 				}
 				else {
-					minScore = userItem->GetUserScore();
+					minScore = player->GetUserScore();
 				}
 				assert(EnterMinScore <= minScore);
-				int64_t curScore = GlobalFunc::RandomInt64(EnterMinScore, minScore);
+				int64_t curScore = rand_.betweenInt64(EnterMinScore, minScore).randInt64_mt();
 				if (curScore > 0) {
 					curScore = 100 * (int64_t)(curScore / 100);
-					minScore = std::min(userItem->GetUserScore(), curScore);
+					minScore = std::min(player->GetUserScore(), curScore);
 				}
 				else {
-					minScore = userItem->GetUserScore();
+					minScore = player->GetUserScore();
 				}
 				assert(curScore >= EnterMinScore);
-				assert(curScore <= userItem->GetUserScore());
+				assert(curScore <= player->GetUserScore());
 				if (EnterMaxScore >= EnterMinScore) {
 					assert(curScore <= EnterMaxScore);
 				}
-				userItem->SetCurTakeScore(minScore);
-				assert(userItem->GetCurTakeScore() >= EnterMinScore);
-				assert(userItem->GetCurTakeScore() <= userItem->GetUserScore());
+				player->SetCurTakeScore(minScore);
+				assert(player->GetCurTakeScore() >= EnterMinScore);
+				assert(player->GetCurTakeScore() <= player->GetUserScore());
 			}
 			else {
-				if (userItem->GetCurTakeScore() >= EnterMinScore &&
-					userItem->GetCurTakeScore() <= userItem->GetUserScore()) {
+				if (player->GetCurTakeScore() >= EnterMinScore &&
+					player->GetCurTakeScore() <= player->GetUserScore()) {
 				}
 				else {
-					userItem->SetCurTakeScore(userItem->GetUserScore());
-					assert(userItem->GetCurTakeScore() >= EnterMinScore);
-					assert(userItem->GetCurTakeScore() <= userItem->GetUserScore());
+					player->SetCurTakeScore(player->GetUserScore());
+					assert(player->GetCurTakeScore() >= EnterMinScore);
+					assert(player->GetCurTakeScore() <= player->GetUserScore());
 				}
 			}
 			for (int i = 0; i < 2; ++i) {
-				cfgTakeScore_[i][userItem->GetChairId()] = userItem->GetCurTakeScore();
+				cfgTakeScore_[i][player->GetChairId()] = player->GetCurTakeScore();
 			}
-			takeScore_[userItem->GetChairId()] = cfgTakeScore_[0][userItem->GetChairId()];
-			setscore_[userItem->GetChairId()] = true;
+			takeScore_[player->GetChairId()] = cfgTakeScore_[0][player->GetChairId()];
+			setscore_[player->GetChairId()] = true;
 		}
 		else {
-			takeScore_[userItem->GetChairId()] = userItem->GetUserScore();
+			takeScore_[player->GetChairId()] = player->GetUserScore();
 		}
-		assert(takeScore_[userItem->GetChairId()] >= EnterMinScore);
-		assert(takeScore_[userItem->GetChairId()] <= userItem->GetUserScore());
+		assert(takeScore_[player->GetChairId()] >= EnterMinScore);
+		assert(takeScore_[player->GetChairId()] <= player->GetUserScore());
 	}
 }
 
 //更新玩家当前携带
-void CTableFrameSink::upateUserTakeScore(shared_ptr<CServerUserItem> userItem) {
+void CGameTable::upateUserTakeScore(std::shared_ptr<IPlayer> player) {
 	if (take_) {
-		if (cfgTakeScore_[0][userItem->GetChairId()] != cfgTakeScore_[1][userItem->GetChairId()]) {
-			cfgTakeScore_[0][userItem->GetChairId()] = cfgTakeScore_[1][userItem->GetChairId()];
-			takeScore_[userItem->GetChairId()] = cfgTakeScore_[0][userItem->GetChairId()];
-			setscore_[userItem->GetChairId()] = true;
-			//LOG(WARNING) << __FUNCTION__ << " 带入配置变更 通知 " << userItem->GetUserId() << " takeScore_=" << takeScore_[userItem->GetChairId()];
+		if (cfgTakeScore_[0][player->GetChairId()] != cfgTakeScore_[1][player->GetChairId()]) {
+			cfgTakeScore_[0][player->GetChairId()] = cfgTakeScore_[1][player->GetChairId()];
+			takeScore_[player->GetChairId()] = cfgTakeScore_[0][player->GetChairId()];
+			setscore_[player->GetChairId()] = true;
+			//LOG(WARNING) << __FUNCTION__ << " 带入配置变更 通知 " << player->GetUserId() << " takeScore_=" << takeScore_[player->GetChairId()];
 		}
-		else if (userItem->GetAutoSetScore()) {
-			takeScore_[userItem->GetChairId()] = cfgTakeScore_[0][userItem->GetChairId()];
-			setscore_[userItem->GetChairId()] = true;
-			//LOG(WARNING) << __FUNCTION__ << " 自动带入设置 通知 " << userItem->GetUserId() << " takeScore_=" << takeScore_[userItem->GetChairId()];
+		else if (player->GetAutoSetScore()) {
+			takeScore_[player->GetChairId()] = cfgTakeScore_[0][player->GetChairId()];
+			setscore_[player->GetChairId()] = true;
+			//LOG(WARNING) << __FUNCTION__ << " 自动带入设置 通知 " << player->GetUserId() << " takeScore_=" << takeScore_[player->GetChairId()];
 		}
 		else {
-			takeScore_[userItem->GetChairId()] += userWinScorePure_[userItem->GetChairId()];
-			if (takeScore_[userItem->GetChairId()] < EnterMinScore) {
-			//if (takeScore_[userItem->GetChairId()] <= FloorScore) {
-				takeScore_[userItem->GetChairId()] = cfgTakeScore_[0][userItem->GetChairId()];
-				setscore_[userItem->GetChairId()] = true;
-				//LOG(WARNING) << __FUNCTION__ << " 携带低于准入分 通知 " << userItem->GetUserId() << " takeScore_=" << takeScore_[userItem->GetChairId()];
+			takeScore_[player->GetChairId()] += userWinScorePure_[player->GetChairId()];
+			if (takeScore_[player->GetChairId()] < EnterMinScore) {
+			//if (takeScore_[player->GetChairId()] <= FloorScore) {
+				takeScore_[player->GetChairId()] = cfgTakeScore_[0][player->GetChairId()];
+				setscore_[player->GetChairId()] = true;
+				//LOG(WARNING) << __FUNCTION__ << " 携带低于准入分 通知 " << player->GetUserId() << " takeScore_=" << takeScore_[player->GetChairId()];
 			}
 			else {
-				//LOG(WARNING) << __FUNCTION__ << " 手动带入显示变化 " << userItem->GetUserId() << " takeScore_=" << takeScore_[userItem->GetChairId()];
+				//LOG(WARNING) << __FUNCTION__ << " 手动带入显示变化 " << player->GetUserId() << " takeScore_=" << takeScore_[player->GetChairId()];
 			}
 		}
-		//if (takeScore_[userItem->GetChairId()] < EnterMinScore) {
-		//	takeScore_[userItem->GetChairId()] = userItem->GetUserScore();
+		//if (takeScore_[player->GetChairId()] < EnterMinScore) {
+		//	takeScore_[player->GetChairId()] = player->GetUserScore();
 		//}
-		/*else */if (takeScore_[userItem->GetChairId()] > userItem->GetUserScore()) {
-			takeScore_[userItem->GetChairId()] = 100 * (int64_t)(userItem->GetUserScore() / 100);
+		/*else */if (takeScore_[player->GetChairId()] > player->GetUserScore()) {
+			takeScore_[player->GetChairId()] = 100 * (int64_t)(player->GetUserScore() / 100);
 			//提示余额不够自动补充，请尽快充值
-			needTip_[userItem->GetChairId()] = true;
-			//LOG(WARNING) << __FUNCTION__ << " 余额不够自动补充 通知 " << userItem->GetChairId() << " takeScore_=" << takeScore_[userItem->GetChairId()];
+			needTip_[player->GetChairId()] = true;
+			//LOG(WARNING) << __FUNCTION__ << " 余额不够自动补充 通知 " << player->GetChairId() << " takeScore_=" << takeScore_[player->GetChairId()];
 		}
 	}
 	else {
-		takeScore_[userItem->GetChairId()] = userItem->GetUserScore();
+		takeScore_[player->GetChairId()] = player->GetUserScore();
 	}
 }
 
 //踢人用户清理
-void CTableFrameSink::clearKickUsers() {
+void CGameTable::clearKickUsers() {
 	//有真人的场机器人离开概率小，没有真人的场机器人离开概率大
-	int randValue = (m_pTableFrame->GetRealPlayerCount() > 0) ? 35 : 90;
+	int randValue = (table_->GetRealPlayerCount() > 0) ? 35 : 90;
 	for (int i = 0; i < GAME_PLAYER; ++i) {
-		shared_ptr<CServerUserItem> userItem = m_pTableFrame->GetTableUserItem(i);
-		if (userItem) {
-			upateUserTakeScore(userItem);
+		std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i);
+		if (player) {
+			upateUserTakeScore(player);
 			//离线，踢出玩家
-			if (userItem->GetUserStatus() == sOffline) {
+			if (player->GetUserStatus() == sOffline) {
 				bPlaying_[i] = false;
 				m_bRoundEndExit[i] = false;
 				m_bShowCard[i] = false;
-				m_pTableFrame->ClearTableUser(i, true, true);
+				table_->ClearTableUser(i, true, true);
 			}
 			//账号停用，踢出玩家
-			else if (userItem->GetUserStatus() == sStop) {
+			else if (player->GetUserStatus() == sStop) {
 				bPlaying_[i] = false;
 				m_bRoundEndExit[i] = false;
 				m_bShowCard[i] = false;
-				userItem->SetUserStatus(sOffline);
-				m_pTableFrame->ClearTableUser(i, true, true, ERROR_ENTERROOM_STOP_CUR_USER);
+				player->SetUserStatus(sOffline);
+				table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_STOP_CUR_USER);
 			}
 			//积分不足，踢出玩家
-			else if (userItem->GetUserScore() < EnterMinScore) {
+			else if (player->GetUserScore() < EnterMinScore) {
 				bPlaying_[i] = false;
 				m_bRoundEndExit[i] = false;
 				m_bShowCard[i] = false;
-				userItem->SetUserStatus(sOffline);
-				m_pTableFrame->ClearTableUser(i, true, true, ERROR_ENTERROOM_SCORENOENOUGH);
+				player->SetUserStatus(sOffline);
+				table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_SCORENOENOUGH);
 			}
 			//积分太多，踢出玩家
-// 			else if (EnterMaxScore > 0 && userItem->GetUserScore() > EnterMaxScore) {
+// 			else if (EnterMaxScore > 0 && player->GetUserScore() > EnterMaxScore) {
 // 				bPlaying_[i] = false;
 // 				m_bRoundEndExit[i] = false;
 // 				m_bShowCard[i] = false;
-// 				userItem->SetUserStatus(sOffline);
-// 				m_pTableFrame->ClearTableUser(i, true, true, ERROR_ENTERROOM_SCORELIMIT);
+// 				player->SetUserStatus(sOffline);
+// 				table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_SCORELIMIT);
 // 			}
-			else if (bPlaying_[i] && !userItem->IsAndroidUser()) {
-				//本局结束自动离开桌子
-				if (m_bRoundEndExit[i]) {
-					bPlaying_[i] = false;
-					m_bRoundEndExit[i] = false;
-					m_bShowCard[i] = false;
-					userItem->SetUserStatus(sOffline);
-					m_pTableFrame->ClearTableUser(i, true, true, ERROR_ENTERROOM_USER_AUTO_EXIT);
-				}
-				//长时间未操作，踢出玩家
-				else if (m_bPlayerCanOpt[i] && !m_bPlayerOperated[i]) {
-					bPlaying_[i] = false;
-					m_bRoundEndExit[i] = false;
-					m_bShowCard[i] = false;
-					userItem->SetUserStatus(sOffline);
-					m_pTableFrame->ClearTableUser(i, true, true, ERROR_ENTERROOM_LONGTIME_NOOP);
-				}
-			}
+// 			else if (bPlaying_[i] && !player->IsRobot()) {
+// 				//本局结束自动离开桌子
+// 				if (m_bRoundEndExit[i]) {
+// 					bPlaying_[i] = false;
+// 					m_bRoundEndExit[i] = false;
+// 					m_bShowCard[i] = false;
+// 					player->SetUserStatus(sOffline);
+// 					table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_USER_AUTO_EXIT);
+// 				}
+// 				//长时间未操作，踢出玩家
+// 				else if (m_bPlayerCanOpt[i] && !m_bPlayerOperated[i]) {
+// 					bPlaying_[i] = false;
+// 					m_bRoundEndExit[i] = false;
+// 					m_bShowCard[i] = false;
+// 					player->SetUserStatus(sOffline);
+// 					table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_LONGTIME_NOOP);
+// 				}
+// 			}
 			static STD::Random r(1, 100);
-			if (userItem->IsAndroidUser() && m_pTableFrame->GetPlayerCount() > MIN_GAME_PLAYER && bPlaying_[i] && currentWinUser_ != i && r.randInt_mt() <= randValue) {
-				OnUserLeft(userItem->GetUserId(), true);
+			if (player->IsRobot() && table_->GetPlayerCount() > MIN_GAME_PLAYER && bPlaying_[i] && currentWinUser_ != i && r.randInt_mt() <= randValue) {
+				OnUserLeft(player->GetUserId(), true);
 			}
 		}
 	}
 }
 
 //读取配置
-void CTableFrameSink::ReadConfigInformation() {
+void CGameTable::ReadConfigInformation() {
 	static STD::Random r;
 	time_t now = time(NULL);
 	uint32_t elapsed = now - lastReadCfgTime_;
 	if (elapsed > (readIntervalTime_ + r.betweenInt(0, 10).randInt_mt())) {
-		assert(m_pTableFrame);
+		assert(table_);
 		if (!boost::filesystem::exists(INI_FILENAME)) {
-			LOG(ERROR) << __FUNCTION__ << " " << INI_FILENAME << " not exists";
+			_LOG_ERROR("%s not exists", INI_FILENAME);
 			return;
 		}
 		boost::property_tree::ptree pt;
 		boost::property_tree::read_ini(INI_FILENAME, pt);
 
-		string strRoomName = "GameServer_" + to_string(m_pTableFrame->GetGameRoomInfo()->roomId);
+		string strRoomName = "GameServer_" + to_string(table_->GetRoomInfo()->roomId);
 		m_lMarqueeMinScore = pt.get<double>(strRoomName + ".MarqueeMinScore", 1000);
 
 		//系统当前库存
-		//m_pTableFrame->GetStorageScore(storageInfo_);
+		//table_->GetStorageScore(storageInfo_);
 
 		//分片匹配时长
 		sliceMatchSeconds_ = pt.get<double>("MatchRule.sliceMatchSeconds_", 0.4);
@@ -4139,16 +4046,11 @@ void CTableFrameSink::ReadConfigInformation() {
 }
 
 //得到桌子实例
-extern "C" shared_ptr<ITableFrameSink> CreateTableFrameSink()
-{
-    shared_ptr<CTableFrameSink> pGameProcess(new CTableFrameSink());
-    shared_ptr<ITableFrameSink> pITableFrameSink = dynamic_pointer_cast<ITableFrameSink>(pGameProcess);
-    return pITableFrameSink;
+extern "C" std::shared_ptr<ITableDelegate> CreateTableFrameSink() {
+	return std::shared_ptr<ITableDelegate>(new CGameTable());
 }
 
 //删除桌子实例
-extern "C" void DeleteTableFrameSink(shared_ptr<ITableFrameSink>& pITableFrameSink)
-{
-    pITableFrameSink.reset();
+extern "C" void DeleteTableDelegate(std::shared_ptr<ITableDelegate>&tableDelegate) {
+	tableDelegate.reset();
 }
-

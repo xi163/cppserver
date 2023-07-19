@@ -1,26 +1,7 @@
-﻿#include <time.h>
-#include <algorithm>
-#include "math.h"
-#include <iostream>
-#include <memory>
-#include <utility>
-#include <sys/types.h>
-#include <sstream>
-#include <fstream>
-#include <stdio.h>
-#include <string>
-#include <stdlib.h>
-#include <map>
-
+﻿#include "cfg.h"
 #include "funcC.h"
-#include "cfg.h"
 #include "texas.h"
-#include "StdRandom.h"
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <stdarg.h>
+
 
 namespace TEXAS {
 
@@ -3074,7 +3055,7 @@ namespace TEXAS {
     void CGameLogic::TestEnumCards(char const* filename)
     {
 		std::vector<std::string> lines;
-		readFile(filename, lines, ";;");
+		//readFile(filename, lines, ";;");
 		assert(lines.size() >= 2);
 		//1->文件读取手牌 0->随机生成13张牌
 		int flag = atoi(lines[0].c_str());

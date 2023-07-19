@@ -2,15 +2,7 @@
 #ifndef FUNC_C_H
 #define FUNC_C_H
 
-#include <sys/types.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <assert.h>
-#include <memory.h>
-#include <list>
-#include <vector>
+#include "public/Inc.h"
 
 //求组合C(n,k)
 class CFuncC {

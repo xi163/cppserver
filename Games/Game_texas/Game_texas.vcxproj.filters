@@ -7,8 +7,11 @@
     <Filter Include="Game_texas">
       <UniqueIdentifier>{99f9db34-02b5-4dc0-8545-1f0978bfd43c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public">
-      <UniqueIdentifier>{c569bc63-5839-4adb-abfa-7a26106da186}</UniqueIdentifier>
+    <Filter Include="interface">
+      <UniqueIdentifier>{5d01959d-923a-42fb-8f10-a4d727888030}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logger">
+      <UniqueIdentifier>{b02db4f3-c73e-423d-9b48-a4b582da054f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,18 +30,12 @@
     <ClCompile Include="cfg.cpp">
       <Filter>Game_texas</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Framework\public\GlobalFunc.cpp">
-      <Filter>public</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\proto\texas.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TableFrameSink.h">
-      <Filter>Game_texas</Filter>
-    </ClInclude>
-    <ClInclude Include="StdRandom.h">
       <Filter>Game_texas</Filter>
     </ClInclude>
     <ClInclude Include="texas.h">
@@ -50,11 +47,32 @@
     <ClInclude Include="cfg.h">
       <Filter>Game_texas</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Framework\public\GlobalFunc.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\proto\texas.Message.pb.h">
       <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IPlayer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IReplayRecord.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\IRobotDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\ITable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv\interface\ITableDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdpart\Logger\src\log\Logger.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdpart\Logger\src\Macro.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\thirdpart\Logger\src\utils\utils.h">
+      <Filter>Logger</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

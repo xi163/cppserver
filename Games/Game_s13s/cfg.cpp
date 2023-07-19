@@ -1,17 +1,4 @@
-﻿#include <time.h>
-#include <algorithm>
-#include "math.h"
-#include <iostream>
-#include <memory>
-#include <utility>
-#include <sys/types.h>
-#include <sstream>
-#include <fstream>
-#include <stdio.h>
-#include <string>
-#include <stdlib.h>
-
-#include "cfg.h"
+﻿#include "cfg.h"
 
 //按行读取文件
 void readFile(char const* filename, std::vector<std::string>& lines, char const* skip) {

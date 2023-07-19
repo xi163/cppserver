@@ -1,17 +1,7 @@
 #ifndef GAME_LOGIC_TEXAS_H
 #define GAME_LOGIC_TEXAS_H
 
-#include <sys/types.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <assert.h>
-#include <memory.h>
-#include <list>
-#include <vector>
-#include <boost/get_pointer.hpp>
-#include <boost/shared_ptr.hpp>
+#include "public/Inc.h"
 
 #ifndef isZero
 #define isZero(a)        ((a>-0.000001) && (a<0.000001))
