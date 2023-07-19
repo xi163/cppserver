@@ -144,7 +144,7 @@ public:
 	//发送场景
 	virtual bool OnGameScene(uint32_t chairId, bool lookon);
 	//游戏消息
-	virtual bool OnGameMessage(uint32_t chairId, uint8_t subid, uint8_t const* data, size_t len);
+	virtual bool OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len);
 	//用户进入
 	virtual bool OnUserEnter(int64_t userId, bool lookon);
 	//用户准备
@@ -154,7 +154,7 @@ public:
 	//能否加入
 	virtual bool CanJoinTable(std::shared_ptr<IPlayer> const& player);
 	//梭哈、德州使用当前携带金币
-	virtual bool CanJionGame(int64_t userId, int64_t score);
+	virtual bool CanJionTableSpecial(int64_t userId, int64_t score);
 	//能否离开
 	virtual bool CanLeftTable(int64_t userId);
 	//设置指针

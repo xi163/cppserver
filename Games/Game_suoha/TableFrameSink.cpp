@@ -278,7 +278,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 }
 
 //梭哈、德州使用当前携带金币
-bool CGameTable::CanJionGame(int64_t userId, int64_t score) {
+bool CGameTable::CanJionTableSpecial(int64_t userId, int64_t score) {
 // 	char msg[1024] = { 0 };
 // 	if (userId >= MIN_SYS_USER_ID) {
 // 		std::shared_ptr<IPlayer> player = table_->GetPlayer(userId);
