@@ -4,8 +4,6 @@
 #include "funcC.h"
 #include "cfg.h"
 
-//#include "GlobalFunc.h"
-//#include "ToolTime.h"
 //#include "pb2Json.h"
 
 #include "TableFrameSink.h"
@@ -186,8 +184,8 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		return true;
 	}
 	else if (player->GetUserId() >= MIN_SYS_USER_ID) {//断线重连
-		std::shared_ptr<IPlayer> player = table_->GetPlayer(player->GetUserId());
-		if (player) {
+		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
+		if (userItem) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 3";
 			return true;
 		}
@@ -3881,14 +3879,14 @@ void CGameTable::LetSysWin(bool sysWin) {
 			table_->IsRobot((uint32_t)info[i]) > 0 ? "机器人" : "玩家");
 		strtmp += msg;
 	}
-	strmsg += std::string("\n\n--- *** 换牌前按牌大小座位排次\n") + strtmp;
+	strmsg += std::string("\n\n换牌前按牌大小座位排次\n") + strtmp;
 	for (int i = 0; i < vinfo.size(); ++i) {
 		snprintf(msg, sizeof(msg), "[%d] chairID = %d %s\n",
 			i, vinfo[i],
 			table_->IsRobot((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家");
 		strtmp2 += msg;
 	}
-	strmsg += std::string("--- *** 换牌后按牌大小座位排次\n") + strtmp2;
+	strmsg += std::string("换牌后按牌大小座位排次\n") + strtmp2;
 	for (int i = 0; i < vinfo.size(); ++i) {
 		//需要换牌，并且换牌后是机器人则换牌
 		if (info[i] != vinfo[i]) {
@@ -3901,15 +3899,15 @@ void CGameTable::LetSysWin(bool sysWin) {
 				//交换手牌
 				uint8_t handcards[MAX_COUNT];
 				memcpy(handcards, &(handCards_[info[i]])[0], MAX_COUNT);
-				snprintf(msg, sizeof(msg), "--- *** 换牌前，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)info[i]) > 0 ? "机器人" : "玩家"), info[i], S13S::CGameLogic::StringCards(&(handCards_[info[i]])[0], MAX_COUNT).c_str());
+				snprintf(msg, sizeof(msg), "换牌前，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)info[i]) > 0 ? "机器人" : "玩家"), info[i], S13S::CGameLogic::StringCards(&(handCards_[info[i]])[0], MAX_COUNT).c_str());
 				strmsg += msg;
 				memcpy(&(handCards_[info[i]])[0], &(handCards_[vinfo[i]])[0], MAX_COUNT);
-				snprintf(msg, sizeof(msg), "--- *** 换牌后，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)info[i]) > 0 ? "机器人" : "玩家"), info[i], S13S::CGameLogic::StringCards(&(handCards_[info[i]])[0], MAX_COUNT).c_str());
+				snprintf(msg, sizeof(msg), "换牌后，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)info[i]) > 0 ? "机器人" : "玩家"), info[i], S13S::CGameLogic::StringCards(&(handCards_[info[i]])[0], MAX_COUNT).c_str());
 				strmsg += msg;
-				snprintf(msg, sizeof(msg), "--- *** 换牌前，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家"), vinfo[i], S13S::CGameLogic::StringCards(&(handCards_[vinfo[i]])[0], MAX_COUNT).c_str());
+				snprintf(msg, sizeof(msg), "换牌前，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家"), vinfo[i], S13S::CGameLogic::StringCards(&(handCards_[vinfo[i]])[0], MAX_COUNT).c_str());
 				strmsg += msg;
 				memcpy(&(handCards_[vinfo[i]])[0], handcards, MAX_COUNT);
-				snprintf(msg, sizeof(msg), "--- *** 换牌后，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家"), vinfo[i], S13S::CGameLogic::StringCards(&(handCards_[vinfo[i]])[0], MAX_COUNT).c_str());
+				snprintf(msg, sizeof(msg), "换牌后，%s %d 手牌 [%s]\n", (table_->IsRobot((uint32_t)vinfo[i]) > 0 ? "机器人" : "玩家"), vinfo[i], S13S::CGameLogic::StringCards(&(handCards_[vinfo[i]])[0], MAX_COUNT).c_str());
 				strmsg += msg;
 			}
 		}

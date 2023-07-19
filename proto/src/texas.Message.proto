@@ -1,0 +1,401 @@
+syntax = "proto2";
+package texas;
+
+enum SUBID
+{
+	//客户端命令结构
+	SUB_C_ADD_SCORE			= 1;//用户跟注/加注 CMD_C_AddScore
+	SUB_C_GIVE_UP			= 2;//用户弃牌
+	SUB_C_PASS_SCORE		= 3;//用户过牌
+	SUB_C_LOOK_CARD			= 4;//用户看牌
+	SUB_C_ALL_IN			= 5;//孤注一掷 梭哈
+	SUB_C_SHOW_CARD         = 6;//明牌开关
+	SUB_C_ROUND_END_EXIT    = 10;//本局结束后退出[CMD_C_RoundEndExit]
+	SUB_C_ANDROID_LEAVE     = 11;//机器人离开
+	SUB_C_TAKESCORE         = 12;//设置携带[CMD_C_TakeScore]
+	
+	//服务器命令结构
+	SUB_SC_GAMESCENE_FREE    = 201;//空闲场景消息 CMD_S_StatusFree
+	SUB_SC_GAMESCENE_PLAY    = 202;//游戏中场景消息 CMD_S_StatusPlay
+	SUB_SC_GAMESCENE_END     = 203;//游戏结束场景 CMD_S_StatusEnd
+	
+	SUB_S_GAME_START         = 100;//游戏开始 CMD_S_GameStart
+	SUB_S_ADD_SCORE          = 101;//用户跟注/加注 CMD_S_AddScore		 
+	SUB_S_GIVE_UP            = 102;//用户弃牌 CMD_S_GiveUp
+	SUB_S_PASS_SCORE       	 = 103;//用户过牌 CMD_S_PassScore
+	SUB_S_LOOK_CARD			 = 104;//用户看牌 CMD_S_LookCard
+	SUB_S_ALL_IN             = 105;//孤注一掷 梭哈 CMD_S_AllIn
+	SUB_S_GAME_END			 = 106;//游戏结束 CMD_S_GameEnd
+	SUB_S_SEND_CARD 		 = 107;//发牌 CMD_S_SendCard
+	SUB_S_SHOW_CARD          = 108;//明牌开关 CMD_S_ShowCardSwitch
+ 	//SUB_S_GIVEUP_TIMEOUT_OP  = 108;//防超时弃牌 CMD_S_GIVEUP_TIMEOUT_OP
+	SUB_S_ANDROID_ENTER      = 109;//机器人中途加入
+	SUB_S_TAKESCORE          = 110;//设置携带[CMD_S_TakeScore]
+	SUB_S_BROADCASTTAKESCORE = 111;//广播携带分[CMD_S_BroadcastTakeScore]
+	
+	SUB_S_ANDROID_CARD       = 113;//机器人消息 CMD_S_AndroidCard
+	SUB_S_OPERATE_NOTIFY     = 114;//操作失败通知 CMD_S_Operate_Notify
+    SUB_S_ROUND_END_EXIT_RESULT = 115; //本局结束后退出[CMD_S_RoundEndExitResult]
+	
+	NN_SUB_C_MESSAGE            =116;   //发送消息[NN_CMD_C_Message]
+    NN_SUB_S_MESSAGE_RESULT     =117;   //发送消息[NN_CMD_S_MessageResult]
+}
+////////////////////////////////////////////////////////////////////////////////
+//设置携带
+message CMD_C_TakeScore
+{
+	optional int64 takescore = 1;//携带积分
+	optional bool  autoset   = 2;//是否自动补充
+}
+message CMD_S_TakeScore
+{
+	optional int64 bok       = 1;
+	optional bool  autoset   = 2;//是否自动补充
+}
+////////////////////////////////////////////////////////////////////////////////
+//广播携带分
+message CMD_S_BroadcastTakeScore
+{
+	optional int32 chairId       = 1;
+	optional int64 userId        = 2;
+	optional int64 takescore     = 3;
+}
+////////////////////////////////////////////////////////////////////////////////
+//手牌数据
+message HandCards
+{
+	required bytes cards = 1;//玩家手牌
+	optional int32 ty    = 2;//手牌牌型
+}
+////////////////////////////////////////////////////////////////////////////////
+//筹码信息
+message ChipInfo
+{
+	optional int32 chip   = 1;//筹码面值
+	optional int64 count  = 2;//数量
+}
+////////////////////////////////////////////////////////////////////////////////
+//桌椅玩家
+message PlayerItem
+{
+	required int32 chairId 	       = 1;//座椅ID
+	optional int64 userId 		   = 2;//玩家ID
+	optional string nickname 	   = 3;//昵称
+	optional int32 headId		   = 4;//头像ID
+	optional int64 takeScore       = 5;//携带积分
+	optional int64 userScore	   = 6;//当前积分 = 携带积分 - 累计下注
+	optional int64 tableScore      = 7;//累计下注
+	optional string	location	   = 8;//玩家位置
+	optional HandCards handCards   = 9;//手牌数据
+	optional bool isLooked 	       = 10;//是否看牌
+	optional bool isGiveup 		   = 11;//是否弃牌
+	optional bool isLost 		   = 12;//是否比牌输
+	optional bool isAllIn 		   = 13;//是否梭哈
+	optional bool playstatus       = 14;//参与游戏
+	optional int32 vipLevel        = 15;
+	optional int32 headBoxIndex    = 16;
+	optional string  headImgUrl    = 17;
+}
+////////////////////////////////////////////////////////////////////////////////
+//可操作上下文
+message OptContext {
+	optional int64 minAddScore   = 1;//最小加注分
+	optional int64 followScore   = 2;//当前跟注分(显示在跟注按钮上的数值)
+	repeated int64 jettons       = 3;//加注筹码表
+	repeated int32 range		 = 4;//筹码表可加注筹码索引范围
+	optional bool  canPass       = 5;//能否过牌
+	optional bool  canFollow     = 6;//能否跟注
+	optional bool  canAdd        = 7;//能否加注
+	optional bool  canAllIn      = 8;//能否梭哈
+}
+////////////////////////////////////////////////////////////////////////////////
+//桌面情况及下一步操作信息
+message CMD_S_Next_StepInfo
+{
+	optional int32 NextUser 	    = 1;//下一步操作玩家
+	optional int32 currentTurn		= 2;//当前第几轮
+	optional OptContext ctx         = 3;//可操作上下文
+	optional int32 wTimeLeft 	    = 4;//剩余时间
+	
+	optional int64 NextUserId 	    = 5;//下一步操作玩家
+};
+////////////////////////////////////////////////////////////////////////////////
+//空闲状态
+message CMD_S_StatusFree
+{
+	required int64 cellscore 	= 1; //基础积分
+	repeated PlayerItem players = 2; //座椅玩家
+};
+////////////////////////////////////////////////////////////////////////////////
+//游戏状态
+message CMD_S_StatusPlay
+{
+	optional string roundId              = 1;//牌局编号
+	optional int64 cellscore             = 2;//基础积分
+	optional int32 BankerUser            = 3;//庄家用户
+	optional int32 CurrentUser           = 4;//操作用户
+	optional int32 FirstUser             = 5;//首发用户
+	optional OptContext ctx              = 6;//可操作上下文(若非操作用户该项为空)
+	repeated PlayerItem players          = 7;//游戏中的玩家
+	optional int64 tableAllScore         = 8;//桌面总注
+	repeated ChipInfo chips              = 9;//桌面总下注筹码信息
+	optional int32 currentTurn           = 10;//轮数
+	optional int32 wTimeLeft             = 11;//剩余时间
+	optional int32 wTotalTime            = 12;//总时间
+	optional bool isTimeoutGiveUp	     = 13;//是否选择防超时弃牌
+	optional HandCards tableCards        = 14;//桌牌数据
+	
+	optional int64 CurrentUserId         = 15;//操作用户
+	optional int32 SmallBlindUser        = 16;//小盲用户
+	optional int32 SmallBlindUserId      = 17;//小盲用户
+	optional int32 BigBlindUser          = 18;//大盲用户
+	optional int32 BigBlindUserId        = 19;//大盲用户
+	repeated int64 pots                  = 20;//主(底)池：只有一个 边池：可能没有或很多个
+	
+	optional bool isAutoSetScore         = 21;
+	optional int64 cfgTakeScore          = 22;
+};
+////////////////////////////////////////////////////////////////////////////////
+//结束状态
+message CMD_S_StatusEnd
+{
+	required int32 wTimeLeft = 1; //剩余时间
+	optional int64 cellscore = 2; //基础积分
+};
+////////////////////////////////////////////////////////////////////////////////
+//游戏开始
+message CMD_S_GameStart
+{
+	required string roundId      = 1;//牌局编号
+	optional int64 BankerUser    = 2;//庄家信息
+	repeated PlayerItem players  = 3;//各个玩家
+	optional int64 tableAllScore = 4;//桌面总注
+	repeated ChipInfo chips      = 5;//桌面总下注筹码信息
+	optional CMD_S_Next_StepInfo nextStep = 6;//桌面情况及下一步操作信息
+	
+	repeated int64 pots          = 7;//主(底)池：只有一个 边池：可能没有或很多个
+	optional int64 cellscore 	 = 8; //基础积分
+	optional bool needtip        = 9;//提示余额不够自动补充并调整为takeScore，请尽快充值
+	optional bool setscoretip    = 10;//true-提示自动补充并调整为takescore  false-没有自动补充不用提示
+};
+////////////////////////////////////////////////////////////////////////////////
+//用户加注/跟注
+message CMD_S_AddScore
+{
+	optional int64 opUser	              = 1;//操作用户
+	optional int32 opValue                = 2;//操作 3-跟注 4-加注
+	optional int64 addScore	      		  = 3;//用户当前跟注分/加注分
+	repeated ChipInfo chips               = 4;//当前下注筹码信息
+	optional int64 takeScore              = 5;//携带积分
+	optional int64 userScore	          = 6;//当前积分 = 携带积分 - 累计下注
+	optional int64 tableScore             = 7;//累计下注
+	optional int64 tableAllScore          = 8;//桌面总注
+	optional CMD_S_Next_StepInfo nextStep = 9;//桌面情况及下一步操作信息
+	
+	repeated int64 pots          = 10;//主(底)池：只有一个 边池：可能没有或很多个
+};
+////////////////////////////////////////////////////////////////////////////////
+//孤注一掷 梭哈
+message CMD_S_AllIn
+{
+	required int32 AllinUser              = 1;//梭哈的玩家
+	optional int64 addScore	      		  = 2;//用户梭哈分
+	repeated ChipInfo chips               = 3;//当前下注筹码信息
+	optional int64 takeScore              = 4;//携带积分
+	optional int64 UserScore	          = 5;//当前积分 = 携带积分 - 累计下注
+	optional int64 tableScore             = 6;//累计下注
+	optional int64 tableAllScore          = 7;//桌面总注
+	optional CMD_S_Next_StepInfo nextStep = 8;//桌面情况及下一步操作信息
+	
+	repeated int64 pots          = 9;//主(底)池：只有一个 边池：可能没有或很多个
+};
+////////////////////////////////////////////////////////////////////////////////
+//用户弃牌
+message CMD_S_GiveUp
+{
+	optional int32 GiveUpUser             = 1;//弃牌用户
+	optional bytes cards                  = 2;//玩家手牌
+	optional int32 ty                     = 3;//手牌牌型
+ 	optional CMD_S_Next_StepInfo nextStep = 4;//桌面情况及下一步操作信息
+	
+	repeated int64 pots          = 5;//主(底)池：只有一个 边池：可能没有或很多个
+};
+////////////////////////////////////////////////////////////////////////////////
+//用户过牌
+message CMD_S_PassScore
+{
+	required int32 PassUser 	          = 1;//不加注玩家
+	optional CMD_S_Next_StepInfo nextStep = 2;//桌面情况及下一步操作信息
+	
+	repeated int64 pots          = 3;//主(底)池：只有一个 边池：可能没有或很多个
+}
+////////////////////////////////////////////////////////////////////////////////
+//用户看牌
+message CMD_S_LookCard
+{
+	optional int32 LookCardUser           = 1;//看牌用户
+	optional bytes cards                  = 2;//玩家手牌
+	optional int32 ty                     = 3;//手牌牌型
+};
+////////////////////////////////////////////////////////////////////////////////
+//发牌(每一轮开始)
+message CMD_S_SendCard
+{
+	optional bytes cards   = 1;
+	optional int32 ty      = 2;
+	optional CMD_S_Next_StepInfo nextStep = 3;//桌面情况及下一步操作信息
+	
+	repeated int64 pots          = 4;//主(底)池：只有一个 边池：可能没有或很多个
+};
+////////////////////////////////////////////////////////////////////////////////
+//结算时当前玩家是否明牌开关
+message CMD_C_ShowCardSwitch
+{
+	required bool isShowCard =1;
+}
+message CMD_S_ShowCardSwitch
+{
+	required bool isShowCard =1;
+}
+message PlayerPotInfo
+{
+	optional int32 index = 1;//边池id
+	optional int64 score = 2;//赢的钱
+}
+////////////////////////////////////////////////////////////////////////////////
+//
+message CMD_S_GameEnd_Player
+{
+	optional int32 chairId        = 1;//座椅ID
+	optional int64 deltascore     = 2;//输赢得分
+	optional int64 takeScore      = 3;//携带积分
+	optional int64 userScore      = 4;//剩余积分
+	optional HandCards handcards  = 5;//玩家手牌
+	repeated int32 handIndexs     = 6;//手牌索引列
+	repeated int32 tblIndexs      = 7;//桌面牌索引列
+	optional int64 backScore      = 8;//返还积分
+	repeated ChipInfo chips       = 9;//筹码动画
+	
+	optional int64 userId         = 10;//座椅ID
+	repeated PlayerPotInfo winpots= 11;//赢的边池信息
+}
+////////////////////////////////////////////////////////////////////////////////
+//游戏结束
+message CMD_S_GameEnd
+{
+	required int32 winuser                = 1;//赢家ID
+	required bool showwincard             = 2;//展示赢牌
+	repeated CMD_S_GameEnd_Player players = 3;//结束时玩家信息
+}
+////////////////////////////////////////////////////////////////////////////////
+//操作失败通知
+message CMD_S_Operate_Notify
+{
+	required int32 opcode = 1;//看牌0 过牌1 弃牌2 跟注3 加注4 梭哈5
+	optional string errmsg = 2;
+}
+////////////////////////////////////////////////////////////////////////////////
+//机器人
+message  AndroidPlayer
+{
+	optional HandCards handCards  = 1;//手牌数据
+	optional int32 chairId = 2;//座椅ID
+	optional int64 userscore = 3;
+}
+////////////////////////////////////////////////////////////////////////////////
+//机器人扑克
+message CMD_S_AndroidCard
+{
+	optional string roundId        = 1;//牌局编号
+	repeated AndroidPlayer players = 2;//玩家信息
+	optional HandCards tableCards  = 3;//桌牌数据
+	optional int32 winUser         = 4;//赢家用户
+	optional AndroidConfig cfg     = 5;// 
+};
+////////////////////////////////////////////////////////////////////////////////
+//用户跟注/加注
+message CMD_C_AddScore
+{
+	required int32 opValue  = 1;//操作 3-跟注 4-加注
+	optional int64 addScore = 2;//用户当前加注分 跟注不填
+};
+////////////////////////////////////////////////////////////////////////////////
+//空包消息
+message CMD_C_NULL
+{
+}
+////////////////////////////////////////////////////////////////////////////////
+//本局结束后退出
+message CMD_C_RoundEndExit
+{
+    required bool   bExit =1; //本局结束后退出  ture:退出  false:不退出
+};
+message CMD_S_RoundEndExitResult
+{
+    required bool   bExit =1; //本局结束后退出  ture:退出  false:不退出
+};
+
+
+//发送消息
+message NN_CMD_C_Message
+{
+    required    string  message                 =1; //文字消息 没有文字时为空字串
+    required    int32   faceId                  =2; //表情    没有表情时为-1
+    required    int32   type                    =3;
+};
+message NN_CMD_S_MessageResult
+{
+    required    int32   sendChairId             =1;
+    required    int64   sendUserId              =2; //发送者Id
+    required    string  message                 =3; //文字消息 没有文字时为空字串
+    required    int32   faceId                  =4; //表情    没有表情时为-1
+    required    int32   type                    =5;
+    required    int32   headerId                =6;
+    required    int32   headboxId               =7;
+    required    string  headImgUrl              =8;
+    required    int32   vip                     =9;
+    optional    string  nickName                =10;
+	
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//机器人配置
+message AndroidConfig
+{
+	optional bool freeLookover_ = 1;//开启随时看牌
+	optional bool freeGiveup_   = 2;//开启随时弃牌
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//机器人中途加入
+message CMD_S_AndroidEnter {
+	optional int32 chairId       = 1; //座椅ID
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//机器人离开桌子
+message CMD_C_AndroidLeave {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//当局游戏记录详情
+message PlayerRecordDetail {
+	optional string account      = 1; //账号/昵称
+	optional int32 chairId       = 2; //座椅ID
+	optional int32 isbanker      = 3; //是否庄家
+	optional HandCards handcards = 4; //手牌数据
+	optional int64 takeScore     = 5;//携带积分
+	optional int64 userscore     = 6; //携带积分
+	optional int32 cellscore     = 7; //房间底注
+	optional int32 tableScore    = 8; //玩家下注
+	optional int32 roundTurn     = 9; //经历轮数
+	optional int32 roundResult   = 10; //1-弃牌输 2-比牌输 3-梭哈输
+	optional int32 winLostScore  = 11;//输赢积分
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//当局游戏记录详情
+message CMD_S_GameRecordDetail {
+	optional int32 gameid              = 1; //游戏类型
+	repeated PlayerRecordDetail detail = 2; //当局记录详情
+}

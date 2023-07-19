@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="pb">
+      <UniqueIdentifier>{8ac0a16b-5eab-4b01-abd0-cb07d3d009c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game_suoha">
+      <UniqueIdentifier>{99f9db34-02b5-4dc0-8545-1f0978bfd43c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{2e9b4cc7-7892-44cb-9527-8ab4388a9f5e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Game_suoha</Filter>
+    </ClCompile>
+    <ClCompile Include="TableFrameSink.cpp">
+      <Filter>Game_suoha</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\proto\suoha.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="suoha.cpp">
+      <Filter>Game_suoha</Filter>
+    </ClCompile>
+    <ClCompile Include="funcC.cpp">
+      <Filter>Game_suoha</Filter>
+    </ClCompile>
+    <ClCompile Include="cfg.cpp">
+      <Filter>Game_suoha</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Framework\public\GlobalFunc.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TableFrameSink.h">
+      <Filter>Game_suoha</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\proto\suoha.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="suoha.h">
+      <Filter>Game_suoha</Filter>
+    </ClInclude>
+    <ClInclude Include="funcC.h">
+      <Filter>Game_suoha</Filter>
+    </ClInclude>
+    <ClInclude Include="cfg.h">
+      <Filter>Game_suoha</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\public\GlobalFunc.h">
+      <Filter>public</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

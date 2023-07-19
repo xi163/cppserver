@@ -35,32 +35,32 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\proto\s13s.Message.pb.cc" />
-    <ClCompile Include="AndroidUserItemSink.cpp" />
+    <ClCompile Include="..\..\Framework\public\GlobalFunc.cpp" />
+    <ClCompile Include="..\..\proto\texas.Message.pb.cc" />
+    <ClCompile Include="cfg.cpp" />
+    <ClCompile Include="funcC.cpp" />
+    <ClCompile Include="texas.cpp" />
+    <ClCompile Include="TableFrameSink.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Framework\game_serv\gameDefine.h" />
-    <ClInclude Include="..\..\Framework\game_serv\interface\IPlayer.h" />
-    <ClInclude Include="..\..\Framework\game_serv\interface\IReplayRecord.h" />
-    <ClInclude Include="..\..\Framework\game_serv\interface\IRobotDelegate.h" />
-    <ClInclude Include="..\..\Framework\game_serv\interface\ITable.h" />
-    <ClInclude Include="..\..\Framework\game_serv\interface\ITableDelegate.h" />
-    <ClInclude Include="..\..\proto\s13s.Message.pb.h" />
-    <ClInclude Include="..\..\thirdpart\Logger\src\log\Logger.h" />
-    <ClInclude Include="..\..\thirdpart\Logger\src\Macro.h" />
-    <ClInclude Include="..\..\thirdpart\Logger\src\utils\utils.h" />
-    <ClInclude Include="AndroidUserItemSink.h" />
+    <ClInclude Include="..\..\Framework\public\GlobalFunc.h" />
+    <ClInclude Include="..\..\proto\texas.Message.pb.h" />
+    <ClInclude Include="cfg.h" />
+    <ClInclude Include="funcC.h" />
+    <ClInclude Include="StdRandom.h" />
+    <ClInclude Include="texas.h" />
+    <ClInclude Include="TableFrameSink.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0304B3D8-3AF1-4E14-AAAE-0753CFEDB9C4}</ProjectGuid>
+    <ProjectGuid>{8999A692-1FF0-429D-ADBD-609BE4B82EDA}</ProjectGuid>
     <Keyword>Linux</Keyword>
-    <RootNamespace>Game_s13s_score_android</RootNamespace>
+    <RootNamespace>Game_texas</RootNamespace>
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
     <ApplicationType>Linux</ApplicationType>
     <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
     <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
     <LinuxProjectType>{D51BCBC9-82E9-4017-911E-C93873C4EA2B}</LinuxProjectType>
-    <ProjectName>Game_s13s_robot</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
@@ -81,6 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -94,16 +95,22 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>libGame_s13s_robot</TargetName>
+    <TargetName>libGame_texas</TargetName>
     <IncludePath>Y:\include;Y:\local\include;Y:\local\include\bsoncxx\v_noabi;Y:\local\include\mongocxx\v_noabi;Y:\local\include\google\protobuf;Y:\local\include\hiredis-vip;Y:\local\include\zookeeper;X:\andy\cppserver;X:\andy\cppserver\public;X:\andy\cppserver\proto;X:\andy\cppserver\thirdpart\muduo-vip;X:\andy\cppserver\public\TraceMsg;X:\andy\cppserver\public\MongoDB;X:\andy\cppserver\public\RedisClient;X:\andy\cppserver\public\RedisLock;X:\andy\cppserver\public\zookeeperclient;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include.linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\asm-generic;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++\5;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\x86_64-linux-gnu;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.34.31933\include;X:\andy\cppserver\thirdpart;X:\andy\cppserver\Framework\game_serv;X:\andy\cppserver\Framework\game_serv\interface;X:\andy\cppserver\thirdpart\Logger\src;X:\andy\cppserver\thirdpart\Logger\src\log;X:\andy\cppserver\thirdpart\Logger\src\utils;$(IncludePath)</IncludePath>
+    <TargetExt>.so</TargetExt>
     <OutDir>/home/andy/cppserver/bin</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetExt>.so</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver;/home/andy/cppserver/public;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart/Json/include;/home/andy/server/thirdpart/;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/jsoncpp-src-0.5.0/include;/home/andy/cppserver/Framework/game_serv;/home/andy/cppserver/Framework/game_serv/interface;/home/andy/cppserver/Games/Game_s13s;/home/andy/server/thirdpart/Logger/src;/home/andy/server/thirdpart/Logger/src/log;/home/andy/server/thirdpart/Logger/src/utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver;/home/andy/cppserver/public;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart/Json/include;/home/andy/server/thirdpart/;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/jsoncpp-src-0.5.0/include;/home/andy/cppserver/Framework/game_serv;/home/andy/cppserver/Framework/game_serv/interface;/home/andy/server/thirdpart/Logger/src;/home/andy/server/thirdpart/Logger/src/log;/home/andy/server/thirdpart/Logger/src/utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <Link>
       <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LibraryDependencies>muduo-vip;protobuf;pthread;boost_date_time;boost_filesystem;boost_system;boost_thread;rt;m;z;dl;bsoncxx;mongocxx;websocket;Logger</LibraryDependencies>
     </Link>

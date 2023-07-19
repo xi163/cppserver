@@ -25,6 +25,8 @@ protoc --proto_path=src --cpp_out=. src/Gswz.Message.proto
 protoc --proto_path=src --cpp_out=. src/zjh.Message.proto
 protoc --proto_path=src --cpp_out=. src/Sgj.Message.proto
 protoc --proto_path=src --cpp_out=. src/s13s.Message.proto
+protoc --proto_path=src --cpp_out=. src/suoha.Message.proto
+protoc --proto_path=src --cpp_out=. src/texas.Message.proto
 protoc --proto_path=src --cpp_out=. src/Fish.Message.proto
 #protoc --proto_path=src --cpp_out=. src/Laba.Message.proto
 #protoc --proto_path=src --cpp_out=. src/ddz.Message.proto

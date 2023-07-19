@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="pb">
+      <UniqueIdentifier>{8ac0a16b-5eab-4b01-abd0-cb07d3d009c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game_suoha_android">
+      <UniqueIdentifier>{99f9db34-02b5-4dc0-8545-1f0978bfd43c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{9552d949-042e-4691-b106-0c928e6eaf97}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\proto\suoha.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="AndroidUserItemSink.cpp">
+      <Filter>Game_suoha_android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Game_Suoha\funcC.cpp">
+      <Filter>Game_suoha_android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Game_Suoha\cfg.cpp">
+      <Filter>Game_suoha_android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Game_Suoha\suoha.cpp">
+      <Filter>Game_suoha_android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Framework\public\GlobalFunc.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\proto\suoha.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="AndroidUserItemSink.h">
+      <Filter>Game_suoha_android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Game_Suoha\funcC.h">
+      <Filter>Game_suoha_android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Game_Suoha\cfg.h">
+      <Filter>Game_suoha_android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Game_Suoha\suoha.h">
+      <Filter>Game_suoha_android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Game_Suoha\StdRandom.h">
+      <Filter>Game_suoha_android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\public\GlobalFunc.h">
+      <Filter>public</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

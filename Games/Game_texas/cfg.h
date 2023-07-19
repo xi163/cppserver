@@ -16,7 +16,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <stdarg.h>
-#include <string>
 
 //按行读取文件
 void readFile(char const* filename, std::vector<std::string>& lines, char const* skip);
