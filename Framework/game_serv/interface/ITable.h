@@ -88,6 +88,7 @@ public:
 	virtual bool UpdateUserScoreToDB(int64_t userId, tagSpecialScoreInfo* pScoreInfo) = 0;
 	virtual int  UpdateStorageScore(int64_t changeStockScore) = 0;
 	virtual bool GetStorageScore(tagStorageInfo& storageInfo) = 0;
+	virtual void RefreshRechargeScore(std::shared_ptr<IPlayer> const& player) = 0;
 	virtual int64_t CalculateAgentRevenue(uint32_t chairId, int64_t revenue) = 0;
 };
 

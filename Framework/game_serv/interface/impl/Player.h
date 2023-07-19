@@ -28,12 +28,19 @@ public:
 	virtual inline const std::string GetAccount() { return baseInfo_.account; }
 	virtual inline const std::string GetNickName() { return baseInfo_.nickName; }
 	virtual inline uint8_t  GetHeaderId() { return baseInfo_.headId; }
+	virtual inline uint8_t GetHeadboxId() { return 0; }
+	virtual inline uint8_t GetVip() { return 0; }
+	virtual inline std::string GetHeadImgUrl() { return ""; }
 	virtual inline uint32_t GetTableId() { return tableId_; }
 	virtual inline void SetTableId(uint32_t tableId) { tableId_ = tableId; }
 	virtual inline uint32_t GetChairId() { return chairId_; }
 	virtual inline void SetChairId(uint32_t chairId) { chairId_ = chairId; }
 	virtual inline int64_t GetUserScore() { return baseInfo_.userScore; }
 	virtual inline void SetUserScore(int64_t userScore) { baseInfo_.userScore = userScore; }
+	virtual inline void SetCurTakeScore(int64_t score) { }
+	virtual inline int64_t GetCurTakeScore() { return 0; }
+	virtual inline void SetAutoSetScore(bool autoSet) { }
+	virtual inline bool GetAutoSetScore() { return false; }
 	virtual inline const uint32_t GetIp() { return baseInfo_.ip; }
 	virtual inline const std::string GetLocation() { return baseInfo_.location; }
 	virtual inline int GetUserStatus() { return status_; }

@@ -2010,6 +2010,9 @@ bool CTable::SaveReplayRecord(tagGameRecPlayback& replay) {
     return false;
 }
 
+void CTable::RefreshRechargeScore(std::shared_ptr<IPlayer> const& player) {
+}
+
 int64_t CTable::CalculateAgentRevenue(uint32_t chairId, int64_t revenue) {
     return 0;
 }

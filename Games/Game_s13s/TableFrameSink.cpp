@@ -1153,8 +1153,10 @@ void CGameTable::OnTimerGameEnd() {
 	clearKickUsers();
 	//有真人玩家且够游戏人数，继续下一局游戏
 	if (table_->GetRealPlayerCount() > 0 && table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
-		_LOG_INFO("[%s][%d][%s] 继续下一局游戏!",
-			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
+		if (writeRealLog_) {
+			_LOG_INFO("[%s][%d][%s] 继续下一局游戏!",
+				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
+		}
 		ClearGameData();
 		table_->SetGameStatus(GAME_STATUS_READY);
 	    gameStatus_ = GAME_STATUS_READY;
@@ -1164,9 +1166,11 @@ void CGameTable::OnTimerGameEnd() {
 	}
 	else if (table_->GetRealPlayerCount() > 0) {
 	//else if (table_->GetPlayerCount() > 0) {
-		_LOG_INFO("[%s][%d][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
-			strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
-			table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
+		if (writeRealLog_) {
+			_LOG_INFO("[%s][%d][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
+				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
+				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
+		}
 		ClearGameData();
 		table_->SetGameStatus(GAME_STATUS_READY);
 	    gameStatus_ = GAME_STATUS_READY;

@@ -97,6 +97,7 @@ public:
 	void KickOffLine(std::shared_ptr<IPlayer> const& player, int32_t kickType = KICK_GS | KICK_CLOSEONLY);
 	bool SetUserOnlineInfo(int64_t userId);
 	bool DelUserOnlineInfo(int64_t userId);
+	virtual void RefreshRechargeScore(std::shared_ptr<IPlayer> const& player);
 	virtual int64_t CalculateAgentRevenue(uint32_t chairId, int64_t revenue);
 	virtual bool UpdateUserScoreToDB(int64_t userId, tagScoreInfo* pScoreInfo);
 	virtual bool UpdateUserScoreToDB(int64_t userId, tagSpecialScoreInfo* pScoreInfo);
