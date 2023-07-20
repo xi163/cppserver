@@ -101,11 +101,12 @@
 #include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/net/TcpServer.h>
 #include <muduo/net/TcpClient.h>
-
+#include <muduo/net/TcpConnection.h>
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/TimerId.h>
 #include <muduo/net/Reactor.h>
+#include <muduo/net/protorpc/RpcChannel.h>
 #include <muduo/net/http/HttpContext.h>
 #include <muduo/net/http/HttpRequest.h>
 #include <muduo/net/http/HttpResponse.h>

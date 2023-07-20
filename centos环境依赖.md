@@ -9,6 +9,14 @@
     yum install bazel
     yum install bazel4
 
+### pkg-config安装 
+    https://www.freedesktop.org/wiki/Software/pkg-config/
+    wget  https://pkg-config.freedesktop.org/releases/pkg-config-0.29.tar.gz
+    tar -zxvf pkg-config-0.29.tar.gz
+    ./configure --with-internal-glib
+    ./configure --prefix=/usr/local --with-internal-glib
+    make && make install
+
 ### apt-get安装
 
 ### linux环境变量
@@ -133,6 +141,6 @@
     git clone --recursive -b v1.56.2 https://github.com/grpc/grpc grpc-1.56.2
     https://github.com/grpc/grpc/blob/v1.56.2/BUILDING.md
 
-    git clone --recursive -b v1.4.2 https://github.com/grpc/grpc.git grpc_v1.4.2
+    git clone --recursive -b v1.4.2 https://github.com/grpc/grpc.git grpc-v1.4.2
     https://github.com/grpc/grpc/blob/v1.4.2/INSTALL.md
     https://github.com/grpc/grpc/blob/v1.4.2/.gitmodules
