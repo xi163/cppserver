@@ -130,7 +130,7 @@
     ldconfig './'
 
 ### grpc 安装
-    git clone --recursive -b v1.56.2 https://github.com/grpc/grpc
+    git clone --recursive -b v1.56.2 https://github.com/grpc/grpc grpc-1.56.2
     https://github.com/grpc/grpc/blob/v1.56.2/BUILDING.md
 
     git clone --recursive -b v1.4.2 https://github.com/grpc/grpc.git grpc_v1.4.2
