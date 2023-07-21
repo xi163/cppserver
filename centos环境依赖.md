@@ -100,6 +100,14 @@
     rm -rf /usr/include/json
     cp -rf include/json /usr/include/
 
+### protobuf-v2.5.0编译
+    https://github.com/protocolbuffers/protobuf/releases?page=14
+    tar zxvf protobuf-2.5.0.tar.gz
+    cd protobuf-2.5.0/
+	./configure --prefix=/usr/local --disable-shared
+    ./configure --prefix=/usr/local --disable-shared CFLAGS='-fPIC' CXXFLAGS='-fPIC'
+    make && make install
+    
 ### protobuf静态编译
     rm -f /usr/local/lib/libprotobuf-lite.so.18.0.0
     rm -f /usr/local/lib/libprotobuf-lite.so.18
@@ -112,8 +120,8 @@
     rm -f /usr/local/lib/libprotobuf.so
     rm -f /usr/local/lib/libprotobuf.so.18.0.0
 
-    cp /usr/lib/gcc/x86_64-redhat-linux/4.8.2/libatomic.so /usr/lib64/libatomic.so
-    ln -s /usr/lib64/libatomic.so /usr/lib64/libatomic.so.1.0.0 
+    yum -y install atomic
+    ln -s /usr/lib/gcc/x86_64-redhat-linux/4.8.2/32/libatomic.so /usr/lib64/libatomic.so.1.0.0
 
     修改 configure
     if test "x${ac_cv_env_CFLAGS_set}" = "x"; then :
@@ -137,10 +145,29 @@
     gcc main.c -o main -I./ -L./ -ldl -lmydll
     ldconfig './'
 
-### grpc 安装
+### grpc安装
     git clone --recursive -b v1.56.2 https://github.com/grpc/grpc grpc-1.56.2
     https://github.com/grpc/grpc/blob/v1.56.2/BUILDING.md
 
     git clone --recursive -b v1.4.2 https://github.com/grpc/grpc.git grpc-v1.4.2
     https://github.com/grpc/grpc/blob/v1.4.2/INSTALL.md
     https://github.com/grpc/grpc/blob/v1.4.2/.gitmodules
+
+
+
+### grpc与protobuf兼容
+    grpc	protobuf	grpc	protobuf	grpc	protobuf
+    v1.0.0	3.0.0(GA)	v1.12.0	3.5.2	v1.22.0	3.8.0
+    v1.0.1	3.0.2	v1.13.1	3.5.2	v1.23.1	3.8.0
+    v1.1.0	3.1.0	v1.14.2	3.5.2	v1.24.0	3.8.0
+    v1.2.0	3.2.0	v1.15.1	3.6.1	v1.25.0	3.8.0
+    v1.2.0	3.2.0	v1.16.1	3.6.1	v1.26.0	3.8.0
+    v1.3.4	3.3.0	v1.17.2	3.6.1	v1.27.3	3.11.2
+    v1.3.5	3.2.0	v1.18.0	3.6.1	v1.28.1	3.11.2
+    v1.4.0	3.3.0	v1.19.1	3.6.1	v1.29.0	3.11.2
+    v1.6.0	3.4.0	v1.20.1	3.7.0	v1.30.0	3.12.2
+    v1.8.0	3.5.0	v1.21.3	3.7.0
+#### v2.4.0之前
+    option cc_generic_services = true;
+    option java_generic_services = true;
+    option py_generic_services = true;

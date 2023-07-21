@@ -106,6 +106,7 @@
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/TimerId.h>
 #include <muduo/net/Reactor.h>
+#include <muduo/net/protorpc/RpcServer.h>
 #include <muduo/net/protorpc/RpcChannel.h>
 #include <muduo/net/http/HttpContext.h>
 #include <muduo/net/http/HttpRequest.h>
