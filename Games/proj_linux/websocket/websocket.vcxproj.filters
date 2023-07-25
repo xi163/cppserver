@@ -19,13 +19,7 @@
     <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\IBytesBuffer.cc">
       <Filter>private</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\sha1.cc">
-      <Filter>private</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\websocket.cc">
-      <Filter>private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\base64.cc">
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\CurrentThread.cc">
@@ -44,13 +38,7 @@
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\Endian.h">
       <Filter>private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\sha1.h">
-      <Filter>private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\Types.h">
-      <Filter>private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\base64.h">
       <Filter>private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\CurrentThread.h">

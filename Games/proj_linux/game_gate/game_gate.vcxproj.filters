@@ -25,11 +25,11 @@
     <Filter Include="public\MongoDB">
       <UniqueIdentifier>{a3afe50a-15f2-4fef-b361-bb62af7cfec2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public\codec">
-      <UniqueIdentifier>{9968559f-9990-4841-9feb-b71c23640ebf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Logger">
       <UniqueIdentifier>{384c178e-6f10-431b-a9cb-60b72e519eec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rpc">
+      <UniqueIdentifier>{0d90d279-6461-4187-b57d-fd0766d874f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -53,41 +53,11 @@
     <ClInclude Include="..\..\..\public\ConsoleClr.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\Env.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\NetCardIP.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\Packet.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\StdRandom.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\SubNetIP.h">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
       <Filter>public\MongoDB</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\htmlcodec.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\mymd5.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\urlcodec.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\aes.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\base64.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\Utils.h">
-      <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
@@ -120,6 +90,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h">
       <Filter>public\TraceMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\RpcService.h">
+      <Filter>rpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\IncMuduo.h">
+      <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -161,15 +137,6 @@
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
       <Filter>public\MongoDB</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\mymd5.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\urlcodec.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\base64.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
@@ -189,6 +156,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc">
       <Filter>public\TraceMsg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\RpcService.cc">
+      <Filter>rpc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

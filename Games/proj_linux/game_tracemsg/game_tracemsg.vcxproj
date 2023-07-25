@@ -39,6 +39,7 @@
     <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h" />
+    <ClInclude Include="..\..\..\public\IncMuduo.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />

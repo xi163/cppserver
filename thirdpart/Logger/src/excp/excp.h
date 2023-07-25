@@ -1,12 +1,9 @@
 ﻿#ifndef INCLUDE_EXCP_H
 #define INCLUDE_EXCP_H
 
-#include "../Macro.h"
-
-#include <exception>
-#include <stdexcept>
-#include "../utils/utils.h"
-#include "../log/Logger.h"
+#include "Logger/src/Macro.h"
+#include "Logger/src/utils/utils.h"
+#include "Logger/src/log/Logger.h"
 
 #ifdef QT_SUPPORT
 #include <QException>

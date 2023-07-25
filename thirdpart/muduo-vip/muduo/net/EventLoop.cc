@@ -107,7 +107,8 @@ void EventLoop::loop()
   assertInLoopThread();
   looping_ = true;
   quit_ = false;  // FIXME: what if someone calls quit() before loop() ?
-  LOG_INFO << " --- *** start looping ...";
+  //LOG_TRACE << "EventLoop " << this << " start looping";
+
   while (!quit_)
   {
     activeChannels_.clear();
@@ -133,8 +134,8 @@ void EventLoop::loop()
     eventHandling_ = false;
     doPendingFunctors();
   }
-
-  //LOG_TRACE << "EventLoop " << this << " stop looping";
+  doPendingFunctors();
+  LOG_TRACE << "EventLoop " << this << " stop looping";
   looping_ = false;
 }
 
@@ -307,7 +308,7 @@ void EventLoop::printActiveChannels() const
 {
   for (const Channel* channel : activeChannels_)
   {
-    LOG_TRACE << "{" << channel->reventsToString() << "} ";
+   // LOG_TRACE << "{" << channel->reventsToString() << "} ";
   }
 }
 

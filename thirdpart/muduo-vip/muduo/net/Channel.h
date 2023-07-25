@@ -69,8 +69,8 @@ class Channel : noncopyable
   void disableAll() { events_ = kNoneEvent; update(); }
   bool isWriting() const { return events_ & kWriteEvent; }
   bool isReading() const { return events_ & kReadEvent; }
-  bool isETReading() { return events_ &= ~kReadEvent; }
-  bool isETWriting() { return events_ &= ~kWriteEvent; }
+  bool isETReading() { return events_ & ~kReadEvent; }
+  bool isETWriting() { return events_ & ~kWriteEvent; }
   // for Poller
   int index() { return index_; }
   void set_index(int idx) { index_ = idx; }

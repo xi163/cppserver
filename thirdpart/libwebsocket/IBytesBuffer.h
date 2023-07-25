@@ -1,21 +1,9 @@
-/************************************************************************/
-/*    @author create by andy_ro@qq.com                                  */
-/*    @Date		   03.03.2020                                           */
-/************************************************************************/
 #ifndef _MUDUO_NET_IBYTESBUFFER_H_
 #define _MUDUO_NET_IBYTESBUFFER_H_
 
-#include <stdlib.h>
-#include <algorithm>
-#include <vector>
-#include <stdint.h>
-#include <endian.h>
-#include <assert.h>
-#include <string.h>
-#include <unistd.h>  // ssize_t
-#include <sys/types.h>
-#include <base.h>
-#include <memory>
+#include "Logger/src/utils/utils.h"
+
+#include <libwebsocket/base.h>
 
 namespace muduo {
 	namespace net {
@@ -29,7 +17,6 @@ namespace muduo {
 		/// 0      <=      readerIndex   <=   writerIndex    <=     size
 		/// @endcode
 		//
-		//@@ IBytesBuffer
 		class IBytesBuffer {
 		public:
 			virtual size_t readableBytes() const = 0;
@@ -85,7 +72,6 @@ namespace muduo {
 			static ssize_t writeFull(int sockfd, void const* data, size_t len, int* savedErrno);
 		};
 
-		//@@
 		typedef std::unique_ptr<IBytesBuffer> IBytesBufferPtr;
 
 	}  // namespace net

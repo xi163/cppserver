@@ -14,6 +14,8 @@
 #include <map>
 #include <vector>
 
+//#define _MUDUO_OPTIMIZE_CHNANNEL_
+
 #include "muduo/base/Timestamp.h"
 #include "muduo/net/EventLoop.h"
 

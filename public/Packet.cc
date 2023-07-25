@@ -43,7 +43,7 @@ namespace packet {
 	//pack protobuf to buffer with packet::header_t
 	bool packMessage(muduo::net::Buffer* buffer, int mainId, int subId, ::google::protobuf::Message* data) {
 		//protobuf
-		size_t len = data ? data->ByteSizeLong() : 0;
+		size_t len = data ? data->ByteSize() : 0;
 		assert(buffer->writableBytes() >= packet::kHeaderLen + len);
 		//buffer[packet::kHeaderLen]
 		if (len > 0) {
@@ -76,7 +76,7 @@ namespace packet {
 	//pack protobuf to buffer with packet::header_t
 	BufferPtr packMessage(int mainId, int subId, ::google::protobuf::Message* data) {
 		//protobuf
-		size_t len = data ? data->ByteSizeLong() : 0;
+		size_t len = data ? data->ByteSize() : 0;
 		//命令消息头header_t + len
 		BufferPtr buffer(new muduo::net::Buffer(packet::kHeaderLen + len));
 		if (!packMessage(buffer.get(), mainId, subId, data)) {
@@ -251,7 +251,7 @@ namespace packet {
 		int mainId, int subId,
 		::google::protobuf::Message* data) {
 		//protobuf
-		size_t len = data ? data->ByteSizeLong() : 0;
+		size_t len = data ? data->ByteSize() : 0;
 		assert(buffer->writableBytes() >= packet::kPrevHeaderLen + packet::kHeaderLen + len);
 		//buffer[packet::kPrevHeaderLen + packet::kHeaderLen]
 		if (len > 0) {
@@ -314,7 +314,7 @@ namespace packet {
 #endif
 		int mainId, int subId,
 		::google::protobuf::Message* data) {
-		size_t len = data ? data->ByteSizeLong() : 0;
+		size_t len = data ? data->ByteSize() : 0;
 		BufferPtr buffer(new muduo::net::Buffer(packet::kPrevHeaderLen + packet::kHeaderLen + len));
 		if (!packMessage(buffer.get(), userid, session, aeskey, clientip, kicking,
 #if 0
@@ -383,7 +383,7 @@ namespace packet {
 		uint8_t subId,
 		packet::internal_prev_header_t const* pre_header_,
 		packet::header_t const* header_) {
-		size_t len = msg->ByteSizeLong();
+		size_t len = msg->ByteSize();
 		data.resize(packet::kPrevHeaderLen + packet::kHeaderLen + len);
 		if (msg->SerializeToArray(&data[packet::kPrevHeaderLen + packet::kHeaderLen], len)) {
 			packet::internal_prev_header_t* pre_header = (packet::internal_prev_header_t*)&data[0];
@@ -408,7 +408,7 @@ namespace packet {
 		uint8_t subId,
 		packet::internal_prev_header_t const* pre_header_,
 		packet::header_t const* header_) {
-		size_t len = msg->ByteSizeLong();
+		size_t len = msg->ByteSize();
 		data.resize(packet::kPrevHeaderLen + packet::kHeaderLen + len);
 		if (msg->SerializeToArray(&data[packet::kPrevHeaderLen + packet::kHeaderLen], len)) {
 			packet::internal_prev_header_t* pre_header = (packet::internal_prev_header_t*)&data[0];

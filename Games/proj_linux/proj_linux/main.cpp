@@ -1,8 +1,8 @@
 #include "Inc.h"
 
-int main() {
+void testcircular() {
 	boost::circular_buffer<int> cb(3);
-	_LOG_INFO("cap:%d size:%d", cb.capacity(),cb.size());
+	_LOG_INFO("cap:%d size:%d", cb.capacity(), cb.size());
 	cb.resize(3);
 	_LOG_INFO("cap:%d size:%d", cb.capacity(), cb.size());
 	cb.push_back(1);
@@ -24,6 +24,27 @@ int main() {
 	{
 		_LOG_INFO("%d", cb[i]);
 	}
+}
+
+class Base {
+public: 
+	virtual void Foo() {
+	}
+};
+
+class Derive : public Base {
+public:
+	void Foo(int a) {
+
+	}
+	virtual void Foo(int a, int b) {
+	}
+	virtual void Foo(int a, int b, int c) {
+	}
+};
+int main() {
+	Derive b;
+	b.Foo(1,1);
 	getchar();
 	return 0;
 }

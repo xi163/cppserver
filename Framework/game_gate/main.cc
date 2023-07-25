@@ -13,7 +13,8 @@ int main() {
 		_LOG_ERROR("./conf/game.conf not exists");
 		return -1;
 	}
-
+	utils::setrlimit();
+	utils::setenv();
 	//读取配置文件
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
@@ -22,15 +23,15 @@ int main() {
 	std::string logdir = pt.get<std::string>("Gate.logdir", "./log/Gate/");
 	std::string logname = pt.get<std::string>("Gate.logname", "Gate");
 	int loglevel = pt.get<int>("Gate.loglevel", 1);
-	if (setEnv(logdir, logname, loglevel) < 0) {
-		return -1;
+	if (!boost::filesystem::exists(logdir)) {
+		boost::filesystem::create_directories(logdir);
 	}
 	_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
 
 	//获取指定网卡ipaddr
 	std::string strIpAddr;
 	std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
-	if (IpByNetCardName(netcardName, strIpAddr) < 0) {
+	if (utils::getNetCardIp(netcardName, strIpAddr) < 0) {
 		_LOG_FATAL("获取网卡 %s IP失败", netcardName.c_str());
 		return -1;
 	}
@@ -129,12 +130,13 @@ int main() {
 	//主线程EventLoop，I/O监听/连接读写 accept(read)/connect(write)
 	muduo::net::EventLoop loop;
 	muduo::net::InetAddress listenAddr(strIpAddr, tcpPort);
+	muduo::net::InetAddress listenAddrRpc(strIpAddr, tcpPort+1);
 	muduo::net::InetAddress listenAddrInn(strIpAddr, innPort);
 	muduo::net::InetAddress listenAddrHttp(strIpAddr, httpPort);
 	//server
 	GateServ server(
 		&loop,
-		listenAddr, listenAddrInn, listenAddrHttp,
+		listenAddr, listenAddrRpc, listenAddrInn, listenAddrHttp,
 		cert_path, private_key);
 	server.isdebug_ = isdebug;
 	server.strIpAddr_ = strIpAddr;
@@ -155,7 +157,7 @@ int main() {
 						"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
 						"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$"))) {
 				muduo::net::InetAddress addr(muduo::StringArg(ipaddr), 0, false);
-				server.adminList_[addr.ipNetEndian()] = IpVisitE::kEnable;
+				server.adminList_[addr.ipv4NetEndian()] = IpVisitE::kEnable;
 				_LOG_INFO("管理员IP[%s]", ipaddr.c_str());
 			}
 		}
@@ -166,8 +168,8 @@ int main() {
 		server.InitMongoDB(strMongoDBUrl) &&
 		server.InitRedisCluster(strRedisIps, redisPasswd)) {
 		server.InitServer();
-		//registerSignalHandler(SIGINT, StopService);
-		registerSignalHandler(SIGTERM, StopService);
+		//utils::registerSignalHandler(SIGINT, StopService);
+		utils::registerSignalHandler(SIGTERM, StopService);
 		server.Start(numThreads, numWorkerThreads, kMaxQueueSize);
 		gServer = &server;
 		loop.loop();

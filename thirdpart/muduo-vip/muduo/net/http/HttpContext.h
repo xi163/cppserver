@@ -16,7 +16,7 @@
 
 #include "muduo/net/http/HttpRequest.h"
 
-#include "muduo/net/libwebsocket/IHttpContext.h"
+#include "libwebsocket/IHttpContext.h"
 
 namespace muduo
 {

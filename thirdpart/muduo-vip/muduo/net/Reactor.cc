@@ -11,7 +11,7 @@
 
 namespace muduo {
 	namespace net {
-
+		static muduo::net::EventLoop* baseLoop_;
 		static std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool_;
 		static AtomicInt32 started_;
 
@@ -23,6 +23,7 @@ namespace muduo {
 #else
 				threadPool_.reset(new muduo::net::EventLoopThreadPool(loop, name));
 #endif
+				baseLoop_ = loop;
 			}
 		}
 
@@ -39,11 +40,17 @@ namespace muduo {
 			}
 		}
 
-		void ReactorSingleton::stop() {
+		static void stopInLoop() {
 			std::vector<muduo::net::EventLoop*> loops = threadPool_->getAllLoops();
 			for (std::vector<muduo::net::EventLoop*>::iterator it = loops.begin();
 				it != loops.end(); ++it) {
 				(*it)->quit();
+			}
+		}
+
+		void ReactorSingleton::stop() {
+			if (baseLoop_) {
+				RunInLoop(baseLoop_, std::bind(&stopInLoop));
 			}
 		}
 

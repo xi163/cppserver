@@ -32,6 +32,7 @@ void HallServ::Quit() {
 	}
 	muduo::net::ReactorSingleton::stop();
 	server_.getLoop()->quit();
+	google::protobuf::ShutdownProtobufLibrary();
 }
 
 void HallServ::registerHandlers() {

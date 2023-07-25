@@ -1,8 +1,7 @@
 #ifndef INCLUDE_ATOMIC_H
 #define INCLUDE_ATOMIC_H
 
-#include "../Macro.h"
-#include <atomic>
+#include "Logger/src/Macro.h"
 
 #ifdef _windows_
 #define atom_incr(i)			InterlockedIncrement((volatile long *)&i)

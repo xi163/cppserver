@@ -1,7 +1,7 @@
 ﻿#ifndef INCLUDE_INI_H
 #define INCLUDE_INI_H
 
-#include "../Macro.h"
+#include "Logger/src/Macro.h"
 
 namespace utils {
 	

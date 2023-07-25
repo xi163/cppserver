@@ -37,11 +37,20 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\thirdpart\Logger\src\atomic\Atomic.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\auth\auth.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\mymd5.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\aes.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\base64.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\html.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\md5.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\sha1.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\url.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\excp.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\impl\excpImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\IncBoost.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\ini\ini.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\lock\impl\SpinLockImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\lock\mutex.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\lock\SpinLock.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_win.h" />
@@ -54,38 +63,46 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\op\mem\impl\MemImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\op\mem\Mem.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\op\Operation.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\rand\impl\StdRandomImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\rand\StdRandom.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\timer\timer.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\track\MemTrack.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\MemTrack.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\mymd5.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\ini.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\base64.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\html.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\md5.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\sha1.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\url.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\ini.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\lock\impl\SpinLock.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.cc" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\File.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\impl\Operation.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\Mem.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\MemImpl.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\File.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\impl\Operation.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\Mem.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\MemImpl.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\rand\impl\StdRandom.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\timer\timer.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\MemTrack.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utils.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\track\impl\MemTrack.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utils.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{28AC37C0-F75C-4ED8-B834-838A1C1C6C9A}</ProjectGuid>
@@ -115,7 +132,8 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfStl>libstdc++_shared</UseOfStl>
     <PlatformToolset>Remote_GCC_1_0</PlatformToolset>
-    <UseCompiler>false</UseCompiler>
+    <UseCompiler>
+    </UseCompiler>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -143,10 +161,10 @@
     <Link>
       <LibraryDependencies>protobuf;pthread;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;snappy;ssl;rt;m;z;dl</LibraryDependencies>
       <OutputFile>/home/andy/cppserver/libs/$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/home/andy/cppserver/thirdpart/Logger;/home/andy/cppserver/thirdpart/Logger/src;/home/andy/cppserver/thirdpart/Logger/src/atomic;/home/andy/cppserver/thirdpart/Logger/src/auth;/home/andy/cppserver/thirdpart/Logger/src/excp;/home/andy/cppserver/thirdpart/Logger/src/excp/impl;/home/andy/cppserver/thirdpart/Logger/src/log;/home/andy/cppserver/thirdpart/Logger/src/log/impl;/home/andy/cppserver/thirdpart/Logger/src/timer;/home/andy/cppserver/thirdpart/Logger/src/utils;/home/andy/cppserver/thirdpart/Logger/src/utils/impl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/home/andy/cppserver/thirdpart;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <PositionIndependentCode>true</PositionIndependentCode>

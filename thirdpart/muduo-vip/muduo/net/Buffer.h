@@ -24,8 +24,11 @@
 #include <string.h>
 //#include <unistd.h>  // ssize_t
 
-#include <muduo/net/libwebsocket/IBytesBuffer.h>
-#include <muduo/net/libwebsocket/ssl.h>
+#include <libwebsocket/IBytesBuffer.h>
+#include <libwebsocket/ssl.h>
+
+//屏蔽会导致RPC出问题
+#define _MUDUO_HOSTTONET_TRANSFORM_
 
 namespace muduo
 {

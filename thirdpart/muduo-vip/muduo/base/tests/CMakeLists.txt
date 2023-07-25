@@ -10,6 +10,10 @@ target_link_libraries(blockingqueue_test muduo_base)
 add_executable(blockingqueue_bench BlockingQueue_bench.cc)
 target_link_libraries(blockingqueue_bench muduo_base)
 
+add_executable(blockingqueue_bench2 BlockingQueue_bench2.cc)
+target_link_libraries(blockingqueue_bench2 muduo_base)
+# set_target_properties(blockingqueue_bench2 PROPERTIES COMPILE_FLAGS "-std=c++17")
+
 add_executable(boundedblockingqueue_test BoundedBlockingQueue_test.cc)
 target_link_libraries(boundedblockingqueue_test muduo_base)
 
@@ -83,4 +87,7 @@ add_test(NAME timestamp_unittest COMMAND timestamp_unittest)
 add_executable(timezone_unittest TimeZone_unittest.cc)
 target_link_libraries(timezone_unittest muduo_base)
 add_test(NAME timezone_unittest COMMAND timezone_unittest)
+
+add_executable(timezone_util TimeZone_util.cc)
+target_link_libraries(timezone_util muduo_base)
 

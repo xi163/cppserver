@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="server.cc" />
+    <ClCompile Include="..\..\..\proto\sudoku.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\proto\sudoku.pb.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Logger">
+      <UniqueIdentifier>{447f9b2f-1379-4c95-8fbc-cc2c731f5620}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

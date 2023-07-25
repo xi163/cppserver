@@ -21,9 +21,6 @@
     <ClCompile Include="..\..\proto\texas.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Framework\public\GlobalFunc.cpp">
-      <Filter>public</Filter>
-    </ClCompile>
     <ClCompile Include="..\Game_Texas\cfg.cpp">
       <Filter>Game_texas_robot</Filter>
     </ClCompile>
@@ -41,9 +38,6 @@
     <ClInclude Include="..\..\proto\texas.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Framework\public\GlobalFunc.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\Game_Texas\cfg.h">
       <Filter>Game_texas_robot</Filter>
     </ClInclude>
@@ -52,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="..\Game_Texas\StdRandom.h">
       <Filter>Game_texas_robot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\public\IncMuduo.h">
+      <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

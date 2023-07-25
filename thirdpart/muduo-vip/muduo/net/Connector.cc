@@ -39,7 +39,6 @@ Connector::~Connector()
 
 void Connector::start()
 {
-  LOG_WARN << __FUNCTION__;
   connect_ = true;
   RunInLoop(loop_, std::bind(&Connector::startInLoop, this)); // FIXME: unsafe
 }
@@ -60,7 +59,6 @@ void Connector::startInLoop()
 
 void Connector::stop()
 {
-  LOG_WARN << __FUNCTION__;
   connect_ = false;
   RunInLoop/*QueueInLoop*/(loop_, std::bind(&Connector::stopInLoop, this)); // FIXME: unsafe
   // FIXME: cancel timer
@@ -92,7 +90,6 @@ void Connector::connect()
     case EINPROGRESS:
     case EINTR:
     case EISCONN:
-      LOG_WARN << __FUNCTION__;
       connecting(sockfd);
       break;
 
@@ -111,12 +108,12 @@ void Connector::connect()
     case EBADF:
     case EFAULT:
     case ENOTSOCK:
-      LOG_SYSERR << "connect error in Connector::startInLoop " << savedErrno;
+      //LOG_SYSERR << "connect error in Connector::startInLoop " << savedErrno;
       sockets::close(sockfd);
       break;
 
     default:
-      LOG_SYSERR << "Unexpected error in Connector::startInLoop " << savedErrno;
+      //LOG_SYSERR << "Unexpected error in Connector::startInLoop " << savedErrno;
       sockets::close(sockfd);
       // connectErrorCallback_();
       break;
@@ -125,7 +122,6 @@ void Connector::connect()
 
 void Connector::restart()
 {
-  LOG_WARN << __FUNCTION__;
   loop_->assertInLoopThread();
   setState(kDisconnected);
   retryDelayMs_ = kInitRetryDelayMs;
@@ -150,7 +146,6 @@ void Connector::connecting(int sockfd)
 
 int Connector::removeAndResetChannel()
 {
-  LOG_WARN << __FUNCTION__;
   channel_->disableAll();
   channel_->remove();
   int sockfd = channel_->fd();
@@ -209,7 +204,7 @@ void Connector::handleError()
   if (state_ == kConnecting)
   {
     int sockfd = removeAndResetChannel();
-    int err = sockets::getSocketError(sockfd);
+    /*int err = */sockets::getSocketError(sockfd);
     //LOG_TRACE << "SO_ERROR = " << err << " " << strerror_tl(err);
     errno = 0;//reset
     retry(sockfd);
@@ -222,15 +217,15 @@ void Connector::retry(int sockfd)
   setState(kDisconnected);
   if (connect_)
   {
-    LOG_WARN << __FUNCTION__ << " - connecting to " << serverAddr_.toIpPort()
-             << " in " << retryDelayMs_ << " milliseconds. ";
+    //LOG_INFO << "Connector::retry connecting to " << serverAddr_.toIpPort()
+    //         << " in " << retryDelayMs_ << " milliseconds. ";
     loop_->runAfter(retryDelayMs_/1000.0,
                     std::bind(&Connector::startInLoop, shared_from_this()));
     retryDelayMs_ = std::min(retryDelayMs_ * 2, kMaxRetryDelayMs);
   }
   else
   {
-    LOG_DEBUG << "do not connect";
+    //LOG_DEBUG << "do not connect";
   }
 }
 

@@ -27,9 +27,6 @@
     <ClCompile Include="..\Game_Suoha\suoha.cpp">
       <Filter>Game_suoha_robot</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Framework\public\GlobalFunc.cpp">
-      <Filter>public</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\proto\suoha.Message.pb.h">
@@ -50,7 +47,7 @@
     <ClInclude Include="..\Game_Suoha\StdRandom.h">
       <Filter>Game_suoha_robot</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Framework\public\GlobalFunc.h">
+    <ClInclude Include="..\..\public\IncMuduo.h">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>

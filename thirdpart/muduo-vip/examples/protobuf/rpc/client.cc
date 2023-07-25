@@ -45,7 +45,7 @@ class RpcClient : noncopyable
       request.set_checkerboard("001010");
       sudoku::SudokuResponse* response = new sudoku::SudokuResponse;
 
-      stub_.Solve(NULL, &request, response, NewCallback(this, &RpcClient::solved, response));
+      stub_.Solve(NULL, &request, response, ::google::protobuf::NewCallback(this, &RpcClient::solved, response));
     }
     else
     {

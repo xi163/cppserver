@@ -40,26 +40,18 @@
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\Gateway.h" />
+    <ClInclude Include="..\..\..\Framework\game_gate\RpcService.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h" />
-    <ClInclude Include="..\..\..\public\codec\aes.h" />
-    <ClInclude Include="..\..\..\public\codec\base64.h" />
-    <ClInclude Include="..\..\..\public\codec\htmlcodec.h" />
-    <ClInclude Include="..\..\..\public\codec\mymd5.h" />
-    <ClInclude Include="..\..\..\public\codec\urlcodec.h" />
     <ClInclude Include="..\..\..\public\ConsoleClr.h" />
-    <ClInclude Include="..\..\..\public\Env.h" />
     <ClInclude Include="..\..\..\public\Inc.h" />
+    <ClInclude Include="..\..\..\public\IncMuduo.h" />
     <ClInclude Include="..\..\..\public\IPFinder.h" />
     <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h" />
-    <ClInclude Include="..\..\..\public\NetCardIP.h" />
     <ClInclude Include="..\..\..\public\Packet.h" />
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
-    <ClInclude Include="..\..\..\public\StdRandom.h" />
-    <ClInclude Include="..\..\..\public\SubNetIP.h" />
     <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h" />
-    <ClInclude Include="..\..\..\public\Utils.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperlocker.h" />
@@ -78,12 +70,10 @@
     <ClCompile Include="..\..\..\Framework\game_gate\HttpServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\InnServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\main.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\RpcService.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\WsServer.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc" />
-    <ClCompile Include="..\..\..\public\codec\base64.cpp" />
-    <ClCompile Include="..\..\..\public\codec\mymd5.cpp" />
-    <ClCompile Include="..\..\..\public\codec\urlcodec.cpp" />
     <ClCompile Include="..\..\..\public\IPFinder.cpp" />
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp" />
     <ClCompile Include="..\..\..\public\Packet.cc" />
@@ -153,7 +143,7 @@
       <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver/;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/public/TraceMsg;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/thirdpart/Logger;/home/andy/cppserver/thirdpart/Logger/src;/home/andy/cppserver/thirdpart/Logger/src/log;/home/andy/cppserver/thirdpart/Logger/src/utils;/home/andy/cppserver/thirdpart/Logger/src/log/impl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver/;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/public/TraceMsg;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUDUO_STD_STRING</PreprocessorDefinitions>
       <AdditionalOptions>-pthread</AdditionalOptions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>

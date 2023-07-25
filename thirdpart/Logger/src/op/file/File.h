@@ -1,8 +1,8 @@
 ﻿#ifndef INCLUDE_FILE_H
 #define INCLUDE_FILE_H
 
-#include "../../Macro.h"
-#include "../IOperation.h"
+#include "Logger/src/Macro.h"
+#include "Logger/src/op/IOperation.h"
 
 namespace Operation {
 	class FileImpl;

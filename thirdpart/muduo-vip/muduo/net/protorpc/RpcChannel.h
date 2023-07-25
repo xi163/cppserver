@@ -97,6 +97,10 @@ class RpcChannel : public ::google::protobuf::RpcChannel
 
   ~RpcChannel() override;
 
+  TcpConnectionPtr connection() const {
+	  return conn_;
+  }
+
   void setConnection(const TcpConnectionPtr& conn)
   {
     conn_ = conn;

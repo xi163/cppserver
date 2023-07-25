@@ -40,7 +40,7 @@ class Socket;
 namespace websocket {
 	class Context;
     typedef std::unique_ptr<Context> ContextPtr;
-}//namespace websocket
+}
 
 typedef websocket::ContextPtr WsContextPtr;
 
@@ -73,7 +73,6 @@ class TcpConnection : noncopyable,
   // return true if success.
   bool getTcpInfo(struct tcp_info*) const;
   string getTcpInfoString() const;
-  //
   int getFd() const;
   // void send(string&& message); // C++11
   void send(const void* message, int len);
@@ -127,10 +126,8 @@ class TcpConnection : noncopyable,
   // called when TcpServer has removed me from its map
   void connectDestroyed();  // should be called only once
   
-  //setWsContext
   void setWsContext(WsContextPtr& context);
 
-  //getWsContext
   WsContextPtr& getWsContext();
 
 private:

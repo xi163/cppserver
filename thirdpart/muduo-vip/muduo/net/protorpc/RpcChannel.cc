@@ -10,7 +10,7 @@
 
 #include "muduo/base/Logging.h"
 #include "muduo/net/protorpc/rpc.pb.h"
-
+#include <google/protobuf/stubs/callback.h>
 #include <google/protobuf/descriptor.h>
 
 using namespace muduo;
@@ -86,7 +86,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
   if (message.type() == RESPONSE)
   {
     int64_t id = message.id();
-    //assert(message.has_response() || message.has_error());
+    assert(message.has_response() || message.has_error());
 
     OutstandingCall out = { NULL, NULL };
 
@@ -103,7 +103,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
     if (out.response)
     {
       std::unique_ptr<google::protobuf::Message> d(out.response);
-      //if (message.has_response())
+      if (message.has_response())
       {
         out.response->ParseFromString(message.response());
       }
@@ -136,7 +136,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
             // response is deleted in doneCallback
             int64_t id = message.id();
             service->CallMethod(method, NULL, get_pointer(request), response,
-                                NewCallback(this, &RpcChannel::doneCallback, response, id));
+                                google::protobuf::internal::NewCallback(this, &RpcChannel::doneCallback, response, id));
             error = NO_ERROR;
           }
           else

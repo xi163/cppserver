@@ -1,7 +1,7 @@
 ﻿#ifndef INCLUDE_AUTH_H
 #define INCLUDE_AUTH_H
 
-#include "../Macro.h"
+#include "Logger/src/Macro.h"
 
 //#define AUTHORIZATION_SUPPORT
 

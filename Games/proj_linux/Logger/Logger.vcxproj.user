@@ -2,7 +2,9 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
-    <RemoteDebuggingMode>gdbserver</RemoteDebuggingMode>
-    <AdditionalSymbolSearchPaths>/home/Landy/TianXia/Program/Framework/libs;/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin</AdditionalSymbolSearchPaths>
+    <RemoteDebuggingMode>gdb</RemoteDebuggingMode>
+    <AdditionalSymbolSearchPaths>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs</AdditionalSymbolSearchPaths>
+    <RemoteDebuggerWorkingDirectory>/home/andy/cppserver/bin/</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerCommand>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</RemoteDebuggerCommand>
   </PropertyGroup>
 </Project>

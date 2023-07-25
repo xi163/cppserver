@@ -1,18 +1,4 @@
-/************************************************************************/
-/*    @author create by andy_ro@qq.com                                  */
-/*    @Date		   03.03.2020                                           */
-/************************************************************************/
-#include "../IBytesBuffer.h"
-
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <sys/uio.h>
-#include <stdint.h>
-#include <string.h>  // memset
-#include <string>
-#include <assert.h>
-#include <arpa/inet.h>
+#include "libwebsocket/IBytesBuffer.h"
 
 static inline void memZero(void* p, size_t n)
 {
@@ -55,7 +41,7 @@ namespace muduo {
 		//readFull for EPOLLET
 		ssize_t IBytesBuffer::readFull(int sockfd, IBytesBuffer* buf, int* savedErrno) {
 			assert(buf->writableBytes() >= 0);
-			//printf("\nIBytesBuffer::readFull begin {{{\n");
+			//_LOG_DEBUG("begin {{{");
 			ssize_t n = 0;
 			do {
 				//make sure that writable > 0
@@ -99,7 +85,7 @@ namespace muduo {
 						errno != ECONNABORTED &&
 						errno != EPROTO*/ &&
 						errno != EINTR) {
-						printf("IBytesBuffer::readFull rc = %d errno = %d errmsg = %s\n",
+						_LOG_ERROR("rc = %d errno = %d errmsg = %s",
 							rc, errno, strerror(errno));
 					}
 					break;
@@ -110,18 +96,18 @@ namespace muduo {
 					//rc = 0 errno = 0 peer close
 					//
 					//Connection has been aborted by peer
-					//printf("IBytesBuffer::readFull Connection has been aborted by peer rc = %d errno = %d errmsg = %s\n",
+					//_LOG_ERROR("Connection has been aborted by peer rc = %d errno = %d errmsg = %s",
 					//	rc, errno, strerror(errno));
 					break;
 				}
 			} while (true);
-			//printf("IBytesBuffer::readFull end }}}\n\n");
+			//_LOG_DEBUG("end }}}");
 			return n;
 		}//readFull
 			
 		//writeFull for EPOLLET
 		ssize_t IBytesBuffer::writeFull(int sockfd, void const* data, size_t len, int* savedErrno) {
-			//printf("\nIBytesBuffer::writeFull begin {{{\n");
+			//printf("\nbegin {{{");
 			ssize_t left = (ssize_t)len;
 			ssize_t n = 0;
 			while (left > 0) {
@@ -136,7 +122,7 @@ namespace muduo {
 					//只要可写(内核buf还有空间且用户待写数据还未写完)，就一直写，直到数据发送完，或者errno = EAGAIN
 					n += (ssize_t)rc;
 					left -= (ssize_t)rc;
-					//printf("IBytesBuffer::writeFull rc = %d left = %d errno = %d errmsg = %s\n",
+					//_LOG_DEBUG("rc = %d left = %d errno = %d errmsg = %s",
 					//	rc, left, errno, strerror(errno));
 					continue;
 				}
@@ -150,7 +136,7 @@ namespace muduo {
 						errno != ECONNABORTED &&
 						errno != EPROTO*/ &&
 						errno != EINTR) {
-						printf("IBytesBuffer::writeFull rc = %d left = %d errno = %d errmsg = %s\n",
+						_LOG_ERROR("rc = %d left = %d errno = %d errmsg = %s",
 							rc, left, errno, strerror(errno));
 					}
 					break;
@@ -165,7 +151,7 @@ namespace muduo {
 					break;
 				}
 			}
-			//printf("IBytesBuffer::writeFull end }}}\n\n");
+			//_LOG_DEBUG("end }}}");
 			return n;
 		}//writeFull
 

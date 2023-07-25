@@ -17,17 +17,17 @@
 
 #include <errno.h>
 
-#include <muduo/net/libwebsocket/context.h>
-#include <muduo/net/libwebsocket/ssl.h>
+#include <muduo/net/websocket/context.h>
+#include <libwebsocket/ssl.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
 void muduo::net::defaultConnectionCallback(const TcpConnectionPtr& conn)
 {
-  LOG_TRACE << conn->localAddress().toIpPort() << " -> "
-            << conn->peerAddress().toIpPort() << " is "
-            << (conn->connected() ? "UP" : "DOWN");
+  //LOG_TRACE << conn->localAddress().toIpPort() << " -> "
+  //          << conn->peerAddress().toIpPort() << " is "
+  //          << (conn->connected() ? "UP" : "DOWN");
   // do not call conn->forceClose(), because some users want to register message callback only.
 }
 
@@ -75,21 +75,19 @@ TcpConnection::TcpConnection(EventLoop* loop,
 TcpConnection::~TcpConnection()
 {
 	//////////////////////////////////////////////////////////////////////////
-    //释放conn连接对象sockfd资源流程 ///
-    //TcpConnection::handleClose ->
-    //TcpConnection::closeCallback_ ->
-    //TcpServer::removeConnection ->
-    //TcpServer::removeConnectionInLoop ->
-    //TcpConnection::dtor ->
-    //Socket::dtor -> sockets::close(sockfd_)
-    //////////////////////////////////////////////////////////////////////////
-    //LOG_WARN << "TcpConnection::dtor[" <<  name_ << "] at " << this
-    //       << " fd=" << channel_->fd()
-    //        << " state=" << stateToString();
-    if (state_ != kDisconnected) {
-        LOG_ERROR << __FUNCTION__ << " --- *** " << " state_ = " << state_;
-    }
-  assert(state_ == kDisconnected);
+	//释放conn连接对象sockfd资源流程
+	//TcpConnection::handleClose ->
+	//TcpConnection::closeCallback_ ->
+	//TcpServer::removeConnection ->
+	//TcpServer::removeConnectionInLoop ->
+	//TcpConnection::dtor ->
+	//Socket::dtor -> sockets::close(sockfd_)
+	//////////////////////////////////////////////////////////////////////////
+  //LOG_WARN << "TcpConnection::dtor[" <<  name_ << "] at " << this
+  //          << " fd=" << channel_->fd()
+  //          << " state=" << stateToString();
+  assert(state_ == kDisconnected ||
+         state_ == kDisconnecting);
 }
 
 bool TcpConnection::getTcpInfo(struct tcp_info* tcpi) const
@@ -105,17 +103,14 @@ string TcpConnection::getTcpInfoString() const
   return buf;
 }
 
-//
 int TcpConnection::getFd() const {
     return socket_->fd();
 }
 
-//setWsContext
 void TcpConnection::setWsContext(WsContextPtr& context) {
     wsContext_ = std::move(context);
 }
 
-//getWsContext
 WsContextPtr& TcpConnection::getWsContext() {
     return wsContext_;
 }
@@ -335,7 +330,6 @@ void TcpConnection::shutdownInLoop()
   loop_->assertInLoopThread();
   if (!channel_->isWriting())
   {
-    //openSSL support ///
     //ssl::SSL_free(ssl_);
     // we are not writing
     socket_->shutdownWrite();
@@ -479,7 +473,7 @@ void TcpConnection::handleRead(Timestamp receiveTime)
   loop_->assertInLoopThread();
   if (ssl_ctx_ && !sslConnected_) {
 	  int savedErrno = 0;
-	  //SSL握手连接 ///
+	  //SSL握手连接
 	  sslConnected_ = ssl::SSL_handshake(ssl_ctx_, ssl_, socket_->fd(), savedErrno);
 	  switch (savedErrno)
 	  {
@@ -501,11 +495,18 @@ void TcpConnection::handleRead(Timestamp receiveTime)
 	  }
   }
   else {
+	  _LOG_DEBUG("readableBytes=%d writableBytes=%d",
+		  inputBuffer_.readableBytes(),
+		  inputBuffer_.writableBytes());
 	  int savedErrno = 0;
 	  ssize_t n = !ssl_ ?
 		  /* inputBuffer_.readFd(channel_->fd(), &savedErrno)*/
 		  inputBuffer_.readFull(channel_->fd(), &savedErrno) :
 		  inputBuffer_.SSL_read(ssl_, &savedErrno);
+	  _LOG_DEBUG("n=%d readableBytes=%d writableBytes=%d",
+		  n,
+		  inputBuffer_.readableBytes(),
+		  inputBuffer_.writableBytes());
 	  if (n > 0)
 	  {
 		  if (errno == EAGAIN ||
@@ -732,8 +733,8 @@ void TcpConnection::handleWrite()
       }
       else
       {
-          LOG_TRACE << "Connection fd = " << channel_->fd()
-              << " is down, no more writing";
+          //LOG_TRACE << "Connection fd = " << channel_->fd()
+          //    << " is down, no more writing";
       }
   }
 }
@@ -741,7 +742,6 @@ void TcpConnection::handleWrite()
 void TcpConnection::handleClose()
 {
   loop_->assertInLoopThread();
-  //openSSL support ///
   ssl::SSL_free(ssl_);
   //LOG_TRACE << "fd = " << channel_->fd() << " state = " << stateToString();
   assert(state_ == kConnected || state_ == kDisconnecting);

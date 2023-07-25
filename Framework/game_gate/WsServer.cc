@@ -3,13 +3,6 @@
 #include "proto/HallServer.Message.pb.h"
 #include "proto/GameServer.Message.pb.h"
 
-
-#include "public/codec/aes.h"
-#include "public/codec/mymd5.h"
-#include "public/codec/base64.h"
-#include "public/codec/htmlcodec.h"
-#include "public/codec/urlcodec.h"
-
 #include "Gateway.h"
 
 bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr) {
@@ -116,10 +109,10 @@ void GateServ::onConnected(
 	assert(entryContext);
 	{
 		muduo::net::InetAddress address(ipaddr, 0);
-		entryContext->setFromIp(address.ipNetEndian());
+		entryContext->setFromIp(address.ipv4NetEndian());
 	}
-	std::string uuid = createUUID();
-	std::string session = buffer2HexStr((unsigned char const*)uuid.data(), uuid.length());
+	std::string uuid = utils::uuid::createUUID();
+	std::string session = utils::buffer2HexStr((unsigned char const*)uuid.data(), uuid.length());
 	{
 		//优化前，conn->name()断线重连->session变更->重新登陆->异地登陆通知
 		//优化后，conn->name()断线重连->session过期检查->登陆校验->异地登陆判断
@@ -145,6 +138,7 @@ void GateServ::onMessage(
 	const muduo::net::TcpConnectionPtr& conn,
 	muduo::net::Buffer* buf, int msgType,
 	muduo::Timestamp receiveTime) {
+	_LOG_DEBUG("len:%d buf->readableBytes():%d", buf->peekInt16(), buf->readableBytes());
 	//超过最大连接数限制
 	if (!conn || conn->getContext().empty()) {
 		return;
@@ -478,7 +472,7 @@ bool GateServ::refreshBlackListSync() {
 	std::string s;
 	for (std::map<in_addr_t, IpVisitE>::const_iterator it = blackList_.begin();
 		it != blackList_.end(); ++it) {
-		s += std::string("\nipaddr[") + Inet2Ipstr(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
+		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问黑名单\n%s", s.c_str());
 	return false;
@@ -492,7 +486,7 @@ bool GateServ::refreshBlackListInLoop() {
 	std::string s;
 	for (std::map<in_addr_t, IpVisitE>::const_iterator it = blackList_.begin();
 		it != blackList_.end(); ++it) {
-		s += std::string("\nipaddr[") + Inet2Ipstr(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
+		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问黑名单\n%s", s.c_str());
 	return false;

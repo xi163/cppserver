@@ -35,7 +35,7 @@ int main()
   EventLoop loop;
   InetAddress listenAddr(9981);
   sudoku::SudokuServiceImpl impl;
-  RpcServer server(&loop, listenAddr);
+  RpcServer server(&loop, listenAddr, "RpcServer");
   server.registerService(&impl);
   server.start();
   loop.loop();

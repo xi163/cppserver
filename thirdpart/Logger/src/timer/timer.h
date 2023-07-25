@@ -1,7 +1,7 @@
 ﻿#ifndef INCLUDE_TIMER_H
 #define INCLUDE_TIMER_H
 
-#include "../Macro.h"
+#include "Logger/src/Macro.h"
 
 #include <mutex>
 //#include <shared_mutex>

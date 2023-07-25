@@ -70,7 +70,7 @@ typedef std::function<void (const TcpConnectionPtr&)> CloseCallback;
 typedef std::function<void (const TcpConnectionPtr&)> WriteCompleteCallback;
 typedef std::function<void (const TcpConnectionPtr&, size_t)> HighWaterMarkCallback;
 
-//websocket ///
+//websocket
 typedef std::function<void(const TcpConnectionPtr&, std::string const&)> WsConnectedCallback;
 typedef std::function<void(const TcpConnectionPtr&, Buffer*, int msgType, Timestamp receiveTime)> WsMessageCallback;
 typedef std::function<void(const TcpConnectionPtr&, Buffer*, Timestamp receiveTime)> WsClosedCallback;

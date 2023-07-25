@@ -38,10 +38,15 @@ class Acceptor : noncopyable
 
   void setNewConnectionCallback(const NewConnectionCallback& cb)
   { newConnectionCallback_ = cb; }
+  
   void setConditionCallback(const ConditionCallback& cb)
   {  conditionCallback_ = cb; }
-  bool listenning() const { return listenning_; }
+  
   void listen(bool et = false);
+  
+  // Deprecated, use the correct spelling one above.
+  // Leave the wrong spelling here in case one needs to grep it for error messages.
+  bool listening() const { return listening_; }
 
  private:
   void handleRead(int events);
@@ -51,7 +56,7 @@ class Acceptor : noncopyable
   Channel acceptChannel_;
   ConditionCallback conditionCallback_;
   NewConnectionCallback newConnectionCallback_;
-  bool listenning_;
+  bool listening_;
   int idleFd_;
 };
 

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="client.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcChannel.cc" />
+    <ClCompile Include="..\..\..\proto\sudoku.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcChannel.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\sudoku.pb.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Logger">
+      <UniqueIdentifier>{f48edd47-97cd-4153-b7e0-8c1b04053798}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

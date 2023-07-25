@@ -1,7 +1,7 @@
 ﻿#ifndef INCLUDE_LOGGER_H
 #define INCLUDE_LOGGER_H
 
-#include "../utils/utils.h"
+#include "Logger/src/utils/utils.h"
 
 #ifdef __STACK__
 #undef __STACK__

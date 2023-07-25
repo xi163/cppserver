@@ -19,6 +19,8 @@ template<typename T>
 class BlockingQueue : noncopyable
 {
  public:
+  using queue_type = std::deque<T>;
+
   BlockingQueue()
     : mutex_(),
       notEmpty_(mutex_),
@@ -52,7 +54,18 @@ class BlockingQueue : noncopyable
     assert(!queue_.empty());
     T front(std::move(queue_.front()));
     queue_.pop_front();
-    return std::move(front);
+    return front;
+  }
+
+  queue_type drain()
+  {
+    std::deque<T> queue;
+    {
+      MutexLockGuard lock(mutex_);
+      queue = std::move(queue_);
+      assert(queue_.empty());
+    }
+    return queue;
   }
 
   size_t size() const
@@ -64,8 +77,8 @@ class BlockingQueue : noncopyable
  private:
   mutable MutexLock mutex_;
   Condition         notEmpty_ GUARDED_BY(mutex_);
-  std::deque<T>     queue_ GUARDED_BY(mutex_);
-};
+  queue_type        queue_ GUARDED_BY(mutex_);
+};  // __attribute__ ((aligned (64)));
 
 }  // namespace muduo
 

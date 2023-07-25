@@ -1,17 +1,4 @@
-/************************************************************************/
-/*    @author create by andy_ro@qq.com                                  */
-/*    @Date		   03.03.2020                                           */
-/************************************************************************/
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <sys/uio.h>
-#include <stdint.h>
-#include <string.h>  // memset
-#include <string>
-#include <assert.h>
-
-#include <../ssl.h>
+#include <libwebsocket/ssl.h>
 
 static inline void memZero(void* p, size_t n)
 {
@@ -52,12 +39,11 @@ namespace muduo {
 			/// 0      <=      readerIndex   <=   writerIndex    <=     size
 			/// @endcode
 			///
-			//SSL_read
 			ssize_t SSL_read(SSL* ssl, IBytesBuffer* buf, int* savedErrno) {
 				assert(buf->writableBytes() >= 0);
-				//SSL_pending = 0 ///
-				//printf("IBytesBuffer::SSL_read SSL_pending = %d\n", SSL_pending(ssl));
-				//printf("\nIBytesBuffer::SSL_read begin {{{\n");
+				//SSL_pending = 0
+				//_LOG_DEBUG("SSL_pending = %d", SSL_pending(ssl));
+				//_LOG_DEBUG("begin {{{");
 				ssize_t n = 0;
 				do {
 					//make sure that writable > 0
@@ -79,7 +65,7 @@ namespace muduo {
 					//returns the number of bytes which are available inside ssl for immediate read
 					//make sure that call it after SSL_read is called
 					size_t left = (size_t)::SSL_pending(ssl);
-					//printf("IBytesBuffer::SSL_read rc = %d left = %lld err = %d\n",
+					//_LOG_DEBUG("rc = %d left = %lld err = %d",
 					//    rc, left, SSL_get_error(ssl, rc));
 					if (rc > 0) {
 						assert(::SSL_get_error(ssl, rc) == 0);
@@ -103,7 +89,7 @@ namespace muduo {
 					}
 					else if (rc < 0) {
 						int err = ::SSL_get_error(ssl, rc);
-						printf("IBytesBuffer::SSL_read rc = %d err = %d errno = %d errmsg = %s\n",
+						_LOG_DEBUG("rc = %d err = %d errno = %d errmsg = %s",
 							rc, err, errno, strerror(errno));
 						switch (err)
 						{
@@ -119,7 +105,7 @@ namespace muduo {
 							//SSL has been shutdown
 						case SSL_ERROR_ZERO_RETURN:
 							*savedErrno = SSL_ERROR_ZERO_RETURN;
-							//printf("IBytesBuffer::SSL_read SSL has been shutdown(%d).\n", err);
+							//_LOG_DEBUG("SSL has been shutdown(%d)", err);
 							break;
 						default:
 							if (errno != EAGAIN /*&&
@@ -152,24 +138,23 @@ namespace muduo {
 							//SSL has been shutdown
 						case SSL_ERROR_ZERO_RETURN:
 							*savedErrno = SSL_ERROR_ZERO_RETURN;
-							//printf("IBytesBuffer::SSL_read SSL has been shutdown(%d).\n", err);
+							//_LOG_DEBUG("SSL has been shutdown(%d)", err);
 							break;
 							//Connection has been aborted by peer
 						default:
 							*savedErrno = err;
-							//printf("IBytesBuffer::SSL_read Connection has been aborted(%d).\n", err);
+							//_LOG_DEBUG("Connection has been aborted(%d)", err);
 							break;
 						}
 						break;
 					}
 				} while (true);
-				//printf("IBytesBuffer::SSL_read end }}}\n\n");
+				//_LOG_DEBUG("end }}}");
 				return n;
-			}//SSL_read
+			}
 
-			//SSL_write
 			ssize_t SSL_write(SSL* ssl, void const* data, size_t len, int* savedErrno) {
-				//printf("\nIBytesBuffer::SSL_read SSL_write {{{\n");
+				//_LOG_DEBUG("{{{");
 				ssize_t left = (ssize_t)len;
 				ssize_t n = 0;
 				while (left > 0) {
@@ -177,15 +162,15 @@ namespace muduo {
 					if (rc > 0) {
 						n += (ssize_t)rc;
 						left -= (ssize_t)rc;
-						//printf("IBytesBuffer::SSL_write rc = %d left = %d err = %d\n",
+						//_LOG_DEBUG("rc = %d left = %d err = %d",
 						//	rc, left, SSL_get_error(ssl, rc));
 						assert(::SSL_get_error(ssl, rc) == 0);
 					}
 					else if (rc < 0) {
-						//IBytesBuffer::SSL_write rc = -1 err = 1 errno = 0 errmsg = Success
+						//rc = -1 err = 1 errno = 0 errmsg = Success
 						int err = ::SSL_get_error(ssl, rc);
 						if (errno != EINTR || errno != EAGAIN) {
-							printf("IBytesBuffer::SSL_write rc = %d err = %d errno = %d errmsg = %s\n",
+							_LOG_ERROR("rc = %d err = %d errno = %d errmsg = %s",
 								rc, err, errno, strerror(errno));
 						}
 						switch (err)
@@ -220,20 +205,20 @@ namespace muduo {
 							//SSL has been shutdown
 						case SSL_ERROR_ZERO_RETURN:
 							*savedErrno = SSL_ERROR_ZERO_RETURN;
-							printf("IBytesBuffer::SSL_write SSL has been shutdown(%d).\n", err);
+							_LOG_DEBUG("SSL has been shutdown(%d)", err);
 							break;
 							//Connection has been aborted by peer
 						default:
 							*savedErrno = err;
-							printf("IBytesBuffer::SSL_write Connection has been aborted(%d).\n", err);
+							_LOG_DEBUG("Connection has been aborted(%d)", err);
 							break;
 						}
 						break;
 					}
 				}
-				//printf("IBytesBuffer::SSL_write end }}}\n\n");
+				//_LOG_DEBUG("end }}}");
 				return n;
-			}//SSL_write
+			}
 
 		}//namespace ssl
     } // namespace net

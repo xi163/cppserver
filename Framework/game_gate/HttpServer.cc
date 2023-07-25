@@ -3,12 +3,6 @@
 #include "proto/HallServer.Message.pb.h"
 #include "proto/GameServer.Message.pb.h"
 
-#include "public/codec/aes.h"
-#include "public/codec/mymd5.h"
-#include "public/codec/base64.h"
-#include "public/codec/htmlcodec.h"
-#include "public/codec/urlcodec.h"
-
 #include "Gateway.h"
 
 bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
@@ -17,14 +11,14 @@ bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	httpServer_.getLoop()->assertInLoopThread();
 	{
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipNetEndian());
+		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
 		if (it != adminList_.end()) {
 			return true;
 		}
 	}
 	{
 		//192.168.2.21:3640 192.168.2.21:3667
-		std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(peerAddr.ipNetEndian());
+		std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(peerAddr.ipv4NetEndian());
 		return (it != whiteList_.end()) && (IpVisitE::kEnable == it->second);
 	}
 #if 0
@@ -165,12 +159,12 @@ void GateServ::onHttpMessage(
 			bool is_ip_allowed = false;
 			{
 				//管理员挂维护/恢复服务
-				std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipNetEndian());
+				std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
 				is_ip_allowed = (it != adminList_.end());
 			}
 			if (!is_ip_allowed) {
 				READ_LOCK(whiteList_mutex_);
-				std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(peerAddr.ipNetEndian());
+				std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(peerAddr.ipv4NetEndian());
 				is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
 			}
 			if (!is_ip_allowed) {
@@ -256,7 +250,7 @@ void GateServ::asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp 
 				bool is_ip_allowed = false;
 				{
 					READ_LOCK(whiteList_mutex_);
-					std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(conn->peerAddress().ipNetEndian());
+					std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(conn->peerAddress().ipv4NetEndian());
 					is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
 				}
 				if (!is_ip_allowed) {
@@ -343,7 +337,7 @@ static std::string getRequestStr(muduo::net::HttpRequest const& req) {
 		<< "<xs:body>"
 		<< "<xs:method>" << req.methodString() << "</xs:method>"
 		<< "<xs:path>" << req.path() << "</xs:path>"
-		<< "<xs:query>" << HTML::Encode(req.query()) << "</xs:query>"
+		<< "<xs:query>" << utils::HTML::Encode(req.query()) << "</xs:query>"
 		<< "</xs:body>"
 		<< "</xs:root>";
 	return ss.str();
@@ -428,7 +422,7 @@ void GateServ::processHttpRequest(
 	//刷新客户端访问IP黑名单信息
 	else if (req.path() == "/refreshBlackList") {
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipNetEndian());
+		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
 		if (it != adminList_.end()) {
 			rsp.setContentType("text/plain;charset=utf-8");
 			refreshBlackList();
@@ -444,7 +438,7 @@ void GateServ::processHttpRequest(
 	//刷新HTTP访问IP白名单信息
 	else if (req.path() == "/refreshWhiteList") {
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipNetEndian());
+		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
 		if (it != adminList_.end()) {
 			rsp.setContentType("text/plain;charset=utf-8");
 			refreshWhiteList();
@@ -460,7 +454,7 @@ void GateServ::processHttpRequest(
 	//请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
 	else if (req.path() == "/repairServer") {
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipNetEndian());
+		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
 		if (it != adminList_.end()) {
 			rsp.setContentType("text/plain;charset=utf-8");
 			std::string rspdata;
@@ -476,7 +470,7 @@ void GateServ::processHttpRequest(
 	}
 	else if (req.path() == "/help") {
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipNetEndian());
+		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
 		if (it != adminList_.end()) {
 			rsp.setContentType("text/html;charset=utf-8");
 			rsp.setBody("<html>"
@@ -530,7 +524,7 @@ bool GateServ::refreshWhiteListSync() {
 	std::string s;
 	for (std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.begin();
 		it != whiteList_.end(); ++it) {
-		s += std::string("\nipaddr[") + Inet2Ipstr(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
+		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
 	return false;
@@ -544,7 +538,7 @@ bool GateServ::refreshWhiteListInLoop() {
 	std::string s;
 	for (std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.begin();
 		it != whiteList_.end(); ++it) {
-		s += std::string("\nipaddr[") + Inet2Ipstr(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
+		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
 	return false;

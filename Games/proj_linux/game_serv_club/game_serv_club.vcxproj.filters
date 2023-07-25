@@ -4,46 +4,99 @@
     <Filter Include="pb">
       <UniqueIdentifier>{dbe7505c-c190-438a-a9be-cbedb94f7eb8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{e84d2475-d997-4b8c-9294-1b2d896bdfbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface\impl">
+      <UniqueIdentifier>{2cf01be0-1bba-42b7-9263-ad37b0c2e078}</UniqueIdentifier>
+    </Filter>
     <Filter Include="public">
-      <UniqueIdentifier>{8e236360-59d7-43b1-a05e-1976063b3920}</UniqueIdentifier>
+      <UniqueIdentifier>{49975be1-577c-4eb2-ac2b-74c884f96380}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\TraceMsg">
-      <UniqueIdentifier>{47e97842-684e-4a9c-9bb7-f0c11c8b6fca}</UniqueIdentifier>
+      <UniqueIdentifier>{ad5ed97f-682e-4842-a8b2-1ea5f7bb80fb}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\zookeeperclient">
-      <UniqueIdentifier>{c64d2080-d298-4824-836e-9df6c61b3c5c}</UniqueIdentifier>
+      <UniqueIdentifier>{c13fab8a-6b22-4300-9f27-adcdd1b8747d}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\RedisClient">
-      <UniqueIdentifier>{837ec515-8426-483e-b048-c0852e06dbf5}</UniqueIdentifier>
+      <UniqueIdentifier>{18a97fd8-b1da-4143-aacf-c0fa4771d769}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\RedisLock">
-      <UniqueIdentifier>{771d1074-c44a-41e8-8c13-0334ce027cfc}</UniqueIdentifier>
+      <UniqueIdentifier>{0811c72b-1996-426f-bcf7-d891b05619f0}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\MongoDB">
-      <UniqueIdentifier>{a3afe50a-15f2-4fef-b361-bb62af7cfec2}</UniqueIdentifier>
+      <UniqueIdentifier>{ad00e382-a5a7-4d7a-bd56-593c44f9dc18}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\codec">
-      <UniqueIdentifier>{9968559f-9990-4841-9feb-b71c23640ebf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="interface">
-      <UniqueIdentifier>{1d43fb25-9920-4ff6-b4e7-054f9ffd4648}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="interface\template">
-      <UniqueIdentifier>{f0b1c67c-af0e-4d21-bd6c-823c70c01894}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="interface\template\robot">
-      <UniqueIdentifier>{901921ba-1234-4bf9-b85f-18babe32080a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="interface\template\desk">
-      <UniqueIdentifier>{91873016-7d79-478a-9d9c-f75c4b46fb85}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="interface\template\player">
-      <UniqueIdentifier>{b65dfea1-21a9-41d6-bbe4-cef21f9394ee}</UniqueIdentifier>
+      <UniqueIdentifier>{4d63c333-6922-4644-8c11-b01a6ca32d54}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
-      <Filter>public\RedisClient</Filter>
+    <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\Game.h" />
+    <ClInclude Include="..\..\..\Framework\game_serv_club\gameDefine.h" />
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\IPlayer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\IReplayRecord.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\IRobotDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\ITable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\ITableContext.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\ITableDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\impl\Robot.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\impl\RobotMgr.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\impl\Table.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\impl\TableMgr.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\impl\Player.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\impl\PlayerMgr.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\ConsoleClr.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\Inc.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\IPFinder.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\Packet.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h">
+      <Filter>public\TraceMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h">
+      <Filter>public\zookeeperclient</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h">
       <Filter>public\zookeeperclient</Filter>
@@ -54,32 +107,20 @@
     <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h">
       <Filter>public\zookeeperclient</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h">
-      <Filter>public\zookeeperclient</Filter>
+    <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
+      <Filter>public\RedisClient</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\ConsoleClr.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\Env.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\Global.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\NetCardIP.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\Packet.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\StdRandom.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\SubNetIP.h">
-      <Filter>public</Filter>
+    <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
+      <Filter>public\RedisLock</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
       <Filter>public\MongoDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\codec\aes.h">
+      <Filter>public\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\codec\base64.h">
+      <Filter>public\codec</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\codec\htmlcodec.h">
       <Filter>public\codec</Filter>
@@ -90,79 +131,48 @@
     <ClInclude Include="..\..\..\public\codec\urlcodec.h">
       <Filter>public\codec</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\aes.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\base64.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h">
-      <Filter>public\TraceMsg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\Utils.h">
+    <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
-      <Filter>public\RedisLock</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\IPFinder.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\GameDefine.h" />
-    <ClInclude Include="..\..\..\Framework\game_serv_club\Game.h" />
-    <ClInclude Include="..\..\..\Framework\game_serv_club\IDeskDelegate.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\IPlayer.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\IReplayRecord.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\IRobotDelegate.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\IDesk.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\Desk.h">
-      <Filter>interface\template</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\DeskMgr.h">
-      <Filter>interface\template\desk</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\RobotMgr.h">
-      <Filter>interface\template\robot</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\Robot.h">
-      <Filter>interface\template\robot</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\PlayerMgr.h">
-      <Filter>interface\template\player</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\Player.h">
-      <Filter>interface\template\player</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_serv_club\Entities.h" />
-    <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h">
-      <Filter>pb</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
-      <Filter>public\RedisClient</Filter>
+    <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
+      <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp">
-      <Filter>public\zookeeperclient</Filter>
+    <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
+      <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.c">
-      <Filter>public\zookeeperclient</Filter>
+    <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv_club\Game.cc" />
+    <ClCompile Include="..\..\..\Framework\game_serv_club\main.cc" />
+    <ClCompile Include="..\..\..\Framework\game_serv_club\interface\impl\RobotMgr.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv_club\interface\impl\Table.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv_club\interface\impl\TableMgr.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv_club\interface\impl\Player.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv_club\interface\impl\PlayerMgr.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv_club\interface\impl\Robot.cc">
+      <Filter>interface\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\IPFinder.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\Packet.cc">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc">
+      <Filter>public\TraceMsg</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp">
       <Filter>public\zookeeperclient</Filter>
@@ -170,58 +180,29 @@
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp">
       <Filter>public\zookeeperclient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\Packet.cc">
-      <Filter>public</Filter>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.cc">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
+      <Filter>public\RedisClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp">
+      <Filter>public\RedisLock</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
       <Filter>public\MongoDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\codec\base64.cpp">
+      <Filter>public\codec</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\codec\mymd5.cpp">
       <Filter>public\codec</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\codec\urlcodec.cpp">
       <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\base64.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\TraceMsg\TraceMsg.cc">
-      <Filter>public\TraceMsg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp">
-      <Filter>public\RedisLock</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\IPFinder.cpp">
-      <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_serv_club\Game.cc" />
-    <ClCompile Include="..\..\..\Framework\game_serv_club\main.cc" />
-    <ClCompile Include="..\..\..\Framework\game_serv_club\Desk.cc">
-      <Filter>interface\template</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_serv_club\DeskMgr.cc">
-      <Filter>interface\template\desk</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_serv_club\RobotMgr.cc">
-      <Filter>interface\template\robot</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_serv_club\Robot.cc">
-      <Filter>interface\template\robot</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_serv_club\PlayerMgr.cc">
-      <Filter>interface\template\player</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_serv_club\Player.cc">
-      <Filter>interface\template\player</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc">
-      <Filter>pb</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

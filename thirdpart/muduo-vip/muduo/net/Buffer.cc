@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <sys/uio.h>
 
-#include <muduo/net/libwebsocket/ssl.h>
+#include <libwebsocket/ssl.h>
 
 using namespace muduo;
 using namespace muduo::net;

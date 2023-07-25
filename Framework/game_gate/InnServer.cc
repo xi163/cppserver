@@ -3,12 +3,6 @@
 #include "proto/HallServer.Message.pb.h"
 #include "proto/GameServer.Message.pb.h"
 
-#include "public/codec/aes.h"
-#include "public/codec/mymd5.h"
-#include "public/codec/base64.h"
-#include "public/codec/htmlcodec.h"
-#include "public/codec/urlcodec.h"
-
 #include "Gateway.h"
 
 void GateServ::onInnConnection(const muduo::net::TcpConnectionPtr& conn) {

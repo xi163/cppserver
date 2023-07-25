@@ -1,7 +1,7 @@
 ﻿#ifndef INCLUDE_OPERATION_H
 #define INCLUDE_OPERATION_H
 
-#include "IOperation.h"
+#include "Logger/src/op/IOperation.h"
 
 namespace Operation {
 

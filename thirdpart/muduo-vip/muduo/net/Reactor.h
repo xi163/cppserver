@@ -17,7 +17,6 @@ namespace muduo {
 		//class EventLoop;
 		//class EventLoopThreadPool;
 
-		//@@ ReactorSingleton
 		class ReactorSingleton : muduo::noncopyable {
 		public:
 			ReactorSingleton() = delete;

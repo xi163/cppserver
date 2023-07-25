@@ -62,19 +62,12 @@
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpResponse.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpServer.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\InetAddress.cc" />
-    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\context.cc" />
-    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\server.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Poller.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\DefaultPoller.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\EPollPoller.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\PollPoller.cc" />
-    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\ProtobufCodecLite.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpc.pb.cc" />
-    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcChannel.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.cc" />
-    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec_test.cc" />
-    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcServer.cc" />
-    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpcservice.pb.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Reactor.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Socket.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\SocketsOps.cc" />
@@ -83,9 +76,17 @@
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpServer.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Timer.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerQueue.cc" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\websocket\context.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\websocket\server.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcChannel.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcServer.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcService.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\rpcservice.pb.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\AsyncLogging.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Atomic.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\BlockingQueue.h" />
@@ -129,27 +130,11 @@
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpResponse.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpServer.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\InetAddress.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\base.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\context.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\IBytesBuffer.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\ICallback.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\IContext.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\IHttpContext.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\ITimestamp.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\server.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\ssl.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\libwebsocket\websocket.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Poller.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\EPollPoller.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\PollPoller.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\BufferStream.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\ProtobufCodecLite.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\google-inl.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpc.pb.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcChannel.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcServer.h" />
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpcservice.pb.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Reactor.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Socket.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\SocketsOps.h" />
@@ -159,7 +144,14 @@
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Timer.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerId.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerQueue.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\websocket\context.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\websocket\server.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\ZlibStream.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcChannel.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcServer.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcService.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\rpcservice.pb.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\service.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EC76A170-E72D-448D-88B9-5F0369EFBA09}</ProjectGuid>
@@ -213,12 +205,12 @@
     <Link />
     <ClCompile />
     <Link>
-      <LibraryDependencies>protobuf;pthread;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;snappy;ssl;rt;m;z;dl;websocket</LibraryDependencies>
-      <OutputFile>/home/Landy/TianXia/Program/Framework/libs/$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>/home/Landy/TianXia/Program/Framework/libs;/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin;/usr/local/protobuf/lib;/home/Landy/TianXia/Program/Framework/libs/mq;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>websocket;protobuf;pthread;rt;m;z;dl;snappy;crypto;ssl</LibraryDependencies>
+      <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>/home/andy/cppserver/public;/home/andy/cppserver/proto;/usr/local/include/google/protobuf;/usr/include;/usr/local/include;/home/andy/cppserver/thirdpart/muduo-vip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUDUO_STD_STRING _MUDUO_OPTIMIZE_CHNANNEL_ LIBWEBSOCKET_DEBUG</PreprocessorDefinitions>
       <PositionIndependentCode>true</PositionIndependentCode>
     </ClCompile>

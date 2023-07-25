@@ -38,9 +38,6 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.h">
       <Filter>src\utils\impl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\MemTrack.h">
-      <Filter>src\utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.h">
       <Filter>src\utils\impl</Filter>
     </ClInclude>
@@ -80,8 +77,42 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color.h">
       <Filter>src\log\impl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\mymd5.h">
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\IncBoost.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\rand\StdRandom.h">
+      <Filter>src\rand</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\rand\impl\StdRandomImpl.h">
+      <Filter>src\rand\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\lock\SpinLock.h">
+      <Filter>src\lock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\lock\impl\SpinLockImpl.h">
+      <Filter>src\lock\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\lock\mutex.h">
+      <Filter>src\lock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\base64.h">
       <Filter>src\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\html.h">
+      <Filter>src\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\md5.h">
+      <Filter>src\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\sha1.h">
+      <Filter>src\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\url.h">
+      <Filter>src\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\aes.h">
+      <Filter>src\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\track\MemTrack.h">
+      <Filter>src\track</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -142,70 +173,106 @@
     <Filter Include="src\crypt">
       <UniqueIdentifier>{0f327970-7c1f-4d24-9748-9d4fda8a5d8d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\rand">
+      <UniqueIdentifier>{5e32d341-4f0a-40fb-afc0-156d966ef82d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\rand\impl">
+      <UniqueIdentifier>{f1109aa5-7886-49c2-969c-393871d8f9ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lock">
+      <UniqueIdentifier>{9aa8a8fa-7b6d-4336-949a-fd0001eb0dc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lock\impl">
+      <UniqueIdentifier>{391fa33a-80d0-4f32-aa35-7f5c3e19cb05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\track">
+      <UniqueIdentifier>{546a8b5a-d171-4e5b-b9e8-12e423bf863e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\track\impl">
+      <UniqueIdentifier>{e42a26f5-b0ae-4444-82ed-5b0c4a53b200}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cc">
       <Filter>src\auth</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cc">
       <Filter>src\log\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cc">
       <Filter>src\log\impl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\timer\timer.cpp">
       <Filter>src\timer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.cc">
       <Filter>src\utils\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.cc">
       <Filter>src\utils\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.cc">
       <Filter>src\utils\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\MemTrack.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utils.cc">
       <Filter>src\utils\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utils.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.cc">
       <Filter>src\utils\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.cc">
       <Filter>src\utils\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.cc">
       <Filter>src\utils\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Privilege.cpp">
-      <Filter>src\utils\impl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\Mem.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\Mem.cc">
       <Filter>src\op\mem\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\MemImpl.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\mem\impl\MemImpl.cc">
       <Filter>src\op\mem\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\impl\Operation.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\impl\Operation.cc">
       <Filter>src\op\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\File.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\File.cc">
       <Filter>src\op\file\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.cc">
       <Filter>src\op\file\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\ini.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\ini.cc">
       <Filter>src\ini\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cc">
       <Filter>src\ini\impl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.cc">
       <Filter>src\log\impl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\mymd5.cpp">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\rand\impl\StdRandom.cc">
+      <Filter>src\rand\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\lock\impl\SpinLock.cc">
+      <Filter>src\lock\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\base64.cc">
       <Filter>src\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\md5.cc">
+      <Filter>src\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\sha1.cc">
+      <Filter>src\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\url.cc">
+      <Filter>src\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\html.cc">
+      <Filter>src\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\track\impl\MemTrack.cc">
+      <Filter>src\track\impl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

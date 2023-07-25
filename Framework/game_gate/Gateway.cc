@@ -3,22 +3,18 @@
 #include "proto/HallServer.Message.pb.h"
 #include "proto/GameServer.Message.pb.h"
 
-#include "public/codec/aes.h"
-#include "public/codec/mymd5.h"
-#include "public/codec/base64.h"
-#include "public/codec/htmlcodec.h"
-#include "public/codec/urlcodec.h"
-
 #include "Gateway.h"
 
 GateServ::GateServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr,
+	const muduo::net::InetAddress& listAddrRpc,
 	const muduo::net::InetAddress& listenAddrInn,
 	const muduo::net::InetAddress& listenAddrHttp,
 	std::string const& cert_path, std::string const& private_key_path,
 	std::string const& client_ca_cert_file_path,
 	std::string const& client_ca_cert_dir_path)
 	: server_(loop, listenAddr, "wsServer")
+	, rpcserver_(loop, listAddrRpc, "RpcServer")
 	, innServer_(loop, listenAddrInn, "innServer")
 	, httpServer_(loop, listenAddrHttp, "httpServer")
 	, hallClients_(loop)
@@ -32,6 +28,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
+	rpcserver_.registerService(&rpcservice_);
 	server_.setConnectionCallback(
 		std::bind(&GateServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
@@ -93,6 +90,7 @@ void GateServ::Quit() {
 	}
 	muduo::net::ReactorSingleton::stop();
 	server_.getLoop()->quit();
+	google::protobuf::ShutdownProtobufLibrary();
 }
 
 void GateServ::registerHandlers() {
@@ -118,6 +116,8 @@ void GateServ::onZookeeperConnected() {
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
 		zkclient_->createNode("/GAME/ProxyServers", "ProxyServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
+		zkclient_->createNode("/GAME/RPCProxyServers", "RPCProxyServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode("/GAME/HallServers"))
 		zkclient_->createNode("/GAME/HallServers", "HallServers"/*, true*/);
 	//if (ZNONODE == zkclient_->existsNode("/GAME/HallServersInvalid"))
@@ -127,6 +127,13 @@ void GateServ::onZookeeperConnected() {
 	//if (ZNONODE == zkclient_->existsNode("/GAME/GameServersInvalid"))
 	//	zkclient_->createNode("/GAME/GameServersInvalid", "GameServersInvalid", true);
 	{
+		{
+			std::vector<std::string> vec;
+			boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
+			rpcNodeValue_ = strIpAddr_ + ":" + vec[1];
+			rpcNodePath_ = "/GAME/RPCProxyServers/" + rpcNodeValue_;
+			zkclient_->createNode(rpcNodePath_, rpcNodeValue_, true);
+		}
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 		//ip:port:port:pid
@@ -232,9 +239,15 @@ void GateServ::registerZookeeper() {
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
 		zkclient_->createNode("/GAME/ProxyServers", "ProxyServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/RPCProxyServers"))
+		zkclient_->createNode("/GAME/RPCProxyServers", "RPCProxyServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		_LOG_INFO(nodePath_.c_str());
 		zkclient_->createNode(nodePath_, nodeValue_, true);
+	}
+	if (ZNONODE == zkclient_->existsNode(rpcNodePath_)) {
+		_LOG_INFO(rpcNodePath_.c_str());
+		zkclient_->createNode(rpcNodePath_, rpcNodeValue_, true);
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
 }
@@ -326,6 +339,7 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		httpServer_.setConditionCallback(std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1));
 	}
 
+	rpcserver_.start();
 	server_.start(true);
 	innServer_.start(true);
 	httpServer_.start(true);

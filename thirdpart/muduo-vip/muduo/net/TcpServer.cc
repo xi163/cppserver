@@ -64,7 +64,7 @@ void TcpServer::start(bool et)
   {
     ReactorSingleton::start(threadInitCallback_);//threadPool_->start(threadInitCallback_);
 
-    assert(!acceptor_->listenning());
+    assert(!acceptor_->listening());
     if (conditionCallback_)
     {
       acceptor_->setConditionCallback(conditionCallback_);
@@ -101,7 +101,6 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
   conn->setConnectionCallback(connectionCallback_);
   conn->setMessageCallback(messageCallback_);
   conn->setWriteCompleteCallback(writeCompleteCallback_);
-
   conn->setCloseCallback(
       std::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe
   RunInLoop(ioLoop, std::bind(&TcpConnection::connectEstablished, conn));

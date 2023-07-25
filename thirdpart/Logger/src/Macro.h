@@ -12,32 +12,6 @@
 #define _apple_
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <errno.h>
-#include <fcntl.h>
-#include <assert.h>
-#include <time.h>
-#include <iomanip>
-#include <memory>
-#include <random>
-#include <stdarg.h>
-//#include <conio.h>
-
-#include <algorithm>
-#include <utility>
-#include <vector>
-#include <list>
-#include <map>
-#include <set>
-#include <functional>
-#include <chrono>
-
 #define MY_PST (-8)
 #define MY_MST (-7)
 #define MY_EST (-5)
@@ -62,14 +36,57 @@
 #define F_DETAIL        0x02
 #define F_TMSTMP        0x04
 
-#ifdef _windows_
-#include <conio.h>
-//#include <WinSock2.h>//timeval
-#include <windows.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <stdint.h>
-#include <tchar.h>
-#include <io.h>
+#include <stdarg.h>
+//#include <dirent.h>
+#include <string.h> //memset
+#include <assert.h>
+#include <errno.h>
+#include <math.h>
+#include <ctype.h>
+#include <malloc.h>
+#include <time.h>
+//#include <curl/curl.h>
+
+//被 *.c 文件包含会有问题
+#include <exception>
+#include <stdexcept>
+#include <algorithm>
+#include <utility>
+#include <random>
+#include <chrono>
+#include <atomic> //atomic_llong
+#include <memory>
+#include <set>
+#include <unordered_set>
+#include <map>
+#include <unordered_map>
+#include <list>
+#include <vector>
+#include <deque>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <iomanip>
+#include <functional>
+#include <ios>
+#include <thread>
+#include <mutex>
+//#include <shared_mutex>
+#include <condition_variable>
+
+#ifdef _windows_
+
+#include <iconv.h>
 #include <direct.h>
+#include <io.h>
+#include <tchar.h>
+#include <conio.h>
+//#include <WinSock2.h> //timeval
+#include <windows.h>
 //#define __FUNC__ __FUNCSIG__//__FUNCTION__
 #define __FUNC__ __FUNCTION__//__FUNCSIG__
 #define INVALID_HANDLE_VALUE ((HANDLE)(-1))
@@ -79,64 +96,55 @@
 #define strtoull     _strtoui64
 #define xsleep(t) Sleep(t) //milliseconds
 #define clscr() system("cls")
+
+#include <shared_mutex>
+
+#define read_lock(mutex) std::shared_lock<std::shared_mutex> guard(mutex)
+#define write_lock(mutex) std::unique_lock<std::shared_mutex> guard(mutex)
+
 #elif defined(_linux_)
-#include <unistd.h>
+
+#include <unistd.h> //ssize_t
+#include <signal.h>
+//#include <sigaction.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <sys/uio.h>
 #include <dirent.h>
 #include <pthread.h>
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <linux/unistd.h>
+#include <sys/wait.h>
+#include <sys/resource.h>
+#include <sys/timeb.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <dlfcn.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <linux/if.h>
+//#include <net/if.h>
+
 #define __FUNC__ __func__
 #define INVALID_HANDLE_VALUE (-1)
 #define xsleep(t) usleep((t) * 1000) //microseconds
 #define clscr() system("reset")
+
+#include "Logger/src/IncBoost.h"
+
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+
 #endif
 
 typedef int pid_t;
 typedef int tid_t;
 
-#include <mutex>
-//#include <shared_mutex>
-#include <thread>
-
-#include <boost/version.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/thread.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/serialization/singleton.hpp>
-#include <boost/date_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/pool/object_pool.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/algorithm/algorithm.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/predicate.hpp> //boost::iequals
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/circular_buffer.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/proto/detail/ignore_unused.hpp>
-#include <boost/regex.hpp>
-#include <boost/locale.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/get_pointer.hpp>
-#include <boost/archive/iterators/base64_from_binary.hpp>
-#include <boost/archive/iterators/binary_from_base64.hpp>
-#include <boost/archive/iterators/transform_width.hpp>
-
+#ifdef _windows_
 #pragma execution_character_set("utf-8")
-
-// #define read_lock(mutex) std::shared_lock<std::shared_mutex> guard(mutex)
-// #define write_lock(mutex) std::unique_lock<std::shared_mutex> guard(mutex)
-
-#define read_lock(mutex) boost::shared_lock<boost::shared_mutex> guard(mutex)
-#define write_lock(mutex) boost::lock_guard<boost::shared_mutex> guard(mutex)
+#endif
 
 #endif

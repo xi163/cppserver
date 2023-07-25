@@ -1,8 +1,8 @@
 ﻿#ifndef INCLUDE_MEM_H
 #define INCLUDE_MEM_H
 
-#include "../../Macro.h"
-#include "../IOperation.h"
+#include "Logger/src/Macro.h"
+#include "Logger/src/op/IOperation.h"
 
 namespace Operation {
 	class MemImpl;

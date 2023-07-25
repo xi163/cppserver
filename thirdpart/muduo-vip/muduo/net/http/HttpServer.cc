@@ -50,8 +50,8 @@ HttpServer::HttpServer(EventLoop* loop,
 
 void HttpServer::start()
 {
-  LOG_WARN << "HttpServer[" << server_.name()
-    << "] starts listenning on " << server_.ipPort();
+  //LOG_WARN << "HttpServer[" << server_.name()
+  //  << "] starts listening on " << server_.ipPort();
   server_.start();
 }
 

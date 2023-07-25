@@ -1,13 +1,36 @@
 ﻿#ifndef INCLUDE_UTILS_H_
 #define INCLUDE_UTILS_H_
 
-#include "../Macro.h"
+#include "Logger/src/Macro.h"
+
+#include "Logger/src/excp/excp.h"
+
+#include "Logger/src/log/Logger.h"
+
+#include "Logger/src/track/MemTrack.h"
+
+#include "Logger/src/ini/ini.h"
+
+#include "Logger/src/crypt/aes.h"
+#include "Logger/src/crypt/sha1.h"
+#include "Logger/src/crypt/md5.h"
+#include "Logger/src/crypt/url.h"
+#include "Logger/src/crypt/html.h"
+#include "Logger/src/crypt/base64.h"
+
+#include "Logger/src/rand/StdRandom.h"
+
+#include "Logger/src/lock/SpinLock.h"
 
 namespace utils {
 
 	namespace uuid {
 		std::string createUUID();
 	}
+	
+	std::string buffer2HexStr(uint8_t const* buf, size_t len);
+
+	std::string clearDllPrefix(std::string const& path);
 
 	char const* MD5Encode(char const* src, unsigned len, char dst[], int upper);
 
@@ -56,6 +79,22 @@ namespace utils {
 	bool enablePrivilege(std::string const& path);
 
 	bool checkVCRedist();
+
+	void registerSignalHandler(int signal, void(*handler)(int));
+
+	void setrlimit();
+
+	void setenv();
+
+	int getNetCardIp(std::string const& netCardName, std::string& Ip);
+
+	std::string inetToIp(uint32_t inetIp);
+
+	std::string hnetToIp(uint32_t hnetIp);
+
+	bool checkSubnetIpstr(char const* srcIp, char const* dstIp);
+
+	bool checkSubnetInetIp(uint32_t srcInetIp, uint32_t dstInetIp);
 }
 
 #endif

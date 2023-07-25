@@ -30,13 +30,15 @@ class RpcServer
 {
  public:
   RpcServer(EventLoop* loop,
-            const InetAddress& listenAddr);
+            const InetAddress& listenAddr, const string& nameArg);
 
   void setThreadNum(int numThreads)
   {
     server_.setThreadNum(numThreads);
   }
-
+  const string& ipPort() const { return server_.ipPort(); }
+  const string& name() const { return server_.name(); }
+  EventLoop* getLoop() const { return server_.getLoop(); }
   void registerService(::google::protobuf::Service*);
   void start();
 

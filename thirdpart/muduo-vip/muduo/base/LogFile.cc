@@ -127,7 +127,6 @@ string LogFile::getLogFileName(const string& basename, time_t* now)
   filename += pidbuf;
 
   filename += ".log";
-  filename = "./log/"+basename+"/"+filename;
 
   return filename;
 }

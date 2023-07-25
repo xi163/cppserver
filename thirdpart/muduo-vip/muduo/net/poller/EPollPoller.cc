@@ -146,8 +146,8 @@ void EPollPoller::updateChannel(Channel* channel)
   Poller::assertInLoopThread();
 #ifndef _MUDUO_OPTIMIZE_CHNANNEL_
   const int index = channel->index();
-  LOG_TRACE << "fd = " << channel->fd()
-    << " events = " << channel->events() << " index = " << index;
+  //LOG_TRACE << "fd = " << channel->fd()
+    //<< " events = " << channel->events() << " index = " << index;
   if (index == kNew || index == kDeleted)
   {
     // a new one, add with EPOLL_CTL_ADD

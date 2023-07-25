@@ -75,7 +75,7 @@ class TcpServer : noncopyable
   std::shared_ptr<EventLoopThreadPool> threadPool()
   { return ReactorSingleton::threadPool();/*threadPool_;*/ }
 
-  /// Starts the server if it's not listenning.
+  /// Starts the server if it's not listening.
   ///
   /// It's harmless to call it multiple times.
   /// Thread safe.
@@ -96,7 +96,6 @@ class TcpServer : noncopyable
   void setWriteCompleteCallback(const WriteCompleteCallback& cb)
   { writeCompleteCallback_ = cb; }
 
-  //openSSL support set_SSL_CTX ///
   void set_SSL_CTX(SSL_CTX* ctx) { ssl_ctx_ = ctx; }
 
  private:

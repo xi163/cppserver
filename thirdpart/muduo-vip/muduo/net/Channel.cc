@@ -40,10 +40,10 @@ Channel::Channel(EventLoop* loop, int fd)
 Channel::~Channel()
 {
   assert(!eventHandling_);
-  assert(!addedToLoop_);
+  //assert(!addedToLoop_);
   if (loop_->isInLoopThread())
   {
-    assert(!loop_->hasChannel(this));
+    //assert(!loop_->hasChannel(this));
   }
 }
 
@@ -89,8 +89,8 @@ void Channel::handleEvent(Timestamp receiveTime, short revents) {
 
 void Channel::handleEventWithGuard(Timestamp receiveTime, short revents) {
 	eventHandling_ = true;
-	LOG_TRACE << reventsToString();
-	//¹Ø±Õ(close)
+	//LOG_TRACE << reventsToString();
+	//å…³é—­(close)
 	if ((revents & POLLHUP) && !(revents & POLLIN))
 	{
 		if (logHup_)
@@ -99,22 +99,22 @@ void Channel::handleEventWithGuard(Timestamp receiveTime, short revents) {
 		}
 		if (closeCallback_) closeCallback_();
 	}
-	//ÎÞÐ§
+	//æ— æ•ˆ
 	if (revents & POLLNVAL)
 	{
 		//LOG_WARN << "fd = " << fd_ << " Channel::handle_event() POLLNVAL";
 	}
-	//´íÎó(error)
+	//é”™è¯¯(error)
 	if (revents & (POLLERR | POLLNVAL))
 	{
 		if (errorCallback_) errorCallback_();
 	}
-	//¶Á(accept/read/recv)
+	//è¯»(accept/read/recv)
 	if (revents & (POLLIN | POLLPRI | POLLRDHUP))
 	{
 		if (readCallback_) readCallback_(receiveTime, revents);
 	}
-	//Ð´(connect/write/send)
+	//å†™(connect/write/send)
 	if (revents & POLLOUT)
 	{
 		if (writeCallback_) writeCallback_();

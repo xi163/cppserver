@@ -36,6 +36,9 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h">
       <Filter>Logger</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\IncMuduo.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\public\TraceMsg\TraceMsg.cc">

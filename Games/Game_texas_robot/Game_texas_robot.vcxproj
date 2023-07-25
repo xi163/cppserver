@@ -35,7 +35,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Framework\public\GlobalFunc.cpp" />
     <ClCompile Include="..\..\proto\texas.Message.pb.cc" />
     <ClCompile Include="..\Game_Texas\cfg.cpp" />
     <ClCompile Include="..\Game_Texas\funcC.cpp" />
@@ -43,8 +42,8 @@
     <ClCompile Include="AndroidUserItemSink.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Framework\public\GlobalFunc.h" />
     <ClInclude Include="..\..\proto\texas.Message.pb.h" />
+    <ClInclude Include="..\..\public\IncMuduo.h" />
     <ClInclude Include="..\Game_Texas\cfg.h" />
     <ClInclude Include="..\Game_Texas\funcC.h" />
     <ClInclude Include="..\Game_Texas\StdRandom.h" />
@@ -100,7 +99,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver;/home/andy/cppserver/public;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart/Json/include;/home/andy/server/thirdpart/;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/jsoncpp-src-0.5.0/include;/home/andy/cppserver/Framework/game_serv;/home/andy/cppserver/Framework/game_serv/interface;/home/andy/cppserver/Games/Game_s13s;/home/andy/server/thirdpart/Logger/src;/home/andy/server/thirdpart/Logger/src/log;/home/andy/server/thirdpart/Logger/src/utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver;/home/andy/cppserver/public;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart/Json/include;/home/andy/server/thirdpart/;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/jsoncpp-src-0.5.0/include;/home/andy/cppserver/Framework/game_serv;/home/andy/cppserver/Framework/game_serv/interface;/home/andy/cppserver/Games/Game_s13s;/home/andy/server/thirdpart/Logger/src;/home/andy/server/thirdpart/Logger/src/log;/home/andy/server/thirdpart/Logger/src/utils;/home/andy/cppserver/thirdpart/Logger/src/rand;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>

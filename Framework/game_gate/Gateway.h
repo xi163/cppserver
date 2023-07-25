@@ -10,6 +10,8 @@
 #include "Clients.h"
 #include "EntryPtr.h"
 
+#include "RpcService.h"
+
 //#define NDEBUG
 #define KICK_GS                 (0x01)
 #define KICK_HALL               (0x02)
@@ -88,6 +90,7 @@ public:
 	typedef std::map<uint32_t, CmdCallback> CmdCallbacks;
 	GateServ(muduo::net::EventLoop* loop,
 		const muduo::net::InetAddress& listenAddr,
+		const muduo::net::InetAddress& listAddrRpc,
 		const muduo::net::InetAddress& listenAddrInn,
 		const muduo::net::InetAddress& listenAddrHttp,
 		std::string const& cert_path, std::string const& private_key_path,
@@ -195,13 +198,15 @@ public:
 	void onMarqueeNotify(std::string const& msg);
 public:
 	std::shared_ptr<ZookeeperClient> zkclient_;
-	std::string nodePath_, nodeValue_, invalidNodePath_;
+	std::string nodePath_, rpcNodePath_, rpcNodeValue_, nodeValue_, invalidNodePath_;
 	//redis订阅/发布
 	std::shared_ptr<RedisClient>  redisClient_;
 	std::string redisIpaddr_;
 	std::string redisPasswd_;
 	std::vector<std::string> redlockVec_;
 	std::string mongoDBUrl_;
+	Rpc::GameGateService rpcservice_;
+	muduo::net::RpcServer rpcserver_;
 	muduo::net::TcpServer server_;
 	muduo::net::TcpServer innServer_;
 	muduo::net::TcpServer httpServer_;

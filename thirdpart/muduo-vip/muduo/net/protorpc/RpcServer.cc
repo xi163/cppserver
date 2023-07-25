@@ -18,8 +18,9 @@ using namespace muduo;
 using namespace muduo::net;
 
 RpcServer::RpcServer(EventLoop* loop,
-                     const InetAddress& listenAddr)
-  : server_(loop, listenAddr, "RpcServer")
+                     const InetAddress& listenAddr,
+    const string& nameArg)
+  : server_(loop, listenAddr, nameArg)
 {
   server_.setConnectionCallback(
       std::bind(&RpcServer::onConnection, this, _1));

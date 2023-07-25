@@ -8,6 +8,10 @@ namespace utils {
 	namespace uuid {
 		std::string _createUUID();
 	}
+	
+	std::string _buffer2HexStr(uint8_t const* buf, size_t len);
+	
+	std::string _clearDllPrefix(std::string const& path);
 
 	void _replaceAll(std::string& s, std::string const& src, std::string const& dst);
 	
@@ -48,6 +52,22 @@ namespace utils {
 	std::string _utf82GBK(char const* utf8, size_t len);
 
 	unsigned int _now_ms();
+
+	void _registerSignalHandler(int signal, void(*handler)(int));
+	
+	void _setrlimit();
+
+	void _setenv();
+
+	int _getNetCardIp(std::string const& netCardName, std::string& Ip);
+
+	std::string _inetToIp(uint32_t inetIp);
+
+	std::string _hnetToIp(uint32_t hnetIp);
+
+	bool _checkSubnetIpstr(char const* srcIp, char const* dstIp);
+
+	bool _checkSubnetInetIp(uint32_t srcInetIp, uint32_t dstInetIp);
 }
 
 #endif

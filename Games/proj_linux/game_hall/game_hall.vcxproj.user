@@ -9,5 +9,6 @@
     </PreLaunchCommand>
     <RemoteDebuggerWorkingDirectory>/home/andy/cppserver/bin/</RemoteDebuggerWorkingDirectory>
     <RemoteDebuggerCommand>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</RemoteDebuggerCommand>
+    <AdditionalSymbolSearchPaths>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs</AdditionalSymbolSearchPaths>
   </PropertyGroup>
 </Project>

@@ -35,10 +35,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\base64.cc" />
     <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\CurrentThread.cc" />
     <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\IBytesBuffer.cc" />
-    <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\sha1.cc" />
     <ClCompile Include="..\..\..\thirdpart\libwebsocket\private\websocket.cc" />
     <ClCompile Include="..\..\..\thirdpart\libwebsocket\ssl\ssl.cc" />
     <ClCompile Include="..\..\..\thirdpart\libwebsocket\ssl\ssl_iorw.cc" />
@@ -51,10 +49,8 @@
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\IContext.h" />
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\IHttpContext.h" />
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\ITimestamp.h" />
-    <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\base64.h" />
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\CurrentThread.h" />
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\Endian.h" />
-    <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\sha1.h" />
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\private\Types.h" />
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\ssl.h" />
     <ClInclude Include="..\..\..\thirdpart\libwebsocket\websocket.h" />
@@ -116,7 +112,7 @@
       <AdditionalLibraryDirectories>/home/Landy/TianXia/Program/Framework/libs;/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin;/usr/local/protobuf/lib;/home/Landy/TianXia/Program/Framework/libs/mq;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>/home/andy/cppserver/public;/home/andy/cppserver/proto;/usr/local/include/google/protobuf;/usr/include;/usr/local/include;/home/andy/cppserver/thirdpart/libwebsocket;/home/andy/cppserver/thirdpart/libwebsocket/private;/home/andy/cppserver/thirdpart/libwebsocket/ssl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/home/andy/cppserver/thirdpart;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <PositionIndependentCode>true</PositionIndependentCode>
