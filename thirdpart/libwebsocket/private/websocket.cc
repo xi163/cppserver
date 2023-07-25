@@ -1526,7 +1526,7 @@ namespace muduo {
 			static websocket::header_t pack_unmask_uncontrol_frame_header(
 				IBytesBuffer* buf,
 				websocket::OpcodeE opcode, websocket::FinE fin, size_t Payloadlen) {
-				//0~127(2^7-1) 0x‭7F‬
+				//0~127(2^7-1) 0x7F
 				assert(Payloadlen <= 127);
 				//websocket::header_t int16_t
 				websocket::header_t header = { 0 };
@@ -1555,7 +1555,7 @@ namespace muduo {
 			static websocket::header_t pack_unmask_control_frame_header(
 				IBytesBuffer* buf,
 				websocket::OpcodeE opcode, websocket::FinE fin, size_t Payloadlen) {
-				//0~127(2^7-1) 0x‭7F‬
+				//0~127(2^7-1) 0x7F
 				assert(Payloadlen <= 127);
 				//websocket::header_t int16_t
 				websocket::header_t header = { 0 };
@@ -2743,7 +2743,7 @@ namespace muduo {
 #endif
 						switch (header.FIN) {
 						case FinE::FrameContinue: {
-							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析"
+							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析
 							//分片消息连续帧
 							//FIN = FrameContinue opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//FIN = FrameContinue opcode = SegmentMessage
@@ -2753,7 +2753,7 @@ namespace muduo {
 							break;
 						}
 						case FinE::FrameFinished: {
-							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析"
+							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析
 							//未分片消息结束帧 FIN = FrameFinished opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//分片消息结束帧 FIN = FrameFinished opcode = SegmentMessage
 #ifdef LIBWEBSOCKET_DEBUG
@@ -2783,10 +2783,10 @@ namespace muduo {
 									context.getDataMessage().getMessageType(), receiveTime);
 							}
 							if (context.getDataMessage().getMessageBuffer()->readableBytes() == header.Payloadlen) {
-								//context.getDataMessage().getMessageBuffer()没有分片情况"
+								//context.getDataMessage().getMessageBuffer()没有分片情况
 							}
 							else {
-								//context.getDataMessage().getMessageBuffer()必是分片消息"
+								//context.getDataMessage().getMessageBuffer()必是分片消息
 							}
 							//重置数据帧消息buffer
 							context.resetDataMessage();
@@ -2830,7 +2830,7 @@ namespace muduo {
 					//StepE::ReadPayloadData/ReadExtendedPayloadDataU16
 					//////////////////////////////////////////////////////////////////////////
 					assert(context.getWebsocketStep() == websocket::StepE::ReadExtendedPayloadDataU16);
-					//读取Payload Data"
+					//读取Payload Data
 					if (buf->readableBytes() < extended_header.getExtendedPayloadlenU16()) {
 						//读取不够
 #ifdef LIBWEBSOCKET_DEBUG
@@ -2853,22 +2853,22 @@ namespace muduo {
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenU16(), buf->readableBytes());
 #endif
-						//读取Payload Data"
+						//读取Payload Data
 						context.getDataMessage().getMessageBuffer()->append(buf->peek(), extended_header.getExtendedPayloadlenU16());
 						buf->retrieve(extended_header.getExtendedPayloadlenU16());
 						//////////////////////////////////////////////////////////////////////////
-						//对Payload Data做UnMask计算"
+						//对Payload Data做UnMask计算
 						context.getDataMessage().unMaskPayloadData(
 							header.MASK,
 							context.getDataMessage().getMessageBuffer().get(),
 							extended_header.getMaskingkey());
 #if 0
-						//buf没有粘包/半包情况"
+						//buf没有粘包/半包情况
 						assert(buf->readableBytes() == 0);
 #endif
 						switch (header.FIN) {
 						case FinE::FrameContinue: {
-							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析"
+							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析
 							//分片消息连续帧
 							//FIN = FrameContinue opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//FIN = FrameContinue opcode = SegmentMessage
@@ -2878,7 +2878,7 @@ namespace muduo {
 							break;
 						}
 						case FinE::FrameFinished: {
-							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析"
+							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析
 							//未分片消息结束帧 FIN = FrameFinished opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//分片消息结束帧 FIN = FrameFinished opcode = SegmentMessage
 #ifdef LIBWEBSOCKET_DEBUG
@@ -2908,10 +2908,10 @@ namespace muduo {
 									context.getDataMessage().getMessageType(), receiveTime);
 							}
 							if (context.getDataMessage().getMessageBuffer()->readableBytes() == extended_header.getExtendedPayloadlenU16()) {
-								//context.getDataMessage().getMessageBuffer()没有分片情况"
+								//context.getDataMessage().getMessageBuffer()没有分片情况
 							}
 							else {
-								//context.getDataMessage().getMessageBuffer()必是分片消息"
+								//context.getDataMessage().getMessageBuffer()必是分片消息
 							}
 							//重置数据帧消息buffer
 							context.resetDataMessage();
@@ -2955,7 +2955,7 @@ namespace muduo {
 					//StepE::ReadPayloadData/ReadExtendedPayloadDataI64
 					//////////////////////////////////////////////////////////////////////////
 					assert(context.getWebsocketStep() == websocket::StepE::ReadExtendedPayloadDataI64);
-					//读取Payload Data"
+					//读取Payload Data
 					if (buf->readableBytes() < extended_header.getExtendedPayloadlenI64()) {
 						//读取不够
 #ifdef LIBWEBSOCKET_DEBUG
@@ -2979,22 +2979,22 @@ namespace muduo {
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenI64(), buf->readableBytes());
 #endif
-						//读取Payload Data"
+						//读取Payload Data
 						context.getDataMessage().getMessageBuffer()->append(buf->peek(), extended_header.getExtendedPayloadlenI64());
 						buf->retrieve(extended_header.getExtendedPayloadlenI64());
 						//////////////////////////////////////////////////////////////////////////
-						//对Payload Data做UnMask计算"
+						//对Payload Data做UnMask计算
 						context.getDataMessage().unMaskPayloadData(
 							header.MASK,
 							context.getDataMessage().getMessageBuffer().get(),
 							extended_header.getMaskingkey());
 #if 0
-						//buf没有粘包/半包情况"
+						//buf没有粘包/半包情况
 						//assert(buf->readableBytes() == 0);
 #endif
 						switch (header.FIN) {
 						case FinE::FrameContinue: {
-							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析"
+							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析
 							//分片消息连续帧
 							//FIN = FrameContinue opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//FIN = FrameContinue opcode = SegmentMessage
@@ -3004,7 +3004,7 @@ namespace muduo {
 							break;
 						}
 						case FinE::FrameFinished: {
-							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析"
+							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析
 							//未分片消息结束帧 FIN = FrameFinished opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//分片消息结束帧 FIN = FrameFinished opcode = SegmentMessage
 #ifdef LIBWEBSOCKET_DEBUG
@@ -3034,10 +3034,10 @@ namespace muduo {
 									context.getDataMessage().getMessageType(), receiveTime);
 							}
 							if (context.getDataMessage().getMessageBuffer()->readableBytes() == extended_header.getExtendedPayloadlenI64()) {
-								//context.getDataMessage().getMessageBuffer()没有分片情况"
+								//context.getDataMessage().getMessageBuffer()没有分片情况
 							}
 							else {
-								//context.getDataMessage().getMessageBuffer()必是分片消息"
+								//context.getDataMessage().getMessageBuffer()必是分片消息
 							}
 							//重置数据帧消息buffer
 							context.resetDataMessage();
@@ -3081,7 +3081,7 @@ namespace muduo {
 					//StepE::ReadPayloadData
 					//////////////////////////////////////////////////////////////////////////
 					assert(context.getWebsocketStep() == websocket::StepE::ReadPayloadData);
-					//读取Payload Data"
+					//读取Payload Data
 					if (buf->readableBytes() < header.Payloadlen) {
 						//读取不够
 #ifdef LIBWEBSOCKET_DEBUG
@@ -3104,22 +3104,22 @@ namespace muduo {
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), header.Payloadlen, buf->readableBytes());
 #endif
-						//读取Payload Data"
+						//读取Payload Data
 						context.getControlMessage().getMessageBuffer()->append(buf->peek(), header.Payloadlen);
 						buf->retrieve(header.Payloadlen);
 						//////////////////////////////////////////////////////////////////////////
-						//对Payload Data做UnMask计算"
+						//对Payload Data做UnMask计算
 						context.getControlMessage().unMaskPayloadData(
 							header.MASK,
 							context.getControlMessage().getMessageBuffer().get(),
 							extended_header.getMaskingkey());
 #if 0
-						//buf没有粘包/半包情况"
+						//buf没有粘包/半包情况
 						assert(buf->readableBytes() == 0);
 #endif
 						switch (header.FIN) {
 						case FinE::FrameContinue: {
-							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析"
+							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析
 							//分片消息连续帧
 							//FIN = FrameContinue opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//FIN = FrameContinue opcode = SegmentMessage
@@ -3129,7 +3129,7 @@ namespace muduo {
 							break;
 						}
 						case FinE::FrameFinished: {
-							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析"
+							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析
 							//未分片消息结束帧 FIN = FrameFinished opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//分片消息结束帧 FIN = FrameFinished opcode = SegmentMessage
 #ifdef LIBWEBSOCKET_DEBUG
@@ -3189,10 +3189,10 @@ namespace muduo {
 								break;
 							}
 							if (context.getControlMessage().getMessageBuffer()->readableBytes() == header.Payloadlen) {
-								//context.getControlMessage().getMessageBuffer()->readableBytes()没有分片情况"
+								//context.getControlMessage().getMessageBuffer()->readableBytes()没有分片情况
 							}
 							else {
-								//context.getControlMessage().getMessageBuffer()->readableBytes()必是分片消息"
+								//context.getControlMessage().getMessageBuffer()->readableBytes()必是分片消息
 							}
 							//重置控制帧消息buffer
 							context.resetControlMessage();
@@ -3236,7 +3236,7 @@ namespace muduo {
 					//StepE::ReadPayloadData
 					//////////////////////////////////////////////////////////////////////////
 					assert(context.getWebsocketStep() == websocket::StepE::ReadPayloadData);
-					//读取Payload Data"
+					//读取Payload Data
 					if (buf->readableBytes() < extended_header.getExtendedPayloadlenU16()) {
 						//读取不够
 #ifdef LIBWEBSOCKET_DEBUG
@@ -3259,22 +3259,22 @@ namespace muduo {
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenU16(), buf->readableBytes());
 #endif
-						//读取Payload Data"
+						//读取Payload Data
 						context.getControlMessage().getMessageBuffer()->append(buf->peek(), extended_header.getExtendedPayloadlenU16());
 						buf->retrieve(extended_header.getExtendedPayloadlenU16());
 						//////////////////////////////////////////////////////////////////////////
-						//对Payload Data做UnMask计算"
+						//对Payload Data做UnMask计算
 						context.getControlMessage().unMaskPayloadData(
 							header.MASK,
 							context.getControlMessage().getMessageBuffer().get(),
 							extended_header.getMaskingkey());
 #if 0
-						//buf没有粘包/半包情况"
+						//buf没有粘包/半包情况
 						assert(buf->readableBytes() == 0);
 #endif
 						switch (header.FIN) {
 						case FinE::FrameContinue: {
-							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析"
+							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析
 							//分片消息连续帧
 							//FIN = FrameContinue opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//FIN = FrameContinue opcode = SegmentMessage
@@ -3284,7 +3284,7 @@ namespace muduo {
 							break;
 						}
 						case FinE::FrameFinished: {
-							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析"
+							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析
 							//未分片消息结束帧 FIN = FrameFinished opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//分片消息结束帧 FIN = FrameFinished opcode = SegmentMessage
 #ifdef LIBWEBSOCKET_DEBUG
@@ -3344,10 +3344,10 @@ namespace muduo {
 								break;
 							}
 							if (context.getControlMessage().getMessageBuffer()->readableBytes() == extended_header.getExtendedPayloadlenU16()) {
-								//context.getControlMessage().getMessageBuffer()没有分片情况"
+								//context.getControlMessage().getMessageBuffer()没有分片情况
 							}
 							else {
-								//context.getControlMessage().getMessageBuffer()必是分片消息"
+								//context.getControlMessage().getMessageBuffer()必是分片消息
 							}
 							//重置控制帧消息buffer
 							context.resetControlMessage();
@@ -3391,7 +3391,7 @@ namespace muduo {
 					//StepE::ReadPayloadData/ReadExtendedPayloadDataI64
 					//////////////////////////////////////////////////////////////////////////
 					assert(context.getWebsocketStep() == websocket::StepE::ReadExtendedPayloadDataI64);
-					//读取Payload Data"
+					//读取Payload Data
 					if (buf->readableBytes() < extended_header.getExtendedPayloadlenI64()) {
 						//读取不够
 #ifdef LIBWEBSOCKET_DEBUG
@@ -3415,22 +3415,22 @@ namespace muduo {
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenI64(), buf->readableBytes());
 #endif
-						//读取Payload Data"
+						//读取Payload Data
 						context.getControlMessage().getMessageBuffer()->append(buf->peek(), extended_header.getExtendedPayloadlenI64());
 						buf->retrieve(extended_header.getExtendedPayloadlenI64());
 						//////////////////////////////////////////////////////////////////////////
-						//对Payload Data做UnMask计算"
+						//对Payload Data做UnMask计算
 						context.getControlMessage().unMaskPayloadData(
 							header.MASK,
 							context.getControlMessage().getMessageBuffer().get(),
 							extended_header.getMaskingkey());
 #if 0
-						//buf没有粘包/半包情况"
+						//buf没有粘包/半包情况
 						//assert(buf->readableBytes() == 0);
 #endif
 						switch (header.FIN) {
 						case FinE::FrameContinue: {
-							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析"
+							//帧已结束(分片消息)，非完整消息包，继续从帧头开始解析
 							//分片消息连续帧
 							//FIN = FrameContinue opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//FIN = FrameContinue opcode = SegmentMessage
@@ -3440,7 +3440,7 @@ namespace muduo {
 							break;
 						}
 						case FinE::FrameFinished: {
-							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析"
+							//帧已结束(未分片/分片消息)，完整消息包，执行消息回调，继续从帧头开始解析
 							//未分片消息结束帧 FIN = FrameFinished opcode = TextMessage|BinaryMessage|CloseMessage|PingMessage|PongMessage
 							//分片消息结束帧 FIN = FrameFinished opcode = SegmentMessage
 #ifdef LIBWEBSOCKET_DEBUG
@@ -3500,10 +3500,10 @@ namespace muduo {
 								break;
 							}
 							if (context.getControlMessage().getMessageBuffer()->readableBytes() == extended_header.getExtendedPayloadlenI64()) {
-								//context.getControlMessage().getMessageBuffer()没有分片情况"
+								//context.getControlMessage().getMessageBuffer()没有分片情况
 							}
 							else {
-								//context.getControlMessage().getMessageBuffer()必是分片消息"
+								//context.getControlMessage().getMessageBuffer()必是分片消息
 							}
 							//重置控制帧消息buffer
 							context.resetControlMessage();
@@ -3613,7 +3613,7 @@ namespace muduo {
 			
 			/* websocket 握手协议
 			*
-			* 握手请求 GET"
+			* 握手请求 GET
 			* GET / HTTP/1.1
 			* Host: 192.168.2.93:10000
 			* Connection: Upgrade
@@ -3629,7 +3629,7 @@ namespace muduo {
 			* Sec-WebSocket-Key: ylPFmimkYxdg/eh968/lHQ==
 			* Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
 
-			* 握手成功 SHA-1 Base64"
+			* 握手成功 SHA-1 Base64
 			* HTTP/1.1 101 Switching Protocols
 			* Connection: Upgrade
 			* Content-Type: application/octet-stream
@@ -3670,10 +3670,10 @@ namespace muduo {
 				ITimestamp* receiveTime, int* saveErrno) {
 				websocket::ICallbackHandler* handler = context.getCallbackHandler();
 				do {
-					//先确定是HTTP数据报文，再解析"
+					//先确定是HTTP数据报文，再解析
 					//assert(buf->readableBytes() > 4 && buf->findCRLFCRLF());
 
-					//数据包太小"
+					//数据包太小
 					if (buf->readableBytes() <= 4) {
 						*saveErrno = HandShakeE::WS_ERROR_WANT_MORE;
 #ifdef LIBWEBSOCKET_DEBUG
@@ -3682,7 +3682,7 @@ namespace muduo {
 #endif
 						break;
 					}
-					//数据包太大"
+					//数据包太大
 					else if (buf->readableBytes() > 1024) {
 						*saveErrno = HandShakeE::WS_ERROR_PACKSZ;
 #ifdef LIBWEBSOCKET_DEBUG
@@ -3726,7 +3726,7 @@ namespace muduo {
 					else if (context.getHttpContext()->gotAll()) {
 						std::string ipaddr;
 						std::string rspdata;
-						//填充websocket握手成功响应头信息"
+						//填充websocket握手成功响应头信息
 						create_websocket_response(context.getHttpContext()->requestConstPtr(), rspdata);
 						std::string ipaddrs = context.getHttpContext()->requestPtr()->getHeader("X-Forwarded-For");
 						if (ipaddrs.empty()) {
@@ -3774,7 +3774,7 @@ namespace muduo {
 							handler->sendMessage(rspdata);
 							handler->onConnectedCallback(ipaddr);
 						}
-						//握手成功"
+						//握手成功
 #ifdef LIBWEBSOCKET_DEBUG
 						printf("-----------------------------------------------------------------\n");
 						printf("websocket::do_handshake succ\n");
@@ -3784,7 +3784,7 @@ namespace muduo {
 						//shared_ptr/unique_ptr new创建与reset释放是写操作，非线程安全，操作必须在同一线程!
 						//new时内部引用计数递增，reset时递减，递减为0时销毁对象释放资源
 						//////////////////////////////////////////////////////////////////////////
-						//释放HttpContext资源"
+						//释放HttpContext资源
 						context.getHttpContext().reset();
 						return true;
 					}
@@ -3793,7 +3793,7 @@ namespace muduo {
 				{
 				case HandShakeE::WS_ERROR_PARSE:
 				case HandShakeE::WS_ERROR_PACKSZ:
-					//握手失败"
+					//握手失败
 #ifdef LIBWEBSOCKET_DEBUG
 					printf("-----------------------------------------------------------------\n");
 					printf("websocket::do_handshake(%d) failed[%s]\n", __LINE__, Handshake_to_string(*saveErrno).c_str());
@@ -3805,7 +3805,7 @@ namespace muduo {
 				//shared_ptr/unique_ptr new创建与reset释放是写操作，非线程安全，操作必须在同一线程!
 				//new时内部引用计数递增，reset时递减，递减为0时销毁对象释放资源
 				//////////////////////////////////////////////////////////////////////////
-				//释放HttpContext资源"
+				//释放HttpContext资源
 				context.getHttpContext().reset();
 				return false;
 			}
