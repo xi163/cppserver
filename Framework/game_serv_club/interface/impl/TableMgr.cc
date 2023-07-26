@@ -7,7 +7,7 @@ static TableDelegateCreator LoadLibrary(std::string const& serviceName) {
 	std::string dllPath = boost::filesystem::initial_path<boost::filesystem::path>().string();
 	dllPath.append("/");
 	//./libGame_s13s.so
-	std::string dllName = clearDllPrefix(serviceName);
+	std::string dllName = utils::clearDllPrefix(serviceName);
 	dllName.insert(0, "./lib");
 	dllName.append(".so");
 	dllName.insert(0, dllPath);

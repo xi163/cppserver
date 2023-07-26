@@ -7,7 +7,7 @@ static RobotDelegateCreator LoadLibrary(std::string const& serviceName) {
 	std::string dllPath = boost::filesystem::initial_path<boost::filesystem::path>().string();
 	dllPath.append("/");
 	//./libGame_s13s_robot.so
-	std::string dllName = clearDllPrefix(serviceName);//(gameInfo_->gameServiceName);
+	std::string dllName = utils::clearDllPrefix(serviceName);//(gameInfo_->gameServiceName);
 	dllName.append("_robot");
 	dllName.insert(0, "./lib");
 	dllName.append(".so");

@@ -112,7 +112,7 @@ void GameServ::onZookeeperConnected() {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 		//roomid:ip:port
-		nodeValue_ = std::to_string(roomId_) + ":" + strIpAddr_ + ":" + vec[1];
+		nodeValue_ = std::to_string(roomId_) + ":" + vec[0] + ":" + vec[1];
 		nodePath_ = "/GAME/GameServers/" + nodeValue_;
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 		invalidNodePath_ = "/GAME/GameServersInvalid/" + nodeValue_;
@@ -334,7 +334,8 @@ void GameServ::onMessage(
 	while (buf->readableBytes() >= packet::kMinPacketSZ) {
 		const uint16_t len = buf->peekInt16(true);
 		if (likely(len > packet::kMaxPacketSZ ||
-			len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
+			len < packet::kPrevHeaderLen + packet::kHeaderLen ||
+			buf->readableBytes() < packet::kPrevHeaderLen + packet::kHeaderLen)) {
 			if (conn) {
 #if 0
 				//不再发送数据
@@ -362,6 +363,7 @@ void GameServ::onMessage(
 		}
 		//数据包不足够解析，等待下次接收再解析
 		else {
+			_LOG_ERROR("error");
 			break;
 		}
 	}
@@ -373,9 +375,7 @@ void GameServ::asyncLogicHandler(
 	muduo::Timestamp receiveTime) {
 	muduo::net::TcpConnectionPtr conn(weakConn.lock());
 	if (!conn) {
-		return;
-	}
-	if (buf->readableBytes() < packet::kPrevHeaderLen + packet::kHeaderLen) {
+		_LOG_ERROR("error");
 		return;
 	}
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
@@ -420,6 +420,7 @@ void GameServ::asyncLogicHandler(
 		}
 	}
 	else {
+		_LOG_ERROR("error");
 	}
 }
 
@@ -535,7 +536,7 @@ void GameServ::cmd_on_user_enter_room(
 		if (REDISCLIENT.ExistsUserOnlineInfo(pre_header_->userId)) {
 			std::string redisPasswd;
 			if (REDISCLIENT.GetUserLoginInfo(pre_header_->userId, "dynamicPassword", redisPasswd)) {
-				std::string passwd = buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
+				std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
 				if (passwd == redisPasswd) {
 					std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
 					std::shared_ptr<packet::header_t> header(new packet::header_t());
