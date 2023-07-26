@@ -170,7 +170,7 @@ void CRobotMgr::Delete(int64_t userId) {
 int64_t CRobotMgr::randScore(int64_t minScore, int64_t maxScore) {
 	int i = 0;
 #if 0
-	int r = weight_.rand_.betweenInt(0, 1000).randInt_mt();
+	int r = weight_.rand().betweenInt(0, 1000).randInt_mt();
 	for (; i < robotStrategy_.areas.size(); ++i) {
 		if (r < robotStrategy_.areas[i].weight) {
 			break;
@@ -187,14 +187,14 @@ int64_t CRobotMgr::randScore(int64_t minScore, int64_t maxScore) {
 #endif
 	int64_t lowLineScore = robotStrategy_.areas[i].lowTimes * minScore / 100;
 	int64_t highLineScore = robotStrategy_.areas[i].highTimes * maxScore / 100;
-	return weight_.rand_.betweenInt64(lowLineScore, highLineScore).randInt64_mt();
+	return weight_.rand().betweenInt64(lowLineScore, highLineScore).randInt64_mt();
 }
 
 //一次进n个机器人
 int CRobotMgr::randomOnce(int32_t need, int N) {
 	if (N > 1) {
 		return (need > 1) ?
-			weight_.rand_.betweenInt(1, (need > N) ? N : need).randInt_mt() :
+			weight_.rand().betweenInt(1, (need > N) ? N : need).randInt_mt() :
 			need;
 	}
 	return (need > 1) ? 1 : need;
@@ -319,7 +319,7 @@ void CRobotMgr::Hourtimer() {
 	if (percentage_ == 0 || (now - last) > 3600) {
 		struct tm* local = localtime(&now);
 		uint8_t hour = (int)local->tm_hour;
-		float r = (weight_.rand_.betweenInt(0, 10).randInt_mt() + 95) * 0.01;//随机浮动一定比例0.9~1.1
+		float r = (weight_.rand().betweenInt(0, 10).randInt_mt() + 95) * 0.01;//随机浮动一定比例0.9~1.1
 		percentage_ = roomInfo_->enterAndroidPercentage[hour] ?
 			roomInfo_->enterAndroidPercentage[hour] * (r) : 0.5 * (r);
 		last = now;

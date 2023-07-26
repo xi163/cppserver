@@ -1985,7 +1985,7 @@ bool CTable::RoomSitChair(std::shared_ptr<IPlayer> const& player, packet::intern
     uint32_t maxPlayerNum = roomInfo_->maxPlayerNum;
     uint32_t startIndex = 0;
     if (gameInfo_->gameType == GameType_Confrontation) {
-        startIndex = weight_.rand_.betweenInt64(0, maxPlayerNum - 1).randInt_mt();
+        startIndex = weight_.rand().betweenInt64(0, maxPlayerNum - 1).randInt_mt();
     }
     for (uint32_t i = 0; i < maxPlayerNum; ++i) {
         chairId = (startIndex + i) % maxPlayerNum;
