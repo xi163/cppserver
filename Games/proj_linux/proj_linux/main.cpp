@@ -1,4 +1,4 @@
-#include "Inc.h"
+#include "public/Inc.h"
 
 void testcircular() {
 	boost::circular_buffer<int> cb(3);
@@ -45,6 +45,12 @@ public:
 int main() {
 	Derive b;
 	b.Foo(1,1);
+
+	//STD::Random r2;
+	//r2.betweenInt64(0, 5).randInt64_mt();
+	STD::Weight weight;
+	weight.rand().betweenInt64(0, 5).randInt64_mt();
+
 	getchar();
 	return 0;
 }

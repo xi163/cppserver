@@ -64,6 +64,11 @@ namespace STD {
 		}
 	}
 
+	void Random::attatch(RandomImpl* impl) {
+		impl_ = impl;
+		heap_ = false;
+	}
+
 	Random& Random::betweenInt(int a, int b) {
 		impl_->betweenInt(a, b);
 		return *this;
@@ -111,17 +116,24 @@ namespace STD {
 		Delete<WeightImpl>(impl_);
 	}
 
+	Random& Weight::rand() {
+		rand_.attatch(&impl_->rand_);
+		return rand_;
+	}
+
 	void Weight::init(int weight[], int len) {
+		impl_->init(weight, len);
 	}
 
 	void Weight::shuffle() {
-
+		impl_->shuffle();
 	}
 
 	int Weight::getResult(bool bv) {
+		return impl_->getResult(bv);
 	}
 
 	void Weight::recover(int weight[], int len) {
-
+		impl_->recover(weight, len);
 	}
 }

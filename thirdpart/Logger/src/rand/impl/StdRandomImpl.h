@@ -94,7 +94,7 @@ namespace STD {
 	//WeightImpl
 	class WeightImpl {
 	public:
-		WeightImpl() {
+		WeightImpl() :rand_() {
 			sum_ = 0;
 		}
 		void init(int weight[], int len) {

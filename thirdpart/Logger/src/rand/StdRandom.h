@@ -22,12 +22,12 @@ namespace STD {
 
 	class RandomImpl;
 	class Random {
+		friend class Weight;
 	public:
 		explicit Random();
 		explicit Random(int a, int b);
 		explicit Random(int64_t a, int64_t b);
 		explicit Random(float a, float b);
-		explicit Random(RandomImpl* impl);
 		~Random();
 		Random& betweenInt(int a, int b);
 		Random& betweenInt64(int64_t a, int64_t b);
@@ -40,6 +40,8 @@ namespace STD {
 		float randFloat_mt(bool bv = false);
 		float randFloat_re(bool bv = false);
 	private:
+		explicit Random(RandomImpl* impl);
+		void attatch(RandomImpl* impl);
 		bool heap_;
 		RandomImpl* impl_;
 	};
@@ -49,11 +51,12 @@ namespace STD {
 	public:
 		Weight();
 		~Weight();
+		Random& rand();
 		void init(int weight[], int len);
 		void shuffle();
 		int getResult(bool bv = false);
 		void recover(int weight[], int len);
-	public:
+	private:
 		Random rand_;
 		WeightImpl* impl_;
 	};
