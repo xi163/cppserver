@@ -19,9 +19,9 @@ int main(int argc, char* argv[]) {
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
 	//日志目录/文件 logdir/logname
-	std::string logdir = pt.get<std::string>("Login.logdir", "./log/Login/");
-	std::string logname = pt.get<std::string>("Login.logname", "Login");
-	int loglevel = pt.get<int>("Login.loglevel", 1);
+	std::string logdir = pt.get<std::string>("game_login.logdir", "./log/game_login/");
+	std::string logname = pt.get<std::string>("game_login.logname", "game_login");
+	int loglevel = pt.get<int>("game_login.loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
@@ -79,20 +79,20 @@ int main(int argc, char* argv[]) {
 	}
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-	std::string ip = pt.get<std::string>("Login.ip", "");
-	int16_t port = pt.get<int>("Login.port", 9888);
-	int16_t httpPort = pt.get<int>("Login.httpPort", 9788);
-	int16_t numThreads = pt.get<int>("Login.numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>("Login.numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>("Login.kMaxQueueSize", 1000);
-	int kMaxConnections = pt.get<int>("Login.kMaxConnections", 15000);
-	int kTimeoutSeconds = pt.get<int>("Login.kTimeoutSeconds", 3);
+	std::string ip = pt.get<std::string>("game_login.ip", "");
+	int16_t port = pt.get<int>("game_login.port", 9888);
+	int16_t httpPort = pt.get<int>("game_login.httpPort", 9788);
+	int16_t numThreads = pt.get<int>("game_login.numThreads", 10);
+	int16_t numWorkerThreads = pt.get<int>("game_login.numWorkerThreads", 10);
+	int kMaxQueueSize = pt.get<int>("game_login.kMaxQueueSize", 1000);
+	int kMaxConnections = pt.get<int>("game_login.kMaxConnections", 15000);
+	int kTimeoutSeconds = pt.get<int>("game_login.kTimeoutSeconds", 3);
 	//管理员挂维护/恢复服务
-	std::string strAdminList = pt.get<std::string>("Login.adminList", "192.168.2.93,");
+	std::string strAdminList = pt.get<std::string>("game_login.adminList", "192.168.2.93,");
 	//证书路径
-	std::string cert_path = pt.get<std::string>("Login.cert_path", "");
+	std::string cert_path = pt.get<std::string>("game_login.cert_path", "");
 	//证书私钥
-	std::string private_key = pt.get<std::string>("Login.private_key", "");
+	std::string private_key = pt.get<std::string>("game_login.private_key", "");
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \

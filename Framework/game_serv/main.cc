@@ -17,37 +17,22 @@ int main(int argc, char* argv[]) {
 	utils::setenv();
 	uint32_t gameId = strtol(argv[1], NULL, 10);
 	uint32_t roomId = strtol(argv[2], NULL, 10);
-
-
 	//检查配置文件
 	if (!boost::filesystem::exists("./conf/game.conf")) {
 		_LOG_ERROR("./conf/game.conf not exists");
 		return -1;
 	}
-
 	//读取配置文件
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
-
 	//日志目录/文件 logdir/logname
-	std::string logdir = pt.get<std::string>("Game.logdir", "./log/Game/");
-	std::string logname = pt.get<std::string>("Game.logname", "Game");
-	int loglevel = pt.get<int>("Game.loglevel", 1);
+	std::string logdir = pt.get<std::string>("game_serv.logdir", "./log/game_serv/");
+	std::string logname = pt.get<std::string>("game_serv.logname", "game_serv");
+	int loglevel = pt.get<int>("game_serv.loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
 	_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
-
-	//获取指定网卡ipaddr
-	std::string strIpAddr;
-	std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
-	if (utils::getNetCardIp(netcardName, strIpAddr) < 0) {
-		LOG_FATAL << __FUNCTION__ << " --- *** 获取网卡IP失败";
-		return -1;
-	}
-	_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), strIpAddr.c_str());
-
-	//////////////////////////////////////////////////////////////////////////
 	//zookeeper服务器集群IP
 	std::string strZookeeperIps = "";
 	{
@@ -62,7 +47,6 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("ZookeeperIP = %s", strZookeeperIps.c_str());
 	}
-	//////////////////////////////////////////////////////////////////////////
 	//RedisCluster服务器集群IP
 	std::map<std::string, std::string> mapRedisIps;
 	std::string redisPasswd = pt.get<std::string>("RedisCluster.Password", "");
@@ -86,7 +70,6 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("RedisClusterIP = %s", strRedisIps.c_str());
 	}
-	//////////////////////////////////////////////////////////////////////////
 	//redisLock分布式锁
 	std::string strRedisLockIps = "";
 	{
@@ -101,30 +84,32 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("RedisLockIP = %s", strRedisLockIps.c_str());
 	}
-	//////////////////////////////////////////////////////////////////////////
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-
-	std::string ip = pt.get<std::string>("GameServer.ip", "192.168.0.113");
-	uint16_t port = pt.get<int>("GameServer.port", 8120);
+	std::string ip = pt.get<std::string>("game_serv.ip", "192.168.0.113");
+	uint16_t port = pt.get<int>("game_serv.port", 8120);
 	port = 30000 + roomId;
-	int16_t numThreads = pt.get<int>("GameServer.numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>("GameServer.numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>("GameServer.kMaxQueueSize", 1000);
-	bool isdebug = pt.get<int>("GameServer.debug", 1);
+	int16_t numThreads = pt.get<int>("game_serv.numThreads", 10);
+	int16_t numWorkerThreads = pt.get<int>("game_serv.numWorkerThreads", 10);
+	int kMaxQueueSize = pt.get<int>("game_serv.kMaxQueueSize", 1000);
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$"))) {
-		strIpAddr = ip;
+	}
+	else {
+		std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
+		if (utils::getNetCardIp(netcardName, ip) < 0) {
+			LOG_FATAL << __FUNCTION__ << " --- *** 获取网卡IP失败";
+			return -1;
+		}
+		_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), ip.c_str());
 	}
 	muduo::net::EventLoop loop;
-	muduo::net::InetAddress listenAddr(strIpAddr, port);
+	muduo::net::InetAddress listenAddr(ip, port);//tcp
 	GameServ server(&loop, listenAddr, gameId, roomId);
-	//server.isdebug_ = isdebug;
-	server.strIpAddr_ = strIpAddr;
 	boost::algorithm::split(server.redlockVec_, strRedisLockIps, boost::is_any_of(","));
 	if (
 		server.InitZookeeper(strZookeeperIps) &&

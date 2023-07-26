@@ -151,7 +151,7 @@ void HallServ::onZookeeperConnected() {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 		//ip:port
-		nodeValue_ = strIpAddr_ + ":" + vec[1];
+		nodeValue_ = vec[0] + ":" + vec[1];
 		nodePath_ = "/GAME/HallServers/" + nodeValue_;
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 		invalidNodePath_ = "/GAME/HallServersInvalid/" + nodeValue_;

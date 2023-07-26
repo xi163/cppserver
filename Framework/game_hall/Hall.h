@@ -159,9 +159,7 @@ public:
 	std::shared_ptr<RedisClient> redisClient_;
 	std::string redisIpaddr_;
 	std::string redisPasswd_;
-
 	std::vector<std::string> redlockVec_;
-
 	std::string mongoDBUrl_;
 private:
 	//所有游戏房间信息
@@ -170,49 +168,16 @@ private:
 	::HallServer::GetServerPlayerNumResponse room_playernums_;
 	mutable boost::shared_mutex room_playernums_mutex_;
 public:
-	//房间节点map[roomid] = iplist
+	int maxConnections_;
+	CmdCallbacks handlers_;
+	muduo::net::TcpServer server_;
+	muduo::AtomicInt32 numConnected_;
+	std::hash<std::string> hash_session_;
+	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
+	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 	std::map<int, std::vector<std::string>> room_servers_;
 	mutable boost::shared_mutex room_servers_mutex_;
-
-	//房间节点map[roomid] = iplist
-	//std::map<int, std::vector<std::string>> room_servers_;
-	//mutable boost::shared_mutex room_servers_mutex_;
-
-	//是否调试
-	bool isdebug_;
-
-	//命令消息回调处理函数
-	CmdCallbacks handlers_;
-
-	//IP地址定位国家地域
 	CIpFinder ipFinder_;
-
-	//绑定网卡ipport
-	std::string strIpAddr_;
-
-	//最大连接数限制
-	int kMaxConnections_;
-
-	//监听网关客户端TCP请求
-	muduo::net::TcpServer server_;
-
-	//session hash运算得到用户worker线程
-	std::hash<std::string> hash_session_;
-
-	//当前TCP连接数
-	muduo::AtomicInt32 numConnected_;
-
-	//网络I/O线程数，worker线程数
-	//int numThreads_, numWorkerThreads_;
-
-	//累计接收请求数，累计未处理请求数
-	muduo::AtomicInt64 numTotalReq_, numTotalBadReq_;
-
-	//worker线程池，内部任务消息队列
-	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
-
-	//公共定时器
-	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 };
 
 #endif

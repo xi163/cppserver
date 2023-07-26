@@ -134,35 +134,24 @@ public:
 	std::shared_ptr<RedisClient> redisClient_;
 	std::string redisIpaddr_;
 	std::string redisPasswd_;
-
 	std::vector<std::string> redlockVec_;
-
 	std::string mongoDBUrl_;
-
-	//std::map<int, std::vector<std::string>> room_servers_;
-	//mutable boost::shared_mutex room_servers_mutex_;
-
+public:
 	tagGameInfo gameInfo_;
 	tagGameRoomInfo roomInfo_;
 	tagGameReplay gameReplay_;
-
+	int maxConnections_;
 	CmdCallbacks handlers_;
-
-	CIpFinder ipFinder_;
-
-	std::string strIpAddr_;
-
 	muduo::net::TcpServer server_;
-
 	muduo::AtomicInt32 numConnected_;
 	//桌子逻辑线程/定时器
 	std::shared_ptr<muduo::net::EventLoopThread> logicThread_;
 	//std::shared_ptr<muduo::net::EventLoopThreadPool> logicThread_;
-
 	std::map<std::string, muduo::net::WeakTcpConnectionPtr> mapGateConns_;
 	mutable boost::shared_mutex mutexGateConns_;
 	std::map<int64_t, std::shared_ptr<gate_t>> mapUserGates_;
 	mutable boost::shared_mutex mutexUserGates_;
+	CIpFinder ipFinder_;
 };
 
 #endif

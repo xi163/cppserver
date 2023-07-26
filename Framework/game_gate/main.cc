@@ -19,9 +19,9 @@ int main() {
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
 	//日志目录/文件/日志级别  logdir/logname
-	std::string logdir = pt.get<std::string>("Gate.logdir", "./log/Gate/");
-	std::string logname = pt.get<std::string>("Gate.logname", "Gate");
-	int loglevel = pt.get<int>("Gate.loglevel", 1);
+	std::string logdir = pt.get<std::string>("game_gate.logdir", "./log/game_gate/");
+	std::string logname = pt.get<std::string>("game_gate.logname", "game_gate");
+	int loglevel = pt.get<int>("game_gate.loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
@@ -79,22 +79,22 @@ int main() {
 	}
 	//MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-	std::string ip = pt.get<std::string>("Gate.ip", "");
-	int16_t port = pt.get<int>("Gate.port", 8010);
-	int16_t innPort = pt.get<int>("Gate.innPort", 9010);
-	int16_t rpcPort = pt.get<int>("Gate.rpcPort", 7850);
-	uint16_t httpPort = pt.get<int>("Gate.httpPort", 8120);
-	int16_t numThreads = pt.get<int>("Gate.numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>("Gate.numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>("Gate.kMaxQueueSize", 1000);
-	int kMaxConnections = pt.get<int>("Gate.kMaxConnections", 15000);
-	int kTimeoutSeconds = pt.get<int>("Gate.kTimeoutSeconds", 3);
+	std::string ip = pt.get<std::string>("game_gate.ip", "");
+	int16_t port = pt.get<int>("game_gate.port", 8010);
+	int16_t innPort = pt.get<int>("game_gate.innPort", 9010);
+	int16_t rpcPort = pt.get<int>("game_gate.rpcPort", 7850);
+	uint16_t httpPort = pt.get<int>("game_gate.httpPort", 8120);
+	int16_t numThreads = pt.get<int>("game_gate.numThreads", 10);
+	int16_t numWorkerThreads = pt.get<int>("game_gate.numWorkerThreads", 10);
+	int kMaxQueueSize = pt.get<int>("game_gate.kMaxQueueSize", 1000);
+	int kMaxConnections = pt.get<int>("game_gate.kMaxConnections", 15000);
+	int kTimeoutSeconds = pt.get<int>("game_gate.kTimeoutSeconds", 3);
 	//管理员挂维护/恢复服务
-	std::string strAdminList = pt.get<std::string>("Gate.adminList", "192.168.2.93,");
+	std::string strAdminList = pt.get<std::string>("game_gate.adminList", "192.168.2.93,");
 	//证书路径
-	std::string cert_path = pt.get<std::string>("Gate.cert_path", "");
+	std::string cert_path = pt.get<std::string>("game_gate.cert_path", "");
 	//证书私钥
-	std::string private_key = pt.get<std::string>("Gate.private_key", "");
+	std::string private_key = pt.get<std::string>("game_gate.private_key", "");
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \

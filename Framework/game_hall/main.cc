@@ -18,26 +18,14 @@ int main(int argc, char* argv[]) {
 	//读取配置文件
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
-
 	//日志目录/文件 logdir/logname
-	std::string logdir = pt.get<std::string>("Hall.logdir", "./log/Hall/");
-	std::string logname = pt.get<std::string>("Hall.logname", "Hall");
-	int loglevel = pt.get<int>("Hall.loglevel", 1);
+	std::string logdir = pt.get<std::string>("game_hall.logdir", "./log/game_hall/");
+	std::string logname = pt.get<std::string>("game_hall.logname", "game_hall");
+	int loglevel = pt.get<int>("game_hall.loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
 	_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
-
-	//获取指定网卡ipaddr
-	std::string strIpAddr;
-	std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
-	if (utils::getNetCardIp(netcardName, strIpAddr) < 0) {
-		_LOG_FATAL("获取网卡 %s IP失败", netcardName.c_str());
-		return -1;
-	}
-	_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), strIpAddr.c_str());
-
-	//////////////////////////////////////////////////////////////////////////
 	//zookeeper服务器集群IP
 	std::string strZookeeperIps = "";
 	{
@@ -52,7 +40,6 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("ZookeeperIP = %s", strZookeeperIps.c_str());
 	}
-	//////////////////////////////////////////////////////////////////////////
 	//RedisCluster服务器集群IP
 	std::map<std::string, std::string> mapRedisIps;
 	std::string redisPasswd = pt.get<std::string>("RedisCluster.Password", "");
@@ -76,7 +63,6 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("RedisClusterIP = %s", strRedisIps.c_str());
 	}
-	//////////////////////////////////////////////////////////////////////////
 	//redisLock分布式锁
 	std::string strRedisLockIps = "";
 	{
@@ -91,28 +77,32 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("RedisLockIP = %s", strRedisLockIps.c_str());
 	}
-	//////////////////////////////////////////////////////////////////////////
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-	std::string tcpIp = pt.get<std::string>("Hall.ip", "");
-	int16_t tcpPort = pt.get<int>("Hall.port", 8120);
-	int16_t numThreads = pt.get<int>("Hall.numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>("Hall.numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>("Hall.kMaxQueueSize", 1000);
-	bool isdebug = pt.get<int>("Hall.debug", 1);
-	if (!tcpIp.empty() && boost::regex_match(tcpIp,
+	std::string ip = pt.get<std::string>("game_hall.ip", "");
+	int16_t port = pt.get<int>("game_hall.port", 8120);
+	int16_t numThreads = pt.get<int>("game_hall.numThreads", 10);
+	int16_t numWorkerThreads = pt.get<int>("game_hall.numWorkerThreads", 10);
+	int kMaxQueueSize = pt.get<int>("game_hall.kMaxQueueSize", 1000);
+	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$"))) {
-		strIpAddr = tcpIp;
+	}
+	else {
+		std::string strIpAddr;
+		std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
+		if (utils::getNetCardIp(netcardName, strIpAddr) < 0) {
+			_LOG_FATAL("获取网卡 %s IP失败", netcardName.c_str());
+			return -1;
+		}
+		_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), strIpAddr.c_str());
 	}
 	muduo::net::EventLoop loop;
-	muduo::net::InetAddress listenAddr(strIpAddr, tcpPort);
+	muduo::net::InetAddress listenAddr(ip, port);//tcp
 	HallServ server(&loop, listenAddr);
-	server.isdebug_ = isdebug;
-	server.strIpAddr_ = strIpAddr;
 	boost::algorithm::split(server.redlockVec_, strRedisLockIps, boost::is_any_of(","));
 	if (
 		server.InitZookeeper(strZookeeperIps) &&
