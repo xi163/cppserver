@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\aes.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\base64.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\html.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\md5.cc" />
@@ -153,7 +154,7 @@
     <IncludePath>C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include.linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\asm-generic;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++\5;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\x86_64-linux-gnu;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.34.31933\include;X:\andy\cppserver\thirdpart;X:\andy\cppserver\thirdpart\Logger;X:\andy\cppserver\thirdpart\Logger\src;X:\andy\cppserver\thirdpart\Logger\src\atomic;X:\andy\cppserver\thirdpart\Logger\src\auth;X:\andy\cppserver\thirdpart\Logger\src\excp;X:\andy\cppserver\thirdpart\Logger\src\excp\impl;X:\andy\cppserver\thirdpart\Logger\src\log;X:\andy\cppserver\thirdpart\Logger\src\log\impl;X:\andy\cppserver\thirdpart\Logger\src\utils;X:\andy\cppserver\thirdpart\Logger\src\utils\impl;X:\andy\cppserver\thirdpart\Logger\src\timer;$(IncludePath)</IncludePath>
     <TargetName>libLogger</TargetName>
     <TargetExt>.a</TargetExt>
-    <OutDir>/home/andy/cppserver/libs/</OutDir>
+    <OutDir>/home/andy/cppserver/libs</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link />
@@ -171,6 +172,7 @@
       <CppLanguageStandard>c++11</CppLanguageStandard>
       <CLanguageStandard>c11</CLanguageStandard>
     </ClCompile>
+    <Lib />
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

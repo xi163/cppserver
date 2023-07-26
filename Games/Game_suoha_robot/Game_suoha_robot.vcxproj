@@ -99,13 +99,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver;/home/andy/cppserver/public;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart/Json/include;/home/andy/server/thirdpart/;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/jsoncpp-src-0.5.0/include;/home/andy/cppserver/Framework/game_serv;/home/andy/cppserver/Framework/game_serv/interface;/home/andy/cppserver/Games/Game_s13s;/home/andy/server/thirdpart/Logger/src;/home/andy/server/thirdpart/Logger/src/log;/home/andy/server/thirdpart/Logger/src/utils;/home/andy/cppserver/thirdpart/Logger/src/rand;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver;/home/andy/cppserver/public;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart/Json/include;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/jsoncpp-src-0.5.0/include;/home/andy/cppserver/Framework/game_serv;/home/andy/cppserver/Framework/game_serv/interface;/home/andy/cppserver/Games/Game_s13s;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <Link>
-      <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LibraryDependencies>muduo-vip;protobuf;pthread;boost_date_time;boost_filesystem;boost_system;boost_thread;rt;m;z;dl;bsoncxx;mongocxx;websocket;Logger</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>

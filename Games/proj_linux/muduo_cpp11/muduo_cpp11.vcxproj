@@ -219,6 +219,9 @@
       <PreprocessorDefinitions>MUDUO_STD_STRING _MUDUO_OPTIMIZE_CHNANNEL_ LIBWEBSOCKET_DEBUG</PreprocessorDefinitions>
       <PositionIndependentCode>true</PositionIndependentCode>
     </ClCompile>
+    <Lib>
+      <AdditionalOptions>"X:\andy\cppserver\libs\libmuduo-cpp11.a" -r"sc" "ar" "3600000" %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

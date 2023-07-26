@@ -194,7 +194,7 @@ public:
 	bool isdebug_;
 
 	//命令消息回调处理函数
-	/*static*/ CmdCallbacks handlers_;
+	CmdCallbacks handlers_;
 
 	//IP地址定位国家地域
 	CIpFinder ipFinder_;

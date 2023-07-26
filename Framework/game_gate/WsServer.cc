@@ -138,13 +138,12 @@ void GateServ::onMessage(
 	const muduo::net::TcpConnectionPtr& conn,
 	muduo::net::Buffer* buf, int msgType,
 	muduo::Timestamp receiveTime) {
-	_LOG_DEBUG("len:%d buf->readableBytes():%d", buf->peekInt16(), buf->readableBytes());
 	//超过最大连接数限制
 	if (!conn || conn->getContext().empty()) {
 		return;
 	}
 	conn->getLoop()->assertInLoopThread();
-	const uint16_t len = buf->peekInt16();
+	const uint16_t len = buf->peekInt16(true);
 	if (likely(len > packet::kMaxPacketSZ ||
 		len < packet::kHeaderLen)) {
 		if (conn) {

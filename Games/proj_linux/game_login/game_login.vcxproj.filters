@@ -50,9 +50,6 @@
     <ClInclude Include="..\..\..\Framework\game_login\RpcService.h">
       <Filter>rpc</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\ConsoleClr.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
     </ClInclude>

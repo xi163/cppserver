@@ -214,6 +214,7 @@
       <PreprocessorDefinitions>MUDUO_STD_STRING _MUDUO_OPTIMIZE_CHNANNEL_ LIBWEBSOCKET_DEBUG</PreprocessorDefinitions>
       <PositionIndependentCode>true</PositionIndependentCode>
     </ClCompile>
+    <Lib />
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

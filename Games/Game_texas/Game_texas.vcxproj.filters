@@ -10,9 +10,6 @@
     <Filter Include="interface">
       <UniqueIdentifier>{5d01959d-923a-42fb-8f10-a4d727888030}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Logger">
-      <UniqueIdentifier>{b02db4f3-c73e-423d-9b48-a4b582da054f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -64,15 +61,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Framework\game_serv\interface\ITableDelegate.h">
       <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\thirdpart\Logger\src\log\Logger.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\thirdpart\Logger\src\Macro.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\thirdpart\Logger\src\utils\utils.h">
-      <Filter>Logger</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

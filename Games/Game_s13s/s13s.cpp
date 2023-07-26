@@ -7033,7 +7033,7 @@ namespace S13S {
 						}
 						{
 							//序列化bytes
-							int len = reqdata.ByteSizeLong();//len
+							int len = reqdata.ByteSize();//len
 							uint8_t *data = new uint8_t[len];
 							reqdata.SerializeToArray(data, len);//data
 							std::string const& typeName = reqdata.GetTypeName();//typename
@@ -7049,7 +7049,7 @@ namespace S13S {
 						}
 						{
 							//序列化bytes
-							int len = reqdata.ByteSizeLong();//len
+							int len = reqdata.ByteSize();//len
 							uint8_t *data = new uint8_t[len];
 							reqdata.SerializeWithCachedSizesToArray(data);//data
 							std::string const& typeName = reqdata.GetTypeName();//typename
@@ -7269,7 +7269,7 @@ namespace S13S {
 								//序列化std::string
 								//std::string data = rspdata.SerializeAsString();
 								//序列化bytes
-								int len = rspdata.ByteSizeLong();//len
+								int len = rspdata.ByteSize();//len
 								uint8_t *data = new uint8_t[len];
 								rspdata.SerializeToArray(data, len);//data
 								std::string const& typeName = rspdata.GetTypeName();//typename
@@ -7493,7 +7493,7 @@ namespace S13S {
 								//序列化std::string
 								//std::string data = rspdata.SerializeAsString();
 								//序列化bytes
-								int len = rspdata.ByteSizeLong();//len
+								int len = rspdata.ByteSize();//len
 								uint8_t *data = new uint8_t[len];
 								rspdata.SerializeToArray(data, len);//data
 								std::string const& typeName = rspdata.GetTypeName();//typename
@@ -9224,7 +9224,7 @@ namespace S13S {
 							//序列化std::string
 							//std::string data = compareCards[i].SerializeAsString();
 							//序列化bytes
-							int len = compareCards[i].ByteSizeLong();//len
+							int len = compareCards[i].ByteSize();//len
 							uint8_t *data = new uint8_t[len];
 							compareCards[i].SerializeToArray(data, len);//data
 							std::string const& typeName = compareCards[i].GetTypeName();//typename

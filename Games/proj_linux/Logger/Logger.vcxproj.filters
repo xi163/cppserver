@@ -274,5 +274,8 @@
     <ClCompile Include="..\..\..\thirdpart\Logger\src\track\impl\MemTrack.cc">
       <Filter>src\track\impl</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\aes.cc">
+      <Filter>src\crypt</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

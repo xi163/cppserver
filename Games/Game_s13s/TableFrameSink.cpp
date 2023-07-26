@@ -749,7 +749,7 @@ void CGameTable::OnGameStart() {
 		//std::string content = reqdata.SerializeAsString();
 		//table_->SendTableData(i, s13s::SUB_S_GAME_START, (uint8_t *)content.data(), content.size());
 		//序列化bytes
-		int len = reqdata.ByteSizeLong();//len
+		int len = reqdata.ByteSize();//len
 		uint8_t *data = new uint8_t[len];
 		reqdata.SerializeToArray(data, len);//data
 		std::string const& typeName = reqdata.GetTypeName();//typename
@@ -1457,7 +1457,7 @@ bool CGameTable::OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* d
         }
 
          //序列化bytes
-         int length = rspdata.ByteSizeLong();//len
+         int length = rspdata.ByteSize();//len
          uint8_t *data = new uint8_t[length];
          rspdata.SerializeToArray(data, length);//data
          std::string const& typeName = rspdata.GetTypeName();//typename
@@ -1580,7 +1580,7 @@ bool CGameTable::OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* d
             //std::string content = rspdata.SerializeAsString();
             //table_->SendTableData(chairId, s13s::SUB_S_MANUALCARDS, (uint8_t *)content.data(), content.size());
             //序列化bytes
-            int len = rspdata.ByteSizeLong();//len
+            int len = rspdata.ByteSize();//len
             uint8_t *data = new uint8_t[len];
             rspdata.SerializeToArray(data, len);//data
             std::string const& typeName = rspdata.GetTypeName();//typename

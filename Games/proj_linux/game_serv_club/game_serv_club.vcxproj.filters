@@ -28,9 +28,6 @@
     <Filter Include="public\MongoDB">
       <UniqueIdentifier>{ad00e382-a5a7-4d7a-bd56-593c44f9dc18}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public\codec">
-      <UniqueIdentifier>{4d63c333-6922-4644-8c11-b01a6ca32d54}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
@@ -80,9 +77,6 @@
     <ClInclude Include="..\..\..\Framework\game_serv_club\interface\impl\PlayerMgr.h">
       <Filter>interface\impl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\ConsoleClr.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -115,21 +109,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
       <Filter>public\MongoDB</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\aes.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\base64.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\htmlcodec.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\mymd5.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\urlcodec.h">
-      <Filter>public\codec</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
@@ -194,15 +173,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
       <Filter>public\MongoDB</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\base64.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\mymd5.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\urlcodec.cpp">
-      <Filter>public\codec</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

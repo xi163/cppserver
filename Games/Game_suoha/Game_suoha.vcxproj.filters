@@ -7,9 +7,6 @@
     <Filter Include="Game_suoha">
       <UniqueIdentifier>{99f9db34-02b5-4dc0-8545-1f0978bfd43c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Logger">
-      <UniqueIdentifier>{f0d26dd3-8bf7-4fbe-bf6c-77298ec7357a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="interface">
       <UniqueIdentifier>{eb17c31b-1d31-4b02-8c54-13c063006e37}</UniqueIdentifier>
     </Filter>
@@ -49,15 +46,6 @@
     </ClInclude>
     <ClInclude Include="cfg.h">
       <Filter>Game_suoha</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\thirdpart\Logger\src\log\Logger.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\thirdpart\Logger\src\Macro.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\thirdpart\Logger\src\utils\utils.h">
-      <Filter>Logger</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Framework\game_serv\interface\IPlayer.h">
       <Filter>interface</Filter>

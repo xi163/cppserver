@@ -40,9 +40,6 @@
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h" />
     <ClInclude Include="..\..\..\public\IncMuduo.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
@@ -106,10 +103,10 @@
     <Link>
       <LibraryDependencies>muduo-vip;websocket;protobuf;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;pthread;rt;m;z;dl;snappy;crypto;ssl;bson-1.0;mongoc-1.0;bsoncxx;mongocxx;hiredis_vip;zookeeper_mt;Logger</LibraryDependencies>
       <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver/;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/public/TraceMsg;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/thirdpart/Logger;/home/andy/cppserver/thirdpart/Logger/src;/home/andy/cppserver/thirdpart/Logger/src/log;/home/andy/cppserver/thirdpart/Logger/src/utils;/home/andy/cppserver/thirdpart/Logger/src/log/impl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver/;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/public/TraceMsg;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUDUO_STD_STRING</PreprocessorDefinitions>
       <AdditionalOptions>-pthread</AdditionalOptions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>

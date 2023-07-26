@@ -353,7 +353,7 @@ void HallServ::onMessage(
 	muduo::Timestamp receiveTime) {
 	conn->getLoop()->assertInLoopThread();
 	while (buf->readableBytes() >= packet::kMinPacketSZ) {
-		const uint16_t len = buf->peekInt16();
+		const uint16_t len = buf->peekInt16(true);
 		if (likely(len > packet::kMaxPacketSZ ||
 			len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
 			if (conn) {
@@ -545,7 +545,7 @@ void HallServ::cmd_on_user_login(
 			//查询IP所在国家/地区
 			std::string country, location;
 			ipFinder_.GetAddressByIp(ntohl(ipaddr), location, country);
-			std::string loginIp = Inet2Ipstr(ipaddr);
+			std::string loginIp = utils::inetToIp(ipaddr);
 			//不能频繁登陆操作(间隔5s)
 			std::string key = REDIS_LOGIN_3S_CHECK + token;
 			if (REDISCLIENT.exists(key)) {
@@ -603,8 +603,8 @@ void HallServ::cmd_on_user_login(
 						std::string msg = s.str();
 						REDISCLIENT.publishUserLoginMessage(msg);
 
-						std::string uuid = createUUID();
-						std::string passwd = buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
+						std::string uuid = utils::uuid::createUUID();
+						std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
 						REDISCLIENT.SetUserLoginInfo(userid, "dynamicPassword", passwd);
 
 						rspdata.set_userid(userid);

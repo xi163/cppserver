@@ -3,6 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
     <RemoteDebuggingMode>gdbserver</RemoteDebuggingMode>
-    <AdditionalSymbolSearchPaths>/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs</AdditionalSymbolSearchPaths>
+    <AdditionalSymbolSearchPaths>/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs</AdditionalSymbolSearchPaths>
   </PropertyGroup>
 </Project>

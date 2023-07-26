@@ -25,9 +25,6 @@
     <Filter Include="public\MongoDB">
       <UniqueIdentifier>{e60d1d96-4184-4804-bd29-e194c65dc4dc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public\codec">
-      <UniqueIdentifier>{c703491c-b57b-4c54-acf8-3e76c0145751}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
@@ -38,9 +35,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_hall\GameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_hall\Hall.h" />
-    <ClInclude Include="..\..\..\public\ConsoleClr.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -73,21 +67,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
       <Filter>public\MongoDB</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\aes.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\base64.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\htmlcodec.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\mymd5.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\urlcodec.h">
-      <Filter>public\codec</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
@@ -131,15 +110,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
       <Filter>public\MongoDB</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\base64.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\mymd5.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\urlcodec.cpp">
-      <Filter>public\codec</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

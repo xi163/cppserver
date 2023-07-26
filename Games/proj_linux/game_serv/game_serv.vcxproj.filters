@@ -28,9 +28,6 @@
     <Filter Include="public\MongoDB">
       <UniqueIdentifier>{c63d97ed-e676-4f01-a131-02cb77f2719b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public\codec">
-      <UniqueIdentifier>{21f31082-71ee-4266-8419-817bf8056db9}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
@@ -77,9 +74,6 @@
     <ClInclude Include="..\..\..\Framework\game_serv\interface\ITableContext.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\ConsoleClr.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -112,21 +106,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
       <Filter>public\MongoDB</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\aes.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\base64.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\htmlcodec.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\mymd5.h">
-      <Filter>public\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\codec\urlcodec.h">
-      <Filter>public\codec</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
@@ -188,15 +167,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
       <Filter>public\MongoDB</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\base64.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\mymd5.cpp">
-      <Filter>public\codec</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\codec\urlcodec.cpp">
-      <Filter>public\codec</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

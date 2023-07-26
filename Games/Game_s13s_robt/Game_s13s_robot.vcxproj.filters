@@ -10,9 +10,6 @@
     <Filter Include="interface">
       <UniqueIdentifier>{e18ffc6e-478d-4367-8d31-9bb027bfe282}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Logger">
-      <UniqueIdentifier>{62c80af6-71ee-44a1-aed2-f286806ef575}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\proto\s13s.Message.pb.cc">
@@ -45,14 +42,5 @@
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Framework\game_serv\gameDefine.h" />
-    <ClInclude Include="..\..\thirdpart\Logger\src\Macro.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\thirdpart\Logger\src\log\Logger.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\thirdpart\Logger\src\utils\utils.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

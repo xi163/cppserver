@@ -428,7 +428,7 @@ void HallServ::onMessage(
 	muduo::Timestamp receiveTime) {
 	conn->getLoop()->assertInLoopThread();
 	while (buf->readableBytes() >= packet::kMinPacketSZ) {
-		const uint16_t len = buf->peekInt16();
+		const uint16_t len = buf->peekInt16(true);
 		if (likely(len > packet::kMaxPacketSZ ||
 			len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
 			if (conn) {

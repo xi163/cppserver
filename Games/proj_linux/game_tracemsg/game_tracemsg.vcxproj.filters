@@ -7,9 +7,6 @@
     <Filter Include="public">
       <UniqueIdentifier>{8e236360-59d7-43b1-a05e-1976063b3920}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Logger">
-      <UniqueIdentifier>{384c178e-6f10-431b-a9cb-60b72e519eec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="TraceMsg">
       <UniqueIdentifier>{47e97842-684e-4a9c-9bb7-f0c11c8b6fca}</UniqueIdentifier>
     </Filter>
@@ -26,15 +23,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
       <Filter>pb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h">
-      <Filter>Logger</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
