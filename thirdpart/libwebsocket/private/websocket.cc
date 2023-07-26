@@ -83,7 +83,7 @@ buf[0] = 0x78  - 低地址 = 低位
 */
 
 //#define _NETTOHOST_BIGENDIAN_
-//#define LIBWEBSOCKET_DEBUG
+#define LIBWEBSOCKET_DEBUG
 
 #include <libwebsocket/IHttpContext.h>
 #include <libwebsocket/websocket.h>
@@ -1599,7 +1599,7 @@ namespace muduo {
 				else if (Payloadlen == 127) {
 #ifdef LIBWEBSOCKET_DEBUG
 					//控制帧，Payload len<=126字节，且不能被分片
-					printf("pack_unmask_control_frame Payloadlen =%d ExtendedPayloadlenI64 = %lld\n",
+					_LOG_DEBUG("Payloadlen =%d ExtendedPayloadlenI64 = %lld",
 						Payloadlen, ExtendedPayloadlenI64);
 #endif
 					assert(false);
