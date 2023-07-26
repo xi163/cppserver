@@ -11,32 +11,57 @@ namespace STD {
 		void* ptr = (void*)malloc(sizeof(T));
 		return new(ptr) T();
 	}
-	
+
 	template <class T, typename Ty> static inline T* New(Ty a, Ty b) {
 		void* ptr = (void*)malloc(sizeof(T));
 		return new(ptr) T(a, b);
 	}
-	
+
 	template <class T> static inline void Delete(T* ptr) {
 		ptr->~T();
 		free(ptr);
 	}
 
-	/*explicit*/ Random::Random() :impl_(New<RandomImpl>()) {
+	Generator::Generator() :impl_(New<GeneratorImpl>()) {
 		//placement new
 	}
 
-	/*explicit*/ Random::Random(int a, int b) :impl_(New<RandomImpl, int>(a, b)) {
+	Generator::~Generator() {
+		Delete<GeneratorImpl>(impl_);
 	}
 
-	/*explicit*/ Random::Random(int64_t a, int64_t b) :impl_(New<RandomImpl, int64_t>(a, b)) {
+	std::mt19937& Generator::get_mt() {
+		return impl_->get_mt();
 	}
 
-	/*explicit*/ Random::Random(float a, float b) :impl_(New<RandomImpl, float>(a, b)) {
+	std::default_random_engine& Generator::get_re() {
+		return impl_->get_re();
+	}
+
+	/*explicit*/ Random::Random() :impl_(New<RandomImpl>()), heap_(true) {
+		//placement new
+	}
+
+	/*explicit*/ Random::Random(int a, int b) :impl_(New<RandomImpl, int>(a, b)), heap_(true) {
+	}
+
+	/*explicit*/ Random::Random(int64_t a, int64_t b) :impl_(New<RandomImpl, int64_t>(a, b)), heap_(true) {
+	}
+
+	/*explicit*/ Random::Random(float a, float b) :impl_(New<RandomImpl, float>(a, b)), heap_(true) {
+	}
+
+	/*explicit*/ Random::Random(RandomImpl* impl) :impl_(impl), heap_(false) {
+
 	}
 
 	Random::~Random() {
-		Delete<RandomImpl>(impl_);
+		switch (heap_) {
+		case true:
+			Delete<RandomImpl>(impl_);
+		default:
+			break;
+		}
 	}
 
 	Random& Random::betweenInt(int a, int b) {
@@ -78,7 +103,7 @@ namespace STD {
 		return impl_->randFloat_re(bv);
 	}
 
-	Weight::Weight() :impl_(New<WeightImpl>()) {
+	Weight::Weight() :impl_(New<WeightImpl>()), rand_(&impl_->rand_) {
 		//placement new
 	}
 

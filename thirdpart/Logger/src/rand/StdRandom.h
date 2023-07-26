@@ -4,6 +4,22 @@
 #include "Logger/src/Macro.h"
 
 namespace STD {
+
+	class GeneratorImpl;
+	class Generator {
+	public:
+		Generator();
+		~Generator();
+		static Generator& instance() {
+			static Generator gen_;
+			return gen_;
+		}
+		std::mt19937& get_mt();
+		std::default_random_engine& get_re();
+	private:
+		GeneratorImpl* impl_;
+	};
+
 	class RandomImpl;
 	class Random {
 	public:
@@ -11,6 +27,7 @@ namespace STD {
 		explicit Random(int a, int b);
 		explicit Random(int64_t a, int64_t b);
 		explicit Random(float a, float b);
+		explicit Random(RandomImpl* impl);
 		~Random();
 		Random& betweenInt(int a, int b);
 		Random& betweenInt64(int64_t a, int64_t b);
@@ -23,6 +40,7 @@ namespace STD {
 		float randFloat_mt(bool bv = false);
 		float randFloat_re(bool bv = false);
 	private:
+		bool heap_;
 		RandomImpl* impl_;
 	};
 
@@ -36,6 +54,7 @@ namespace STD {
 		int getResult(bool bv = false);
 		void recover(int weight[], int len);
 	public:
+		Random rand_;
 		WeightImpl* impl_;
 	};
 }

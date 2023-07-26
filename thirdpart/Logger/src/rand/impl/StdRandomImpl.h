@@ -14,15 +14,15 @@ namespace STD {
 	static void test002(char const* filename);
 
 	//////////////////////////////////////
-	//Generator
-	class Generator {
+	//GeneratorImpl
+	class GeneratorImpl {
 	public:
-		Generator()
+		GeneratorImpl()
 			: mt_({ std::random_device{}() })
 			, re_({ std::random_device{}() }) {
 		}
-		static Generator& instance() {
-			static Generator gen_;
+		static GeneratorImpl& instance() {
+			static GeneratorImpl gen_;
 			return gen_;
 		}
 		std::mt19937& get_mt() {
@@ -66,25 +66,25 @@ namespace STD {
 		}
 	public:
 		int randInt_mt(bool bv = false) {
-			return iValue_(bv ? STD::Generator::instance().get_mt() : inst_.get_mt());
+			return iValue_(bv ? STD::GeneratorImpl::instance().get_mt() : inst_.get_mt());
 		}
 		int64_t randInt64_mt(bool bv = false) {
-			return iValue64_(bv ? STD::Generator::instance().get_mt() : inst_.get_mt());
+			return iValue64_(bv ? STD::GeneratorImpl::instance().get_mt() : inst_.get_mt());
 		}
 		int randInt_re(bool bv = false) {
-			return iValue_(bv ? STD::Generator::instance().get_re() : inst_.get_re());
+			return iValue_(bv ? STD::GeneratorImpl::instance().get_re() : inst_.get_re());
 		}
 		int64_t randInt64_re(bool bv = false) {
-			return iValue64_(bv ? STD::Generator::instance().get_re() : inst_.get_re());
+			return iValue64_(bv ? STD::GeneratorImpl::instance().get_re() : inst_.get_re());
 		}
 		float randFloat_mt(bool bv = false) {
-			return fValue_(bv ? STD::Generator::instance().get_mt() : inst_.get_mt());
+			return fValue_(bv ? STD::GeneratorImpl::instance().get_mt() : inst_.get_mt());
 		}
 		float randFloat_re(bool bv = false) {
-			return fValue_(bv ? STD::Generator::instance().get_re() : inst_.get_re());
+			return fValue_(bv ? STD::GeneratorImpl::instance().get_re() : inst_.get_re());
 		}
 	private:
-		STD::Generator inst_;
+		STD::GeneratorImpl inst_;
 		std::uniform_int_distribution<> iValue_;
 		std::uniform_int_distribution<int64_t> iValue64_;
 		std::uniform_real_distribution<float> fValue_;
@@ -112,7 +112,7 @@ namespace STD {
 		void shuffle() {
 			for (int i = weight_.size() - 1; i > 0; --i) {
 				std::uniform_int_distribution<decltype(i)> d(0, i);
-				int j = d(STD::Generator::instance().get_mt());
+				int j = d(STD::GeneratorImpl::instance().get_mt());
 				std::swap(weight_[i], weight_[j]);
 				std::swap(indxId_[i], indxId_[j]);
 			}
