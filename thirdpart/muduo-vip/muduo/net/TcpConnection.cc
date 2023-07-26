@@ -495,18 +495,11 @@ void TcpConnection::handleRead(Timestamp receiveTime)
 	  }
   }
   else {
-	  _LOG_DEBUG("readableBytes=%d writableBytes=%d",
-		  inputBuffer_.readableBytes(),
-		  inputBuffer_.writableBytes());
 	  int savedErrno = 0;
 	  ssize_t n = !ssl_ ?
 		  /* inputBuffer_.readFd(channel_->fd(), &savedErrno)*/
 		  inputBuffer_.readFull(channel_->fd(), &savedErrno) :
 		  inputBuffer_.SSL_read(ssl_, &savedErrno);
-	  _LOG_DEBUG("n=%d readableBytes=%d writableBytes=%d",
-		  n,
-		  inputBuffer_.readableBytes(),
-		  inputBuffer_.writableBytes());
 	  if (n > 0)
 	  {
 		  if (errno == EAGAIN ||

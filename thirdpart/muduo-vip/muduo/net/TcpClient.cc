@@ -228,8 +228,8 @@ void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn)
       std::bind(&TcpConnection::connectDestroyed, conn));
   if (retry_ && connect_)
   {
-    LOG_WARN << "TcpClient::connect[" << name_ << "] - Reconnecting to "
-             << connector_->serverAddress().toIpPort();
+    //LOG_WARN << "TcpClient::connect[" << name_ << "] - Reconnecting to "
+    //         << connector_->serverAddress().toIpPort();
 
     //maybe that connector_->restart after TcpClient::dtor
     connector_->restart();
