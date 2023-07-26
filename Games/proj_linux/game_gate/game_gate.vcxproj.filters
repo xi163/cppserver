@@ -16,16 +16,22 @@
     <Filter Include="public\RedisClient">
       <UniqueIdentifier>{837ec515-8426-483e-b048-c0852e06dbf5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="nodes">
-      <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="public\RedisLock">
       <UniqueIdentifier>{771d1074-c44a-41e8-8c13-0334ce027cfc}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\MongoDB">
       <UniqueIdentifier>{a3afe50a-15f2-4fef-b361-bb62af7cfec2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="rpc">
+    <Filter Include="internal">
+      <UniqueIdentifier>{f011722e-2749-40df-a8a0-8dc69e17839e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\gate">
+      <UniqueIdentifier>{2ec38b62-5305-46a4-86d1-7bb5c83875a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\nodes">
+      <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rpc">
       <UniqueIdentifier>{0d90d279-6461-4187-b57d-fd0766d874f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -45,8 +51,6 @@
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h">
       <Filter>public\zookeeperclient</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate\Container.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
     <ClInclude Include="..\..\..\public\Packet.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -65,23 +69,31 @@
     <ClInclude Include="..\..\..\public\IPFinder.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate\Clients.h" />
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate\Gateway.h">
-      <Filter>nodes</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h">
       <Filter>public\TraceMsg</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_gate\RpcService.h">
-      <Filter>rpc</Filter>
+      <Filter>internal\rpc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\Clients.h">
+      <Filter>internal\gate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\Container.h">
+      <Filter>internal\gate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\Entities.h">
+      <Filter>internal\gate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h">
+      <Filter>internal\gate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\Gate.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
@@ -99,25 +111,24 @@
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp">
       <Filter>public\zookeeperclient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate\Container.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\main.cc" />
     <ClCompile Include="..\..\..\public\Packet.cc">
       <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\HallClient.cc">
-      <Filter>nodes</Filter>
+      <Filter>internal\nodes</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\HttpServer.cc">
-      <Filter>nodes</Filter>
+      <Filter>internal\nodes</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\InnServer.cc">
-      <Filter>nodes</Filter>
+      <Filter>internal\nodes</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\GameClient.cc">
-      <Filter>nodes</Filter>
+      <Filter>internal\nodes</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\WsServer.cc">
-      <Filter>nodes</Filter>
+      <Filter>internal\nodes</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
       <Filter>public\MongoDB</Filter>
@@ -134,16 +145,21 @@
     <ClCompile Include="..\..\..\public\IPFinder.cpp">
       <Filter>public</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\Clients.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\Gateway.cc">
-      <Filter>nodes</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc">
       <Filter>public\TraceMsg</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\RpcService.cc">
-      <Filter>rpc</Filter>
+      <Filter>internal\rpc</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\Clients.cc">
+      <Filter>internal\gate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\Container.cc">
+      <Filter>internal\gate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc">
+      <Filter>internal\gate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\Gate.cc" />
   </ItemGroup>
 </Project>

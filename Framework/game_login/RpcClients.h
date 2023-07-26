@@ -5,7 +5,7 @@
 
 #include "public/Inc.h"
 
-namespace Rpc {
+namespace rpc {
 	class Connector;
 
 	class TcpClient :

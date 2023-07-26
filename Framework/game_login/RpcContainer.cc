@@ -1,6 +1,6 @@
 #include "RpcContainer.h"
 
-namespace Rpc {
+namespace rpc {
 	void Container::add(std::vector<std::string> const& names) {
 		{
 			WRITE_LOCK(mutex_);

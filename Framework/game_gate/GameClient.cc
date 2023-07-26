@@ -3,7 +3,7 @@
 #include "proto/HallServer.Message.pb.h"
 #include "proto/GameServer.Message.pb.h"
 
-#include "Gateway.h"
+#include "Gate.h"
 
 void GateServ::onGameConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();

@@ -44,24 +44,6 @@ enum IpVisitE {
 	HTTP/1.1 600 访问量限制(1500)\r\n\r\n
 */
 
-// #define MY_TRY()	\
-// 	try {
-// 
-// #define MY_CATCH() \
-// 	} \
-// catch (const muduo::Exception & e) { \
-// 	_LOG_ERROR << __FUNCTION__ << " --- *** " << "exception caught " << e.what(); \
-// 	abort(); \
-// 	} \
-// catch (const std::exception & e) { \
-// 	LOG_ERROR << __FUNCTION__ << " --- *** " << "exception caught " << e.what(); \
-// 	abort(); \
-// } \
-// catch (...) { \
-// 	LOG_ERROR << __FUNCTION__ << " --- *** " << "exception caught "; \
-// 	throw; \
-// } \
-
 static void setFailedResponse(muduo::net::HttpResponse& rsp,
 	muduo::net::HttpResponse::HttpStatusCode code = muduo::net::HttpResponse::k200Ok,
 	std::string const& msg = "") {
@@ -115,7 +97,7 @@ public:
 	void threadInit();
 	bool InitServer();
 	void Start(int numThreads, int numWorkerThreads, int maxSize);
-public:
+private:
 	bool onCondition(const muduo::net::InetAddress& peerAddr);
 	void onConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onConnected(
@@ -144,7 +126,7 @@ public:
 	bool refreshBlackListInLoop();
 private:
 	void cmd_getAesKey(const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
-public:
+private:
 	void onHallConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onHallMessage(
 		const muduo::net::TcpConnectionPtr& conn,
@@ -158,7 +140,7 @@ public:
 		BufferPtr const& buf, int64_t userId);
 	void onUserLoginNotify(std::string const& msg);
 	void onUserOfflineHall(Context /*const*/& entryContext);
-public:
+private:
 	void onGameConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onGameMessage(
 		const muduo::net::TcpConnectionPtr& conn,
@@ -171,7 +153,7 @@ public:
 		Context /*const*/& entryContext,
 		BufferPtr const& buf, int64_t userId);
 	void onUserOfflineGame(Context /*const*/& entryContext, bool leave = 0);
-public:
+private:
 	bool onHttpCondition(const muduo::net::InetAddress& peerAddr);
 	void onHttpConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onHttpMessage(const muduo::net::TcpConnectionPtr& conn, muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
@@ -205,66 +187,47 @@ public:
 	std::string redisPasswd_;
 	std::vector<std::string> redlockVec_;
 	std::string mongoDBUrl_;
-	Rpc::GameGateService rpcservice_;
+public:
+	muduo::AtomicInt32 numConnected_;
+	muduo::AtomicInt64 numTotalReq_;
+	muduo::AtomicInt64 numTotalBadReq_;
+	
+	//map[session] = weakConn
+	STR::Entities entities_;
+	//map[userid] = weakConn
+	INT::Entities sessions_;
+	
+	int idleTimeout_;
+	int maxConnections_;
+	
+	CmdCallbacks handlers_;
+
+	rpc::server::GameGate rpcservice_;
 	muduo::net::RpcServer rpcserver_;
 	muduo::net::TcpServer server_;
 	muduo::net::TcpServer innServer_;
 	muduo::net::TcpServer httpServer_;
-	muduo::AtomicInt32 numConnected_;
+
+	STD::Random randomHall_;
+	Connector hallClients_;
+	Connector gameClients_;
+	Container clients_[kMaxServTy];
+
+	std::hash<std::string> hash_session_;
 	std::vector<ConnBucketPtr> bucketsPool_;
-	muduo::AtomicInt64 numTotalReq_, numTotalBadReq_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
-	//map[session] = weakConn
-	STR::Entities entities_;
-
-#ifdef MAP_USERID_SESSION
-	//map[userid] = session
-	INT::Sessions sessions_;
-#else
-	//map[userid] = weakConn
-	INT::Entities sessions_;
-#endif
-	CmdCallbacks handlers_;
-	//连接到所有大厅服
-	Connector hallClients_;
-	//连接到所有游戏服
-	Connector gameClients_;
-	//所有大厅服/游戏服节点
-	Container clients_[kMaxServTy];
-	std::hash<std::string> hash_session_;
-	//大厅分配随机数
-	STD::Random randomHall_;
-
-	//服务状态
-	volatile long serverState_;
-
-	bool isdebug_;
-
-	CIpFinder ipFinder_;
-
-	std::string strIpAddr_;
-
-	int kMaxConnections_;
-
-	//指定时间轮盘大小(bucket桶大小)
-	//即环形数组大小(size) >=
-	//心跳超时清理时间(timeout) >
-	//心跳间隔时间(interval)
-	int kTimeoutSeconds_, kHttpTimeoutSeconds_;
 
 	//管理员挂维护/恢复服务
+	volatile long serverState_;
 	std::map<in_addr_t, IpVisitE> adminList_;
-
 	IpVisitCtrlE whiteListControl_;
-
 	std::map<in_addr_t, IpVisitE> whiteList_;
 	mutable boost::shared_mutex whiteList_mutex_;
-
 	IpVisitCtrlE blackListControl_;
-
 	std::map<in_addr_t, IpVisitE> blackList_;
 	mutable boost::shared_mutex blackList_mutex_;
+	CIpFinder ipFinder_;
 };
 
 #endif

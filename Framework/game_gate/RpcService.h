@@ -5,13 +5,15 @@
 
 #include "public/Inc.h"
 
-namespace Rpc {
-	class GameGateService : public ::ProxyServer::Message::RpcService {
-	public:
-		virtual void GetGameGate(
-			const ::ProxyServer::Message::GameGateReqPtr& req,
-			const ::ProxyServer::Message::GameGateRsp* responsePrototype,
-			const muduo::net::RpcDoneCallback& done);
-	};
+namespace rpc {
+	namespace server {
+		class GameGate : public ::ProxyServer::Message::RpcService {
+		public:
+			virtual void GetGameGate(
+				const ::ProxyServer::Message::GameGateReqPtr& req,
+				const ::ProxyServer::Message::GameGateRsp* responsePrototype,
+				const muduo::net::RpcDoneCallback& done);
+		};
+	}
 }
 #endif

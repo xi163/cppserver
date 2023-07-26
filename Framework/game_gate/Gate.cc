@@ -3,7 +3,7 @@
 #include "proto/HallServer.Message.pb.h"
 #include "proto/GameServer.Message.pb.h"
 
-#include "Gateway.h"
+#include "Gate.h"
 
 GateServ::GateServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr,
@@ -19,12 +19,10 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	, httpServer_(loop, listenAddrHttp, "httpServer")
 	, hallClients_(loop)
 	, gameClients_(loop)
-	, kTimeoutSeconds_(3)
-	, kHttpTimeoutSeconds_(3)
-	, kMaxConnections_(15000)
+	, idleTimeout_(3)
+	, maxConnections_(15000)
 	, serverState_(ServiceStateE::kRunning)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
-	, isdebug_(false)
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
@@ -130,14 +128,14 @@ void GateServ::onZookeeperConnected() {
 		{
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
-			rpcNodeValue_ = strIpAddr_ + ":" + vec[1];
+			rpcNodeValue_ = vec[0] + ":" + vec[1];
 			rpcNodePath_ = "/GAME/RPCProxyServers/" + rpcNodeValue_;
 			zkclient_->createNode(rpcNodePath_, rpcNodeValue_, true);
 		}
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 		//ip:port:port:pid
-		nodeValue_ = strIpAddr_ + ":" + vec[1];
+		nodeValue_ = vec[0] + ":" + vec[1];
 #if 1
 		boost::algorithm::split(vec, innServer_.ipPort(), boost::is_any_of(":"));
 		nodeValue_ += ":" + vec[1] /*+ ":" + std::to_string(getpid())*/;
@@ -353,12 +351,12 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	for (size_t index = 0; index < loops.size(); ++index) {
 #if 0
 		ConnBucketPtr bucket(new ConnBucket(
-			loops[index], index, kTimeoutSeconds_));
+			loops[index], index, idleTimeout_));
 		bucketsPool_.emplace_back(std::move(bucket));
 #else
 		bucketsPool_.emplace_back(
 			ConnBucketPtr(new ConnBucket(
-				loops[index], index, kTimeoutSeconds_)));
+				loops[index], index, idleTimeout_)));
 #endif
 		loops[index]->setContext(EventLoopContextPtr(new EventLoopContext(index)));
 	}

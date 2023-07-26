@@ -1,6 +1,6 @@
-#include "Hall.h"
+#include "Login.h"
 
-HallServ* gServer = NULL;
+LoginServ* gServer = NULL;
 static void StopService(int signo) {
 	if (gServer) {
 		gServer->Quit();
@@ -18,26 +18,14 @@ int main(int argc, char* argv[]) {
 	//读取配置文件
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
-
 	//日志目录/文件 logdir/logname
-	std::string logdir = pt.get<std::string>("Hall.logdir", "./log/Hall/");
-	std::string logname = pt.get<std::string>("Hall.logname", "Hall");
-	int loglevel = pt.get<int>("Hall.loglevel", 1);
+	std::string logdir = pt.get<std::string>("Login.logdir", "./log/Login/");
+	std::string logname = pt.get<std::string>("Login.logname", "Login");
+	int loglevel = pt.get<int>("Login.loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
 	_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
-
-	//获取指定网卡ipaddr
-	std::string strIpAddr;
-	std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
-	if (utils::getNetCardIp(netcardName, strIpAddr) < 0) {
-		_LOG_FATAL("获取网卡 %s IP失败", netcardName.c_str());
-		return -1;
-	}
-	_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), strIpAddr.c_str());
-
-	//////////////////////////////////////////////////////////////////////////
 	//zookeeper服务器集群IP
 	std::string strZookeeperIps = "";
 	{
@@ -52,7 +40,6 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("ZookeeperIP = %s", strZookeeperIps.c_str());
 	}
-	//////////////////////////////////////////////////////////////////////////
 	//RedisCluster服务器集群IP
 	std::map<std::string, std::string> mapRedisIps;
 	std::string redisPasswd = pt.get<std::string>("RedisCluster.Password", "");
@@ -76,7 +63,6 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("RedisClusterIP = %s", strRedisIps.c_str());
 	}
-	//////////////////////////////////////////////////////////////////////////
 	//redisLock分布式锁
 	std::string strRedisLockIps = "";
 	{
@@ -91,28 +77,63 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("RedisLockIP = %s", strRedisLockIps.c_str());
 	}
-	//////////////////////////////////////////////////////////////////////////
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-	std::string tcpIp = pt.get<std::string>("Hall.ip", "");
-	int16_t tcpPort = pt.get<int>("Hall.port", 8120);
-	int16_t numThreads = pt.get<int>("Hall.numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>("Hall.numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>("Hall.kMaxQueueSize", 1000);
-	bool isdebug = pt.get<int>("Hall.debug", 1);
-	if (!tcpIp.empty() && boost::regex_match(tcpIp,
+	std::string ip = pt.get<std::string>("Login.ip", "");
+	int16_t port = pt.get<int>("Login.port", 9888);
+	int16_t httpPort = pt.get<int>("Login.httpPort", 9788);
+	int16_t numThreads = pt.get<int>("Login.numThreads", 10);
+	int16_t numWorkerThreads = pt.get<int>("Login.numWorkerThreads", 10);
+	int kMaxQueueSize = pt.get<int>("Login.kMaxQueueSize", 1000);
+	int kMaxConnections = pt.get<int>("Login.kMaxConnections", 15000);
+	int kTimeoutSeconds = pt.get<int>("Login.kTimeoutSeconds", 3);
+	//管理员挂维护/恢复服务
+	std::string strAdminList = pt.get<std::string>("Login.adminList", "192.168.2.93,");
+	//证书路径
+	std::string cert_path = pt.get<std::string>("Login.cert_path", "");
+	//证书私钥
+	std::string private_key = pt.get<std::string>("Login.private_key", "");
+	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$"))) {
-		strIpAddr = tcpIp;
+	}
+	else {
+		std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
+		if (utils::getNetCardIp(netcardName, ip) < 0) {
+			_LOG_FATAL("获取网卡 %s IP失败", netcardName.c_str());
+			return -1;
+		}
+		_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), ip.c_str());
 	}
 	muduo::net::EventLoop loop;
-	muduo::net::InetAddress listenAddr(strIpAddr, tcpPort);
-	HallServ server(&loop, listenAddr);
-	server.isdebug_ = isdebug;
-	server.strIpAddr_ = strIpAddr;
+	muduo::net::InetAddress listenAddr(ip, port);//websocket
+	muduo::net::InetAddress listenAddrHttp(ip, httpPort);//http
+	LoginServ server(&loop, listenAddr, listenAddrHttp, cert_path, private_key);
+	server.maxConnections_ = kMaxConnections;
+	server.idleTimeout_ = kTimeoutSeconds;
+	//管理员ip地址列表
+	{
+		std::vector<std::string> vec;
+		boost::algorithm::split(vec, strAdminList, boost::is_any_of(","));
+		for (std::vector<std::string>::const_iterator it = vec.begin();
+			it != vec.end(); ++it) {
+			std::string const& ipaddr = *it;
+			if (!ipaddr.empty() &&
+				boost::regex_match(ipaddr,
+					boost::regex(
+						"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \
+						"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
+						"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
+						"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$"))) {
+				muduo::net::InetAddress addr(muduo::StringArg(ipaddr), 0, false);
+				server.adminList_[addr.ipv4NetEndian()] = IpVisitE::kEnable;
+				_LOG_INFO("管理员IP[%s]", ipaddr.c_str());
+			}
+		}
+	}
 	boost::algorithm::split(server.redlockVec_, strRedisLockIps, boost::is_any_of(","));
 	if (
 		server.InitZookeeper(strZookeeperIps) &&

@@ -1,6 +1,6 @@
 #include "RpcClients.h"
 
-namespace Rpc {
+namespace rpc {
 	TcpClient::TcpClient(muduo::net::EventLoop* loop,
 		const muduo::net::InetAddress& serverAddr,
 		const std::string& name,

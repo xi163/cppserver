@@ -3,7 +3,7 @@
 #include "proto/HallServer.Message.pb.h"
 #include "proto/GameServer.Message.pb.h"
 
-#include "Gateway.h"
+#include "Gate.h"
 
 void GateServ::onHallConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
@@ -374,7 +374,7 @@ void GateServ::sendHallMessage(
 }
 
 void GateServ::onUserOfflineHall(Context /*const*/& entryContext) {
-	//MY_TRY()
+	MY_TRY()
 	int64_t userId = entryContext.getUserID();
 	uint32_t clientip = entryContext.getFromIp();
 	std::string const& session = entryContext.getSession();
@@ -397,5 +397,5 @@ void GateServ::onUserOfflineHall(Context /*const*/& entryContext) {
 			sendHallMessage(entryContext, buffer, userId);
 		}
 	}
-	//MY_CATCH()
+	MY_CATCH()
 }

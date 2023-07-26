@@ -3,17 +3,17 @@
 #include "proto/HallServer.Message.pb.h"
 #include "proto/GameServer.Message.pb.h"
 
-#include "Gate.h"
+#include "Login.h"
 
-bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr) {
+bool LoginServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 	return true;
 }
 
-void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
+void LoginServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
+		_LOG_INFO("客户端[%s] -> 登陆服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -37,9 +37,9 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		//websocket::Context::ctor
 		//////////////////////////////////////////////////////////////////////////
 		muduo::net::websocket::hook(
-			std::bind(&GateServ::onConnected, this,
+			std::bind(&LoginServ::onConnected, this,
 				std::placeholders::_1, std::placeholders::_2),
-			std::bind(&GateServ::onMessage, this,
+			std::bind(&LoginServ::onMessage, this,
 				std::placeholders::_1, std::placeholders::_2,
 				std::placeholders::_3, std::placeholders::_4),
 			conn);
@@ -47,7 +47,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		EventLoopContextPtr context = boost::any_cast<EventLoopContextPtr>(conn->getLoop()->getContext());
 		assert(context);
 
-		EntryPtr entry(new Entry(Entry::TypeE::TcpTy, muduo::net::WeakTcpConnectionPtr(conn), "客户端", "网关服"));
+		EntryPtr entry(new Entry(Entry::TypeE::TcpTy, muduo::net::WeakTcpConnectionPtr(conn), "客户端", "登陆服"));
 
 		ContextPtr entryContext(new Context(WeakEntryPtr(entry)));
 		conn->setContext(entryContext);
@@ -69,7 +69,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
+		_LOG_INFO("客户端[%s] -> 登陆服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -92,12 +92,12 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		assert(index >= 0 && index < threadPool_.size());
 		threadPool_[index]->run(
 			std::bind(
-				&GateServ::asyncOfflineHandler,
+				&LoginServ::asyncOfflineHandler,
 				this, entryContext));
 	}
 }
 
-void GateServ::onConnected(
+void LoginServ::onConnected(
 	const muduo::net::TcpConnectionPtr& conn,
 	std::string const& ipaddr) {
 
@@ -134,7 +134,7 @@ void GateServ::onConnected(
 	}
 }
 
-void GateServ::onMessage(
+void LoginServ::onMessage(
 	const muduo::net::TcpConnectionPtr& conn,
 	muduo::net::Buffer* buf, int msgType,
 	muduo::Timestamp receiveTime) {
@@ -184,7 +184,7 @@ void GateServ::onMessage(
 				assert(index >= 0 && index < threadPool_.size());
 				threadPool_[index]->run(
 					std::bind(
-						&GateServ::asyncClientHandler,
+						&LoginServ::asyncClientHandler,
 						this, entryContext->getWeakEntryPtr(), buffer, receiveTime));
 			}
 		}
@@ -207,7 +207,7 @@ void GateServ::onMessage(
 	}
 }
 
-void GateServ::asyncClientHandler(
+void LoginServ::asyncClientHandler(
 	WeakEntryPtr const& weakEntry,
 	BufferPtr const& buf,
 	muduo::Timestamp receiveTime) {
@@ -301,7 +301,7 @@ void GateServ::asyncClientHandler(
 							buf->peek(),
 							header->len);
 						if (buffer) {
-							sendHallMessage(*entryContext.get(), buffer, userId);
+							//sendHallMessage(*entryContext.get(), buffer, userId);
 						}
 					}
 					break;
@@ -349,7 +349,7 @@ void GateServ::asyncClientHandler(
 							buf->peek(),
 							header->len);
 						if (buffer) {
-							sendGameMessage(*entryContext.get(), buffer, userId);
+							///sendGameMessage(*entryContext.get(), buffer, userId);
 						}
 					}
 					break;
@@ -376,7 +376,7 @@ void GateServ::asyncClientHandler(
 	}
 }
 
-void GateServ::asyncOfflineHandler(ContextPtr /*const*/& entryContext) {
+void LoginServ::asyncOfflineHandler(ContextPtr /*const*/& entryContext) {
 	if (entryContext) {
 		std::string const& session = entryContext->getSession();
 		if (!session.empty()) {
@@ -386,73 +386,13 @@ void GateServ::asyncOfflineHandler(ContextPtr /*const*/& entryContext) {
 		if (userid > 0) {
 			sessions_.remove(userid, session);
 		}
-		onUserOfflineHall(*entryContext.get());
-		onUserOfflineGame(*entryContext.get());
 	}
 }
 
-BufferPtr GateServ::packClientShutdownMsg(int64_t userid, int status) {
-	::Game::Common::ProxyNotifyShutDownUserClientMessage msg;
-	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
-	msg.set_userid(userid);
-	msg.set_status(status);
-
-	BufferPtr buffer = packet::packMessage(
-		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
-		::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY, &msg);
-
-	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
-		::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY);
-
-	return buffer;
-}
-
-BufferPtr GateServ::packNoticeMsg(
-	int32_t agentid, std::string const& title,
-	std::string const& content, int msgtype) {
-	::ProxyServer::Message::NotifyNoticeMessageFromProxyServerMessage msg;
-	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
-	msg.add_agentid(agentid);
-	msg.set_title(title.c_str());
-	msg.set_message(content);
-	msg.set_msgtype(msgtype);
-
-	BufferPtr buffer = packet::packMessage(
-		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
-		::Game::Common::PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY, &msg);
-
-	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
-		::Game::Common::PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY);
-
-	return buffer;
-}
-
-void GateServ::broadcastNoticeMsg(
-	std::string const& title,
-	std::string const& msg,
-	int32_t agentid, int msgType) {
-	BufferPtr buffer = packNoticeMsg(
-		agentid,
-		title,
-		msg,
-		msgType);
-	if (buffer) {
-		sessions_.broadcast(buffer);
-	}
-}
-
-void GateServ::broadcastMessage(int mainId, int subId, ::google::protobuf::Message* msg) {
-	BufferPtr buffer = packet::packMessage(mainId, subId, msg);
-	if (buffer) {
-		TraceMessageID(mainId, subId);
-		entities_.broadcast(buffer);
-	}
-}
-
-void GateServ::refreshBlackList() {
+void LoginServ::refreshBlackList() {
 	if (blackListControl_ == IpVisitCtrlE::kOpenAccept) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		RunInLoop(server_.getLoop(), std::bind(&GateServ::refreshBlackListInLoop, this));
+		RunInLoop(server_.getLoop(), std::bind(&LoginServ::refreshBlackListInLoop, this));
 	}
 	else if (blackListControl_ == IpVisitCtrlE::kOpen) {
 		//同步刷新IP访问黑名单
@@ -460,7 +400,7 @@ void GateServ::refreshBlackList() {
 	}
 }
 
-bool GateServ::refreshBlackListSync() {
+bool LoginServ::refreshBlackListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(blackListControl_ == IpVisitCtrlE::kOpen);
 	{
@@ -476,7 +416,7 @@ bool GateServ::refreshBlackListSync() {
 	return false;
 }
 
-bool GateServ::refreshBlackListInLoop() {
+bool LoginServ::refreshBlackListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(blackListControl_ == IpVisitCtrlE::kOpenAccept);
 	server_.getLoop()->assertInLoopThread();
@@ -490,7 +430,7 @@ bool GateServ::refreshBlackListInLoop() {
 	return false;
 }
 
-void GateServ::cmd_getAesKey(
-	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
-	packet::header_t const* header_ = (packet::header_t const*)buf->peek();
-}
+// void LoginServ::cmd_getAesKey(
+// 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+// 	packet::header_t const* header_ = (packet::header_t const*)buf->peek();
+// }

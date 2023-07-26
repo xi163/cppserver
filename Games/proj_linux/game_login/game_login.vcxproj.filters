@@ -4,12 +4,6 @@
     <Filter Include="pb">
       <UniqueIdentifier>{dbe7505c-c190-438a-a9be-cbedb94f7eb8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="nodes">
-      <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="rpc">
-      <UniqueIdentifier>{1d4a5954-1387-432b-99c6-1beb9e4a57c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="public">
       <UniqueIdentifier>{130bbfe6-f2a8-41c2-8af9-eb12ffecbbe4}</UniqueIdentifier>
     </Filter>
@@ -28,6 +22,18 @@
     <Filter Include="public\MongoDB">
       <UniqueIdentifier>{a553fc8f-f2fc-4a3a-99e6-9e8ef8aacbf0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internal">
+      <UniqueIdentifier>{01b551a3-569e-494c-91a2-493d80b5668b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\gate">
+      <UniqueIdentifier>{5b35f191-fdca-4309-8932-f9d999af879a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\nodes">
+      <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rpc">
+      <UniqueIdentifier>{1d4a5954-1387-432b-99c6-1beb9e4a57c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
@@ -37,18 +43,18 @@
       <Filter>pb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_login\GameDefine.h" />
-    <ClInclude Include="..\..\..\Framework\game_login\Hall.h" />
+    <ClInclude Include="..\..\..\Framework\game_login\Login.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_login\RpcContainer.h">
-      <Filter>rpc</Filter>
+      <Filter>internal\rpc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_login\RpcClients.h">
-      <Filter>rpc</Filter>
+      <Filter>internal\rpc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_login\RpcService.h">
-      <Filter>rpc</Filter>
+      <Filter>internal\rpc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
@@ -86,6 +92,18 @@
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\Entities.h">
+      <Filter>internal\gate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\Container.h">
+      <Filter>internal\gate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\Clients.h">
+      <Filter>internal\gate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h">
+      <Filter>internal\gate</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -94,19 +112,19 @@
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\Hall.cc" />
+    <ClCompile Include="..\..\..\Framework\game_login\Login.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\main.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_login\RpcContainer.cc">
-      <Filter>rpc</Filter>
+      <Filter>internal\rpc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_login\RpcClients.cc">
-      <Filter>rpc</Filter>
+      <Filter>internal\rpc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_login\RpcService.cc">
-      <Filter>rpc</Filter>
+      <Filter>internal\rpc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\IPFinder.cpp">
       <Filter>public</Filter>
@@ -137,6 +155,21 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
       <Filter>public\MongoDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\Container.cc">
+      <Filter>internal\gate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\Clients.cc">
+      <Filter>internal\gate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc">
+      <Filter>internal\gate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\HttpServer.cc">
+      <Filter>internal\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\WsServer.cc">
+      <Filter>internal\nodes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -91,7 +91,7 @@ namespace EXCPT {
 
 #define MY_TRY_TRACE() \
 	try { \
-	LOG_DEBUG("");
+	_LOG_DEBUG("");
 
 #define MY_THROW_A(err_str) (throw EXCPT::function_error(__FILE__, __LINE__, __FUNC__, err_str))
 #define MY_THROW_C(fn_str, err_str) (throw EXCPT::function_error(__FILE__, __LINE__, __FUNC__, fn_str, err_str))
@@ -101,10 +101,10 @@ namespace EXCPT {
 #define PLAT_CATCH() \
 	} \
 	catch (QException const& e) { \
-		LOG_S_FATAL(std::string("QT EXCEPTION: ") + e.what()); \
+		_LOG_S_FATAL(std::string("QT EXCEPTION: ") + e.what()); \
 	} \
 	catch(QUnhandledException const& e) { \
-		LOG_S_FATAL(std::string("QT EXCEPTION: ") + e.what());
+		_LOG_S_FATAL(std::string("QT EXCEPTION: ") + e.what());
 
 #else
 #define PLAT_CATCH()
@@ -125,19 +125,19 @@ namespace EXCPT {
 		 ) : \
 		oss << "EXCEPTION: " << e.fn_str_ << "(" << e.err_no_ << ") " << e.what() \
 		   << " " << utils::trim_file(e.f_.c_str()) << "(" << e.l_ << ") " << utils::trim_func(e.fn_.c_str()); \
-		LOG_S_FATAL(oss.str());
+		_LOG_S_FATAL(oss.str());
 
 
 #define STD_CATCH() \
 	} \
 	catch (std::exception const& e) { \
-		LOG_S_FATAL(std::string("EXCEPTION: ") + e.what());
+		_LOG_S_FATAL(std::string("EXCEPTION: ") + e.what());
 
 
 #define ANY_CATCH() \
 	} \
 	catch (...) { \
-		LOG_S_FATAL("EXCEPTION: unknown error");
+		_LOG_S_FATAL("EXCEPTION: unknown error");
 
 #define MY_CATCH() \
 	PLAT_CATCH() \

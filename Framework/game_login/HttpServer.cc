@@ -3,9 +3,9 @@
 #include "proto/HallServer.Message.pb.h"
 #include "proto/GameServer.Message.pb.h"
 
-#include "Gate.h"
+#include "Login.h"
 
-bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
+bool LoginServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(whiteListControl_ == IpVisitCtrlE::kOpenAccept);
 	httpServer_.getLoop()->assertInLoopThread();
@@ -30,11 +30,11 @@ bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	return true;
 }
 
-void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
+void LoginServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		_LOG_INFO("WEB端[%s] -> 网关服[%s] %s %d",
+		_LOG_INFO("WEB端[%s] -> 登陆服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -63,7 +63,7 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 		EventLoopContextPtr context = boost::any_cast<EventLoopContextPtr>(conn->getLoop()->getContext());
 		assert(context);
 
-		EntryPtr entry(new Entry(Entry::TypeE::HttpTy, muduo::net::WeakTcpConnectionPtr(conn), "WEB前端", "网关服"));
+		EntryPtr entry(new Entry(Entry::TypeE::HttpTy, muduo::net::WeakTcpConnectionPtr(conn), "WEB前端", "登陆服"));
 
 		ContextPtr entryContext(new Context(WeakEntryPtr(entry), muduo::net::HttpContext()));
 		conn->setContext(entryContext);
@@ -87,14 +87,14 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		_LOG_INFO("WEB端[%s] -> 网关服[%s] %s %d",
+		_LOG_INFO("WEB端[%s] -> 登陆服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 }
 
-void GateServ::onHttpMessage(
+void LoginServ::onHttpMessage(
 	const muduo::net::TcpConnectionPtr& conn,
 	muduo::net::Buffer* buf, muduo::Timestamp receiveTime) {
 	conn->getLoop()->assertInLoopThread();
@@ -202,7 +202,7 @@ void GateServ::onHttpMessage(
 				assert(index >= 0 && index < threadPool_.size());
 				threadPool_[index]->run(
 					std::bind(
-						&GateServ::asyncHttpHandler,
+						&LoginServ::asyncHttpHandler,
 						this, entryContext->getWeakEntryPtr(), receiveTime));
 			}
 		}
@@ -231,7 +231,7 @@ void GateServ::onHttpMessage(
 	numTotalBadReq_.incrementAndGet();
 }
 
-void GateServ::asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp receiveTime) {
+void LoginServ::asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp receiveTime) {
 	//刚开始还在想，会不会出现超时conn被异步关闭释放掉，而业务逻辑又被处理了，却发送不了的尴尬情况，
 	//假如因为超时entry弹出bucket，引用计数减1，处理业务之前这里使用shared_ptr，持有entry引用计数(加1)，
 	//如果持有失败，说明弹出bucket计数减为0，entry被析构释放，conn被关闭掉了，也就不会执行业务逻辑处理，
@@ -311,7 +311,7 @@ void GateServ::asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp 
 	}
 }
 
-void GateServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
+void LoginServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
 	_LOG_WARN("...");
 	conn->getLoop()->assertInLoopThread();
 #if 0
@@ -393,7 +393,7 @@ static bool parseQuery(std::string const& queryStr, HttpParams& params, std::str
 	return true;
 }
 
-void GateServ::processHttpRequest(
+void LoginServ::processHttpRequest(
 	const muduo::net::HttpRequest& req, muduo::net::HttpResponse& rsp,
 	muduo::net::InetAddress const& peerAddr,
 	muduo::Timestamp receiveTime) {
@@ -503,10 +503,10 @@ void GateServ::processHttpRequest(
 	}
 }
 
-void GateServ::refreshWhiteList() {
+void LoginServ::refreshWhiteList() {
 	if (whiteListControl_ == IpVisitCtrlE::kOpenAccept) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		RunInLoop(httpServer_.getLoop(), std::bind(&GateServ::refreshWhiteListInLoop, this));
+		RunInLoop(httpServer_.getLoop(), std::bind(&LoginServ::refreshWhiteListInLoop, this));
 	}
 	else if (whiteListControl_ == IpVisitCtrlE::kOpen) {
 		//同步刷新IP访问白名单
@@ -514,7 +514,7 @@ void GateServ::refreshWhiteList() {
 	}
 }
 
-bool GateServ::refreshWhiteListSync() {
+bool LoginServ::refreshWhiteListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(whiteListControl_ == IpVisitCtrlE::kOpen);
 	{
@@ -530,7 +530,7 @@ bool GateServ::refreshWhiteListSync() {
 	return false;
 }
 
-bool GateServ::refreshWhiteListInLoop() {
+bool LoginServ::refreshWhiteListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(whiteListControl_ == IpVisitCtrlE::kOpenAccept);
 	httpServer_.getLoop()->assertInLoopThread();
@@ -569,7 +569,7 @@ static std::string createResponse(
 }
 
 //请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
-bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
+bool LoginServ::repairServer(servTyE servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
 	_LOG_WARN("name[%s] status[%d]", name.c_str(), status);
 	static std::string path[kMaxServTy] = {
 		"/GAME/HallServers/",
@@ -588,34 +588,34 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 			//
 			//在指定类型服务中，并且不在维护节点中
 			//
-			if (clients_[servTy].exist(name) && !clients_[servTy].isRepairing(name)) {
-				//当前仅有一个提供服务的节点，禁止挂维护
-				if (clients_[servTy].remaining() <= 1) {
-					_LOG_ERROR("当前仅有一个提供服务的节点，禁止挂维护!!!");
-					rspdata = createResponse(status, servname, name, 2, "仅剩余一个服务节点，禁止挂维护");
-					break;
-				}
-				//添加 repairnode
-				std::string repairnode = pathrepair[servTy] + name;
-				//if (ZNONODE == zkclient_->existsNode(repairnode)) {
-					//创建维护节点
-					//zkclient_->createNode(repairnode, name, true);
-					//挂维护中状态
-				clients_[servTy].repair(name);
-				_LOG_ERROR("创建维护节点 %s", repairnode.c_str());
-				//}
-				//删除 servicenode
-				std::string servicenode = path[servTy] + name;
-				//if (ZNONODE != zkclient_->existsNode(servicenode)) {
-					//删除服务节点
-					//zkclient_->deleteNode(servicenode);
-				_LOG_ERROR("删除服务节点 %s", servicenode.c_str());
-				//}
-				rspdata = createResponse(status, servname, name, 0, "success");
-			}
-			else {
-				rspdata = createResponse(status, servname, name, 0, "节点不存在|已挂了维护");
-			}
+// 			if (clients_[servTy].exist(name) && !clients_[servTy].isRepairing(name)) {
+// 				//当前仅有一个提供服务的节点，禁止挂维护
+// 				if (clients_[servTy].remaining() <= 1) {
+// 					_LOG_ERROR("当前仅有一个提供服务的节点，禁止挂维护!!!");
+// 					rspdata = createResponse(status, servname, name, 2, "仅剩余一个服务节点，禁止挂维护");
+// 					break;
+// 				}
+// 				//添加 repairnode
+// 				std::string repairnode = pathrepair[servTy] + name;
+// 				//if (ZNONODE == zkclient_->existsNode(repairnode)) {
+// 					//创建维护节点
+// 					//zkclient_->createNode(repairnode, name, true);
+// 					//挂维护中状态
+// 				clients_[servTy].repair(name);
+// 				_LOG_ERROR("创建维护节点 %s", repairnode.c_str());
+// 				//}
+// 				//删除 servicenode
+// 				std::string servicenode = path[servTy] + name;
+// 				//if (ZNONODE != zkclient_->existsNode(servicenode)) {
+// 					//删除服务节点
+// 					//zkclient_->deleteNode(servicenode);
+// 				_LOG_ERROR("删除服务节点 %s", servicenode.c_str());
+// 				//}
+// 				rspdata = createResponse(status, servname, name, 0, "success");
+// 			}
+// 			else {
+// 				rspdata = createResponse(status, servname, name, 0, "节点不存在|已挂了维护");
+// 			}
 			return true;
 		}
 		//请求恢复服务
@@ -626,28 +626,28 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 			//
 			//在指定类型服务中，并且在维护节点中
 			//
-			if (clients_[servTy].exist(name) && clients_[servTy].isRepairing(name)) {
-				//添加 servicenode
-				std::string servicenode = path[servTy] + name;
-				//if (ZNONODE == zkclient_->existsNode(servicenode)) {
-					//创建服务节点
-					//zkclient_->createNode(servicenode, name, true);
-					//恢复服务状态
-				clients_[servTy].recover(name);
-				_LOG_ERROR("创建服务节点 %s", servicenode.c_str());
-				//}
-				//删除 repairnode
-				std::string repairnode = pathrepair[servTy] + name;
-				//if (ZNONODE != zkclient_->existsNode(repairnode)) {
-					//删除维护节点
-					//zkclient_->deleteNode(repairnode);
-				_LOG_ERROR("删除维护节点 %s", repairnode.c_str());
-				//}
-				rspdata = createResponse(status, servname, name, 0, "success");
-			}
-			else {
-				rspdata = createResponse(status, servname, name, 0, "节点不存在|已在服务中");
-			}
+// 			if (clients_[servTy].exist(name) && clients_[servTy].isRepairing(name)) {
+// 				//添加 servicenode
+// 				std::string servicenode = path[servTy] + name;
+// 				//if (ZNONODE == zkclient_->existsNode(servicenode)) {
+// 					//创建服务节点
+// 					//zkclient_->createNode(servicenode, name, true);
+// 					//恢复服务状态
+// 				clients_[servTy].recover(name);
+// 				_LOG_ERROR("创建服务节点 %s", servicenode.c_str());
+// 				//}
+// 				//删除 repairnode
+// 				std::string repairnode = pathrepair[servTy] + name;
+// 				//if (ZNONODE != zkclient_->existsNode(repairnode)) {
+// 					//删除维护节点
+// 					//zkclient_->deleteNode(repairnode);
+// 				_LOG_ERROR("删除维护节点 %s", repairnode.c_str());
+// 				//}
+// 				rspdata = createResponse(status, servname, name, 0, "success");
+// 			}
+// 			else {
+// 				rspdata = createResponse(status, servname, name, 0, "节点不存在|已在服务中");
+// 			}
 			return true;
 		}
 		rspdata = createResponse(status, servname, name, 1, "参数无效，无任何操作");
@@ -655,7 +655,7 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 	return false;
 }
 
-bool GateServ::repairServer(std::string const& queryStr, std::string& rspdata) {
+bool LoginServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 	std::string errmsg;
 	servTyE servTy;
 	std::string name;
@@ -707,7 +707,7 @@ bool GateServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 	return false;
 }
 
-void GateServ::repairServerNotify(std::string const& msg, std::string& rspdata) {
+void LoginServ::repairServerNotify(std::string const& msg, std::string& rspdata) {
 	std::string errmsg;
 	servTyE servTy;
 	std::string name;

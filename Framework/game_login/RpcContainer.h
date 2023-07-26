@@ -5,15 +5,16 @@
 
 #include "RpcClients.h"
 
-enum servTyE {
-	kRpcGateTy = 0,
-	kRpcHallTy,
-	kRpcGameTy,
-	kRpcLoginTy,
-	kMaxRpcTy,
-};
+namespace rpc {
 
-namespace Rpc {
+	enum servTyE {
+		kRpcGateTy = 0,
+		kRpcHallTy,
+		kRpcGameTy,
+		kRpcLoginTy,
+		kMaxRpcTy,
+	};
+
 	struct Repair {
 
 		inline void add(std::string const& name) {
