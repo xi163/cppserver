@@ -255,7 +255,7 @@ namespace utils {
 		static std::uniform_int_distribution<> dis(0, 15);
 		static std::uniform_int_distribution<> dis2(8, 11);
 		std::string _createUUID() {
-#if 1
+#if 0
 			std::stringstream ss;
 			int i;
 			ss << std::hex;
@@ -281,7 +281,6 @@ namespace utils {
 			};
 			return ss.str();
 #else
-#include "IncBoost.h"
 			boost::uuids::random_generator gen;
 			boost::uuids::uuid u = gen();
 			std::string uuid;
