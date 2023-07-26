@@ -27,9 +27,6 @@
 #include <libwebsocket/IBytesBuffer.h>
 #include <libwebsocket/ssl.h>
 
-//屏蔽会导致RPC出问题
-#define _MUDUO_HOSTTONET_TRANSFORM_
-
 namespace muduo
 {
 namespace net
@@ -233,37 +230,40 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   ///
   /// Append int64_t using network endian
   ///
-  void appendInt64(int64_t x)
+  void appendInt64(int64_t x, bool v = false)
   {
-#ifdef _MUDUO_HOSTTONET_TRANSFORM_
-    int64_t be64 = sockets::hostToNetwork64(x);
-    append(&be64, sizeof be64);
-#else
-    append(&x, sizeof x);
-#endif
+      switch (v) {
+      case true:
+          append(&x, sizeof x);
+      default:
+		  int64_t be64 = sockets::hostToNetwork64(x);
+		  append(&be64, sizeof be64);
+      }
   }
 
   ///
   /// Append int32_t using network endian
   ///
-  void appendInt32(int32_t x)
+  void appendInt32(int32_t x, bool v = false)
   {
-#ifdef _MUDUO_HOSTTONET_TRANSFORM_
-   int32_t be32 = sockets::hostToNetwork32(x);
-   append(&be32, sizeof be32);
-#else
-    append(&x, sizeof x);
-#endif
+      switch (v) {
+      case true:
+          append(&x, sizeof x);
+      default:
+		  int32_t be32 = sockets::hostToNetwork32(x);
+		  append(&be32, sizeof be32);
+      }
   }
 
-  void appendInt16(int16_t x)
+  void appendInt16(int16_t x, bool v = false)
   {
-#ifdef _MUDUO_HOSTTONET_TRANSFORM_
-    int16_t be16 = sockets::hostToNetwork16(x);
-    append(&be16, sizeof be16);
-#else
-    append(&x, sizeof x);
-#endif
+      switch (v) {
+      case true:
+          append(&x, sizeof x);
+      default:
+		  int16_t be16 = sockets::hostToNetwork16(x);
+		  append(&be16, sizeof be16);
+      }
   }
 
   void appendInt8(int8_t x)
@@ -275,9 +275,9 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   /// Read int64_t from network endian
   ///
   /// Require: buf->readableBytes() >= sizeof(int32_t)
-  int64_t readInt64()
+  int64_t readInt64(bool v = false)
   {
-    int64_t result = peekInt64();
+    int64_t result = peekInt64(v);
     retrieveInt64();
     return result;
   }
@@ -286,16 +286,16 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   /// Read int32_t from network endian
   ///
   /// Require: buf->readableBytes() >= sizeof(int32_t)
-  int32_t readInt32()
+  int32_t readInt32(bool v = false)
   {
-    int32_t result = peekInt32();
+    int32_t result = peekInt32(v);
     retrieveInt32();
     return result;
   }
 
-  int16_t readInt16()
+  int16_t readInt16(bool v = false)
   {
-    int16_t result = peekInt16();
+    int16_t result = peekInt16(v);
     retrieveInt16();
     return result;
   }
@@ -311,44 +311,47 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   /// Peek int64_t from network endian
   ///
   /// Require: buf->readableBytes() >= sizeof(int64_t)
-  int64_t peekInt64() const
+  int64_t peekInt64(bool v = false) const
   {
     assert(readableBytes() >= sizeof(int64_t));
     int64_t be64 = 0;
     ::memcpy(&be64, peek(), sizeof be64);
-#ifdef _MUDUO_HOSTTONET_TRANSFORM_
-    return sockets::networkToHost64(be64);
-#else
-    return be64;
-#endif
+	switch (v) {
+	case true:
+		return be64;
+	default:
+		return sockets::networkToHost64(be64);
+	}
   }
 
   ///
   /// Peek int32_t from network endian
   ///
   /// Require: buf->readableBytes() >= sizeof(int32_t)
-  int32_t peekInt32() const
+  int32_t peekInt32(bool v = false) const
   {
-    assert(readableBytes() >= sizeof(int32_t));
-    int32_t be32 = 0;
-    ::memcpy(&be32, peek(), sizeof be32);
-#ifdef _MUDUO_HOSTTONET_TRANSFORM_
-    return sockets::networkToHost32(be32);
-#else
-    return be32;
-#endif
+      assert(readableBytes() >= sizeof(int32_t));
+      int32_t be32 = 0;
+      ::memcpy(&be32, peek(), sizeof be32);
+	  switch (v) {
+	  case true:
+		  return be32;
+	  default:
+		  return sockets::networkToHost32(be32);
+	  }
   }
 
-  int16_t peekInt16() const
+  int16_t peekInt16(bool v = false) const
   {
     assert(readableBytes() >= sizeof(int16_t));
     int16_t be16 = 0;
     ::memcpy(&be16, peek(), sizeof be16);
-#ifdef _MUDUO_HOSTTONET_TRANSFORM_
-    return sockets::networkToHost16(be16);
-#else
-    return be16;
-#endif
+	switch (v) {
+	case true:
+		return be16;
+	default:
+		return sockets::networkToHost16(be16);
+	}
   }
 
   int8_t peekInt8() const
@@ -361,37 +364,40 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   ///
   /// Prepend int64_t using network endian
   ///
-  void prependInt64(int64_t x)
+  void prependInt64(int64_t x, bool v = false)
   {
-#ifdef _MUDUO_HOSTTONET_TRANSFORM_
-   int64_t be64 = sockets::hostToNetwork64(x);
-   prepend(&be64, sizeof be64);
-#else
-    prepend(&x, sizeof x);
-#endif
+      switch (v) {
+      case true:
+          prepend(&x, sizeof x);
+      default:
+		  int64_t be64 = sockets::hostToNetwork64(x);
+		  prepend(&be64, sizeof be64);
+      }
   }
 
   ///
   /// Prepend int32_t using network endian
   ///
-  void prependInt32(int32_t x)
+  void prependInt32(int32_t x, bool v = false)
   {
-#ifdef _MUDUO_HOSTTONET_TRANSFORM_
-   int32_t be32 = sockets::hostToNetwork32(x);
-   prepend(&be32, sizeof be32);
-#else
-    prepend(&x, sizeof x);
-#endif
+      switch (v) {
+      case true:
+          prepend(&x, sizeof x);
+      default:
+		  int32_t be32 = sockets::hostToNetwork32(x);
+		  prepend(&be32, sizeof be32);
+      }
   }
 
-  void prependInt16(int16_t x)
+  void prependInt16(int16_t x, bool v = false)
   {
-#ifdef _MUDUO_HOSTTONET_TRANSFORM_
-    int16_t be16 = sockets::hostToNetwork16(x);
-    prepend(&be16, sizeof be16);
-#else
-    prepend(&x, sizeof x);
-#endif
+      switch (v) {
+      case true:
+          prepend(&x, sizeof x);
+      default:
+		  int16_t be16 = sockets::hostToNetwork16(x);
+		  prepend(&be16, sizeof be16);
+      }
   }
 
   void prependInt8(int8_t x)
