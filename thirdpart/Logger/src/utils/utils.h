@@ -37,6 +37,8 @@ namespace utils {
 	void replaceAll(std::string& s, std::string const& src, std::string const& dst);
 	
 	void replaceEscChar(std::string& s);
+	
+	void parseQuery(std::string const& queryStr, std::map<std::string, std::string>& params);
 
 	std::string GetModulePath(std::string* filename = NULL, bool exec = false);
 

@@ -477,6 +477,49 @@ namespace utils {
 		}
 	}
 
+	void _parseQuery(std::string const& queryStr, std::map<std::string, std::string>& params) {
+		params.clear();
+		do {
+			std::string subStr;
+			std::string::size_type npos = queryStr.find_first_of('?');
+			if (npos != std::string::npos) {
+				//skip '?'
+				subStr = queryStr.substr(npos + 1, std::string::npos);
+			}
+			else {
+				subStr = queryStr;
+			}
+			if (subStr.empty()) {
+				break;
+			}
+			for (;;) {
+				std::string::size_type kpos = subStr.find_first_of('=');
+				if (kpos == std::string::npos) {
+					break;
+				}
+				std::string::size_type spos = subStr.find_first_of('&');
+				if (spos == std::string::npos) {
+					std::string key = subStr.substr(0, kpos);
+					//skip '='
+					std::string val = subStr.substr(kpos + 1, std::string::npos);
+					params[key] = val;
+					break;
+				}
+				else if (kpos < spos) {
+					std::string key = subStr.substr(0, kpos);
+					//skip '='
+					std::string val = subStr.substr(kpos + 1, spos - kpos - 1);
+					params[key] = val;
+					//skip '&'
+					subStr = subStr.substr(spos + 1, std::string::npos);
+				}
+				else {
+					break;
+				}
+			}
+		} while (0);
+	}
+
 	std::string _GetModulePath(std::string* filename, bool exec) {
 		char chr[512];
 #ifdef _windows_

@@ -32,6 +32,69 @@ enum IpVisitE {
 	kDisable = 1,//IP禁止访问
 };
 
+static void replace(std::string& json, const std::string& placeholder, const std::string& value) {
+	boost::replace_all<std::string>(json, "\"" + placeholder + "\"", value);
+}
+
+static std::string OrderServer::createResponse(
+	int32_t opType,
+	std::string const& orderId,
+	uint32_t agentId,
+	std::string account, double score,
+	int errcode, std::string const& errmsg, bool debug) {
+	boost::property_tree::ptree root, data;
+	if (debug) data.put("orderid", orderId);
+	if (debug) data.put("agentid", ":agentid");
+	data.put("account", account);
+	data.put("score", ":score");
+	data.put("code", ":code");
+	if (debug) data.put("errmsg", errmsg);
+	// 外层json
+	root.put("maintype", "/GameHandle");
+	root.put("type", ":type");
+	root.add_child("data", data);
+	std::stringstream s;
+	boost::property_tree::json_parser::write_json(s, root, false);
+	std::string json = s.str();
+	if (debug) replace(json, ":agentid", std::to_string(agentId));
+	replace(json, ":score", std::to_string(score));
+	replace(json, ":code", std::to_string(errcode));
+	replace(json, ":type", std::to_string(opType));
+	boost::replace_all<std::string>(json, "\\", "");
+	return json;
+}
+
+static bool parseQuery(std::string const& queryStr, HttpParams& params, std::string& errmsg) {
+	params.clear();
+	_LOG_DEBUG(queryStr.c_str());
+	utils::parseQuery(queryStr, params);
+	std::string keyValues;
+	for (auto param : params) {
+		keyValues += "\n" + param.first + "=" + param.second;
+	}
+	_LOG_DEBUG(keyValues.c_str());
+	return true;
+}
+
+static std::string getRequestStr(muduo::net::HttpRequest const& req) {
+	std::string headers;
+	for (std::map<string, string>::const_iterator it = req.headers().begin();
+		it != req.headers().end(); ++it) {
+		headers += it->first + ": " + it->second + "\n";
+	}
+	std::stringstream ss;
+	ss << "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
+		<< "<xs:root xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
+		<< "<xs:head>" << headers << "</xs:head>"
+		<< "<xs:body>"
+		<< "<xs:method>" << req.methodString() << "</xs:method>"
+		<< "<xs:path>" << req.path() << "</xs:path>"
+		<< "<xs:query>" << utils::HTML::Encode(req.query()) << "</xs:query>"
+		<< "</xs:body>"
+		<< "</xs:root>";
+	return ss.str();
+}
+
 /*
 	HTTP/1.1 400 Bad Request\r\n\r\n
 	HTTP/1.1 404 Not Found\r\n\r\n

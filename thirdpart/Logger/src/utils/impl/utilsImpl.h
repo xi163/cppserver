@@ -17,6 +17,8 @@ namespace utils {
 	
 	void _replaceEscChar(std::string& s);
 
+	void _parseQuery(std::string const& queryStr, std::map<std::string, std::string>& params);
+
 	std::string _GetModulePath(std::string* filename = NULL, bool exec = false);
 
 	bool _mkDir(char const* dir);
