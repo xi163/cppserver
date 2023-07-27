@@ -16,27 +16,116 @@
 #include "RpcClients.h"
 #include "RpcContainer.h"
 
-enum ServiceStateE {
-	kRepairing = 0,//维护中
-	kRunning = 1,//服务中
-};
+#include "ErrorCode.h"
 
-enum IpVisitCtrlE {
-	kClose = 0,
-	kOpen = 1,//应用层IP截断
-	kOpenAccept = 2,//网络底层IP截断
-};
-
-enum IpVisitE {
-	kEnable = 0,//IP允许访问
-	kDisable = 1,//IP禁止访问
-};
+typedef std::shared_ptr<muduo::net::Buffer> BufferPtr;
+typedef std::map<std::string, std::string> HttpParams;
 
 static void replace(std::string& json, const std::string& placeholder, const std::string& value) {
 	boost::replace_all<std::string>(json, "\"" + placeholder + "\"", value);
 }
 
-static std::string OrderServer::createResponse(
+//最近一次请求操作的elapsed detail
+static void createLatestElapsed(
+	boost::property_tree::ptree& latest,
+	std::string const& op, std::string const& key, double elapsed) {
+	//{"op":"mongo.collect", "dt":1000, "key":}
+	//{"op":"mongo.insert", "dt":1000, "key":}
+	//{"op":"mongo.update", "dt":1000, "key":}
+	//{"op":"mongo.query", "dt":1000, "key":}
+	//{"op":"redis.insert", "dt":1000, "key":}
+	//{"op":"redis.update", "dt":1000, "key":}
+	//{"op":"redis.query", "dt":1000, "key":}
+#if 0
+	boost::property_tree::ptree data, item;
+	data.put("op", op);
+	data.put("key", key);
+	data.put("dt", ":dt");
+	std::stringstream s;
+	boost::property_tree::json_parser::write_json(s, data, false);
+	std::string json = s.str();
+	replace(json, ":dt", std::to_string(elapsed));
+	std::stringstream ss(json);
+	boost::property_tree::json_parser::read_json(ss, item);
+	latest.push_back(std::make_pair("", item));
+#else
+	boost::property_tree::ptree item;
+	item.put("op", op);
+	item.put("key", key);
+	item.put("dt", elapsed);
+	latest.push_back(std::make_pair("", item));
+#endif
+}
+
+//监控数据
+static std::string createMonitorData(
+	boost::property_tree::ptree const& latest, double totalTime, int timeout,
+	int64_t requestNum, int64_t requestNumSucc, int64_t requestNumFailed, double ratio,
+	int64_t requestNumTotal, int64_t requestNumTotalSucc, int64_t requestNumTotalFailed, double ratioTotal, int testTPS) {
+	boost::property_tree::ptree root, stat, history;
+	//最近一次请求 latest
+	root.add_child("latest", latest);
+	//统计间隔时间 totalTime
+	root.put("stat_dt", ":stat_dt");
+	//估算每秒请求处理数 testTPS
+	root.put("test_TPS", ":test_TPS");
+	//请求超时时间 idleTimeout
+	root.put("req_timeout", ":req_timeout");
+	{
+		//统计请求次数 requestNum
+		stat.put("stat_total", ":stat_total");
+		//统计成功次数 requestNumSucc
+		stat.put("stat_succ", ":stat_succ");
+		//统计失败次数 requestNumFailed
+		stat.put("stat_fail", ":stat_fail");
+		//统计命中率 ratio
+		stat.put("stat_ratio", ":stat_ratio");
+		root.add_child("stat", stat);
+	}
+	{
+		//历史请求次数 requestNumTotal
+		history.put("total", ":total");
+		//历史成功次数 requestNumTotalSucc
+		history.put("succ", ":succ");
+		//历史失败次数 requestNumTotalFailed
+		history.put("fail", ":fail");
+		//历史命中率 ratioTotal
+		history.put("ratio", ":ratio");
+		root.add_child("history", history);
+	}
+	std::stringstream s;
+	boost::property_tree::json_parser::write_json(s, root, false);
+	std::string json = s.str();
+	replace(json, ":stat_dt", std::to_string(totalTime));
+	replace(json, ":test_TPS", std::to_string(testTPS));
+	replace(json, ":req_timeout", std::to_string(timeout));
+	replace(json, ":stat_total", std::to_string(requestNum));
+	replace(json, ":stat_succ", std::to_string(requestNumSucc));
+	replace(json, ":stat_fail", std::to_string(requestNumFailed));
+	replace(json, ":stat_ratio", std::to_string(ratio));
+	replace(json, ":total", std::to_string(requestNumTotal));
+	replace(json, ":succ", std::to_string(requestNumTotalSucc));
+	replace(json, ":fail", std::to_string(requestNumTotalFailed));
+	replace(json, ":ratio", std::to_string(ratioTotal));
+	return json;
+}
+
+/* 返回格式
+{
+	"maintype": "/GameHandle",
+		"type": 2,
+		"data":
+		{
+			"orderid":"",
+			"agentid": 10000,
+			"account": "999",
+			"score": 10000,
+			"code": 0,
+			"errmsg":"",
+		}
+}
+*/
+static std::string createResponse(
 	int32_t opType,
 	std::string const& orderId,
 	uint32_t agentId,
@@ -64,7 +153,27 @@ static std::string OrderServer::createResponse(
 	return json;
 }
 
-static bool parseQuery(std::string const& queryStr, HttpParams& params, std::string& errmsg) {
+static std::string createResponse2(
+	int opType,//status=1
+	std::string const& servname,//type=HallSever
+	std::string const& name,//name=192.168.2.93:10000
+	int errcode, std::string const& errmsg) {
+	boost::property_tree::ptree root, data;
+	root.put("op", ":op");
+	root.put("type", servname);
+	root.put("name", name);
+	root.put("code", ":code");
+	root.put("errmsg", errmsg);
+	std::stringstream s;
+	boost::property_tree::json_parser::write_json(s, root, false);
+	std::string json = s.str();
+	replace(json, ":op", std::to_string(opType));
+	replace(json, ":code", std::to_string(errcode));
+	boost::replace_all<std::string>(json, "\\", "");
+	return json;
+}
+
+static void parseQuery(std::string const& queryStr, HttpParams& params) {
 	params.clear();
 	_LOG_DEBUG(queryStr.c_str());
 	utils::parseQuery(queryStr, params);
@@ -73,7 +182,6 @@ static bool parseQuery(std::string const& queryStr, HttpParams& params, std::str
 		keyValues += "\n" + param.first + "=" + param.second;
 	}
 	_LOG_DEBUG(keyValues.c_str());
-	return true;
 }
 
 static std::string getRequestStr(muduo::net::HttpRequest const& req) {
@@ -117,14 +225,14 @@ static void setFailedResponse(muduo::net::HttpResponse& rsp,
 #elif 0
 	rsp.setContentType("application/xml;charset=utf-8");
 	rsp.setBody(msg);
+#elif 0
+	rsp.setContentType("application/json;charset=utf-8");
+	rsp.setBody(msg);
 #else
 	rsp.setContentType("text/plain;charset=utf-8");
 	rsp.setBody(msg);
 #endif
 }
-
-typedef std::shared_ptr<muduo::net::Buffer> BufferPtr;
-typedef std::map<std::string, std::string> HttpParams;
 
 #if BOOST_VERSION < 104700
 namespace boost
@@ -191,6 +299,8 @@ private:
 		const muduo::net::HttpRequest& req, muduo::net::HttpResponse& rsp,
 		muduo::net::InetAddress const& peerAddr,
 		muduo::Timestamp receiveTime);
+	std::string onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& code, std::string& errMsg, boost::property_tree::ptree& latest, int& testTPS);
+	int execute(int32_t opType, std::string const& account, double score, std::string const& orderId, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS);
 	void refreshWhiteList();
 	bool refreshWhiteListSync();
 	bool refreshWhiteListInLoop();
@@ -260,7 +370,7 @@ public:
 	
 	muduo::AtomicInt32 nextPool_;
 	std::hash<std::string> hash_session_;
-	std::vector<ConnBucketPtr> bucketsPool_;
+	std::vector<Buckets> bucketsPool_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 	

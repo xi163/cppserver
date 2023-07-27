@@ -97,6 +97,16 @@ namespace utils {
 	bool checkSubnetIpstr(char const* srcIp, char const* dstIp);
 
 	bool checkSubnetInetIp(uint32_t srcInetIp, uint32_t dstInetIp);
+
+	double floorx(double d, int bit);
+
+	double roundx(double d, int bit);
+
+	double floors(std::string const& s);
+
+	int64_t rate100(std::string const& s);
+
+	bool isDigitalStr(std::string const& str);
 }
 
 #endif

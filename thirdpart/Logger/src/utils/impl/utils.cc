@@ -369,4 +369,29 @@ namespace utils {
 		AUTHORIZATION_CHECK_B;
 		return _checkSubnetInetIp(srcInetIp, dstInetIp);
 	}
+
+	double floorx(double d, int bit) {
+		AUTHORIZATION_CHECK_I;
+		return _floorx(d, bit);
+	}
+
+	double roundx(double d, int bit) {
+		AUTHORIZATION_CHECK_I;
+		return _roundx(d, bit);
+	}
+
+	double floors(std::string const& s) {
+		AUTHORIZATION_CHECK_I;
+		return _floors(s);
+	}
+
+	int64_t rate100(std::string const& s) {
+		AUTHORIZATION_CHECK_I;
+		return _rate100(s);
+	}
+
+	bool isDigitalStr(std::string const& s) {
+		AUTHORIZATION_CHECK_B;
+		return _isDigitalStr(s);
+	}
 }

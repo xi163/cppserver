@@ -493,10 +493,12 @@ namespace utils {
 				break;
 			}
 			for (;;) {
+				//key value separate
 				std::string::size_type kpos = subStr.find_first_of('=');
 				if (kpos == std::string::npos) {
 					break;
 				}
+				//next start
 				std::string::size_type spos = subStr.find_first_of('&');
 				if (spos == std::string::npos) {
 					std::string key = subStr.substr(0, kpos);
@@ -767,4 +769,74 @@ namespace utils {
 		return srcmask == dstmask;
 	}
 
+	//截取double小数点后bit位，直接截断
+	double _floorx(double d, int bit) {
+		int rate = pow(10, bit);
+		int64_t x = int64_t(d * rate);
+		return (((double)x) / rate);
+	}
+
+	//截取double小数点后bit位，四舍五入
+	double _roundx(double d, int bit) {
+		int rate = pow(10, bit);
+		int64_t x = int64_t(d * rate + 0.5f);
+		return (((double)x) / rate);
+	}
+
+	//截取double小数点后2位，直接截断
+	double _floors(std::string const& s) {
+		std::string::size_type npos = s.find_first_of('.');
+		if (npos != std::string::npos) {
+			std::string dot;
+			std::string prefix = s.substr(0, npos);
+			std::string sufix = s.substr(npos + 1, -1);
+			if (!sufix.empty()) {
+				if (sufix.length() >= 2) {
+					dot = sufix.substr(0, 2);
+				}
+				else {
+					dot = sufix.substr(0, 1);
+				}
+			}
+			std::string x = prefix + "." + dot;
+			return atof(x.c_str());
+		}
+		else {
+			return atof(s.c_str());
+		}
+	}
+
+	//截取double小数点后2位，直接截断并乘以100转int64_t
+	int64_t _rate100(std::string const& s) {
+		std::string::size_type npos = s.find_first_of('.');
+		if (npos != std::string::npos) {
+			std::string prefix = s.substr(0, npos);
+			std::string sufix = s.substr(npos + 1, -1);
+			std::string x;
+			assert(!sufix.empty());
+			if (sufix.length() >= 2) {
+				x = prefix + sufix.substr(0, 2);
+			}
+			else {
+				x = prefix + sufix.substr(0, 1) + "0";
+			}
+			//带小数点，整数位限制9+2位
+			return x.length() <= 11 ? atoll(x.c_str()) : 0;
+		}
+		//不带小数点，整数位限制9+2位
+		return s.length() <= 9 ? (atoll(s.c_str()) * 100) : 0;
+	}
+
+	bool _isDigitalStr(std::string const& s) {
+#if 0
+		boost::regex reg("^[1-9]\d*\,\d*|[1-9]\d*$");
+#elif 1
+		boost::regex reg("^[0-9]+([.]{1}[0-9]+){0,1}$");
+#elif 0
+		boost::regex reg("^[+-]?(0|([1-9]\d*))(\.\d+)?$");
+#elif 0
+		boost::regex reg("[1-9]\d*\.?\d*)|(0\.\d*[1-9]");
+#endif
+		return boost::regex_match(s, reg);
+	}
 }

@@ -104,6 +104,7 @@
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h">
       <Filter>internal\gate</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\ErrorCode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">

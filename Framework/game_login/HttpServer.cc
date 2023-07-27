@@ -252,7 +252,7 @@ void LoginServ::asyncHttpHandler(const muduo::net::WeakTcpConnectionPtr& weakCon
 			muduo::net::Buffer buf;
 			rsp.appendToBuffer(&buf);
 			conn->send(&buf);
-			}
+		}
 		if (rsp.closeConnection()) {
 #if 0
 			//不再发送数据
@@ -284,75 +284,6 @@ void LoginServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
 #endif
 }
 
-static std::string getRequestStr(muduo::net::HttpRequest const& req) {
-	std::string headers;
-	for (std::map<string, string>::const_iterator it = req.headers().begin();
-		it != req.headers().end(); ++it) {
-		headers += it->first + ": " + it->second + "\n";
-	}
-	std::stringstream ss;
-	ss << "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
-		<< "<xs:root xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
-		<< "<xs:head>" << headers << "</xs:head>"
-		<< "<xs:body>"
-		<< "<xs:method>" << req.methodString() << "</xs:method>"
-		<< "<xs:path>" << req.path() << "</xs:path>"
-		<< "<xs:query>" << utils::HTML::Encode(req.query()) << "</xs:query>"
-		<< "</xs:body>"
-		<< "</xs:root>";
-	return ss.str();
-}
-
-static bool parseQuery(std::string const& queryStr, HttpParams& params, std::string& errmsg) {
-	params.clear();
-	_LOG_DEBUG(queryStr.c_str());
-	do {
-		std::string subStr;
-		std::string::size_type npos = queryStr.find_first_of('?');
-		if (npos != std::string::npos) {
-			//skip '?'
-			subStr = queryStr.substr(npos + 1, std::string::npos);
-		}
-		else {
-			subStr = queryStr;
-		}
-		if (subStr.empty()) {
-			break;
-		}
-		for (;;) {
-			std::string::size_type kpos = subStr.find_first_of('=');
-			if (kpos == std::string::npos) {
-				break;
-			}
-			std::string::size_type spos = subStr.find_first_of('&');
-			if (spos == std::string::npos) {
-				std::string key = subStr.substr(0, kpos);
-				//skip '='
-				std::string val = subStr.substr(kpos + 1, std::string::npos);
-				params[key] = val;
-				break;
-			}
-			else if (kpos < spos) {
-				std::string key = subStr.substr(0, kpos);
-				//skip '='
-				std::string val = subStr.substr(kpos + 1, spos - kpos - 1);
-				params[key] = val;
-				//skip '&'
-				subStr = subStr.substr(spos + 1, std::string::npos);
-			}
-			else {
-				break;
-			}
-		}
-	} while (0);
-	std::string keyValues;
-	for (auto param : params) {
-		keyValues += "\n" + param.first + "=" + param.second;
-	}
-	//_LOG_DEBUG(keyValues.c_str());
-	return true;
-}
-
 void LoginServ::processHttpRequest(
 	const muduo::net::HttpRequest& req, muduo::net::HttpResponse& rsp,
 	muduo::net::InetAddress const& peerAddr,
@@ -375,9 +306,126 @@ void LoginServ::processHttpRequest(
 #endif
 	}
 	else if (req.path() == "/GameHandle") {
-		_LOG_ERROR("%s\n%s", req.methodString(), req.query().c_str());
+		int errcode = ApiErrorCode::NoError;
+		std::string errmsg;
+		std::string rspdata;
+		boost::property_tree::ptree latest;
+		int testTPS = 0;
+#ifdef _STAT_QPS_
+		//起始时间戳(微秒)
+		static muduo::Timestamp timeStart_;
+		//统计请求次数
+		static muduo::AtomicInt32 numRequest_;
+		//历史请求次数
+		static muduo::AtomicInt32 numRequestTotal_;
+		//统计成功次数
+		static muduo::AtomicInt32 numRequestSucc_;
+		//统计失败次数
+		static muduo::AtomicInt32 numRequestFailed_;
+		//历史成功次数
+		static muduo::AtomicInt32 numRequestTotalSucc_;
+		//历史失败次数
+		static muduo::AtomicInt32 numRequestTotalFailed_;
+		static volatile long value = 0;
+		if (0 == __sync_val_compare_and_swap(&value, 0, 1)) {
+			timeStart_ = muduo::Timestamp::now();
+		}
+		//本次请求开始时间戳(微秒)
+		muduo::Timestamp timestart = muduo::Timestamp::now();
+#endif
+		if (serverState_ == kRepairing) {
+			setFailedResponse(rsp,
+				muduo::net::HttpResponse::k404NotFound,
+				"HTTP/1.1 405 服务维护中\r\n\r\n");
+		}
+		else {
+			rspdata = onProcess(req.query(), receiveTime, errcode, errmsg, latest, testTPS);
+			_LOG_INFO("\n%s", rspdata.c_str());
+#ifdef _STAT_QPS_
+			if (errcode == ApiErrorCode::NoError) {
+				numRequestSucc_.incrementAndGet();
+				numRequestTotalSucc_.incrementAndGet();
+			}
+			else {
+				numRequestFailed_.incrementAndGet();
+				numRequestTotalFailed_.incrementAndGet();
+			}
+#endif
+			rsp.setContentType("application/json;charset=utf-8");
+			rsp.setBody(rspdata);
+		}
+#ifdef _STAT_QPS_
+		//本次请求结束时间戳(微秒)
+		muduo::Timestamp timenow = muduo::Timestamp::now();
+		numRequest_.incrementAndGet();
+		numRequestTotal_.incrementAndGet();
+		static volatile long value = 0;
+		if (0 == __sync_val_compare_and_swap(&value, 0, 1)) {
+			//间隔时间(s)打印一次
+			static int deltaTime_ = 10;
+			//统计间隔时间(s)
+			double totalTime = muduo::timeDifference(timenow, timeStart_);
+			if (totalTime >= (double)deltaTime_) {
+				//最近一次请求耗时(s)
+				double timdiff = muduo::timeDifference(timenow, timestart);
+				int64_t	requestNum = numRequest_.get();
+				//统计成功次数
+				int64_t requestNumSucc = numRequestSucc_.get();
+				//统计失败次数
+				int64_t requestNumFailed = numRequestFailed_.get();
+				//统计命中率
+				double ratio = (double)(requestNumSucc) / (double)(requestNum);
+				//历史请求次数
+				int64_t	requestNumTotal = numRequestTotal_.get();
+				//历史成功次数
+				int64_t requestNumTotalSucc = numRequestTotalSucc_.get();
+				//历史失败次数
+				int64_t requestNumTotalFailed = numRequestTotalFailed_.get();
+				//历史命中率
+				double ratioTotal = (double)(requestNumTotalSucc) / (double)(requestNumTotal);
+				//平均请求耗时(s)
+				double avgTime = totalTime / requestNum;
+				//每秒请求次数(QPS)
+				int64_t avgNum = (int64_t)(requestNum / totalTime);
+				std::stringstream s;
+				boost::property_tree::json_parser::write_json(s, latest, true);
+				std::string json = s.str();
+				_LOG_ERROR("\n%s\n" \
+					"I/O线程数[%d] 业务线程数[%d] 累计接收请求数[%d] 累计未处理请求数[%d]\n" \
+					"本次统计间隔时间[%d]s 请求超时时间[%d]s\n" \
+					"本次统计请求次数[%d] 成功[%d] 失败[%d] 命中率[%.3f]\n" \
+					"最近一次请求耗时[%d]ms [%s]\n" \
+					"平均请求耗时[%d]ms\n" \
+					"每秒请求次数(QPS) = [%d] 单线程每秒请求处理数(TPS) = [%d] 预计每秒请求处理总数(TPS) = [%d]\n" \
+					"历史请求次数[%d] 成功[%d] 失败[%d] 命中率[%.3f]",
+					json.c_str(),
+					numThreads_, workerNumThreads_, numTotalReq_.get(), numTotalBadReq_.get(),
+					totalTime, idleTimeout_,
+					requestNum, requestNumSucc, requestNumFailed, ratio,
+					timdiff * muduo::Timestamp::kMicroSecondsPerSecond / 1000, errmsg.c_str(),
+					avgTime * muduo::Timestamp::kMicroSecondsPerSecond / 1000,
+					avgNum, testTPS, testTPS * workerNumThreads_,
+					requestNumTotal, requestNumTotalSucc, requestNumTotalFailed, ratioTotal);
+				if (totalTime >= (double)deltaTime_) {
+					std::string monitordata = createMonitorData(latest, totalTime, kTimeoutSeconds_,
+						requestNum, requestNumSucc, requestNumFailed, ratio,
+						requestNumTotal, requestNumTotalSucc, requestNumTotalFailed, ratioTotal, testTPS);
+					REDISCLIENT.set("s.monitor.order", monitordata);
+				}
+				timeStart_ = timenow;
+				numRequest_.getAndSet(0);
+				numRequestSucc_.getAndSet(0);
+				numRequestFailed_.getAndSet(0);
+			}
+			__sync_val_compare_and_swap(&value, 1, 0);
+		}
+#endif
+#if 1
+		//rsp.setBody(rspdata);
+#else
 		rsp.setContentType("application/xml;charset=utf-8");
 		rsp.setBody(getRequestStr(req));
+#endif
 	}
 	//刷新客户端访问IP黑名单信息
 	else if (req.path() == "/refreshBlackList") {
@@ -463,6 +511,407 @@ void LoginServ::processHttpRequest(
 	}
 }
 
+std::string LoginServ::onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& errcode, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS) {
+	bool isdecrypt_ = false;
+	int opType = 0;
+	int agentId = 0;
+#ifdef _NO_LOGIC_PROCESS_
+	int64_t userId = 0;
+#endif
+	errcode = 0;
+	std::string account;
+	std::string orderId;
+	double score = 0;
+	std::string timestamp;
+	std::string paraValue, key;
+	//agent_info_t /*_agent_info = { 0 },*/* p_agent_info = NULL;
+	do {
+		HttpParams params;
+		parseQuery(reqStr, params);
+		if (!isdecrypt_) {
+			HttpParams::const_iterator typeKey = params.find("type");
+			if (typeKey == params.end() || typeKey->second.empty() ||
+				(opType = atol(typeKey->second.c_str())) < 0) {
+				//errcode = eApiErrorCode::GameHandleOperationTypeError;
+				errmsg += "type ";
+			}
+// 			if (opType != int(eApiType::OpAddScore) && opType != int(eApiType::OpSubScore)) {
+// 				errcode = eApiErrorCode::GameHandleOperationTypeError;
+// 				errmsg += "type value ";
+// 			}
+			//agentid
+			HttpParams::const_iterator agentIdKey = params.find("agentid");
+			if (agentIdKey == params.end() || agentIdKey->second.empty() ||
+				(agentId = atol(agentIdKey->second.c_str())) <= 0) {
+				//errcode = eApiErrorCode::GameHandleParamsError;
+				errmsg += "agentid ";
+				break;
+			}
+#ifdef _NO_LOGIC_PROCESS_
+			//userid
+			HttpParams::const_iterator userIdKey = params.find("userid");
+			if (userIdKey == params.end() || userIdKey->second.empty() ||
+				(userId = atoll(userIdKey->second.c_str())) <= 0) {
+				errcode = eApiErrorCode::GameHandleParamsError;
+				errmsg += "userid ";
+			}
+#endif
+			//account
+			HttpParams::const_iterator accountKey = params.find("account");
+			if (accountKey == params.end() || accountKey->second.empty()) {
+				//errcode = eApiErrorCode::GameHandleParamsError;
+				errmsg += "account ";
+			}
+			else {
+				account = accountKey->second;
+			}
+			//orderid
+			HttpParams::const_iterator orderIdKey = params.find("orderid");
+			if (orderIdKey == params.end() || orderIdKey->second.empty()) {
+				//errcode = eApiErrorCode::GameHandleParamsError;
+				errmsg += "orderid ";
+			}
+			else {
+				orderId = orderIdKey->second;
+			}
+			//score
+			HttpParams::const_iterator scoreKey = params.find("score");
+#if 0
+			if (scoreKey == params.end() || scoreKey->second.empty() || !utils::isDigitalStr(scoreKey->second) ||
+				(score = atoll(scoreKey->second.c_str())) <= 0) {
+#else
+			if (scoreKey == params.end() || scoreKey->second.empty() || !utils::isDigitalStr(scoreKey->second) ||
+				(score = utils::floors(scoreKey->second.c_str())) <= 0 || NotScore(score) ||
+				utils::rate100(scoreKey->second) <= 0) {
+#endif
+				//errcode = eApiErrorCode::GameHandleParamsError;
+				errmsg += "score ";
+			}
+			if (errcode != 0) {
+				errmsg += "invalid";
+				break;
+			}
+			// 获取当前代理数据
+			//agent_info_t _agent_info = { 0 };
+// 			{
+// 				READ_LOCK(agent_info_mutex_);
+// 				std::map<int32_t, agent_info_t>::/*const_*/iterator it = agent_info_.find(agentId);
+// 				if (it == agent_info_.end()) {
+// 					// 代理ID不存在或代理已停用
+// 					errcode = eApiErrorCode::GameHandleProxyIDError;
+// 					errmsg = "agent_info not found";
+// 					break;
+// 				}
+// 				else {
+// 					p_agent_info = &it->second;
+// 				}
+// 			}
+			// 没有找到代理，判断代理的禁用状态(0正常 1停用)
+// 			if (p_agent_info->status == 1) {
+// 				// 代理ID不存在或代理已停用
+// 				errcode = eApiErrorCode::GameHandleProxyIDError;
+// 				errmsg = "agent.status error";
+// 				break;
+// 			}
+#ifndef _NO_LOGIC_PROCESS_
+			errcode = execute(opType, account, score, orderId, errmsg, latest, testTPS);
+#endif
+			break;
+		}
+		//type
+		HttpParams::const_iterator typeKey = params.find("type");
+		if (typeKey == params.end() || typeKey->second.empty() ||
+			(opType = atol(typeKey->second.c_str())) < 0) {
+			//errcode = eApiErrorCode::GameHandleOperationTypeError;
+			errmsg = "type invalid";
+			break;
+		}
+// 		if (opType != int(eApiType::OpAddScore) && opType != int(eApiType::OpSubScore)) {
+// 			errcode = eApiErrorCode::GameHandleOperationTypeError;
+// 			errmsg = "type value invalid";
+// 			break;
+// 		}
+				//agentid
+		HttpParams::const_iterator agentIdKey = params.find("agentid");
+		if (agentIdKey == params.end() || agentIdKey->second.empty() ||
+			(agentId = atol(agentIdKey->second.c_str())) <= 0) {
+			//errcode = eApiErrorCode::GameHandleParamsError;
+			errmsg = "agentid invalid";
+			break;
+		}
+		//timestamp
+		HttpParams::const_iterator timestampKey = params.find("timestamp");
+		if (timestampKey == params.end() || timestampKey->second.empty() ||
+			atol(timestampKey->second.c_str()) <= 0) {
+			//errcode = eApiErrorCode::GameHandleParamsError;
+			errmsg = "timestamp invalid";
+			break;
+		}
+		else {
+			timestamp = timestampKey->second;
+		}
+		//paraValue
+		HttpParams::const_iterator paramValueKey = params.find("paraValue");
+		if (paramValueKey == params.end() || paramValueKey->second.empty()) {
+			//errcode = eApiErrorCode::GameHandleParamsError;
+			errmsg = "paraValue invalid";
+			break;
+		}
+		else {
+			paraValue = paramValueKey->second;
+		}
+		//key
+		HttpParams::const_iterator keyKey = params.find("key");
+		if (keyKey == params.end() || keyKey->second.empty()) {
+			//errcode = eApiErrorCode::GameHandleParamsError;
+			errmsg = "key invalid";
+			break;
+		}
+		else {
+			key = keyKey->second;
+		}
+		// 获取当前代理数据
+		//agent_info_t _agent_info = { 0 };
+// 		{
+// 			READ_LOCK(agent_info_mutex_);
+// 			std::map<int32_t, agent_info_t>::/*const_*/iterator it = agent_info_.find(agentId);
+// 			if (it == agent_info_.end()) {
+// 				// 代理ID不存在或代理已停用
+// 				errcode = eApiErrorCode::GameHandleProxyIDError;
+// 				errmsg = "agent_info not found";
+// 				break;
+// 			}
+// 			else {
+// 				p_agent_info = &it->second;
+// 			}
+// 		}
+// 		// 没有找到代理，判断代理的禁用状态(0正常 1停用)
+// 		if (p_agent_info->status == 1) {
+// 			// 代理ID不存在或代理已停用
+// 			errcode = eApiErrorCode::GameHandleProxyIDError;
+// 			errmsg = "agent.status error";
+// 			break;
+// 		}
+#if 0
+		agentId = 10000;
+		p_agent_info->md5code = "334270F58E3E9DEC";
+		p_agent_info->descode = "111362EE140F157D";
+		timestamp = "1579599778583";
+		paraValue = "0RJ5GGzw2hLO8AsVvwORE2v16oE%2fXSjaK78A98ct5ajN7reFMf9YnI6vEnpttYHK%2fp04Hq%2fshp28jc4EIN0aAFeo4pni5jxFA9vg%2bLOx%2fek%3d";
+		key = "C6656A2145BAEF7ED6D38B9AF2E35442";
+#elif 0
+		agentId = 111169;
+		p_agent_info->md5code = "8B56598D6FB32329";
+		p_agent_info->descode = "D470FD336AAB17E4";
+		timestamp = "1580776071271";
+		paraValue = "h2W2jwWIVFQTZxqealorCpSfOwlgezD8nHScU93UQ8g%2FDH1UnoktBusYRXsokDs8NAPFEG8WdpSe%0AY5rtksD0jw%3D%3D";
+		key = "a7634b1e9f762cd4b0d256744ace65f0";
+#elif 0
+		agentId = 111190;
+		timestamp = "1583446283986";
+		p_agent_info->md5code = "728F0884A000FD72";
+		p_agent_info->descode = "AAFFF4393E17DB6B";
+		paraValue = "KDtKjjnaaxKWNuK%252BBRwv9f2gBxLkSvY%252FqT4HBaZY2IrxqGMK3DYlWOW4dHgiMZV8Uu66h%252BHjH8MfAfpQIE5eIHoRZMplj7dljS7Tfyf3%252BlM%253D";
+		key = "4F6F53FDC4D27EC33B3637A656DD7C9F";
+#elif 0
+		agentId = 111149;
+		timestamp = "1583448714906";
+		p_agent_info->md5code = "7196FD6921347DB1";
+		p_agent_info->descode = "A5F8C07B7843C73E";
+		paraValue = "nu%252FtdBhN6daQdad3aOVOgzUr6bHVMYNEpWE4yLdHkKRn%252F%252Fn1V3jIFR%252BI7wawXWNyjR3%252FW0M9qzcdzM8rNx8xwe%252BEW9%252BM92ZN4hlpUAhFH74%253D";
+		key = "9EEC240FAFAD3E5B6AB6B2DDBCDFE1FF";
+#elif 0
+		agentId = 10033;
+		timestamp = "1583543899005";
+		p_agent_info->md5code = "5998F124C180A817";
+		p_agent_info->descode = "38807549DEA3178D";
+		paraValue = "9303qk%2FizHRAszhN33eJxG2aOLA2Wq61s9f96uxDe%2Btczf2qSG8O%2FePyIYhVAaeek9m43u7awgra%0D%0Au8a8b%2FDchcZSosz9SVfPjXdc7h4Vma2dA8FHYZ5dJTcxWY7oDLlSOHKVXYHFMIWeafVwCN%2FU5fzv%0D%0AHWyb1Oa%2FWJ%2Bnfx7QXy8%3D";
+		key = "2a6b55cf8df0cd8824c1c7f4308fd2e4";
+#elif 0
+		agentId = 111190;
+		timestamp = "1583543899005";
+		p_agent_info->md5code = "728F0884A000FD72";
+		p_agent_info->descode = "AAFFF4393E17DB6B";
+		paraValue = "%252FPxIlQ9UaP6WljAYhfYZpBO6Hz2KTrxGN%252Bmdffv9sZpaii2avwhJn3APpIOozbD7T3%252BGE1rh5q4OdfrRokriWNEhlweRKzC6%252FtABz58Kdzo%253D";
+		key = "9F1E44E8B61335CCFE2E17EE3DB7C05A";
+#elif 1
+		//p_agent_info->descode = "mjo3obaHdKXxs5Fqw4Gj6mO7rBc52Vdw";
+		paraValue = "7q9Mu4JezLGpXaJcaxBUEmnQgrH%2BO0Wi%2F85z30vF%2FIdphHU13EMp2f%2FE5%2BfHtIXYFLbyNqnwDx8SyGP1cSYssZN6gniqouFeB3kBcwSXYZbFYhNBU6162n6BaFYFVbH6KMc43RRvjBtmbkMgCr5MlRz0Co%2BQEsX9Pt3zFJiXnm12oEdLeFBSSVIcDsqd3ize9do1pbxAm9Bb45KRvPhYvA%3D%3D";
+#elif 0
+		agentId = 111208;
+		timestamp = "1585526277991";
+		p_agent_info->md5code = "1C2EC8CB023BE339";
+		p_agent_info->descode = "03CAF4333EEAA80E";
+		paraValue = "zLcIc13jvzFHqywSHCRWX7JpaXddpWpMzaHBu8necMyCU3L9NXaZpcDXqmI4NgXvuOc6FGa80GUj%250AXOI8uoQuyjm1MLYIbrFVz09z68uSREs%253D";
+		key = "59063f588d6787eff28d3";
+#elif 0
+		agentId = 111208;
+		timestamp = "1585612589828";
+		p_agent_info->md5code = "1C2EC8CB023BE339";
+		p_agent_info->descode = "03CAF4333EEAA80E";
+		paraValue = "KfNY6Jl8k%252BBnBJLE2KQlSefbpNujwXrVcTWvRm2rfOrxie4Sd65DgAsIPIQm0uPpGS2dAQRk1HEE%250AulhnCZ0OteZiMh060xxH%252FzTzPC8DUr0%253D";
+		key = "be64cc7589bebf944fcd322f9923eca4";
+#elif 0
+		agentId = 111209;
+		timestamp = "1585639941293";
+		p_agent_info->md5code = "9074653AA2D0B02F";
+		p_agent_info->descode = "A78AC14440288D74";
+		paraValue = "YF%252BIk5Dk2nEyNUE1TUErZY1d9RaaVmU46cwE41HRJyiqwgqu%252BOBwJT9TfPTNBtxIFjBkOgoYGljg%250AtPMbgp%252BLZz995NkM3iHrdMYp5dwv6kE%253D";
+		key = "06aad6a911a7e6ce2d3b2ad18c068ae6";
+#elif 0
+		agentId = 111208;
+		timestamp = "1585681742640";
+		p_agent_info->md5code = "1C2EC8CB023BE339";
+		p_agent_info->descode = "03CAF4333EEAA80E";
+		paraValue = "LLgiWFvdQicKfSEsDA8lTkD2FUOOcQR0LnVwDNiGjdlqgK9i9b058FlOL1DJuEp9%252BPEi37YUyTIX%250AVT7bA2H6gTbhwb4mRLzzmIWd6l3KdBM%253D";
+		key = "a890129e6b9e94f29";
+#elif 0
+		agentId = 111208;
+		timestamp = "1585743294759";
+		p_agent_info->md5code = "1C2EC8CB023BE339";
+		p_agent_info->descode = "03CAF4333EEAA80E";
+		paraValue = "5dTmQiGn0iJHUIAEMDfjxtbTpuWWIZd0HmdlFKKF4HpqgK9i9b058FlOL1DJuEp9J%252FnZJqtPOv%252F7%250A6ikd4T%252FcwEJkkVFV6TQbCk3yHamOx3s%253D";
+		key = "934fa90d6";
+#elif 0
+		agentId = 111208;
+		timestamp = "1585766704760";
+		p_agent_info->md5code = "1C2EC8CB023BE339";
+		p_agent_info->descode = "03CAF4333EEAA80E";
+		paraValue = "DmqMRX48r66cW8Oiw0xMhgLcBuKP94YHtoQNGhAvupjxie4Sd65DgAsIPIQm0uPp%252BR6ZDGMf1B3T%250AV4owq2ro6B9Ru1XHueMJMNVLhLTaY0M%253D";
+		key = "bd3778912439c03a35de1a3ce3905ef0";
+#endif
+		std::string descode;
+		std::string md5code;
+		std::string decrypt;
+		{
+			//根据代理商信息中存储的md5密码，结合传输参数中的agentid和timestamp，生成判定标识key
+			std::string src = std::to_string(agentId) + timestamp + md5code;
+			char md5[32 + 1] = { 0 };
+			utils::MD5(src.c_str(), src.length(), md5, 1);
+			if (strncasecmp(md5, key.c_str(), std::min<size_t>(32, key.length())) != 0) {
+				//errcode = eApiErrorCode::GameHandleProxyMD5CodeError;
+				errmsg = "md5 check error";
+				break;
+			}
+			paraValue = utils::HTML::Decode(paraValue);
+			_LOG_DEBUG("utils::HTML::Decode:%s", paraValue.c_str());
+			for (int c = 1; c < 3; ++c) {
+				paraValue = utils::URL::MultipleDecode(paraValue);
+#if 1
+				//"\r\n"
+				boost::replace_all<std::string>(paraValue, "\r\n", "");
+				//"\r"
+				boost::replace_all<std::string>(paraValue, "\r", "");
+				//"\r\n"
+				boost::replace_all<std::string>(paraValue, "\n", "");
+#else
+				paraValue = boost::regex_replace(paraValue, boost::regex("\r\n|\r|\n"), "");
+#endif
+				_LOG_DEBUG("utils::URL::MultipleDecode:%s", paraValue.c_str());
+				std::string const& strURL = paraValue;
+				decrypt = Crypto::AES_ECBDecrypt(strURL, descode);
+				_LOG_DEBUG("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, md5code.c_str(), descode.c_str(), decrypt.c_str());
+				if (!decrypt.empty()) {
+					//成功
+					break;
+				}
+			}
+			if (decrypt.empty()) {
+				// 参数转码或代理解密校验码错误
+				//errcode = eApiErrorCode::GameHandleProxyDESCodeError;
+				errmsg = "DESDecrypt failed, AES_set_decrypt_key error";
+				break;
+			}
+		}
+		{
+			HttpParams decryptParams;
+			parseQuery(decrypt, decryptParams);
+			//agentid
+			//HttpParams::const_iterator agentIdKey = decryptParams.find("agentid");
+			//if (agentIdKey == decryptParams.end() || agentIdKey->second.empty()) {
+			//	break;
+			//}
+#ifdef _NO_LOGIC_PROCESS_
+			//userid
+			HttpParams::const_iterator userIdKey = decryptParams.find("userid");
+			if (userIdKey == decryptParams.end() || userIdKey->second.empty() ||
+				(userId = atoll(userIdKey->second.c_str())) <= 0) {
+				//errcode = eApiErrorCode::GameHandleParamsError;
+				errmsg += "userid ";
+			}
+#endif
+			//account
+			HttpParams::const_iterator accountKey = decryptParams.find("account");
+			if (accountKey == decryptParams.end() || accountKey->second.empty()) {
+				//errcode = eApiErrorCode::GameHandleParamsError;
+				errmsg += "account ";
+			}
+			else {
+				account = accountKey->second;
+			}
+			//orderid
+			HttpParams::const_iterator orderIdKey = decryptParams.find("orderid");
+			if (orderIdKey == decryptParams.end() || orderIdKey->second.empty()) {
+				//errcode = eApiErrorCode::GameHandleParamsError;
+				errmsg += "orderid ";
+			}
+			else {
+				orderId = orderIdKey->second;
+			}
+			//score
+			HttpParams::const_iterator scoreKey = decryptParams.find("score");
+#if 0
+			if (scoreKey == decryptParams.end() || scoreKey->second.empty() || !utils::isDigitalStr(scoreKey->second) ||
+				(score = atoll(scoreKey->second.c_str())) <= 0) {
+#else
+			if (scoreKey == decryptParams.end() || scoreKey->second.empty() || !utils::isDigitalStr(scoreKey->second) ||
+				(score = utils::floors(scoreKey->second.c_str())) <= 0 || NotScore(score) ||
+				 utils::rate100(scoreKey->second) <= 0) {
+#endif
+				//errcode = eApiErrorCode::GameHandleParamsError;
+				errmsg += "score ";
+			}
+			if (errcode != 0) {
+				errmsg += "invalid";
+				break;
+			}
+		}
+#ifndef _NO_LOGIC_PROCESS_
+		errcode = execute(opType, account, score, orderId, errmsg, latest, testTPS);
+#endif
+	} while (0);
+#ifdef _TCP_NOTIFY_CLIENT_
+#ifdef _NO_LOGIC_PROCESS_
+#if 0
+	int mainId = ::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY;
+	int subId = ::Game::Common::MESSAGE_CLIENT_TO_PROXY_SUBID::PROXY_NOTIFY_USER_ORDER_SCORE_MESSAGE;
+	::Game::Common::ProxyNotifyOrderScoreMessage rspdata;
+	::Game::Common::Header* header = rspdata.mutable_header();
+	header->set_sign(HEADER_SIGN);
+	rspdata.set_userid(userId);//userId
+	rspdata.set_score(score);
+	std::string content = rspdata.SerializeAsString();
+	sendUserData(userId, mainId, subId, content.data(), content.length());
+#endif
+#endif
+#endif
+	//调试模式下，打印从接收网络请求(receive)到处理完逻辑业务所经历时间dt(s)
+	if (true) {
+		char ch[50] = { 0 };
+		snprintf(ch, sizeof(ch), " dt(%.6fs)", muduo::timeDifference(muduo::Timestamp::now(), receiveTime));
+		errmsg += ch;
+	}
+	std::string json = createResponse(opType, orderId, agentId, account, score, errcode, errmsg, true);
+	_LOG_DEBUG("\n%s", json.c_str());
+	return json;
+}
+
+int LoginServ::execute(int32_t opType, std::string const& account, double score, std::string const& orderId, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS) {
+	int errcode = ApiErrorCode::NoError;
+	
+	return errcode;
+}
+
 void LoginServ::refreshWhiteList() {
 	if (whiteListControl_ == IpVisitCtrlE::kOpenAccept) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
@@ -502,30 +951,6 @@ bool LoginServ::refreshWhiteListInLoop() {
 	}
 	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
 	return false;
-}
-
-static void replace(std::string& json, const std::string& placeholder, const std::string& value) {
-	boost::replace_all<std::string>(json, "\"" + placeholder + "\"", value);
-}
-
-static std::string createResponse(
-	int opType,//status=1
-	std::string const& servname,//type=HallSever
-	std::string const& name,//name=192.168.2.93:10000
-	int errcode, std::string const& errmsg) {
-	boost::property_tree::ptree root, data;
-	root.put("op", ":op");
-	root.put("type", servname);
-	root.put("name", name);
-	root.put("code", ":code");
-	root.put("errmsg", errmsg);
-	std::stringstream s;
-	boost::property_tree::json_parser::write_json(s, root, false);
-	std::string json = s.str();
-	replace(json, ":op", std::to_string(opType));
-	replace(json, ":code", std::to_string(errcode));
-	boost::replace_all<std::string>(json, "\\", "");
-	return json;
 }
 
 //请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
@@ -610,7 +1035,7 @@ bool LoginServ::repairServer(servTyE servTy, std::string const& servname, std::s
 // 			}
 			return true;
 		}
-		rspdata = createResponse(status, servname, name, 1, "参数无效，无任何操作");
+		rspdata = createResponse2(status, servname, name, 1, "参数无效，无任何操作");
 	} while (0);
 	return false;
 }
@@ -622,15 +1047,13 @@ bool LoginServ::repairServer(std::string const& queryStr, std::string& rspdata) 
 	int status;
 	do {
 		HttpParams params;
-		if (!parseQuery(queryStr, params, errmsg)) {
-			break;
-		}
+		parseQuery(queryStr, params);
 		//type
 		//type=HallServer name=192.168.2.158:20001
 		//type=GameServer name=4001:192.168.0.1:5847
 		HttpParams::const_iterator typeKey = params.find("type");
 		if (typeKey == params.end() || typeKey->second.empty()) {
-			rspdata = createResponse(status, typeKey->second, name, 1, "参数无效，无任何操作");
+			rspdata = createResponse2(status, typeKey->second, name, 1, "参数无效，无任何操作");
 			break;
 		}
 		else {
@@ -641,14 +1064,14 @@ bool LoginServ::repairServer(std::string const& queryStr, std::string& rspdata) 
 				servTy = servTyE::kGameTy;
 			}
 			else {
-				rspdata = createResponse(status, typeKey->second, name, 1, "参数无效，无任何操作");
+				rspdata = createResponse2(status, typeKey->second, name, 1, "参数无效，无任何操作");
 				break;
 			}
 		}
 		//name
 		HttpParams::const_iterator nameKey = params.find("name");
 		if (nameKey == params.end() || nameKey->second.empty()) {
-			rspdata = createResponse(status, typeKey->second, name, 1, "参数无效，无任何操作");
+			rspdata = createResponse2(status, typeKey->second, name, 1, "参数无效，无任何操作");
 			break;
 		}
 		else {
@@ -658,7 +1081,7 @@ bool LoginServ::repairServer(std::string const& queryStr, std::string& rspdata) 
 		HttpParams::const_iterator statusKey = params.find("status");
 		if (statusKey == params.end() || statusKey->second.empty() ||
 			(status = atol(statusKey->second.c_str())) < 0) {
-			rspdata = createResponse(status, typeKey->second, name, 1, "参数无效，无任何操作");
+			rspdata = createResponse2(status, typeKey->second, name, 1, "参数无效，无任何操作");
 			break;
 		}
 		//repairServer
@@ -686,19 +1109,19 @@ void LoginServ::repairServerNotify(std::string const& msg, std::string& rspdata)
 				servTy = servTyE::kGameTy;
 			}
 			else {
-				rspdata = createResponse(status, servname, name, 1, "参数无效，无任何操作");
+				rspdata = createResponse2(status, servname, name, 1, "参数无效，无任何操作");
 				break;
 			}
 			//name
 			name = root.get<std::string>("name");
 			if (name.empty()) {
-				rspdata = createResponse(status, servname, name, 1, "参数无效，无任何操作");
+				rspdata = createResponse2(status, servname, name, 1, "参数无效，无任何操作");
 				break;
 			}
 			//status
 			status = root.get<int>("status");
 			if (status < 0) {
-				rspdata = createResponse(status, servname, name, 1, "参数无效，无任何操作");
+				rspdata = createResponse2(status, servname, name, 1, "参数无效，无任何操作");
 				break;
 			}
 			//repairServer
