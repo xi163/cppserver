@@ -56,8 +56,9 @@ typedef std::weak_ptr<Entry> WeakEntryPtr;
 typedef std::unordered_set<EntryPtr> Bucket;
 
 struct Buckets /*: public muduo::noncopyable*/ {
-	explicit Buckets(muduo::net::EventLoop* loop, size_t size)
-		:loop_(CHECK_NOTNULL(loop)) {
+	explicit Buckets(muduo::net::EventLoop* loop, size_t size, int interval)
+		: loop_(CHECK_NOTNULL(loop))
+		, interval_(interval) {
 		buckets_.resize(size);
 #ifdef _DEBUG_BUCKETS_
 		_LOG_WARN("timeout = %ds", size);
@@ -75,7 +76,7 @@ struct Buckets /*: public muduo::noncopyable*/ {
 #ifdef _DEBUG_BUCKETS_
 		_LOG_WARN("timeout = %ds", buckets_.size());
 #endif
-		loop_->runAfter(1.0f, std::bind(&Buckets::pop, this));
+		loop_->runAfter(interval_, std::bind(&Buckets::pop, this));
 	}
 	void push(EntryPtr const& entry) {
 		loop_->assertInLoopThread();
@@ -111,6 +112,7 @@ struct Buckets /*: public muduo::noncopyable*/ {
 		}
 	}
 private:
+	int interval_;
 	muduo::net::EventLoop* loop_;
 	boost::circular_buffer<Bucket> buckets_;
 };

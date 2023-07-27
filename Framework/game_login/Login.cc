@@ -233,13 +233,10 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =
 		muduo::net::ReactorSingleton::threadPool();
 	std::vector<muduo::net::EventLoop*> loops = threadPool->getAllLoops();
-	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =
-		muduo::net::ReactorSingleton::threadPool();
-	std::vector<muduo::net::EventLoop*> loops = threadPool->getAllLoops();
 	for (std::vector<muduo::net::EventLoop*>::const_iterator it = loops.begin();
 		it != loops.end(); ++it) {
-		(*it)->setContext(Buckets(*it, idleTimeout_));
-		(*it)->runAfter(1.0f, std::bind(&Buckets::pop, &boost::any_cast<Buckets&>((*it)->getContext())));
+		(*it)->setContext(Buckets(*it, idleTimeout_, interval_));
+		(*it)->runAfter(interval_, std::bind(&Buckets::pop, &boost::any_cast<Buckets&>((*it)->getContext())));
 	}
 }
 

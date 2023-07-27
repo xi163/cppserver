@@ -199,6 +199,7 @@ public:
 	//map[userid] = weakConn
 	INT::Entities sessions_;
 	
+	int interval_ = 1;
 	int idleTimeout_;
 	int maxConnections_;
 	
