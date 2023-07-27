@@ -53,15 +53,6 @@ void GateServ::onInnMessage(
 			assert(header->crc == crc);
 			std::string session((char const*)pre_header->session, sizeof(pre_header->session));
 			assert(!session.empty() && session.size() == packet::kSessionSZ);
-#if 0
-			//session -> hash(session) -> index
-			int index = hash_session_(session) % threadPool_.size();
-			threadPool_[index]->run(
-				std::bind(
-					&GateServ::asyncInnHandler,
-					this,
-					conn, buffer, receiveTime));
-#else
 			//session -> conn -> entryContext -> index
 			muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 			if (peer) {
@@ -70,9 +61,8 @@ void GateServ::onInnMessage(
 					std::bind(
 						&GateServ::asyncInnHandler,
 						this,
-						conn, buffer, receiveTime));
+						conn, peer, buffer, receiveTime));
 			}
-#endif
 		}
 		//数据包不足够解析，等待下次接收再解析
 		else {
@@ -83,10 +73,11 @@ void GateServ::onInnMessage(
 }
 
 void GateServ::asyncInnHandler(
+	muduo::net::WeakTcpConnectionPtr const& weakInnConn,
 	muduo::net::WeakTcpConnectionPtr const& weakConn,
 	BufferPtr& buf,
 	muduo::Timestamp receiveTime) {
-	muduo::net::TcpConnectionPtr conn(weakConn.lock());
+	muduo::net::TcpConnectionPtr conn(weakInnConn.lock());
 	if (!conn) {
 		_LOG_ERROR("error");
 		return;
@@ -96,7 +87,7 @@ void GateServ::asyncInnHandler(
 	std::string session((char const*)pre_header->session, sizeof(pre_header->session));
 	assert(!session.empty() && session.size() == packet::kSessionSZ);
 	//session -> conn -> entryContext
-	muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
+	muduo::net::TcpConnectionPtr peer(weakConn.lock());
 	if (peer) {
 		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;

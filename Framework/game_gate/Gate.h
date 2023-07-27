@@ -177,6 +177,7 @@ public:
 		const muduo::net::TcpConnectionPtr& conn,
 		muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
 	void asyncInnHandler(
+		muduo::net::WeakTcpConnectionPtr const& weakInnConn,
 		muduo::net::WeakTcpConnectionPtr const& weakConn,
 		BufferPtr& buf, muduo::Timestamp receiveTime);
 	void onMarqueeNotify(std::string const& msg);

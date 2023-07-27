@@ -43,7 +43,6 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 				std::placeholders::_1, std::placeholders::_2,
 				std::placeholders::_3, std::placeholders::_4),
 			conn);
-		
 		EntryPtr entry(new Entry(Entry::TypeE::TcpTy, conn, "客户端", "网关服"));
 		RunInLoop(conn->getLoop(),
 			std::bind(&Buckets::push, &boost::any_cast<Buckets&>(conn->getLoop()->getContext()), entry));
