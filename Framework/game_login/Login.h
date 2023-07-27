@@ -111,10 +111,10 @@ private:
 		muduo::net::Buffer* buf, int msgType,
 		muduo::Timestamp receiveTime);
 	void asyncClientHandler(
-		WeakEntryPtr const& weakEntry,
+		const muduo::net::WeakTcpConnectionPtr& weakConn,
 		BufferPtr const& buf,
 		muduo::Timestamp receiveTime);
-	void asyncOfflineHandler(ContextPtr /*const*/& entryContext);
+	void asyncOfflineHandler(Context& entryContext);
 	void refreshBlackList();
 	bool refreshBlackListSync();
 	bool refreshBlackListInLoop();
@@ -122,7 +122,7 @@ private:
 	bool onHttpCondition(const muduo::net::InetAddress& peerAddr);
 	void onHttpConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onHttpMessage(const muduo::net::TcpConnectionPtr& conn, muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
-	void asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp receiveTime);
+	void asyncHttpHandler(const muduo::net::WeakTcpConnectionPtr& weakConn, muduo::Timestamp receiveTime);
 	void onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn);
 	void processHttpRequest(
 		const muduo::net::HttpRequest& req, muduo::net::HttpResponse& rsp,
@@ -193,7 +193,8 @@ public:
 	STD::Random randomGate_;
 	rpc::Connector gateRpcClients_;
 	rpc::Container rpcClients_[rpc::kMaxRpcTy];
-
+	
+	muduo::AtomicInt32 nextPool_;
 	std::hash<std::string> hash_session_;
 	std::vector<ConnBucketPtr> bucketsPool_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;

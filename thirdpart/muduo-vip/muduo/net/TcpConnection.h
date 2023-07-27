@@ -92,6 +92,9 @@ class TcpConnection : noncopyable,
   void setContext(const boost::any& context)
   { context_ = context; }
 
+  boost::any& getContext()
+  { return context_; }
+
   const boost::any& getContext() const
   { return context_; }
 

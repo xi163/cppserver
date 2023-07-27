@@ -60,30 +60,12 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 			numTotalBadReq_.incrementAndGet();
 			return;
 		}
-		EventLoopContextPtr context = boost::any_cast<EventLoopContextPtr>(conn->getLoop()->getContext());
-		assert(context);
-
-		EntryPtr entry(new Entry(Entry::TypeE::HttpTy, muduo::net::WeakTcpConnectionPtr(conn), "WEB前端", "网关服"));
-
-		ContextPtr entryContext(new Context(WeakEntryPtr(entry), muduo::net::HttpContext()));
-		conn->setContext(entryContext);
-		{
-			//给新conn绑定一个worker线程，与之相关所有逻辑业务都在该worker线程中处理
-			int index = context->allocWorkerIndex();
-			assert(index >= 0 && index < threadPool_.size());
-
-			//对于HTTP请求来说，每一个conn都应该是独立的，指定一个独立线程处理即可，避免锁开销与多线程竞争抢占共享资源带来的性能损耗
-			entryContext->setWorkerIndex(index);
-		}
-		{
-			int index = context->getBucketIndex();
-			assert(index >= 0 && index < bucketsPool_.size());
-			RunInLoop(conn->getLoop(),
-				std::bind(&ConnBucket::pushBucket, bucketsPool_[index].get(), entry));
-		}
-		{
-			conn->setTcpNoDelay(true);
-		}
+		EntryPtr entry(new Entry(Entry::TypeE::HttpTy, conn, "WEB前端", "网关服"));
+		RunInLoop(conn->getLoop(),
+			std::bind(&Buckets::push, &boost::any_cast<Buckets&>(conn->getLoop()->getContext()), entry));
+		conn->setContext(Context(entry, muduo::net::HttpContext()));
+		conn->setTcpNoDelay(true);
+		boost::any_cast<Context&>(conn->getContext()).setWorker(nextPool_, threadPool_);
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
@@ -107,18 +89,16 @@ void GateServ::onHttpMessage(
 	//先确定是HTTP数据报文，再解析
 	//assert(buf->readableBytes() > 4 && buf->findCRLFCRLF());
 
-	ContextPtr entryContext(boost::any_cast<ContextPtr>(conn->getContext()));
-	assert(entryContext);
-	muduo::net::HttpContext* httpContext = boost::any_cast<muduo::net::HttpContext>(entryContext->getMutableContext());
-	assert(httpContext);
-	if (!httpContext->parseRequest(buf, receiveTime)) {
+	Context& entryContext = boost::any_cast<Context&>(conn->getContext());
+	muduo::net::HttpContext& httpContext = boost::any_cast<muduo::net::HttpContext&>(entryContext.getContext());
+	if (!httpContext.parseRequest(buf, receiveTime)) {
 	}
-	else if (httpContext->gotAll()) {
+	else if (httpContext.gotAll()) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
 		if (whiteListControl_ == IpVisitCtrlE::kOpen) {
 			std::string ipaddr;
 			{
-				std::string ipaddrs = httpContext->request().getHeader("X-Forwarded-For");
+				std::string ipaddrs = httpContext.request().getHeader("X-Forwarded-For");
 				if (ipaddrs.empty()) {
 					ipaddr = conn->peerAddress().toIp();
 				}
@@ -187,24 +167,14 @@ void GateServ::onHttpMessage(
 				return;
 			}
 		}
-		EntryPtr entry(entryContext->getWeakEntryPtr().lock());
+		EntryPtr entry(entryContext.getWeakEntryPtr().lock());
 		if (entry) {
-			{
-				EventLoopContextPtr context = boost::any_cast<EventLoopContextPtr>(conn->getLoop()->getContext());
-				assert(context);
-				int index = context->getBucketIndex();
-				assert(index >= 0 && index < bucketsPool_.size());
-
-				RunInLoop(conn->getLoop(), std::bind(&ConnBucket::updateBucket, bucketsPool_[index].get(), entry));
-			}
-			{
-				int index = entryContext->getWorkerIndex();
-				assert(index >= 0 && index < threadPool_.size());
-				threadPool_[index]->run(
-					std::bind(
-						&GateServ::asyncHttpHandler,
-						this, entryContext->getWeakEntryPtr(), receiveTime));
-			}
+			RunInLoop(conn->getLoop(),
+				std::bind(&Buckets::update, &boost::any_cast<Buckets&>(conn->getLoop()->getContext()), entry));
+			entryContext.getWorker()->run(
+				std::bind(
+					&GateServ::asyncHttpHandler,
+					this, conn, receiveTime));
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
@@ -219,7 +189,7 @@ void GateServ::onHttpMessage(
 	muduo::net::Buffer buffer;
 	rsp.appendToBuffer(&buffer);
 	conn->send(&buffer);
-	httpContext->reset();
+	httpContext.reset();
 #if 0
 	//不再发送数据
 	conn->shutdown();
@@ -231,7 +201,7 @@ void GateServ::onHttpMessage(
 	numTotalBadReq_.incrementAndGet();
 }
 
-void GateServ::asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp receiveTime) {
+void GateServ::asyncHttpHandler(const muduo::net::WeakTcpConnectionPtr& weakConn, muduo::Timestamp receiveTime) {
 	//刚开始还在想，会不会出现超时conn被异步关闭释放掉，而业务逻辑又被处理了，却发送不了的尴尬情况，
 	//假如因为超时entry弹出bucket，引用计数减1，处理业务之前这里使用shared_ptr，持有entry引用计数(加1)，
 	//如果持有失败，说明弹出bucket计数减为0，entry被析构释放，conn被关闭掉了，也就不会执行业务逻辑处理，
@@ -239,75 +209,65 @@ void GateServ::asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp 
 	//直到业务逻辑处理完并发送，entry引用计数减1变为0，析构被调用关闭conn(如果conn还存在的话，业务处理完也会主动关闭conn)
 	//
 	//锁定同步业务操作，先锁超时对象entry，再锁conn，避免超时和业务同时处理的情况
-	EntryPtr entry(weakEntry.lock());
-	if (entry) {
-		entry->setLocked();
-		muduo::net::TcpConnectionPtr conn(entry->getWeakConnPtr().lock());
-		if (conn) {
+	muduo::net::TcpConnectionPtr conn(weakConn.lock());
+	if (conn) {
 #if 0
-			//Accept时候判断，socket底层控制，否则开启异步检查
-			if (whiteListControl_ == IpVisitCtrlE::kOpen) {
-				bool is_ip_allowed = false;
-				{
-					READ_LOCK(whiteList_mutex_);
-					std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(conn->peerAddress().ipv4NetEndian());
-					is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
-				}
-				if (!is_ip_allowed) {
-#if 0
-					//不再发送数据
-					conn->shutdown();
-#elif 0
-					conn->forceClose();
-#else
-					muduo::net::HttpResponse rsp(false);
-					setFailedResponse(rsp,
-						muduo::net::HttpResponse::k404NotFound,
-						"HTTP/1.1 500 IP访问限制\r\n\r\n");
-					muduo::net::Buffer buf;
-					rsp.appendToBuffer(&buf);
-					conn->send(&buf);
-					conn->forceCloseWithDelay(0.2f);
-#endif
-					return;
-				}
-			}
-#endif
-			ContextPtr entryContext(boost::any_cast<ContextPtr>(conn->getContext()));
-			assert(entryContext);
-			muduo::net::HttpContext* httpContext = boost::any_cast<muduo::net::HttpContext>(entryContext->getMutableContext());
-			assert(httpContext);
-			assert(httpContext->gotAll());
-			const string& connection = httpContext->request().getHeader("Connection");
-			bool close = (connection == "close") ||
-				(httpContext->request().getVersion() == muduo::net::HttpRequest::kHttp10 && connection != "Keep-Alive");
-			muduo::net::HttpResponse rsp(close);
-			processHttpRequest(httpContext->request(), rsp, conn->peerAddress(), receiveTime);
+		//Accept时候判断，socket底层控制，否则开启异步检查
+		if (whiteListControl_ == IpVisitCtrlE::kOpen) {
+			bool is_ip_allowed = false;
 			{
-				muduo::net::Buffer buf;
-				rsp.appendToBuffer(&buf);
-				conn->send(&buf);
+				READ_LOCK(whiteList_mutex_);
+				std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(conn->peerAddress().ipv4NetEndian());
+				is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
 			}
-			if (rsp.closeConnection()) {
+			if (!is_ip_allowed) {
 #if 0
 				//不再发送数据
 				conn->shutdown();
 #elif 0
 				conn->forceClose();
-#elif 1
+#else
+				muduo::net::HttpResponse rsp(false);
+				setFailedResponse(rsp,
+					muduo::net::HttpResponse::k404NotFound,
+					"HTTP/1.1 500 IP访问限制\r\n\r\n");
+				muduo::net::Buffer buf;
+				rsp.appendToBuffer(&buf);
+				conn->send(&buf);
 				conn->forceCloseWithDelay(0.2f);
 #endif
+				return;
 			}
-			httpContext->reset();
 		}
-		else {
-			numTotalBadReq_.incrementAndGet();
-			_LOG_ERROR("TcpConnectionPtr.conn invalid");
+#endif
+		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
+		muduo::net::HttpContext& httpContext = boost::any_cast<muduo::net::HttpContext&>(entryContext.getContext());
+		assert(httpContext.gotAll());
+		const string& connection = httpContext.request().getHeader("Connection");
+		bool close = (connection == "close") ||
+			(httpContext.request().getVersion() == muduo::net::HttpRequest::kHttp10 && connection != "Keep-Alive");
+		muduo::net::HttpResponse rsp(close);
+		processHttpRequest(httpContext.request(), rsp, conn->peerAddress(), receiveTime);
+		{
+			muduo::net::Buffer buf;
+			rsp.appendToBuffer(&buf);
+			conn->send(&buf);
 		}
-	}
+		if (rsp.closeConnection()) {
+#if 0
+			//不再发送数据
+			conn->shutdown();
+#elif 0
+			conn->forceClose();
+#elif 1
+			conn->forceCloseWithDelay(0.2f);
+#endif
+		}
+		httpContext.reset();
+		}
 	else {
 		numTotalBadReq_.incrementAndGet();
-		_LOG_ERROR("entry invalid");
+		_LOG_ERROR("TcpConnectionPtr.conn invalid");
 	}
 }
 

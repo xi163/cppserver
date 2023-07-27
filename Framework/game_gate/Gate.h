@@ -108,10 +108,10 @@ private:
 		muduo::net::Buffer* buf, int msgType,
 		muduo::Timestamp receiveTime);
 	void asyncClientHandler(
-		WeakEntryPtr const& weakEntry,
+		const muduo::net::WeakTcpConnectionPtr& weakConn,
 		BufferPtr const& buf,
 		muduo::Timestamp receiveTime);
-	void asyncOfflineHandler(ContextPtr /*const*/& entryContext);
+	void asyncOfflineHandler(Context& entryContext);
 	static BufferPtr packClientShutdownMsg(int64_t userid, int status = 0);
 	static BufferPtr packNoticeMsg(
 		int32_t agentid, std::string const& title,
@@ -132,32 +132,34 @@ private:
 		const muduo::net::TcpConnectionPtr& conn,
 		muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
 	void asyncHallHandler(
+		muduo::net::WeakTcpConnectionPtr const& weakHallConn,
 		muduo::net::WeakTcpConnectionPtr const& weakConn,
 		BufferPtr const& buf,
 		muduo::Timestamp receiveTime);
 	void sendHallMessage(
-		Context /*const*/& entryContext,
+		Context& entryContext,
 		BufferPtr const& buf, int64_t userId);
 	void onUserLoginNotify(std::string const& msg);
-	void onUserOfflineHall(Context /*const*/& entryContext);
+	void onUserOfflineHall(Context& entryContext);
 private:
 	void onGameConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onGameMessage(
 		const muduo::net::TcpConnectionPtr& conn,
 		muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
 	void asyncGameHandler(
+		muduo::net::WeakTcpConnectionPtr const& weakGameConn,
 		muduo::net::WeakTcpConnectionPtr const& weakConn,
 		BufferPtr const& buf,
 		muduo::Timestamp receiveTime);
 	void sendGameMessage(
-		Context /*const*/& entryContext,
+		Context& entryContext,
 		BufferPtr const& buf, int64_t userId);
-	void onUserOfflineGame(Context /*const*/& entryContext, bool leave = 0);
+	void onUserOfflineGame(Context& entryContext, bool leave = 0);
 private:
 	bool onHttpCondition(const muduo::net::InetAddress& peerAddr);
 	void onHttpConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onHttpMessage(const muduo::net::TcpConnectionPtr& conn, muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
-	void asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp receiveTime);
+	void asyncHttpHandler(const muduo::net::WeakTcpConnectionPtr& weakConn, muduo::Timestamp receiveTime);
 	void onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn);
 	void processHttpRequest(
 		const muduo::net::HttpRequest& req, muduo::net::HttpResponse& rsp,
@@ -212,9 +214,9 @@ public:
 	Connector hallClients_;
 	Connector gameClients_;
 	Container clients_[kMaxServTy];
-
+	muduo::AtomicInt32 nextPool_;
 	std::hash<std::string> hash_session_;
-	std::vector<ConnBucketPtr> bucketsPool_;
+	std::vector<Buckets> bucketsPool_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 

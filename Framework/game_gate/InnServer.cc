@@ -53,28 +53,24 @@ void GateServ::onInnMessage(
 			assert(header->crc == crc);
 			std::string session((char const*)pre_header->session, sizeof(pre_header->session));
 			assert(!session.empty() && session.size() == packet::kSessionSZ);
-#if 1
+#if 0
 			//session -> hash(session) -> index
 			int index = hash_session_(session) % threadPool_.size();
 			threadPool_[index]->run(
 				std::bind(
 					&GateServ::asyncInnHandler,
 					this,
-					muduo::net::WeakTcpConnectionPtr(conn), buffer, receiveTime));
+					conn, buffer, receiveTime));
 #else
 			//session -> conn -> entryContext -> index
-			muduo::net::WeakTcpConnectionPtr weakConn = entities_.get(session);
-			muduo::net::TcpConnectionPtr peer(weakConn.lock());
+			muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 			if (peer) {
-				ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
-				assert(entryContext);
-				int index = entryContext->getWorkerIndex();
-				assert(index >= 0 && index < threadPool_.size());
-				threadPool_[index]->run(
+				Context& entryContext = boost::any_cast<Context&>(peer->getContext());
+				entryContext.getWorker()->run(
 					std::bind(
 						&GateServ::asyncInnHandler,
 						this,
-						weakConn, buffer, receiveTime));
+						conn, buffer, receiveTime));
 			}
 #endif
 		}
@@ -99,14 +95,13 @@ void GateServ::asyncInnHandler(
 	packet::header_t const* header = packet::get_header(buf);
 	std::string session((char const*)pre_header->session, sizeof(pre_header->session));
 	assert(!session.empty() && session.size() == packet::kSessionSZ);
-	//session -> conn
+	//session -> conn -> entryContext
 	muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 	if (peer) {
-		ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
-		assert(entryContext);
+		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
-		assert(userId == entryContext->getUserID());
-		assert(session != entryContext->getSession());
+		assert(userId == entryContext.getUserID());
+		assert(session != entryContext.getSession());
 		TraceMessageID(header->mainId, header->subId);
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
 	}

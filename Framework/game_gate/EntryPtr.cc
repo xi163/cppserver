@@ -66,9 +66,8 @@ Entry::~Entry() {
 	if (conn) {
 		//conn->getLoop()->assertInLoopThread();
 
-		ContextPtr entryContext(boost::any_cast<ContextPtr>(conn->getContext()));
-		assert(entryContext);
-		//assert(!entryContext->getSession().empty());
+		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
+		assert(!entryContext.getSession().empty());
 
 		//判断是否锁定了同步业务操作
 		switch (getLocked()) {
@@ -79,7 +78,7 @@ Entry::~Entry() {
 			_LOG_WARN("%s[%s] -> %s[%s] Entry::dtor[%s] finished processing",
 				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
 				localName_.c_str(), conn->localAddress().toIpPort().c_str(),
-				entryContext->getSession().c_str());
+				entryContext.getSession().c_str());
 			break;
 		}
 		default: {
@@ -89,7 +88,7 @@ Entry::~Entry() {
 			_LOG_WARN("%s[%s] -> %s[%s] Entry::dtor[%s] timeout closing",
 				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
 				localName_.c_str(), conn->localAddress().toIpPort().c_str(),
-				entryContext->getSession().c_str());
+				entryContext.getSession().c_str());
 			onIdleTimeout(conn, ty_);
 			break;
 		}

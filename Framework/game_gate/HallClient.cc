@@ -53,31 +53,16 @@ void GateServ::onHallMessage(const muduo::net::TcpConnectionPtr& conn,
 			assert(header->crc == crc);
 			std::string session((char const*)pre_header->session, sizeof(pre_header->session));
 			assert(!session.empty() && session.size() == packet::kSessionSZ);
-#if 1
-			//session -> hash(session) -> index
-			int index = hash_session_(session) % threadPool_.size();
-			threadPool_[index]->run(
-				std::bind(
-					&GateServ::asyncHallHandler,
-					this,
-					muduo::net::WeakTcpConnectionPtr(conn), buffer, receiveTime));
-#else
 			//session -> conn -> entryContext -> index
-			muduo::net::WeakTcpConnectionPtr weakConn = entities_.get(session);
-			muduo::net::TcpConnectionPtr peer(weakConn.lock());
+			muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 			if (peer) {
-				ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
-				assert(entryContext);
-				int index = entryContext->getWorkerIndex();
-				assert(index >= 0 && index < threadPool_.size());
-				threadPool_[index]->run(
+				Context& entryContext = boost::any_cast<Context&>(peer->getContext());
+				entryContext.getWorker()->run(
 					std::bind(
 						&GateServ::asyncHallHandler,
 						this,
-						conn,
-						weakConn, buffer, receiveTime));
+						conn, peer, buffer, receiveTime));
 			}
-#endif
 		}
 		//数据包不足够解析，等待下次接收再解析
 		else {
@@ -88,10 +73,11 @@ void GateServ::onHallMessage(const muduo::net::TcpConnectionPtr& conn,
 }
 
 void GateServ::asyncHallHandler(
+	muduo::net::WeakTcpConnectionPtr const& weakHallConn,
 	muduo::net::WeakTcpConnectionPtr const& weakConn,
 	BufferPtr const& buf,
 	muduo::Timestamp receiveTime) {
-	muduo::net::TcpConnectionPtr conn(weakConn.lock());
+	muduo::net::TcpConnectionPtr conn(weakHallConn.lock());
 	if (!conn) {
 		_LOG_ERROR("error");
 		return;
@@ -101,12 +87,11 @@ void GateServ::asyncHallHandler(
 	std::string session((char const*)pre_header->session, sizeof(pre_header->session));
 	assert(!session.empty() && session.size() == packet::kSessionSZ);
 	//session -> conn
-	muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
+	muduo::net::TcpConnectionPtr peer(weakConn.lock());
 	if (peer) {
-		ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
-		assert(entryContext);
+		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
-		assert(session != entryContext->getSession());
+		assert(session != entryContext.getSession());
 		TraceMessageID(header->mainId, header->subId);
 		if (
 			//////////////////////////////////////////////////////////////////////////
@@ -115,23 +100,22 @@ void GateServ::asyncHallHandler(
 			header->mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL &&
 			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_RES &&
 			pre_header->ok == 1) {
-			assert(userId && 0 == entryContext->getUserID());
+			assert(userId && 0 == entryContext.getUserID());
 			//指定userId
-			entryContext->setUserID(userId);
+			entryContext.setUserID(userId);
 			//指定大厅节点
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, conn->name(), boost::is_any_of(":"));
 			std::string const& name = vec[0] + ":" + vec[1];
 			ClientConn clientConn(name, conn);
 			_LOG_WARN("%d 登陆成功，大厅节点 >>> %s", userId, name.c_str());
-			entryContext->setClientConn(servTyE::kHallTy, clientConn);
+			entryContext.setClientConn(servTyE::kHallTy, clientConn);
 			//顶号处理 userid -> conn -> entryContext -> session
-			muduo::net::TcpConnectionPtr old(sessions_.add(userId, muduo::net::WeakTcpConnectionPtr(peer)).lock());
+			muduo::net::TcpConnectionPtr old(sessions_.add(userId, peer).lock());
 			if (old) {
 				assert(old != peer);
-				ContextPtr entryContext_(boost::any_cast<ContextPtr>(old->getContext()));
-				assert(entryContext_);
-				std::string const& session_ = entryContext_->getSession();
+				Context& entryContext_ = boost::any_cast<Context&>(old->getContext());
+				std::string const& session_ = entryContext_.getSession();
 				assert(session_.size() == packet::kSessionSZ);
 				assert(session_ != session);
 				BufferPtr buffer = packClientShutdownMsg(userId, 0); assert(buffer);
@@ -153,9 +137,9 @@ void GateServ::asyncHallHandler(
 			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_RES ||
 			header->subId == ::Game::Common::CLIENT_TO_HALL_GET_PLAYING_GAME_INFO_MESSAGE_RES) &&
 			pre_header->ok == 1) {
-			assert(userId && &userId == entryContext->getUserID());
+			assert(userId && &userId == entryContext.getUserID());
 			//判断用户当前游戏节点
-			ClientConn const& clientConn = entryContext->getClientConn(servTyE::kGameTy);
+			ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
 			muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 			if (gameConn) {
 				//用户当前游戏节点正常，判断是否一致
@@ -171,7 +155,7 @@ void GateServ::asyncHallHandler(
 						muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 						if (gameConn) {
 							//更新用户游戏节点
-							entryContext->setClientConn(servTyE::kGameTy, clientConn);
+							entryContext.setClientConn(servTyE::kGameTy, clientConn);
 							_LOG_INFO("%d 游戏节点[%s] 更新成功", userId, serverIp.c_str());
 						}
 						else {
@@ -198,7 +182,7 @@ void GateServ::asyncHallHandler(
 					muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 					if (gameConn) {
 						//指定用户游戏节点
-						entryContext->setClientConn(servTyE::kGameTy, clientConn);
+						entryContext.setClientConn(servTyE::kGameTy, clientConn);
 						_LOG_INFO("%d 游戏节点[%s]，指定成功!", userId, serverIp.c_str());
 					}
 					else {
@@ -238,11 +222,10 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 			//顶号处理 userid -> conn -> entryContext -> session
 			muduo::net::TcpConnectionPtr peer_(sessions_.get(userid).lock());
 			if (peer_) {
-				ContextPtr entryContext_(boost::any_cast<ContextPtr>(peer_->getContext()));
-				assert(entryContext_);
-				assert(entryContext_->getUserID() == userid);
+				Context& entryContext_ = boost::any_cast<Context&>(peer_->getContext());
+				assert(entryContext_.getUserID() == userid);
 				//相同userid，不同session，非当前最新，则关闭之
-				if (entryContext_->getSession() != session) {
+				if (entryContext_.getSession() != session) {
 					BufferPtr buffer = packClientShutdownMsg(userid, 0); assert(buffer);
 					muduo::net::websocket::send(peer_, buffer->peek(), buffer->readableBytes());
 #if 0
@@ -255,24 +238,6 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 				}
 			}
 		}
-		else {
-#if 0
-			{
-				ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
-				assert(entryContext);
-				assert(entryContext->getUserID() == userid);
-				assert(entryContext->getSession() == session);
-			}
-			{
-				muduo::net::TcpConnectionPtr peer(sessions_.get(userid).lock());
-				assert(peer);
-				ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
-				assert(entryContext);
-				assert(entryContext->getUserID() == userid);
-				assert(entryContext->getSession() == session);
-			}
-#endif
-		}
 	}
 	catch (boost::property_tree::ptree_error& e) {
 		//_LOG_ERROR(e.what());
@@ -280,7 +245,7 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 }
 
 void GateServ::sendHallMessage(
-	Context /*const*/& entryContext,
+	Context& entryContext,
 	BufferPtr const& buf, int64_t userId) {
 	//_LOG_INFO("...");
 	ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
@@ -373,7 +338,7 @@ void GateServ::sendHallMessage(
 	}
 }
 
-void GateServ::onUserOfflineHall(Context /*const*/& entryContext) {
+void GateServ::onUserOfflineHall(Context& entryContext) {
 	MY_TRY()
 	int64_t userId = entryContext.getUserID();
 	uint32_t clientip = entryContext.getFromIp();

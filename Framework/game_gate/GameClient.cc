@@ -53,30 +53,16 @@ void GateServ::onGameMessage(const muduo::net::TcpConnectionPtr& conn,
 			assert(header->crc == crc);
 			std::string session((char const*)pre_header->session, sizeof(pre_header->session));
 			assert(!session.empty() && session.size() == packet::kSessionSZ);
-#if 1
-			//session -> hash(session) -> index
-			int index = hash_session_(session) % threadPool_.size();
-			threadPool_[index]->run(
-				std::bind(
-					&GateServ::asyncGameHandler,
-					this,
-					muduo::net::WeakTcpConnectionPtr(conn), buffer, receiveTime));
-#else
 			//session -> conn -> entryContext -> index
-			muduo::net::WeakTcpConnectionPtr weakConn = entities_.get(session);
-			muduo::net::TcpConnectionPtr peer(weakConn.lock());
+			muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 			if (peer) {
-				ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
-				assert(entryContext);
-				int index = entryContext->getWorkerIndex();
-				assert(index >= 0 && index < threadPool_.size());
-				threadPool_[index]->run(
+				Context& entryContext = boost::any_cast<Context&>(peer->getContext());
+				entryContext.getWorker()->run(
 					std::bind(
 						&GateServ::asyncGameHandler,
 						this,
-						weakConn, buffer, receiveTime));
+						conn, peer, buffer, receiveTime));
 			}
-#endif
 		}
 		//数据包不足够解析，等待下次接收再解析
 		else {
@@ -87,10 +73,11 @@ void GateServ::onGameMessage(const muduo::net::TcpConnectionPtr& conn,
 }
 
 void GateServ::asyncGameHandler(
+	muduo::net::WeakTcpConnectionPtr const& weakGameConn,
 	muduo::net::WeakTcpConnectionPtr const& weakConn,
 	BufferPtr const& buf,
 	muduo::Timestamp receiveTime) {
-	muduo::net::TcpConnectionPtr conn(weakConn.lock());
+	muduo::net::TcpConnectionPtr conn(weakGameConn.lock());
 	if (!conn) {
 		_LOG_ERROR("error");
 		return;
@@ -100,13 +87,12 @@ void GateServ::asyncGameHandler(
 	std::string session((char const*)pre_header->session, sizeof(pre_header->session));
 	assert(!session.empty() && session.size() == packet::kSessionSZ);
 	//session -> conn
-	muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
+	muduo::net::TcpConnectionPtr peer(weakConn.lock());
 	if (peer) {
-		ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
-		assert(entryContext);
+		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
-		assert(userId == entryContext->getUserID());
-		assert(session != entryContext->getSession());
+		assert(userId == entryContext.getUserID());
+		assert(session != entryContext.getSession());
 		TraceMessageID(header->mainId, header->subId);
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
 	}
@@ -116,7 +102,7 @@ void GateServ::asyncGameHandler(
 }
 
 void GateServ::sendGameMessage(
-	Context /*const*/& entryContext,
+	Context& entryContext,
 	BufferPtr const& buf, int64_t userId) {
 	//_LOG_INFO("...");
 	ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
@@ -146,7 +132,7 @@ void GateServ::sendGameMessage(
 }
 
 void GateServ::onUserOfflineGame(
-	Context /*const*/& entryContext, bool leave) {
+	Context& entryContext, bool leave) {
 	//MY_TRY()
 	int64_t userId = entryContext.getUserID();
 	uint32_t clientIp = entryContext.getFromIp();

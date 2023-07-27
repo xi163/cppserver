@@ -233,40 +233,13 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =
 		muduo::net::ReactorSingleton::threadPool();
 	std::vector<muduo::net::EventLoop*> loops = threadPool->getAllLoops();
-
-	for (size_t index = 0; index < loops.size(); ++index) {
-#if 0
-		ConnBucketPtr bucket(new ConnBucket(
-			loops[index], index, idleTimeout_));
-		bucketsPool_.emplace_back(std::move(bucket));
-#else
-		bucketsPool_.emplace_back(
-			ConnBucketPtr(new ConnBucket(
-				loops[index], index, idleTimeout_)));
-#endif
-		loops[index]->setContext(EventLoopContextPtr(new EventLoopContext(index)));
-	}
-	{
-		int next = 0;
-		for (size_t index = 0; index < threadPool_.size(); ++index) {
-			EventLoopContextPtr context = boost::any_cast<EventLoopContextPtr>(loops[next]->getContext());
-			assert(context);
-			context->addWorkerIndex(index);
-			if (++next >= loops.size()) {
-				next = 0;
-			}
-		}
-	}
-	for (size_t index = 0; index < loops.size(); ++index) {
-		{
-			assert(bucketsPool_[index]->index_ == index);
-			assert(bucketsPool_[index]->loop_ == loops[index]);
-		}
-		{
-			EventLoopContextPtr context = boost::any_cast<EventLoopContextPtr>(loops[index]->getContext());
-			assert(context->index_ == index);
-		}
-		loops[index]->runAfter(1.0f, std::bind(&ConnBucket::onTick, bucketsPool_[index].get()));
+	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =
+		muduo::net::ReactorSingleton::threadPool();
+	std::vector<muduo::net::EventLoop*> loops = threadPool->getAllLoops();
+	for (std::vector<muduo::net::EventLoop*>::const_iterator it = loops.begin();
+		it != loops.end(); ++it) {
+		(*it)->setContext(Buckets(*it, idleTimeout_));
+		(*it)->runAfter(1.0f, std::bind(&Buckets::pop, &boost::any_cast<Buckets&>((*it)->getContext())));
 	}
 }
 

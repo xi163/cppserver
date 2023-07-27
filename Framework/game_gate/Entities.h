@@ -178,10 +178,9 @@ namespace INT {
 			if (it != peers_.end()) {
 				muduo::net::TcpConnectionPtr peer(it->second.lock());
 				if (peer) {
-					ContextPtr entryContext(boost::any_cast<ContextPtr>(peer->getContext()));
-					assert(entryContext);
+					Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 					//check before remove
-					if (entryContext->getSession() == session) {
+					if (entryContext.getSession() == session) {
 						peers_.erase(it);
 					}
 				}

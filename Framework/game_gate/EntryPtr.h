@@ -21,9 +21,24 @@ public:
 		: ty_(ty), locked_(false), weakConn_(weakConn)
 		, peerName_(peerName), localName_(localName) {
 	}
+	explicit Entry(TypeE ty,
+		const muduo::net::WeakTcpConnectionPtr& weakConn, const boost::any& context,
+		std::string const& peerName, std::string const& localName)
+		: ty_(ty), locked_(false), weakConn_(weakConn), context_(context)
+		, peerName_(peerName), localName_(localName) {
+	}
 	~Entry();
 	inline muduo::net::WeakTcpConnectionPtr const& getWeakConnPtr() {
 		return weakConn_;
+	}
+	inline boost::any& getContext() {
+		return context_;
+	}
+	inline const boost::any& getContext() const {
+		return context_;
+	}
+	inline boost::any* getMutableContext() {
+		return &context_;
 	}
 	//锁定同步业务操作
 	inline void setLocked(bool locked = true) { locked_ = locked; }
@@ -32,29 +47,24 @@ public:
 	bool locked_;
 	std::string peerName_, localName_;
 	muduo::net::WeakTcpConnectionPtr weakConn_;
+	boost::any context_;
 };
 
 typedef std::shared_ptr<Entry> EntryPtr;
 typedef std::weak_ptr<Entry> WeakEntryPtr;
 //boost::unordered_set改用std::unordered_set
 typedef std::unordered_set<EntryPtr> Bucket;
-typedef boost::circular_buffer<Bucket> WeakConnList;
 
-
-struct ConnBucket : public muduo::noncopyable {
-	explicit ConnBucket(muduo::net::EventLoop* loop, int index, size_t size)
-		:loop_(CHECK_NOTNULL(loop)), index_(index) {
-		//指定时间轮盘大小(bucket桶大小)
-		//即环形数组大小(size) >=
-		//心跳超时清理时间(timeout) >
-		//心跳间隔时间(interval)
+struct Buckets /*: public muduo::noncopyable*/ {
+	explicit Buckets(muduo::net::EventLoop* loop, size_t size)
+		:loop_(CHECK_NOTNULL(loop)) {
 		buckets_.resize(size);
 #ifdef _DEBUG_BUCKETS_
-		_LOG_WARN("loop[%d] timeout = %ds", index, size);
+		_LOG_WARN("timeout = %ds", size);
 #endif
 	}
 	//定时器弹出操作，强行关闭空闲超时连接!
-	void onTick() {
+	void pop() {
 		loop_->assertInLoopThread();
 		//////////////////////////////////////////////////////////////////////////
 		//shared_ptr/weak_ptr 引用计数lock持有/递减是读操作，线程安全!
@@ -63,11 +73,11 @@ struct ConnBucket : public muduo::noncopyable {
 		//////////////////////////////////////////////////////////////////////////
 		buckets_.push_back(Bucket());
 #ifdef _DEBUG_BUCKETS_
-		_LOG_WARN("loop[%d] timeout = %ds", index, buckets_.size());
+		_LOG_WARN("timeout = %ds", buckets_.size());
 #endif
-		loop_->runAfter(1.0f, std::bind(&ConnBucket::onTick, this));
+		loop_->runAfter(1.0f, std::bind(&Buckets::pop, this));
 	}
-	void pushBucket(EntryPtr const& entry) {
+	void push(EntryPtr const& entry) {
 		loop_->assertInLoopThread();
 		if (likely(entry)) {
 			muduo::net::TcpConnectionPtr conn(entry->weakConn_.lock());
@@ -76,7 +86,7 @@ struct ConnBucket : public muduo::noncopyable {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				_LOG_WARN("loop[%d] timeout = %ds 客户端[%s] -> 网关服[%s]", index, buckets_.size(), conn->peerAddress().toIpPort().c_str(), conn->localAddress().toIpPort().c_str());
+				_LOG_WARN("timeout = %ds 客户端[%s] -> 网关服[%s]", buckets_.size(), conn->peerAddress().toIpPort().c_str(), conn->localAddress().toIpPort().c_str());
 #endif
 			}
 		}
@@ -84,7 +94,7 @@ struct ConnBucket : public muduo::noncopyable {
 			//assert(false);
 		}
 	}
-	void updateBucket(EntryPtr const& entry) {
+	void update(EntryPtr const& entry) {
 		loop_->assertInLoopThread();
 		if (likely(entry)) {
 			muduo::net::TcpConnectionPtr conn(entry->weakConn_.lock());
@@ -93,42 +103,29 @@ struct ConnBucket : public muduo::noncopyable {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				_LOG_WARN("loop[%d] timeout = %ds 客户端[%s] -> 网关服[%s]", index, buckets_.size(), conn->peerAddress().toIpPort().c_str(), conn->localAddress().toIpPort().c_str());
+				_LOG_WARN("timeout = %ds 客户端[%s] -> 网关服[%s]", buckets_.size(), conn->peerAddress().toIpPort().c_str(), conn->localAddress().toIpPort().c_str());
 #endif
 			}
 		}
 		else {
 		}
 	}
-	//bucketsPool_下标
-	int index_;
-	WeakConnList buckets_;
+private:
 	muduo::net::EventLoop* loop_;
+	boost::circular_buffer<Bucket> buckets_;
 };
 
-typedef std::unique_ptr<ConnBucket> ConnBucketPtr;
-
-struct Context : public muduo::noncopyable {
-	explicit Context()
-		: index_(0XFFFFFFFF) {
-		reset();
-	}
+struct Context /*: public muduo::noncopyable*/ {
 	explicit Context(WeakEntryPtr const& weakEntry)
-		: index_(0XFFFFFFFF), weakEntry_(weakEntry) {
-		reset();
-	}
-	explicit Context(const boost::any& context)
-		: index_(0XFFFFFFFF), context_(context) {
-		assert(!context_.empty());
+		: weakEntry_(weakEntry) {
 		reset();
 	}
 	explicit Context(WeakEntryPtr const& weakEntry, const boost::any& context)
-		: index_(0XFFFFFFFF), weakEntry_(weakEntry), context_(context) {
+		: weakEntry_(weakEntry), context_(context) {
 		assert(!context_.empty());
 		reset();
 	}
-	~Context() {
-		//_LOG_WARN("Context::dtor");
+	virtual ~Context() {
 		reset();
 	}
 	inline void reset() {
@@ -147,20 +144,35 @@ struct Context : public muduo::noncopyable {
 		}
 #endif
 	}
-	inline void setWorkerIndex(int index) {
-		index_ = index;
-		assert(index_ >= 0);
+	inline std::shared_ptr<muduo::ThreadPool> const& getWorker() {
+		return thread_;
 	}
-	inline int getWorkerIndex() const {
-		return index_;
+	//给新conn指定worker线程，与之相关所有逻辑业务都在该线程中处理
+	inline void setWorker(
+		std::string const& session,
+		std::hash<std::string> hash_session_,
+		std::vector<std::shared_ptr<muduo::ThreadPool>>& threadPool_) {
+		int index = hash_session_(session) % threadPool_.size();
+		thread_ = threadPool_[index];
+	}
+	//对于HTTP请求来说，每一个conn都应该是独立的，指定一个独立线程处理即可，避免锁开销与多线程竞争抢占共享资源带来的性能损耗
+	inline void setWorker(
+		muduo::AtomicInt32& nextPool_,
+		std::vector<std::shared_ptr<muduo::ThreadPool>>& threadPool_) {
+		int index = nextPool_.getAndAdd(1) % threadPool_.size();
+		if (index < 0) {
+			nextPool_.getAndSet(-1);
+			index = nextPool_.addAndGet(1);
+		}
+		thread_ = threadPool_[index];
 	}
 	inline void setContext(const boost::any& context) {
 		context_ = context;
 	}
-	inline const boost::any& getContext() const {
+	inline boost::any& getContext() {
 		return context_;
 	}
-	inline boost::any& getContext() {
+	inline const boost::any& getContext() const {
 		return context_;
 	}
 	inline boost::any* getMutableContext() {
@@ -189,8 +201,6 @@ struct Context : public muduo::noncopyable {
 	}
 	inline ClientConn const& getClientConn(servTyE ty) { return client_[ty]; }
 public:
-	//threadPool_下标
-	int index_;
 	uint32_t ipaddr_;
 	int64_t userid_;
 	std::string session_;
@@ -198,59 +208,7 @@ public:
 	ClientConn client_[kMaxServTy];
 	WeakEntryPtr weakEntry_;
 	boost::any context_;
+	std::shared_ptr<muduo::ThreadPool> thread_;
 };
-
-typedef std::shared_ptr<Context> ContextPtr;
-
-class EventLoopContext : public muduo::noncopyable {
-public:
-	explicit EventLoopContext()
-		: index_(0xFFFFFFFF) {
-	}
-	explicit EventLoopContext(int index)
-		: index_(index) {
-		assert(index_ >= 0);
-	}
-#if 0
-	explicit EventLoopContext(EventLoopContext const& ref) {
-		index_ = ref.index_;
-		pool_.clear();
-#if 0
-		std::copy(ref.pool_.begin(), ref.pool_.end(), pool_.begin());
-#else
-		std::copy(ref.pool_.begin(), ref.pool_.end(), std::back_inserter(pool_));
-#endif
-	}
-#endif
-	inline void setBucketIndex(int index) {
-		index_ = index;
-		assert(index_ >= 0);
-	}
-	inline int getBucketIndex() const {
-		return index_;
-	}
-	inline void addWorkerIndex(int index) {
-		pool_.emplace_back(index);
-	}
-	inline int allocWorkerIndex() {
-		int index = nextPool_.getAndAdd(1) % pool_.size();
-		if (index < 0) {
-			nextPool_.getAndSet(-1);
-			index = nextPool_.addAndGet(1);
-		}
-		assert(index >= 0 && index < pool_.size());
-		return pool_[index];
-	}
-	~EventLoopContext() {
-	}
-public:
-	//bucketsPool_下标
-	int index_;
-	//threadPool_下标集合
-	std::vector<int> pool_;
-	muduo::AtomicInt32 nextPool_;
-};
-
-typedef std::shared_ptr<EventLoopContext> EventLoopContextPtr;
 
 #endif
