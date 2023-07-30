@@ -83,7 +83,7 @@ buf[0] = 0x78  - 低地址 = 低位
 */
 
 //#define _NETTOHOST_BIGENDIAN_
-#define LIBWEBSOCKET_DEBUG
+//#define LIBWEBSOCKET_DEBUG
 
 #include <libwebsocket/IHttpContext.h>
 #include <libwebsocket/websocket.h>
