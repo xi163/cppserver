@@ -11,6 +11,8 @@
 
 #include "Logger/src/ini/ini.h"
 
+#include "Logger/src/zlib/gzip.h"
+
 #include "Logger/src/crypt/aes.h"
 #include "Logger/src/crypt/sha1.h"
 #include "Logger/src/crypt/md5.h"

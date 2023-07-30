@@ -76,7 +76,7 @@ namespace Crypto {
 			AES_encrypt((const unsigned char*)buf, buf, &ctx);
 			memcpy(pTmpDest, buf, KEYCODELENGTH);
 		}
-		std::string strRet = utils::base64::Encode(pDest, nDestLen);
+		std::string strRet = utils::base64::URLEncode(pDest, nDestLen);
 		delete[] pDest;
 		return strRet;
 	}
@@ -138,6 +138,7 @@ namespace Crypto {
 					break;
 				--pdst;
 			}
+			__LOG_DEBUG("%.*s", strlen((const char*)dst), (char const*)dst);
 			//正则表达式 https://tool.oschina.net/uploads/apidocs/jquery/regexp.html
 			//ASCII码表 http://www.asciima.com/ascii/12.html
 			//ASCII 非打印控制字符   0~31 
@@ -150,7 +151,7 @@ namespace Crypto {
 		}
 		return "";
 #elif 1
-		std::string strSrcHex = utils::base64::Decode(data);
+		std::string strSrcHex = utils::base64::URLDecode(data);
 		if (!strSrcHex.empty()) {
 			AES_KEY ctx = { 0 };
 			if (AES_set_decrypt_key((unsigned char const*)key.c_str(), key.length() * 8/*128*/, &ctx) < 0) {
@@ -171,6 +172,7 @@ namespace Crypto {
 			}
 			ClearPadding((unsigned char*)dst, dstlen);
 			dst[len] = '\0';
+			__LOG_DEBUG("%.*s", strlen((const char*)dst), (const char*)dst);
 			//正则表达式 https://tool.oschina.net/uploads/apidocs/jquery/regexp.html
 			//ASCII码表 http://www.asciima.com/ascii/12.html
 			//ASCII 非打印控制字符   0~31 

@@ -147,4 +147,6 @@ typedef int tid_t;
 #pragma execution_character_set("utf-8")
 #endif
 
+typedef std::map<std::string, std::string> HttpParams;
+
 #endif

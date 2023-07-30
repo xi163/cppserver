@@ -95,5 +95,23 @@ namespace utils {
 
 			return ret;
 		}
+		std::string URLEncode(unsigned char const* _, unsigned int len) {
+			std::string s = base64::Encode(_, len);
+ 			utils::_replaceAll(s, "+", "-");
+ 			utils::_replaceAll(s, "/", "_");
+// 			utils::_replaceAll(s, "=", "");
+			return s;
+		}
+		std::string URLDecode(std::string const& s) {
+			utils::_replaceAll(const_cast<std::string&>(s), "-", "+");
+			utils::_replaceAll(const_cast<std::string&>(s), "_", "/");
+// 			int mod4 = s.size() % 4;
+// 			if (mod4 > 0) {
+// 				int num = 4 - mod4;
+// 				const_cast<std::string&>(s).append(num, '=');
+// 			}
+			return base64::Decode(s);
+		}
+
 	}
 }
