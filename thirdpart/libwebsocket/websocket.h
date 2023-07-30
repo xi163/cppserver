@@ -113,7 +113,8 @@ namespace muduo {
 			int parse_message_frame(
 				IContext* context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime);
+				ITimestamp* receiveTime,
+				std::string const& path_handshake);
 
 			// S2C
 			void pack_unmask_data_frame(
@@ -197,7 +198,7 @@ namespace muduo {
 			// 消息帧有效性安全检查
 			bool validate_message_frame(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			// 更新帧体(body)消息流解析步骤step
@@ -211,7 +212,7 @@ namespace muduo {
 			//		Maybe include Payload data
 			bool update_frame_body_parse_step(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			//	解析基础协议头/帧头(header)
@@ -220,57 +221,57 @@ namespace muduo {
 			//	更新帧体(body)消息流解析步骤step
 			bool parse_frame_ReadFrameHeader(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			int parse_frame_ReadExtendedPayloadlenU16(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			int parse_frame_ReadExtendedPayloadlenI64(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			int parse_frame_ReadMaskingkey(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			bool parse_uncontrol_frame_ReadPayloadData(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			bool parse_uncontrol_frame_ReadExtendedPayloadDataU16(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			bool parse_uncontrol_frame_ReadExtendedPayloadDataI64(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			bool parse_control_frame_ReadPayloadData(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			bool parse_control_frame_ReadExtendedPayloadDataU16(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			bool parse_control_frame_ReadExtendedPayloadDataI64(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			int parse_frame(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
+				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* savedErrno);
 
 			void create_websocket_response(
@@ -278,8 +279,9 @@ namespace muduo {
 
 			bool do_handshake(
 				websocket::Context& context,
-				IBytesBuffer /*const*/* buf,
-				ITimestamp* receiveTime, int* saveErrno);
+				IBytesBuffer* buf,
+				ITimestamp* receiveTime, int* saveErrno,
+				std::string const& path_handshake);
 #endif
 
 		}//namespace websocket

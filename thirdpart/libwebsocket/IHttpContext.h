@@ -70,7 +70,7 @@ namespace muduo {
 				virtual void appendToBufferPtr(IBytesBuffer* output) const = 0;
 			};
 
-			class IContext_ {
+			class IContext {
 			public:
 				enum ParseState {
 					kExpectRequestLine,
@@ -84,14 +84,14 @@ namespace muduo {
 				virtual void reset() = 0;
 				virtual IRequest const* requestConstPtr() const = 0;
 				virtual IRequest* requestPtr() = 0;
-				virtual ~IContext_() {
+				virtual ~IContext() {
 					//printf("%s %s(%d)\n", __FUNCTION__, __FILE__, __LINE__);
 				}
 			};
 
 		}//namespace http
 
-		typedef http::IContext_ IHttpContext;
+		typedef http::IContext IHttpContext;
 		typedef std::unique_ptr<IHttpContext> IHttpContextPtr;
 
 	}//namespace net
