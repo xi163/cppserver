@@ -19,7 +19,7 @@ namespace muduo {
 					websocket::IContext* ptr_;
 				};
 			public:
-				explicit Context(const muduo::net::WeakTcpConnectionPtr& weakConn);
+				explicit Context(const muduo::net::WeakTcpConnectionPtr& weakConn, std::string const& path);
 				~Context();
 			public:
 				inline void setWsConnectedCallback(WsConnectedCallback const& cb) {
@@ -35,7 +35,7 @@ namespace muduo {
 					//////////////////////////////////////////////////////////////////////////
 					//parse_message_frame
 					//////////////////////////////////////////////////////////////////////////
-					websocket::parse_message_frame(getContext(), buf, receiveTime);
+					websocket::parse_message_frame(getContext(), buf, receiveTime, path_handshake_);
 				}
 			private:
 				void send(const void* message, int len);
@@ -67,6 +67,7 @@ namespace muduo {
 				WsConnectedCallback wsConnectedCallback_;
 				WsMessageCallback wsMessageCallback_;
 				WsClosedCallback wsClosedCallback_;
+				std::string path_handshake_;
 			};
 
 			typedef std::unique_ptr<Context> ContextPtr;

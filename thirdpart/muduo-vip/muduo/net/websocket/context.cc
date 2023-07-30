@@ -23,8 +23,8 @@ namespace muduo {
 				ptr_ = NULL;
 			}
 
-			Context::Context(const muduo::net::WeakTcpConnectionPtr& weakConn)
-				: weakConn_(weakConn) {
+			Context::Context(const muduo::net::WeakTcpConnectionPtr& weakConn, std::string const& path)
+				: weakConn_(weakConn),path_handshake_(path) {
 #if 1
 				holder_.reset(create(this));
 #else

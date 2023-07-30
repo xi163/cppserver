@@ -13,7 +13,8 @@ namespace muduo {
 			void hook(
 				const WsConnectedCallback& ccb,
 				const WsMessageCallback& mcb,
-				const muduo::net::TcpConnectionPtr& conn);
+				const muduo::net::TcpConnectionPtr& conn,
+				std::string const& path_handshake);
 
 			void reset(const muduo::net::TcpConnectionPtr& conn);
 
@@ -45,7 +46,8 @@ namespace muduo {
 				static void hook(
 					const WsConnectedCallback& ccb,
 					const WsMessageCallback& mcb,
-					const muduo::net::TcpConnectionPtr& conn);
+					const muduo::net::TcpConnectionPtr& conn,
+					std::string const& path_handshake);
 
 				static void reset(const muduo::net::TcpConnectionPtr& conn);
 
