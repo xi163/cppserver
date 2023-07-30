@@ -109,7 +109,7 @@ namespace utils {
 	
 	char const* MD5Encode(char const* src, unsigned len, char dst[], int upper) {
 		AUTHORIZATION_CHECK_P;
-		return MD5Encode32(src, len, dst, upper);
+		return utils::MD5(src, len, dst, upper);
 
 	}
 
