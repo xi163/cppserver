@@ -1,5 +1,6 @@
 ﻿#include "utilsImpl.h"
 #include "gettimeofday.h"
+#include "../../rand/impl/StdRandomImpl.h"
 
 #ifdef _windows_
 //#include <DbgHelp.h>
@@ -838,5 +839,27 @@ namespace utils {
 		boost::regex reg("[1-9]\d*\.?\d*)|(0\.\d*[1-9]");
 #endif
 		return boost::regex_match(s, reg);
+	}
+
+	namespace random {
+		static char const* arr[] = {
+				"0123456789",
+				"abcdefghijklmnopqrstuvwxyz",
+				"abcdefghijklmnopqrstuvwxyz0123456789",
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+				"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz",
+				"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789",
+		};
+		std::string _charStr(int n) {
+			std::string s;
+			s.resize(n + 1);
+			static int const size = strlen((char const*)arr[5]);
+			for (int i = 0; i < n; ++i) {
+				s[i] = arr[5][_RANDOM().betweenInt(0, size - 1).randInt_mt()];
+			}
+			s[n] = '\0';
+			return s;
+		}
 	}
 }

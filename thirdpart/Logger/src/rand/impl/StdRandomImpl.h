@@ -4,6 +4,9 @@
 #include "../../Macro.h"
 #include "../../log/impl/LoggerImpl.h"
 
+#define _RANDOM STD::RandomImpl::instance
+#define _WEIGHT STD::WeightImpl::instance
+
 //{std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())}
 //{std::chrono::system_clock::now().time_since_epoch().count()}
 
@@ -50,6 +53,10 @@ namespace STD {
 			: iValue64_(a, b) {}
 		explicit RandomImpl(float a, float b)
 			: fValue_(a, b) {}
+		static RandomImpl& instance() {
+			static RandomImpl r_;
+			return r_;
+		}
 		//整数范围a+rand()%(b-a+1)
 		RandomImpl& betweenInt(int a, int b) {
 			iValue_.param(RangeInt{ a, b });
@@ -96,6 +103,10 @@ namespace STD {
 	public:
 		WeightImpl() :rand_() {
 			sum_ = 0;
+		}
+		static WeightImpl& instance() {
+			static WeightImpl w_;
+			return w_;
 		}
 		void init(int weight[], int len) {
 			indxId_.resize(len);

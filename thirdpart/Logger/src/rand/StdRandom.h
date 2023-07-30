@@ -28,6 +28,10 @@ namespace STD {
 		explicit Random(int a, int b);
 		explicit Random(int64_t a, int64_t b);
 		explicit Random(float a, float b);
+		static Random& instance() {
+			static Random r_;
+			return r_;
+		}
 		~Random();
 		Random& betweenInt(int a, int b);
 		Random& betweenInt64(int64_t a, int64_t b);
@@ -51,6 +55,10 @@ namespace STD {
 	public:
 		Weight();
 		~Weight();
+		static Weight& instance() {
+			static Weight w_;
+			return w_;
+		}
 		Random& rand();
 		void init(int weight[], int len);
 		void shuffle();
@@ -61,5 +69,8 @@ namespace STD {
 		WeightImpl* impl_;
 	};
 }
+
+#define RANDOM STD::Random::instance
+#define WEIGHT STD::Weight::instance
 
 #endif

@@ -80,6 +80,10 @@ namespace utils {
 	int64_t _rate100(std::string const& s);
 	
 	bool _isDigitalStr(std::string const& s);
+
+	namespace random {
+		std::string _charStr(int n);
+	}
 }
 
 #endif

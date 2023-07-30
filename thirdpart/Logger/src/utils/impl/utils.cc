@@ -394,4 +394,11 @@ namespace utils {
 		AUTHORIZATION_CHECK_B;
 		return _isDigitalStr(s);
 	}
+
+	namespace random {
+		std::string charStr(int n) {
+			AUTHORIZATION_CHECK_S;
+			return _charStr(n);
+		}
+	}
 }
