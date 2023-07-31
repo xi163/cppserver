@@ -7,11 +7,17 @@ static void StopService(int signo) {
 	}
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 	//检查配置文件
 	if (!boost::filesystem::exists("./conf/game.conf")) {
 		_LOG_ERROR("./conf/game.conf not exists");
 		return -1;
+	}
+	std::string config = "game_gate";
+	int id = 0;
+	if (argc == 2) {
+		id = stoi(argv[1]);
+		config = config + "_" + std::to_string(id);
 	}
 	utils::setrlimit();
 	utils::setenv();
@@ -19,9 +25,9 @@ int main() {
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
 	//日志目录/文件/日志级别  logdir/logname
-	std::string logdir = pt.get<std::string>("game_gate.logdir", "./log/game_gate/");
-	std::string logname = pt.get<std::string>("game_gate.logname", "game_gate");
-	int loglevel = pt.get<int>("game_gate.loglevel", 1);
+	std::string logdir = pt.get<std::string>(config + ".logdir", "./log/game_gate/");
+	std::string logname = pt.get<std::string>(config + ".logname", "game_gate");
+	int loglevel = pt.get<int>(config + ".loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
@@ -79,22 +85,22 @@ int main() {
 	}
 	//MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-	std::string ip = pt.get<std::string>("game_gate.ip", "");
-	int16_t port = pt.get<int>("game_gate.port", 8010);
-	int16_t innPort = pt.get<int>("game_gate.innPort", 9010);
-	int16_t rpcPort = pt.get<int>("game_gate.rpcPort", 7850);
-	uint16_t httpPort = pt.get<int>("game_gate.httpPort", 8120);
-	int16_t numThreads = pt.get<int>("game_gate.numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>("game_gate.numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>("game_gate.kMaxQueueSize", 1000);
-	int kMaxConnections = pt.get<int>("game_gate.kMaxConnections", 15000);
-	int kTimeoutSeconds = pt.get<int>("game_gate.kTimeoutSeconds", 3);
+	std::string ip = pt.get<std::string>(config + ".ip", "");
+	int16_t port = pt.get<int>(config + ".port", 8010);
+	int16_t innPort = pt.get<int>(config + ".innPort", 9010);
+	int16_t rpcPort = pt.get<int>(config + ".rpcPort", 7850);
+	uint16_t httpPort = pt.get<int>(config + ".httpPort", 8120);
+	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
+	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
+	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);
+	int kMaxConnections = pt.get<int>(config + ".kMaxConnections", 15000);
+	int kTimeoutSeconds = pt.get<int>(config + ".kTimeoutSeconds", 3);
 	//管理员挂维护/恢复服务
-	std::string strAdminList = pt.get<std::string>("game_gate.adminList", "192.168.2.93,");
+	std::string strAdminList = pt.get<std::string>(config + ".adminList", "192.168.2.93,");
 	//证书路径
-	std::string cert_path = pt.get<std::string>("game_gate.cert_path", "");
+	std::string cert_path = pt.get<std::string>(config + ".cert_path", "");
 	//证书私钥
-	std::string private_key = pt.get<std::string>("game_gate.private_key", "");
+	std::string private_key = pt.get<std::string>(config + ".private_key", "");
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \

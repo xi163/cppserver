@@ -12,7 +12,7 @@ bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
-		int32_t num = numConnected_.incrementAndGet();
+		int32_t num = numConnectedC_.incrementAndGet();
 		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
@@ -42,7 +42,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			std::bind(&GateServ::onMessage, this,
 				std::placeholders::_1, std::placeholders::_2,
 				std::placeholders::_3, std::placeholders::_4),
-			conn);
+			conn, path_handshake_);
 		EntryPtr entry(new Entry(Entry::TypeE::TcpTy, conn, "客户端", "网关服"));
 		RunInLoop(conn->getLoop(),
 			std::bind(&Buckets::push, &boost::any_cast<Buckets&>(conn->getLoop()->getContext()), entry));
@@ -50,7 +50,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		conn->setTcpNoDelay(true);
 	}
 	else {
-		int32_t num = numConnected_.decrementAndGet();
+		int32_t num = numConnectedC_.decrementAndGet();
 		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
@@ -61,10 +61,12 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		//////////////////////////////////////////////////////////////////////////
 		muduo::net::websocket::reset(conn);
 		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-		entryContext.getWorker()->run(
-			std::bind(
-				&GateServ::asyncOfflineHandler,
-				this, entryContext));
+		if (entryContext.getWorker()) {
+			entryContext.getWorker()->run(
+				std::bind(
+					&GateServ::asyncOfflineHandler,
+					this, entryContext));
+		}
 	}
 }
 

@@ -194,7 +194,7 @@ public:
 	muduo::AtomicInt32 numConnected_;
 	muduo::AtomicInt64 numTotalReq_;
 	muduo::AtomicInt64 numTotalBadReq_;
-	
+	muduo::AtomicInt32 numConnectedC_;
 	//map[session] = weakConn
 	STR::Entities entities_;
 	//map[userid] = weakConn
@@ -205,7 +205,8 @@ public:
 	int maxConnections_;
 	
 	CmdCallbacks handlers_;
-
+	std::string proto_ = "ws://";
+	std::string path_handshake_;
 	rpc::server::GameGate rpcservice_;
 	muduo::net::RpcServer rpcserver_;
 	muduo::net::TcpServer server_;

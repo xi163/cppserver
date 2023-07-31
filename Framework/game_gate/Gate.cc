@@ -136,6 +136,7 @@ void GateServ::onZookeeperConnected() {
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 		//ip:port:port:pid
 		nodeValue_ = vec[0] + ":" + vec[1];
+		path_handshake_ = "/ws_" + vec[1];
 #if 1
 		boost::algorithm::split(vec, innServer_.ipPort(), boost::is_any_of(":"));
 		nodeValue_ += ":" + vec[1] /*+ ":" + std::to_string(getpid())*/;
