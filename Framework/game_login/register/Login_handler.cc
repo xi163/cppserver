@@ -74,30 +74,14 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp) {
 			//缓存token
 			return;
 		}
-		int64_t userId = 0;
-		auto result = FindOneAndUpdate(document{} << "seq" << 1 << finalize,
+		int64_t userId = mgo::NewUserId(document{} << "seq" << 1 << finalize,
 			document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
 			document{} << "_id" << "userid" << finalize);
-		if (!result) {
-		}
-		else {
-			bsoncxx::document::view view = result->view();
-			if (view["seq"]) {
-				switch (view["seq"].type()) {
-				case bsoncxx::type::k_int64:
-					userId = view["seq"].get_int64();
-					break;
-				case bsoncxx::type::k_int32:
-					userId = view["seq"].get_int32();
-					break;
-				}
-			}
-		}
 		if (userId <= 0) {
 			response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
 			return;
 		}
-		_LOG_DEBUG(">>> userId = %d", userId);
+		_LOG_ERROR(">>>>>> userId = %d", userId);
 		//查询网关节点
 		GateServList servList;
 		GetGateServList(servList);
