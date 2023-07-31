@@ -39,12 +39,10 @@ using namespace boost::posix_time;
 using namespace boost::gregorian;
 
 #if BOOST_VERSION < 104700
-namespace boost
-{
+namespace boost {
 	template <typename T>
-	inline size_t hash_value(const boost::shared_ptr<T>& x)
-	{
-		return boost::hash_value(x.get());
+	inline size_t hash_value(boost::shared_ptr<T> const& p) {
+		return boost::hash_value(p.get());
 	}
 }
 #endif
