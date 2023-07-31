@@ -5,19 +5,22 @@
 
 namespace mgo {
 
+	using namespace bsoncxx;
+	//using namespace bsoncxx::document;
+
 	int getErrCode(std::string const& errmsg);
 
-	optional<bsoncxx::document::value> FindOneAndUpdate(
+	optional<document::value> FindOneAndUpdate(
 		std::string const& dbname,
 		std::string const& tblname,
-		bsoncxx::document::view_or_value select,
-		bsoncxx::document::view_or_value update,
-		bsoncxx::document::view_or_value where);
+		document::view_or_value select,
+		document::view_or_value update,
+		document::view_or_value where);
 
 	int64_t NewUserId(
-		bsoncxx::document::view_or_value select,
-		bsoncxx::document::view_or_value update,
-		bsoncxx::document::view_or_value where);
+		document::view_or_value select,
+		document::view_or_value update,
+		document::view_or_value where);
 }
 
 #endif

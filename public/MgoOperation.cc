@@ -1,9 +1,7 @@
 #include "MgoOperation.h"
 
 namespace mgo {
-	using namespace bsoncxx;
-	//using namespace bsoncxx::document;
-
+	
 	//E11000 duplicate key
 	int getErrCode(std::string const& errmsg) {
 		if (!errmsg.empty() && errmsg[0] == 'E') {
