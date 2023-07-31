@@ -24,6 +24,8 @@
 
 #include "Logger/src/lock/SpinLock.h"
 
+#include "Logger/src/sign/sign.h"
+
 namespace utils {
 
 	namespace uuid {

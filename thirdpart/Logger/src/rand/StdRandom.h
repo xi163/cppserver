@@ -3,6 +3,9 @@
 
 #include "Logger/src/Macro.h"
 
+#define RANDOM STD::Random::instance
+#define WEIGHT STD::Weight::instance
+
 namespace STD {
 
 	class GeneratorImpl;
@@ -69,8 +72,5 @@ namespace STD {
 		WeightImpl* impl_;
 	};
 }
-
-#define RANDOM STD::Random::instance
-#define WEIGHT STD::Weight::instance
 
 #endif

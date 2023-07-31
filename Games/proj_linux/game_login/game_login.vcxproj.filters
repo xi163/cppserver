@@ -117,6 +117,9 @@
     <ClInclude Include="..\..\..\public\Response.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\register\GateServList.h">
+      <Filter>register</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -192,6 +195,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\Response.cc">
       <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\register\GateServList.cc">
+      <Filter>register</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -42,6 +42,7 @@
     <ClInclude Include="..\..\..\Framework\game_login\ErrorCode.h" />
     <ClInclude Include="..\..\..\Framework\game_login\GameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_login\Login.h" />
+    <ClInclude Include="..\..\..\Framework\game_login\register\GateServList.h" />
     <ClInclude Include="..\..\..\Framework\game_login\register\Login_handler.h" />
     <ClInclude Include="..\..\..\Framework\game_login\register\Register_handler.h" />
     <ClInclude Include="..\..\..\Framework\game_login\RpcClients.h" />
@@ -71,6 +72,7 @@
     <ClCompile Include="..\..\..\Framework\game_login\HttpServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\Login.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\main.cc" />
+    <ClCompile Include="..\..\..\Framework\game_login\register\GateServList.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\register\Login_handler.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\register\Register_handler.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\RpcClients.cc" />

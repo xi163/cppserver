@@ -126,6 +126,9 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\zlib\gzip.h">
       <Filter>src\zlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\sign\sign.h">
+      <Filter>src\sign</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -208,6 +211,12 @@
     </Filter>
     <Filter Include="src\zlib">
       <UniqueIdentifier>{5d813503-c54a-4c9c-97cc-37b7c193fa13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sign">
+      <UniqueIdentifier>{5ac20f46-e31b-4a88-a401-587c86ec2fc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sign\impl">
+      <UniqueIdentifier>{61cd96b3-120a-484a-952d-8208094d8638}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -305,5 +314,8 @@
       <Filter>src\zlib</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\IncBoost.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\sign\sign.cc">
+      <Filter>src\sign\impl</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

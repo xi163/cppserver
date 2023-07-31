@@ -1,46 +1,11 @@
 #include "public/Inc.h"
+#include "public/Response.h"
 #include "register/Login_handler.h"
 
-#include "RpcClients.h"
-#include "RpcContainer.h"
-
-#include "RpcService.h"
-
-#include "../Login.h"
-#include "public/Response.h"
+#include "GateServList.h"
 
 std::string md5code = "334270F58E3E9DEC";
 std::string descode = "111362EE140F157D";
-
-extern LoginServ* gServer;
-
-namespace sign {
-	struct Sign {
-		std::string rand;
-		int64_t timestamp;
-		int64_t expired;
-		BOOST::Any* data;
-	};
-	std::string Encode(BOOST::Any const& data, int64_t exp, std::string const& secret) {
-		Sign token;
-		MY_TRY()
-		token.rand = utils::random::charStr(RANDOM().betweenInt(10, 20).randInt_mt());
-		MY_CATCH()
-		token.timestamp = (int64_t)time(NULL);
-		token.expired = exp;
-		BOOST::Json obj;
-		obj.put("rand", token.rand);
-		obj.put("timestamp", token.timestamp);
-		obj.put("expired", token.expired);
-		obj.put("data", data);
-		std::string json = obj.to_json();
-		_LOG_ERROR("\n%s", json.c_str());
-		std::string strBase64 = Crypto::AES_ECBEncrypt(json, secret);
-		//std::string strBase64 = Crypto::Des_Encrypt(json, (char *)secret.c_str());
-		//return utils::URL::Encode(strBase64);
-		return strBase64;
-	}
-}
 
 struct LoginReq {
 	std::string Account;
@@ -51,7 +16,8 @@ struct LoginReq {
 	int64_t	Timestamp;
 };
 
-struct LoginRsp :public BOOST::Any {
+struct LoginRsp :
+	public BOOST::Any {
 	LoginRsp(
 		std::string const& Account,
 		int64_t userid,
@@ -69,35 +35,8 @@ struct LoginRsp :public BOOST::Any {
 	BOOST::Any* data;
 };
 
-struct ServerLoad :public BOOST::Any {
-	ServerLoad(
-		std::string const& Host,
-		std::string const& Domain,
-		int NumOfLoads)
-		: Host(Host)
-		, Domain(Domain)
-		, NumOfLoads(NumOfLoads) {
-	}
-	void bind(BOOST::Json& obj, int i) {
-		obj.put("host", Host);
-		obj.put("domain", Domain);
-		obj.put("numOfLoads", NumOfLoads, i);
-	}
-	std::string Host;
-	std::string Domain;
-	int NumOfLoads;
-};
-
-struct ServerLoadList :public std::vector<ServerLoad>, public BOOST::Any {
-	void bind(BOOST::Json& obj) {
-		for (iterator it = begin();
-			it != end(); ++it) {
-			obj.push_back(*it);
-		}
-	}
-};
-
-struct Token :public BOOST::Any {
+struct Token :
+	public BOOST::Any {
 	Token(std::string const& token)
 		: token(token) {
 	}
@@ -107,28 +46,14 @@ struct Token :public BOOST::Any {
 	std::string token;
 };
 
-void GetGateServerList(ServerLoadList& servList) {
-	rpc::ClientConnList clients;
-	gServer->rpcClients_[rpc::servTyE::kRpcGateTy].clients_->getAll(clients);
-	for (rpc::ClientConnList::iterator it = clients.begin();
-		it != clients.end(); ++it) {
-		rpc::client::GameGate client(*it, 3);
-		::ProxyServer::Message::GameGateReq req;
-		::ProxyServer::Message::GameGateRspPtr rsp = client.GetGameGate(req);
-		if (rsp) {
-			servList.emplace_back(ServerLoad(rsp->host(),rsp->domain(),rsp->numofloads()));
-		}
-	}
-}
-
 void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp) {
 	//0-游客 1-账号密码 2-手机号 3-第三方(微信/支付宝等) 4-邮箱
 	switch (req.Type) {
 	case 0: {
 		if (req.Account.empty()) {
 			//查询网关节点
-			ServerLoadList servList;
-			GetGateServerList(servList);
+			GateServList servList;
+			GetGateServList(servList);
 			if (servList.size() == 0) {
 				response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
 				return;
@@ -141,18 +66,16 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp) {
 			return;
 		}
 		//查询网关节点
-		ServerLoadList servList;
-		GetGateServerList(servList);
+		GateServList servList;
+		GetGateServList(servList);
 		if (servList.size() == 0) {
 			response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
 			return;
 		}
-		time_t now = time(NULL);
-		int64_t exp = (int64_t)now + 500000;
 		std::string account = "test_0";
 		int64_t userId = 10120;
 		//token签名加密
-		std::string token = sign::Encode(LoginRsp(account,userId,&servList), exp, descode);
+		std::string token = utils::sign::Encode(LoginRsp(account, userId, &servList), 500000, descode);
 		//更新redis account->uid
 		REDISCLIENT.SetAccountUid(account, userId);
 		//缓存token
