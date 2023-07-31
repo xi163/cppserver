@@ -1,6 +1,8 @@
 #include "MgoOperation.h"
 
 namespace mgo {
+	using namespace bsoncxx;
+	//using namespace bsoncxx::document;
 
 	//E11000 duplicate key
 	int getErrCode(std::string const& errmsg) {
@@ -16,13 +18,13 @@ namespace mgo {
 		return 0XFFFFFFFF;
 	}
 
-	optional<bsoncxx::document::value> FindOneAndUpdate(
+	optional<document::value> FindOneAndUpdate(
 		std::string const& dbname,
 		std::string const& tblname,
-		bsoncxx::document::view_or_value select,
-		bsoncxx::document::view_or_value update,
-		bsoncxx::document::view_or_value where) {
-		bsoncxx::document::view view;
+		document::view_or_value select,
+		document::view_or_value update,
+		document::view_or_value where) {
+		document::view view;
 		//select = document{} << "seq" << 1 << finalize;
 		//update = document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize;
 		//where = document{} << "_id" << "userid" << finalize;
@@ -34,9 +36,9 @@ namespace mgo {
 	}
 
 	int64_t NewUserId(
-		bsoncxx::document::view_or_value select,
-		bsoncxx::document::view_or_value update,
-		bsoncxx::document::view_or_value where) {
+		document::view_or_value select,
+		document::view_or_value update,
+		document::view_or_value where) {
 		static std::string const dbname = "gameconfig";
 		static std::string const tblname = "auto_increment";
 		try {
@@ -44,7 +46,7 @@ namespace mgo {
 			if (!result/*|| result->modified_count() == 0*/) {
 			}
 			else {
-				bsoncxx::document::view view = result->view();
+				document::view view = result->view();
 				if (view["seq"]) {
 					switch (view["seq"].type()) {
 					case bsoncxx::type::k_int64:
@@ -59,7 +61,9 @@ namespace mgo {
 			_LOG_ERROR(e.what());
 			switch (getErrCode(e.what())) {
 			case 11000:
+				break;
 			default:
+				break;
 			}
 		}
 		catch (const std::exception& e) {
