@@ -3,8 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
     <RemoteDebuggingMode>gdb</RemoteDebuggingMode>
-    <RemoteDebuggerCommandArguments>
-    </RemoteDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>1</RemoteDebuggerCommandArguments>
     <PreLaunchCommand>
     </PreLaunchCommand>
     <RemoteDebuggerWorkingDirectory>/home/andy/cppserver/bin/</RemoteDebuggerWorkingDirectory>

@@ -50,6 +50,7 @@
     <ClInclude Include="..\..\..\public\Packet.h" />
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
+    <ClInclude Include="..\..\..\public\Response.h" />
     <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />
@@ -75,6 +76,7 @@
     <ClCompile Include="..\..\..\public\Packet.cc" />
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />
     <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp" />
+    <ClCompile Include="..\..\..\public\Response.cc" />
     <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp" />

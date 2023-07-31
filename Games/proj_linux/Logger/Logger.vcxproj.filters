@@ -114,6 +114,18 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\track\MemTrack.h">
       <Filter>src\track</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\mime\Mime.h">
+      <Filter>src\mime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\mime\MimeDef.h">
+      <Filter>src\mime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\mime\Mime2.h">
+      <Filter>src\mime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\zlib\gzip.h">
+      <Filter>src\zlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -190,6 +202,12 @@
     </Filter>
     <Filter Include="src\track\impl">
       <UniqueIdentifier>{e42a26f5-b0ae-4444-82ed-5b0c4a53b200}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mime">
+      <UniqueIdentifier>{83eed2d4-de50-4c98-bf11-cf44236c1dab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\zlib">
+      <UniqueIdentifier>{5d813503-c54a-4c9c-97cc-37b7c193fa13}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -277,5 +295,15 @@
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\aes.cc">
       <Filter>src\crypt</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\mime\Mime.cpp">
+      <Filter>src\mime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\mime\Mime2.cpp">
+      <Filter>src\mime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\zlib\gzip.cc">
+      <Filter>src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\IncBoost.cc" />
   </ItemGroup>
 </Project>

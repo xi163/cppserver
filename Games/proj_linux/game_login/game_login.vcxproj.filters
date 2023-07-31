@@ -34,6 +34,9 @@
     <Filter Include="internal\rpc">
       <UniqueIdentifier>{1d4a5954-1387-432b-99c6-1beb9e4a57c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="register">
+      <UniqueIdentifier>{94a44213-2fdc-4977-9e85-c11b159a60bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
@@ -105,6 +108,15 @@
       <Filter>internal\gate</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_login\ErrorCode.h" />
+    <ClInclude Include="..\..\..\Framework\game_login\register\Login_handler.h">
+      <Filter>register</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\register\Register_handler.h">
+      <Filter>register</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\Response.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -171,6 +183,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_login\WsServer.cc">
       <Filter>internal\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\register\Login_handler.cc">
+      <Filter>register</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\register\Register_handler.cc">
+      <Filter>register</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\Response.cc">
+      <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

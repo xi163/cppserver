@@ -102,7 +102,7 @@
     <Link>
       <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <LibraryDependencies>muduo-vip;protobuf;pthread;boost_date_time;boost_filesystem;boost_system;boost_thread;rt;m;z;dl;bsoncxx;mongocxx;websocket;Logger</LibraryDependencies>
+      <LibraryDependencies>muduo-vip;protobuf;pthread;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;rt;m;z;dl;bsoncxx;mongocxx;websocket;Logger</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

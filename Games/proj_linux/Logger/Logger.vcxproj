@@ -57,6 +57,9 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\mime\Mime.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\mime\Mime2.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\mime\MimeDef.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\op\file\File.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\op\IOperation.h" />
@@ -74,6 +77,7 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\zlib\gzip.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\auth\auth.cc" />
@@ -83,12 +87,15 @@
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\md5.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\sha1.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\url.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\IncBoost.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\ini.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\lock\impl\SpinLock.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\mime\Mime.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\mime\Mime2.cpp" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\File.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\op\file\impl\FileImpl.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\op\impl\Operation.cc" />
@@ -104,6 +111,7 @@
     <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\regedt32.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utils.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\utilsImpl.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\zlib\gzip.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{28AC37C0-F75C-4ED8-B834-838A1C1C6C9A}</ProjectGuid>

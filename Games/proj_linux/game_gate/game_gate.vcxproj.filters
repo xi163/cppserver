@@ -94,6 +94,9 @@
       <Filter>internal\gate</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_gate\Gate.h" />
+    <ClInclude Include="..\..\..\public\Response.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
@@ -161,5 +164,8 @@
       <Filter>internal\gate</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\Gate.cc" />
+    <ClCompile Include="..\..\..\public\Response.cc">
+      <Filter>public</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

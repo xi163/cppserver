@@ -42,10 +42,17 @@ public:
 	virtual void Foo(int a, int b, int c) {
 	}
 };
-int main() {
-	Derive b;
-	b.Foo(1,1);
+void FFF(Base const& b) {
 
+}
+int main() {
+	//std::vector<Derive&> l;
+	std::string s = utils::random::charStr(128);
+	_LOG_DEBUG(s.c_str());
+	Derive d;
+	d.Foo(1,1);
+	FFF(d);
+	//l.emplace_back(d);
 	//STD::Random r2;
 	//r2.betweenInt64(0, 5).randInt64_mt();
 	STD::Weight weight;
