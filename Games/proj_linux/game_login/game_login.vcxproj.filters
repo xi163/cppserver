@@ -120,6 +120,9 @@
     <ClInclude Include="..\..\..\Framework\game_login\register\GateServList.h">
       <Filter>register</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\MgoOperation.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -198,6 +201,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_login\register\GateServList.cc">
       <Filter>register</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\MgoOperation.cc">
+      <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

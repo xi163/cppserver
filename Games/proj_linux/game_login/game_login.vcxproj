@@ -54,6 +54,7 @@
     <ClInclude Include="..\..\..\public\Inc.h" />
     <ClInclude Include="..\..\..\public\IncMuduo.h" />
     <ClInclude Include="..\..\..\public\IPFinder.h" />
+    <ClInclude Include="..\..\..\public\MgoOperation.h" />
     <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h" />
     <ClInclude Include="..\..\..\public\Packet.h" />
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
@@ -83,6 +84,7 @@
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\public\IPFinder.cpp" />
+    <ClCompile Include="..\..\..\public\MgoOperation.cc" />
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp" />
     <ClCompile Include="..\..\..\public\Packet.cc" />
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />

@@ -1,7 +1,7 @@
 #include "public/Inc.h"
 #include "public/Response.h"
 #include "register/Login_handler.h"
-
+#include "public/MgoOperation.h"
 #include "GateServList.h"
 
 std::string md5code = "334270F58E3E9DEC";
@@ -59,12 +59,45 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp) {
 				return;
 			}
 			//生成userid
+			int64_t userId = mgo::NewUserId(document{} << "seq" << 1 << finalize,
+				document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
+				document{} << "_id" << "userid" << finalize);
+			if (userId <= 0) {
+				response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
+				return;
+			}
+			_LOG_ERROR(">>>>>> userId = %d", userId);
 			//创建并插入user表
+			
 			//token签名加密
 			//更新redis account->uid
 			//缓存token
 			return;
 		}
+		int64_t userId = 0;
+		auto result = FindOneAndUpdate(document{} << "seq" << 1 << finalize,
+			document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
+			document{} << "_id" << "userid" << finalize);
+		if (!result) {
+		}
+		else {
+			bsoncxx::document::view view = result->view();
+			if (view["seq"]) {
+				switch (view["seq"].type()) {
+				case bsoncxx::type::k_int64:
+					userId = view["seq"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					userId = view["seq"].get_int32();
+					break;
+				}
+			}
+		}
+		if (userId <= 0) {
+			response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
+			return;
+		}
+		_LOG_DEBUG(">>> userId = %d", userId);
 		//查询网关节点
 		GateServList servList;
 		GetGateServList(servList);
@@ -73,7 +106,7 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp) {
 			return;
 		}
 		std::string account = "test_0";
-		int64_t userId = 10120;
+		userId = 10120;
 		//token签名加密
 		std::string token = utils::sign::Encode(LoginRsp(account, userId, &servList), 500000, descode);
 		//更新redis account->uid
