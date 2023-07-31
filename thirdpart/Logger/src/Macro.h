@@ -147,6 +147,19 @@ typedef int tid_t;
 #pragma execution_character_set("utf-8")
 #endif
 
+#define ContentLength			"Content-Length"
+#define ContentType				"Content-Type"
+
+#define ContentType_Text		"text/plain"
+#define ContentType_Json		"application/json"
+#define ContentType_Xml			"application/xml"
+#define ContentType_Html		"text/html"
+
+#define ContentType_Text_utf8	"text/plain;charset=utf-8"
+#define ContentType_Json_utf8	"application/json;charset=utf-8"
+#define ContentType_Xml_utf8	"application/xml;charset=utf-8"
+#define ContentType_Html_utf8	"text/html;charset=utf-8"
+
 typedef std::map<std::string, std::string> HttpParams;
 
 #endif
