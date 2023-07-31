@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_INCMUDUO_H
+#ifndef INCLUDE_INCMUDUO_H
 #define INCLUDE_INCMUDUO_H
 
 #include <muduo/base/Logging.h>
@@ -34,5 +34,7 @@
 #include <muduo/net/websocket/context.h>
 #include <muduo/net/websocket/server.h>
 #include <libwebsocket/ssl.h>
+
+typedef std::shared_ptr<muduo::net::Buffer> BufferPtr;
 
 #endif
