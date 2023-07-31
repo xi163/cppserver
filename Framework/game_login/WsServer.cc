@@ -42,7 +42,7 @@ void LoginServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			std::bind(&LoginServ::onMessage, this,
 				std::placeholders::_1, std::placeholders::_2,
 				std::placeholders::_3, std::placeholders::_4),
-			conn);
+			conn, path_handshake_);
 		EntryPtr entry(new Entry(Entry::TypeE::TcpTy, conn, "客户端", "登陆服"));
 		RunInLoop(conn->getLoop(),
 			std::bind(&Buckets::push, &boost::any_cast<Buckets&>(conn->getLoop()->getContext()), entry));
@@ -61,10 +61,12 @@ void LoginServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		//////////////////////////////////////////////////////////////////////////
 		muduo::net::websocket::reset(conn);
 		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-		entryContext.getWorker()->run(
-			std::bind(
-				&LoginServ::asyncOfflineHandler,
-				this, entryContext));
+		if (entryContext.getWorker()) {
+			entryContext.getWorker()->run(
+				std::bind(
+					&LoginServ::asyncOfflineHandler,
+					this, entryContext));
+		}
 	}
 }
 

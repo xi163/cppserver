@@ -133,8 +133,8 @@ enum ApiOpType {
 };
 
 enum ServiceStateE {
-	kRepairing = 0,//维护中
-	kRunning = 1,//服务中
+    kRunning = 0,//服务中
+    kRepairing = 1,//维护中
 };
 
 enum IpVisitCtrlE {

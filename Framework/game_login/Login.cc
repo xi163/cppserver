@@ -1,7 +1,6 @@
 
 #include "Login.h"
-
-#include "RpcService.h"
+#include "ErrorCode.h"
 
 LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr,
@@ -13,6 +12,7 @@ LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	, httpServer_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
+	, serverState_(kRunning)
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
@@ -47,7 +47,7 @@ LoginServ::~LoginServ() {
 
 void LoginServ::Quit() {
 	threadTimer_->getLoop()->quit();
-	//gateRpcClients_.closeAll();
+	gateRpcClients_.closeAll();
 	for (size_t i = 0; i < threadPool_.size(); ++i) {
 		threadPool_[i]->stop();
 	}
@@ -84,6 +84,9 @@ bool LoginServ::InitZookeeper(std::string const& ipaddr) {
 }
 
 void LoginServ::onZookeeperConnected() {
+	std::vector<std::string> vec;
+	boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
+	path_handshake_ = "/ws_" + vec[1];
 	//网关服RPC ip:port
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
@@ -100,7 +103,6 @@ void LoginServ::onZookeeperConnected() {
 		}
 		_LOG_WARN("可用网关服[RPC]列表%s", s.c_str());
 		rpcClients_[rpc::servTyE::kRpcGateTy].add(names);
-		rangeGateRpcTest();
 	}
 }
 
@@ -123,35 +125,12 @@ void LoginServ::onGateRpcWatcher(int type, int state,
 		}
 		_LOG_WARN("可用网关服[RPC]列表%s", s.c_str());
 		rpcClients_[rpc::servTyE::kRpcGateTy].process(names);
-		rangeGateRpcTest();
-	}
-}
-
-void LoginServ::rangeGateRpcTest() {
-	xsleep(5000);
-	rpc::ClientConnList clients;
-	rpcClients_[rpc::servTyE::kRpcGateTy].clients_->getAll(clients);
-	for (rpc::ClientConnList::iterator it = clients.begin();
-		it != clients.end(); ++it) {
-		rpc::client::GameGate service(*it, 3);
-		::ProxyServer::Message::GameGateReq req;
-		::ProxyServer::Message::GameGateRspPtr rsp = service.GetGameGate(req);
-		if (rsp) {
-			_LOG_DEBUG(rsp->DebugString().c_str());
-		}
-		else {
-			_LOG_DEBUG("call failed........");
-		}
-	}
-	if (clients.size()==0){
-		_LOG_ERROR("failed...........");
 	}
 }
 
 void LoginServ::registerZookeeper() {
 
 }
-
 
 bool LoginServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
