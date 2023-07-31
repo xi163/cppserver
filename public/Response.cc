@@ -2,7 +2,7 @@
 
 namespace response {
 	namespace text {
-		void Result(http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp) {
+		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp) {
 			rsp.setStatusCode(code);
 			rsp.setStatusMessage("OK");
 			rsp.setContentType(ContentType_Text_utf8);
@@ -42,7 +42,7 @@ namespace response {
 		}
 	}
 	namespace xml {
-		void Result(http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp) {
+		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp) {
 			std::stringstream ss;
 			ss << "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
 				<< "<xs:root xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
@@ -84,7 +84,7 @@ namespace response {
 		}
 	}
 	namespace html {
-		void Result(http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp) {
+		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp) {
 			rsp.setStatusCode(code);
 			rsp.setStatusMessage("OK");
 			rsp.setContentType(ContentType_Html_utf8);

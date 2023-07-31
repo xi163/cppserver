@@ -14,7 +14,7 @@ namespace response {
 	HTTP/1.1 600 访问量限制(1500)\r\n\r\n
 	*/
 	namespace text {
-		void Result(http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
+		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
 	}
 	namespace json {
 		void Result(int code, std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
@@ -25,11 +25,11 @@ namespace response {
 		void ErrMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
 	}
 	namespace xml {
-		void Result(http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
+		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
 		void Test(muduo::net::HttpRequest const& req, muduo::net::HttpResponse& rsp);
 	}
 	namespace html {
-		void Result(http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
+		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
 		void NotFound(muduo::net::HttpResponse& rsp);
 	}
 }
