@@ -314,7 +314,7 @@
       <Filter>src\zlib</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\IncBoost.cc" />
-    <ClCompile Include="..\..\..\thirdpart\Logger\src\sign\sign.cc">
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\sign\impl\sign.cc">
       <Filter>src\sign\impl</Filter>
     </ClCompile>
   </ItemGroup>
