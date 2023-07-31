@@ -48,4 +48,53 @@ using namespace boost::gregorian;
 #define READ_LOCK(mutex) read_lock(mutex)
 #define WRITE_LOCK(mutex) write_lock(mutex)
 
+namespace BOOST {
+	void replace(std::string& json, const std::string& placeholder, const std::string& value);
+
+	class Json;
+
+	class Any {
+	public:
+		Any() {}
+		virtual ~Any() {}
+		virtual void bind(Json& obj) {}
+		virtual void bind(Json& obj, int i) {}
+	};
+
+	class Json {
+		friend std::string Result(int code, std::string const& msg, Any const& data);
+	public:
+		void put(std::string const& key, int val);
+		void put(std::string const& key, int64_t val);
+		void put(std::string const& key, float val);
+		void put(std::string const& key, double val);
+
+		void put(std::string const& key, int val, int i);
+		void put(std::string const& key, int64_t val, int i);
+		void put(std::string const& key, float val, int i);
+		void put(std::string const& key, double val, int i);
+
+		void put(std::string const& key, std::string const& val);
+		void put(std::string const& key, Any const& val);
+
+		void push_back(Any const& val);
+
+		std::string to_json(bool v = true);
+	private:
+		void reset_();
+		void replace_(std::string& json);
+		static std::string& final_(std::string& json);
+	private:
+		std::map<std::string, int> int_;
+		std::map<std::string, int64_t> i64_;
+		std::map<std::string, float> float_;
+		std::map<std::string, double> double_;
+		std::vector<Json> objlist_;
+	private:
+		boost::property_tree::ptree pt_;
+	};
+
+	std::string Result(int code, std::string const& msg, Any const& data);
+}
+
 #endif
