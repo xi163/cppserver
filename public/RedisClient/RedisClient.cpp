@@ -1144,8 +1144,11 @@ bool RedisClient::smembers(std::string key, std::vector<std::string> &list)
     }
     return OK;
 }
-// #define Expire_AccountUid 604800
-// #define Expire_Token (5*60)
+
+bool RedisClient::ExpireAccountUid(std::string const& account) {
+    std::string key = redisKeys::prefix_account_uid + account;
+    return resetExpired(key, redisKeys::Expire_AccountUid);
+}
 
 bool RedisClient::GetAccountUid(std::string const& account, int64_t& userId) {
     std::string key = redisKeys::prefix_account_uid + account;

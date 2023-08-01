@@ -227,6 +227,7 @@ private:
 
 
 public:
+    bool ExpireAccountUid(std::string const& account);
     bool GetAccountUid(std::string const& account, int64_t& userId);
     bool SetAccountUid(std::string const& account, int64_t userid);
     bool SetToken(std::string const& token, int64_t userid, std::string const& account);

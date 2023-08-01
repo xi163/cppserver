@@ -216,7 +216,7 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			//token签名加密
 			std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
 			//更新redis account->uid
-			REDISCLIENT.SetAccountUid(req.Account, userId);
+			REDISCLIENT.ExpireAccountUid(req.Account);
 			//缓存token
 			REDISCLIENT.SetToken(token, userId, req.Account);
 			response::json::OkMsg("登陆成功", Token(token), rsp);
