@@ -23,18 +23,18 @@ namespace mgo {
 		optional<result::insert_one> InsertOne(
 			std::string const& dbname,
 			std::string const& tblname,
-			document::view_or_value doc) {
+			document::view_or_value const& view) {
 			static __thread mongocxx::database db = MONGODBCLIENT[dbname];
 			mongocxx::collection  coll = db[tblname];
 			mongocxx::options::insert opts = mongocxx::options::insert{};
-			return coll.insert_one(doc, opts);
+			return coll.insert_one(view, opts);
 		}
 
 		optional<document::value> FindOne(
 			std::string const& dbname,
 			std::string const& tblname,
-			document::view_or_value select,
-			document::view_or_value where) {
+			document::view_or_value const& select,
+			document::view_or_value const& where) {
 			static __thread mongocxx::database db = MONGODBCLIENT[dbname];
 			mongocxx::collection  coll = db[tblname];
 			mongocxx::options::find opts = mongocxx::options::find{};
@@ -45,10 +45,9 @@ namespace mgo {
 		optional<document::value> FindOneAndUpdate(
 			std::string const& dbname,
 			std::string const& tblname,
-			document::view_or_value select,
-			document::view_or_value update,
-			document::view_or_value where) {
-			document::view view;
+			document::view_or_value const& select,
+			document::view_or_value const& update,
+			document::view_or_value const& where) {
 			//select = document{} << "seq" << 1 << finalize;
 			//update = document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize;
 			//where = document{} << "_id" << "userid" << finalize;
@@ -61,9 +60,9 @@ namespace mgo {
 	}
 
 	int64_t NewUserId(
-		document::view_or_value select,
-		document::view_or_value update,
-		document::view_or_value where) {
+		document::view_or_value const& select,
+		document::view_or_value const& update,
+		document::view_or_value const& where) {
 		try {
 			auto result = opt::FindOneAndUpdate(
 				mgoKeys::db::GAMECONFIG,
@@ -101,8 +100,8 @@ namespace mgo {
 	}
 
 	int64_t GetUserId(
-		document::view_or_value select,
-		document::view_or_value where) {
+		document::view_or_value const& select,
+		document::view_or_value const& where) {
 		try {
 			auto result = opt::FindOne(
 				mgoKeys::db::GAMEMAIN,
@@ -139,12 +138,12 @@ namespace mgo {
 		return 0;
 	}
 
-	std::string InsertUser(document::view_or_value doc) {
+	std::string InsertUser(document::view_or_value const& view) {
 		try {
 			auto result = opt::InsertOne(
 				mgoKeys::db::GAMEMAIN,
 				mgoKeys::tbl::GAMEUSER,
-				doc);
+				view);
 			if (!result/* || result->modified_count() == 0*/) {
 			}
 			else {

@@ -15,32 +15,32 @@ namespace mgo {
 		optional<result::insert_one> InsertOne(
 			std::string const& dbname,
 			std::string const& tblname,
-			document::view_or_value doc);
+			document::view_or_value const& view);
 
 		optional<document::value> FindOne(
 			std::string const& dbname,
 			std::string const& tblname,
-			document::view_or_value select,
-			document::view_or_value where);
+			document::view_or_value const& select,
+			document::view_or_value const& where);
 
 		optional<document::value> FindOneAndUpdate(
 			std::string const& dbname,
 			std::string const& tblname,
-			document::view_or_value select,
-			document::view_or_value update,
-			document::view_or_value where);
+			document::view_or_value const& select,
+			document::view_or_value const& update,
+			document::view_or_value const& where);
 	}
 	
 	int64_t NewUserId(
-		document::view_or_value select,
-		document::view_or_value update,
-		document::view_or_value where);
+		document::view_or_value const& select,
+		document::view_or_value const& update,
+		document::view_or_value const& where);
 
 	int64_t GetUserId(
-		document::view_or_value select,
-		document::view_or_value where);
+		document::view_or_value const& select,
+		document::view_or_value const& where);
 
-	std::string InsertUser(document::view_or_value doc);
+	std::string InsertUser(document::view_or_value const& view);
 }
 
 #endif
