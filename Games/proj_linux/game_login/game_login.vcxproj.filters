@@ -37,6 +37,9 @@
     <Filter Include="register">
       <UniqueIdentifier>{94a44213-2fdc-4977-9e85-c11b159a60bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="public\Database">
+      <UniqueIdentifier>{a6d66faf-e957-4f4e-aabd-881a54f75680}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
@@ -121,16 +124,16 @@
       <Filter>register</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\redisKeys.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\mgoKeys.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\mgoModel.h">
-      <Filter>public</Filter>
+      <Filter>public\Database</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\mgoOperation.h">
-      <Filter>public</Filter>
+      <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoModel.h">
+      <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoKeys.h">
+      <Filter>public\Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -212,16 +215,16 @@
       <Filter>register</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\redisKeys.cc">
-      <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\mgoKeys.cc">
-      <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\mgoModel.cc">
-      <Filter>public</Filter>
+      <Filter>public\Database</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\mgoOperation.cc">
-      <Filter>public</Filter>
+      <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoModel.cc">
+      <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoKeys.cc">
+      <Filter>public\Database</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
