@@ -19,8 +19,8 @@ extern "C" {
 
 #define REDIS_ACCOUNT_PREFIX        "h.uid."
 #define REDIS_ONLINE_PREFIX         "h.online.uid.gameinfo."
-#define prefix_account_uid         "k.account.uid."
-#define prefix_token               "k.token."
+//#define prefix_account_uid         "k.account.uid."
+//#define prefix_token               "k.token."
 #define MAX_USER_ONLINE_INFO_IDLE_TIME   (60*3)
 //#include <muduo/base/Logging.h>
 //#include <boost/algorithm/std::string.hpp>
@@ -1144,8 +1144,8 @@ bool RedisClient::smembers(std::string key, std::vector<std::string> &list)
     }
     return OK;
 }
-#define Expire_AccountUid 604800
-#define Expire_Token (5*60)
+// #define Expire_AccountUid 604800
+// #define Expire_Token (5*60)
 
 bool RedisClient::GetAccountUid(std::string const& account, int64_t& userId) {
     std::string key = redisKeys::prefix_account_uid + account;
@@ -1161,16 +1161,16 @@ bool RedisClient::GetAccountUid(std::string const& account, int64_t& userId) {
 }
 
 bool RedisClient::SetAccountUid(std::string const& account, int64_t userid) {
-    std::string key = prefix_account_uid + account;
-    return set(key, std::to_string(userid), Expire_AccountUid);
+    std::string key = redisKeys::prefix_account_uid + account;
+    return set(key, std::to_string(userid), redisKeys::Expire_AccountUid);
 }
 
 bool RedisClient::SetToken(std::string const& token, int64_t userid, std::string const& account) {
-    std::string key = prefix_token + token;
+    std::string key = redisKeys::prefix_token + token;
     BOOST::Json obj;
     obj.put("account", account);
     obj.put("uid", userid);
-    return set(key, obj.to_json(), Expire_Token);
+    return set(key, obj.to_json(), redisKeys::Expire_Token);
 }
 
 //=================================================

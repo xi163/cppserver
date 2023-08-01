@@ -105,8 +105,8 @@ namespace mgo {
 		document::view_or_value where) {
 		try {
 			auto result = opt::FindOne(
-				mgoKeys::db::GAMECONFIG,
-				mgoKeys::tbl::AUTO_INCREMENT,
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAMEUSER,
 				select, where);
 			if (!result) {
 			}
