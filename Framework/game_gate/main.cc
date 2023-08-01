@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
 						"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\." \
 						"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$"))) {
 				muduo::net::InetAddress addr(muduo::StringArg(ipaddr), 0, false);
-				server.adminList_[addr.ipv4NetEndian()] = IpVisitE::kEnable;
+				server.admin_list_[addr.ipv4NetEndian()] = eApiVisit::kEnable;
 				_LOG_INFO("管理员IP[%s]", ipaddr.c_str());
 			}
 		}

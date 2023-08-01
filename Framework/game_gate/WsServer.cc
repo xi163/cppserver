@@ -388,11 +388,11 @@ void GateServ::broadcastMessage(int mainId, int subId, ::google::protobuf::Messa
 }
 
 void GateServ::refreshBlackList() {
-	if (blackListControl_ == IpVisitCtrlE::kOpenAccept) {
+	if (blackListControl_ == eApiCtrl::kOpenAccept) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
 		RunInLoop(server_.getLoop(), std::bind(&GateServ::refreshBlackListInLoop, this));
 	}
-	else if (blackListControl_ == IpVisitCtrlE::kOpen) {
+	else if (blackListControl_ == eApiCtrl::kOpen) {
 		//同步刷新IP访问黑名单
 		refreshBlackListSync();
 	}
@@ -400,14 +400,14 @@ void GateServ::refreshBlackList() {
 
 bool GateServ::refreshBlackListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(blackListControl_ == IpVisitCtrlE::kOpen);
+	assert(blackListControl_ == eApiCtrl::kOpen);
 	{
-		WRITE_LOCK(blackList_mutex_);
-		blackList_.clear();
+		WRITE_LOCK(black_list_mutex_);
+		black_list_.clear();
 	}
 	std::string s;
-	for (std::map<in_addr_t, IpVisitE>::const_iterator it = blackList_.begin();
-		it != blackList_.end(); ++it) {
+	for (std::map<in_addr_t, eApiVisit>::const_iterator it = black_list_.begin();
+		it != black_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问黑名单\n%s", s.c_str());
@@ -416,12 +416,12 @@ bool GateServ::refreshBlackListSync() {
 
 bool GateServ::refreshBlackListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(blackListControl_ == IpVisitCtrlE::kOpenAccept);
+	assert(blackListControl_ == eApiCtrl::kOpenAccept);
 	server_.getLoop()->assertInLoopThread();
-	blackList_.clear();
+	black_list_.clear();
 	std::string s;
-	for (std::map<in_addr_t, IpVisitE>::const_iterator it = blackList_.begin();
-		it != blackList_.end(); ++it) {
+	for (std::map<in_addr_t, eApiVisit>::const_iterator it = black_list_.begin();
+		it != black_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问黑名单\n%s", s.c_str());

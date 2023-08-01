@@ -23,13 +23,13 @@ enum ServiceStateE {
 	kRunning = 1,//服务中
 };
 
-enum IpVisitCtrlE {
+enum eApiCtrl {
 	kClose = 0,
 	kOpen = 1,//应用层IP截断
 	kOpenAccept = 2,//网络底层IP截断
 };
 
-enum IpVisitE {
+enum eApiVisit {
 	kEnable = 0,//IP允许访问
 	kDisable = 1,//IP禁止访问
 };
@@ -224,14 +224,14 @@ public:
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 
 	//管理员挂维护/恢复服务
-	volatile long serverState_;
-	std::map<in_addr_t, IpVisitE> adminList_;
-	IpVisitCtrlE whiteListControl_;
-	std::map<in_addr_t, IpVisitE> whiteList_;
-	mutable boost::shared_mutex whiteList_mutex_;
-	IpVisitCtrlE blackListControl_;
-	std::map<in_addr_t, IpVisitE> blackList_;
-	mutable boost::shared_mutex blackList_mutex_;
+	volatile long server_state_;
+	std::map<in_addr_t, eApiVisit> admin_list_;
+	eApiCtrl whiteListControl_;
+	std::map<in_addr_t, eApiVisit> white_list_;
+	mutable boost::shared_mutex white_list_mutex_;
+	eApiCtrl blackListControl_;
+	std::map<in_addr_t, eApiVisit> black_list_;
+	mutable boost::shared_mutex black_list_mutex_;
 	CIpFinder ipFinder_;
 };
 

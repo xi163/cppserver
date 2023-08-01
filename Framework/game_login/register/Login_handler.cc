@@ -5,6 +5,7 @@
 #include "public/mgoModel.h"
 #include "public/redisKeys.h"
 #include "GateServList.h"
+#include "../ErrorCode.h"
 
 std::string md5code = "334270F58E3E9DEC";
 std::string descode = "111362EE140F157D";
@@ -237,12 +238,13 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 	}
 }
 
-void Login(
+int Login(
 	const muduo::net::HttpRequest& req,
 	muduo::net::HttpResponse& rsp,
 	const muduo::net::TcpConnectionPtr& conn,
 	BufferPtr const& buf,
 	muduo::Timestamp receiveTime) {
+	int errcode = ApiErrorCode::NoError;
 	switch (req.method()) {
 	case muduo::net::HttpRequest::kGet: {
 		std::string sType = req.getHeader(ContentType);
@@ -321,4 +323,5 @@ void Login(
 	}
 	}
 	response::xml::Test(req, rsp);
+	return errcode;
 }

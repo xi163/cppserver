@@ -202,15 +202,15 @@ ApiServer::ApiServer(
 		: server_(loop, listenAddr, "ApiServer")
         , threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "TimerEventLoopThread"))
 	, isdecrypt_(false)
-	, whiteListControl_(eWhiteListCtrl::Close)
-	, kTimeoutSeconds_(3)
-	, kMaxConnections_(15000)
+	, whiteListControl_(eApiCtrl::Close)
+	, idleTimeout_(3)
+	, maxConnections_(15000)
 #ifdef _STAT_ORDER_QPS_
 	, deltaTime_(10)
 #endif
 	, server_state_(ServiceRunning)
-	, ttlUserLockSeconds_(1000)
-	, ttlAgentLockSeconds_(500)
+	, ttlUserLock_(1000)
+	, ttlAgentLock_(500)
 {
 	httpServer_.setConnectionCallback(
 		std::bind(&ApiServer::onHttpConnection, this, std::placeholders::_1));
@@ -345,7 +345,7 @@ void ApiServer::start(int numThreads, int numWorkerThreads, int maxSize) {
 		<< " worker线程数 = " << numWorkerThreads;
 	
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	if (whiteListControl_ == eWhiteListCtrl::OpenAccept) {
+	if (whiteListControl_ == eApiCtrl::OpenAccept) {
 		//开启IP访问白名单检查
 		httpServer_.setConditionCallback(std::bind(&OrderServer::onHttpCondition, this, std::placeholders::_1));
 	}
@@ -364,12 +364,12 @@ void ApiServer::start(int numThreads, int numWorkerThreads, int maxSize) {
 	for (size_t index = 0; index < loops.size(); ++index) {
 #if 0
 		ConnBucketPtr bucket(new ConnBucket(
-			loops[index], index, kTimeoutSeconds_));
+			loops[index], index, idleTimeout_));
 		bucketsPool_.emplace_back(std::move(bucket));
 #else
 		bucketsPool_.emplace_back(
 			ConnBucketPtr(new ConnBucket(
-				loops[index], index, kTimeoutSeconds_)));
+				loops[index], index, idleTimeout_)));
 #endif
 		loops[index]->setContext(EventLoopContextPtr(new EventLoopContext(index)));
 	}
@@ -404,7 +404,7 @@ void ApiServer::start(int numThreads, int numWorkerThreads, int maxSize) {
 
 bool ApiServer::onHttpCondition(const InetAddress& peerAddr) {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == eWhiteListCtrl::OpenAccept);
+	assert(whiteListControl_ == eApiCtrl::OpenAccept);
 	server_.getLoop()->assertInLoopThread();
 	{
 		//管理员挂维护/恢复服务
@@ -440,7 +440,7 @@ void ApiServer::onHttpConnection(const muduo::net::TcpConnectionPtr& conn)
 		numTotalReq_.incrementAndGet();
 
 		//最大连接数限制
-		if (num > kMaxConnections_) {
+		if (num > maxConnections_) {
 #if 0
 			//不再发送数据
 			conn->shutdown();
@@ -452,7 +452,7 @@ void ApiServer::onHttpConnection(const muduo::net::TcpConnectionPtr& conn)
 			muduo::net::HttpResponse rsp(false);
 			setFailedResponse(rsp,
 				muduo::net::HttpResponse::k404NotFound,
-				"HTTP/1.1 600 访问量限制(" + std::to_string(kMaxConnections_) + ")\r\n\r\n");
+				"HTTP/1.1 600 访问量限制(" + std::to_string(maxConnections_) + ")\r\n\r\n");
 			muduo::net::Buffer buf;
 			rsp.appendToBuffer(&buf);
 			conn->send(&buf);
@@ -469,7 +469,7 @@ void ApiServer::onHttpConnection(const muduo::net::TcpConnectionPtr& conn)
 		}
 #if 0
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		if (whiteListControl_ == eWhiteListCtrl::Open) {
+		if (whiteListControl_ == eApiCtrl::Open) {
 			bool is_ip_allowed = false;
 			{
 				READ_LOCK(white_list_mutex_);
@@ -555,7 +555,7 @@ void ApiServer::onHttpMessage(const muduo::net::TcpConnectionPtr& conn,
 	}
 	else if (httpContext->gotAll()) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		if (whiteListControl_ == IpVisitCtrlE::kOpen) {
+		if (whiteListControl_ == eApiCtrl::kOpen) {
 			std::string ipaddr;
 			{
 				std::string ipaddrs = httpContext->request().getHeader("X-Forwarded-For");
@@ -599,13 +599,13 @@ void ApiServer::onHttpMessage(const muduo::net::TcpConnectionPtr& conn,
 			bool is_ip_allowed = false;
 			{
 				//管理员挂维护/恢复服务
-				std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipNetEndian());
-				is_ip_allowed = (it != adminList_.end());
+				std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipNetEndian());
+				is_ip_allowed = (it != admin_list_.end());
 			}
 			if (!is_ip_allowed) {
-				READ_LOCK(whiteList_mutex_);
-				std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(peerAddr.ipNetEndian());
-				is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
+				READ_LOCK(white_list_mutex_);
+				std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.find(peerAddr.ipNetEndian());
+				is_ip_allowed = ((it != white_list_.end()) && (eApiVisit::kEnable == it->second));
 			}
 			if (!is_ip_allowed) {
 #if 0
@@ -704,12 +704,12 @@ void ApiServer::asyncHttpHandler(WeakEntryPtr const& weakEntry, muduo::Timestamp
 			//LOG_ERROR << __FUNCTION__ << " bufsz = " << buf->readableBytes();
 #if 0
 			//Accept时候判断，socket底层控制，否则开启异步检查
-			if (whiteListControl_ == IpVisitCtrlE::kOpen) {
+			if (whiteListControl_ == eApiCtrl::kOpen) {
 				bool is_ip_allowed = false;
 				{
-					READ_LOCK(whiteList_mutex_);
-					std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(conn->peerAddress().ipNetEndian());
-					is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
+					READ_LOCK(white_list_mutex_);
+					std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.find(conn->peerAddress().ipNetEndian());
+					is_ip_allowed = ((it != white_list_.end()) && (eApiVisit::kEnable == it->second));
 				}
 				if (!is_ip_allowed) {
 #if 0
@@ -983,7 +983,7 @@ std::string ApiServer::createMonitorData(
 	root.put("stat_dt", ":stat_dt");
 	//估算每秒请求处理数 testTPS
 	root.put("test_TPS", ":test_TPS");
-	//请求超时时间 kTimeoutSeconds_
+	//请求超时时间 idleTimeout_
 	root.put("req_timeout", ":req_timeout");
 	{
 		//统计请求次数 requestNum
@@ -1156,7 +1156,7 @@ void ApiServer::processHttpRequest(const muduo::net::HttpRequest& req, muduo::ne
 					<< "\n--- *** ------------------------------------------------------\n"
 					<< json
 					<< "--- *** " << pid << "[注单]I/O线程数[" << numThreads_ << "] 业务线程数[" << workerNumThreads_ << "] 累计接收请求数[" << numTotalReq_.get() << "] 累计未处理请求数[" << numTotalBadReq_.get() << "]\n"
-					<< "--- *** " << pid << "[注单]本次统计间隔时间[" << totalTime << "]s 请求超时时间[" << kTimeoutSeconds_ << "]s\n"
+					<< "--- *** " << pid << "[注单]本次统计间隔时间[" << totalTime << "]s 请求超时时间[" << idleTimeout_ << "]s\n"
 					<< "--- *** " << pid << "[注单]本次统计请求次数[" << requestNum << "] 成功[" << requestNumSucc << "] 失败[" << requestNumFailed << "] 命中率[" << ratio << "]\n"
 					<< "--- *** " << pid << "[注单]最近一次请求耗时[" << timdiff * muduo::Timestamp::kMicroSecondsPerSecond / 1000 << "]ms [" << errmsg << "]\n"
 					<< "--- *** " << pid << "[注单]平均请求耗时[" << avgTime * muduo::Timestamp::kMicroSecondsPerSecond / 1000 << "]ms\n"
@@ -1165,7 +1165,7 @@ void ApiServer::processHttpRequest(const muduo::net::HttpRequest& req, muduo::ne
 #else
 				std::stringstream ss; ss << json
 					<< "--- *** " << pid << "[注单]I/O线程数[" << numThreads_ << "] 业务线程数[" << workerNumThreads_ << "] 累计接收请求数[" << numTotalReq_.get() << "] 累计未处理请求数[" << numTotalBadReq_.get() << "]\n"
-					<< "--- *** " << pid << "[注单]本次统计间隔时间[" << totalTime << "]s 请求超时时间[" << kTimeoutSeconds_ << "]s\n"
+					<< "--- *** " << pid << "[注单]本次统计间隔时间[" << totalTime << "]s 请求超时时间[" << idleTimeout_ << "]s\n"
 					<< "--- *** " << pid << "[注单]本次统计请求次数[" << requestNum << "] 成功[" << requestNumSucc << "] 失败[" << requestNumFailed << "] 命中率[" << ratio << "]\n"
 					<< "--- *** " << pid << "[注单]最近一次请求耗时[" << timdiff * muduo::Timestamp::kMicroSecondsPerSecond / 1000 << "]ms [" << errmsg << "]\n"
 					<< "--- *** " << pid << "[注单]平均请求耗时[" << avgTime * muduo::Timestamp::kMicroSecondsPerSecond / 1000 << "]ms\n"
@@ -1174,7 +1174,7 @@ void ApiServer::processHttpRequest(const muduo::net::HttpRequest& req, muduo::ne
 #endif
 				if (totalTime >= (double)deltaTime_) {
 					//更新redis监控字段
-					std::string monitordata = createMonitorData(latest, totalTime, kTimeoutSeconds_,
+					std::string monitordata = createMonitorData(latest, totalTime, idleTimeout_,
 						requestNum, requestNumSucc, requestNumFailed, ratio,
 						requestNumTotal, requestNumTotalSucc, requestNumTotalFailed, ratioTotal, testTPS);
 					REDISCLIENT.set("s.monitor.order", monitordata);
@@ -1388,11 +1388,11 @@ bool ApiServer::refreshAgentInfo()
 //3.redis广播通知刷新一次 ///
 void ApiServer::refreshWhiteList() {
 	//开启了IP访问白名单功能 ///
-	if (whiteListControl_ == eWhiteListCtrl::OpenAccept) {
+	if (whiteListControl_ == eApiCtrl::OpenAccept) {
 		//Accept时候判断，socket底层控制，否则开启异步检查 ///
 		server_.getLoop()->runInLoop(std::bind(&ApiServer::refreshWhiteListInLoop, this));
 	}
-	else if (whiteListControl_ == eWhiteListCtrl::Open) {
+	else if (whiteListControl_ == eApiCtrl::Open) {
 		//同步刷新IP访问白名单
 		refreshWhiteListSync();
 	}
@@ -1401,7 +1401,7 @@ void ApiServer::refreshWhiteList() {
 //同步刷新IP访问白名单
 bool ApiServer::refreshWhiteListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查 ///
-	assert(whiteListControl_ == eWhiteListCtrl::Open);
+	assert(whiteListControl_ == eApiCtrl::Open);
 	{
 		WRITE_LOCK(white_list_mutex_);
 		white_list_.clear();
@@ -1421,7 +1421,7 @@ bool ApiServer::refreshWhiteListSync() {
 
 bool ApiServer::refreshWhiteListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查 ///
-	assert(whiteListControl_ == eWhiteListCtrl::OpenAccept);
+	assert(whiteListControl_ == eApiCtrl::OpenAccept);
 	//安全断言 ///
 	server_.getLoop()->assertInLoopThread();
 	white_list_.clear();

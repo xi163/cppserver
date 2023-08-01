@@ -12,7 +12,7 @@ LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	, httpServer_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
-	, serverState_(kRunning)
+	, server_state_(kRunning)
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
@@ -195,12 +195,12 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	_LOG_INFO("LoginServ = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, numWorkerThreads);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	if (blackListControl_ == IpVisitCtrlE::kOpenAccept) {
+	if (blackListControl_ == eApiCtrl::kOpenAccept) {
 		server_.setConditionCallback(std::bind(&LoginServ::onCondition, this, std::placeholders::_1));
 	}
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	if (whiteListControl_ == IpVisitCtrlE::kOpenAccept) {
+	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
 		httpServer_.setConditionCallback(std::bind(&LoginServ::onHttpCondition, this, std::placeholders::_1));
 	}
 

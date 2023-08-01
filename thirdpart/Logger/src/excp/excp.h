@@ -64,7 +64,7 @@ namespace EXCPT {
 			std::ostringstream oss; \
 			oss << "TRACE[ " << #fn << " ] " << e.what() \
 			   << " " << utils::trim_file(e.f_.c_str()) << "(" << e.l_ << ") " << utils::trim_func(e.fn_.c_str()); \
-			LOG_S_TRACE(oss.str()); \
+			_LOG_S_TRACE(oss.str()); \
 		} \
 	}
 
@@ -78,7 +78,7 @@ namespace EXCPT {
 			std::ostringstream oss; \
 			oss << "TRACE[ " << #fn << "(" << e.err_no_ << ") ] " << e.what() \
 			   << " " << utils::trim_file(e.f_.c_str()) << "(" << e.l_ << ") " << utils::trim_func(e.fn_.c_str()); \
-			LOG_S_TRACE(oss.str()); \
+			_LOG_S_TRACE(oss.str()); \
 		} \
 	}
 

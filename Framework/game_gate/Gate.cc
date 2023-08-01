@@ -21,7 +21,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	, gameClients_(loop)
 	, idleTimeout_(3)
 	, maxConnections_(15000)
-	, serverState_(ServiceStateE::kRunning)
+	, server_state_(ServiceStateE::kRunning)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
@@ -329,12 +329,12 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	_LOG_INFO("GateSrv = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, numWorkerThreads);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	if (blackListControl_ == IpVisitCtrlE::kOpenAccept) {
+	if (blackListControl_ == eApiCtrl::kOpenAccept) {
 		server_.setConditionCallback(std::bind(&GateServ::onCondition, this, std::placeholders::_1));
 	}
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	if (whiteListControl_ == IpVisitCtrlE::kOpenAccept) {
+	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
 		httpServer_.setConditionCallback(std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1));
 	}
 

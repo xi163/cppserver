@@ -126,7 +126,7 @@ enum ApiErrorCode {
     GameRecordGetNoDataError = 101,
 };
 
-enum ApiOpType {
+enum eApiType {
     OpUnknown = -1,
 	OpAddScore = 2,
 	OpSubScore = 3,
@@ -137,13 +137,13 @@ enum ServiceStateE {
     kRepairing = 1,//维护中
 };
 
-enum IpVisitCtrlE {
+enum eApiCtrl {
 	kClose = 0,
 	kOpen = 1,//应用层IP截断
 	kOpenAccept = 2,//网络底层IP截断
 };
 
-enum IpVisitE {
+enum eApiVisit {
 	kEnable = 0,//IP允许访问
 	kDisable = 1,//IP禁止访问
 };

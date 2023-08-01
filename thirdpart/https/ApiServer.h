@@ -44,7 +44,7 @@
 #endif
 
 //IP访问白名单控制 ///
-enum eWhiteListCtrl {
+enum eApiCtrl {
 	Close      = 0,
 	Open       = 1,//应用层IP截断
 	OpenAccept = 2,//网络底层IP截断
@@ -426,13 +426,13 @@ public:
 	muduo::AtomicInt64 numTotalReq_, numTotalBadReq_;
 
 	//最大连接数限制 ///
-	int kMaxConnections_;
+	int maxConnections_;
 
 	//指定时间轮盘大小(bucket桶大小) ///
 	//即环形数组大小(size) >=
 	//心跳超时清理时间(timeout) >
 	//心跳间隔时间(interval)
-	int kTimeoutSeconds_;
+	int idleTimeout_;
 private:
 	/* 返回格式 ///
 	{
@@ -515,14 +515,14 @@ public:
 	std::map<in_addr_t, eApiVisit> white_list_;
 	mutable boost::shared_mutex white_list_mutex_;
 	//Accept时候判断，socket底层控制，否则开启异步检查 ///
-	eWhiteListCtrl whiteListControl_;
+	eApiCtrl whiteListControl_;
 	//管理员挂维护/恢复服务 ///
 	std::map<in_addr_t, eApiVisit> admin_list_;
 
 	//redis分布式锁 ///
 	std::vector<std::string> redlockVec_;
 	//上下分操作间隔时间(针对用户/代理) ///
-	int ttlUserLockSeconds_, ttlAgentLockSeconds_;
+	int ttlUserLock_, ttlAgentLock_;
 private:
     const static size_t kHeaderLen = sizeof(int16_t);
     std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;

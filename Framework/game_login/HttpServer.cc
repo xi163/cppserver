@@ -10,23 +10,23 @@
 
 bool LoginServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == IpVisitCtrlE::kOpenAccept);
+	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
 	httpServer_.getLoop()->assertInLoopThread();
 	{
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-		if (it != adminList_.end()) {
+		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+		if (it != admin_list_.end()) {
 			return true;
 		}
 	}
 	{
 		//192.168.2.21:3640 192.168.2.21:3667
-		std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(peerAddr.ipv4NetEndian());
-		return (it != whiteList_.end()) && (IpVisitE::kEnable == it->second);
+		std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.find(peerAddr.ipv4NetEndian());
+		return (it != white_list_.end()) && (eApiVisit::kEnable == it->second);
 	}
 #if 0
 	//节点维护中
-	if (serverState_ == ServiceStateE::kRepairing) {
+	if (server_state_ == ServiceStateE::kRepairing) {
 		return false;
 	}
 #endif
@@ -97,7 +97,7 @@ void LoginServ::onHttpMessage(
 	}
 	else if (httpContext.gotAll()) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		if (whiteListControl_ == IpVisitCtrlE::kOpen) {
+		if (whiteListControl_ == eApiCtrl::kOpen) {
 			std::string ipaddr;
 			{
 				std::string ipaddrs = httpContext.request().getHeader("X-Forwarded-For");
@@ -141,13 +141,13 @@ void LoginServ::onHttpMessage(
 			bool is_ip_allowed = false;
 			{
 				//管理员挂维护/恢复服务
-				std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-				is_ip_allowed = (it != adminList_.end());
+				std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+				is_ip_allowed = (it != admin_list_.end());
 			}
 			if (!is_ip_allowed) {
-				READ_LOCK(whiteList_mutex_);
-				std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(peerAddr.ipv4NetEndian());
-				is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
+				READ_LOCK(white_list_mutex_);
+				std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.find(peerAddr.ipv4NetEndian());
+				is_ip_allowed = ((it != white_list_.end()) && (eApiVisit::kEnable == it->second));
 			}
 			if (!is_ip_allowed) {
 #if 0
@@ -224,12 +224,12 @@ void LoginServ::asyncHttpHandler(
 	if (conn) {
 #if 0
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		if (whiteListControl_ == IpVisitCtrlE::kOpen) {
+		if (whiteListControl_ == eApiCtrl::kOpen) {
 			bool is_ip_allowed = false;
 			{
-				READ_LOCK(whiteList_mutex_);
-				std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(conn->peerAddress().ipv4NetEndian());
-				is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
+				READ_LOCK(white_list_mutex_);
+				std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.find(conn->peerAddress().ipv4NetEndian());
+				is_ip_allowed = ((it != white_list_.end()) && (eApiVisit::kEnable == it->second));
 			}
 			if (!is_ip_allowed) {
 #if 0
@@ -276,7 +276,7 @@ void LoginServ::asyncHttpHandler(
 #endif
 		}
 		httpContext.reset();
-		}
+	}
 	else {
 		numTotalBadReq_.incrementAndGet();
 		_LOG_ERROR("conn invalid");
@@ -309,148 +309,122 @@ void LoginServ::processHttpRequest(
 	else if (req.path() == "/test") {
 		response::xml::Test(req, rsp);
 	}
-	else {
-		if (serverState_ == kRepairing) {
+	else if (req.path() == "/login") {
+		boost::property_tree::ptree latest;
+		int testTPS = 0;
+#ifdef _STAT_QPS_
+		//起始时间戳(微秒)
+		static muduo::Timestamp timeStart_;
+		//统计请求次数
+		static muduo::AtomicInt32 numRequest_;
+		//历史请求次数
+		static muduo::AtomicInt32 numRequestTotal_;
+		//统计成功次数
+		static muduo::AtomicInt32 numRequestSucc_;
+		//统计失败次数
+		static muduo::AtomicInt32 numRequestFailed_;
+		//历史成功次数
+		static muduo::AtomicInt32 numRequestTotalSucc_;
+		//历史失败次数
+		static muduo::AtomicInt32 numRequestTotalFailed_;
+		static volatile long value = 0;
+		if (0 == __sync_val_compare_and_swap(&value, 0, 1)) {
+			timeStart_ = muduo::Timestamp::now();
+		}
+		//本次请求开始时间戳(微秒)
+		muduo::Timestamp timestart = muduo::Timestamp::now();
+#endif
+		if (server_state_ == kRepairing) {
 			response::text::Result(
 				muduo::net::HttpResponse::k404NotFound,
-				"HTTP/1.1 405 服务维护中\r\n\r\n",
-				rsp);
+				"HTTP/1.1 405 服务维护中\r\n\r\n", rsp);
 		}
 		else {
-			//登陆
-			if (req.path() == "/login") {
-				Login(req, rsp, conn, buf, receiveTime);
+			//onProcess(req.query(), receiveTime, errcode, errmsg, latest, testTPS);
+			int errcode = Login(req, rsp, conn, buf, receiveTime);
+#ifdef _STAT_QPS_
+			if (errcode == ApiErrorCode::NoError) {
+				numRequestSucc_.incrementAndGet();
+				numRequestTotalSucc_.incrementAndGet();
 			}
+			else {
+				numRequestFailed_.incrementAndGet();
+				numRequestTotalFailed_.incrementAndGet();
+			}
+#endif
 		}
+#ifdef _STAT_QPS_
+		//本次请求结束时间戳(微秒)
+		muduo::Timestamp timenow = muduo::Timestamp::now();
+		numRequest_.incrementAndGet();
+		numRequestTotal_.incrementAndGet();
+		static volatile long value = 0;
+		if (0 == __sync_val_compare_and_swap(&value, 0, 1)) {
+			//间隔时间(s)打印一次
+			static int deltaTime_ = 10;
+			//统计间隔时间(s)
+			double totalTime = muduo::timeDifference(timenow, timeStart_);
+			if (totalTime >= (double)deltaTime_) {
+				//最近一次请求耗时(s)
+				double timdiff = muduo::timeDifference(timenow, timestart);
+				int64_t	requestNum = numRequest_.get();
+				//统计成功次数
+				int64_t requestNumSucc = numRequestSucc_.get();
+				//统计失败次数
+				int64_t requestNumFailed = numRequestFailed_.get();
+				//统计命中率
+				double ratio = (double)(requestNumSucc) / (double)(requestNum);
+				//历史请求次数
+				int64_t	requestNumTotal = numRequestTotal_.get();
+				//历史成功次数
+				int64_t requestNumTotalSucc = numRequestTotalSucc_.get();
+				//历史失败次数
+				int64_t requestNumTotalFailed = numRequestTotalFailed_.get();
+				//历史命中率
+				double ratioTotal = (double)(requestNumTotalSucc) / (double)(requestNumTotal);
+				//平均请求耗时(s)
+				double avgTime = totalTime / requestNum;
+				//每秒请求次数(QPS)
+				int64_t avgNum = (int64_t)(requestNum / totalTime);
+				std::stringstream s;
+				boost::property_tree::json_parser::write_json(s, latest, true);
+				std::string json = s.str();
+				_LOG_ERROR("\n%s\n" \
+					"I/O线程数[%d] 业务线程数[%d] 累计接收请求数[%d] 累计未处理请求数[%d]\n" \
+					"本次统计间隔时间[%d]s 请求超时时间[%d]s\n" \
+					"本次统计请求次数[%d] 成功[%d] 失败[%d] 命中率[%.3f]\n" \
+					"最近一次请求耗时[%d]ms [%s]\n" \
+					"平均请求耗时[%d]ms\n" \
+					"每秒请求次数(QPS) = [%d] 单线程每秒请求处理数(TPS) = [%d] 预计每秒请求处理总数(TPS) = [%d]\n" \
+					"历史请求次数[%d] 成功[%d] 失败[%d] 命中率[%.3f]",
+					json.c_str(),
+					numThreads_, workerNumThreads_, numTotalReq_.get(), numTotalBadReq_.get(),
+					totalTime, idleTimeout_,
+					requestNum, requestNumSucc, requestNumFailed, ratio,
+					timdiff * muduo::Timestamp::kMicroSecondsPerSecond / 1000, errmsg.c_str(),
+					avgTime * muduo::Timestamp::kMicroSecondsPerSecond / 1000,
+					avgNum, testTPS, testTPS * workerNumThreads_,
+					requestNumTotal, requestNumTotalSucc, requestNumTotalFailed, ratioTotal);
+				if (totalTime >= (double)deltaTime_) {
+					std::string monitordata = createMonitorData(latest, totalTime, idleTimeout_,
+						requestNum, requestNumSucc, requestNumFailed, ratio,
+						requestNumTotal, requestNumTotalSucc, requestNumTotalFailed, ratioTotal, testTPS);
+					REDISCLIENT.set("s.monitor.order", monitordata);
+				}
+				timeStart_ = timenow;
+				numRequest_.getAndSet(0);
+				numRequestSucc_.getAndSet(0);
+				numRequestFailed_.getAndSet(0);
+			}
+			__sync_val_compare_and_swap(&value, 1, 0);
+		}
+#endif
 	}
-	
-// 	if (req.path() == "/GameHandle") {
-// 		int errcode = ApiErrorCode::NoError;
-// 		std::string errmsg;
-// 		std::string rspdata;
-// 		boost::property_tree::ptree latest;
-// 		int testTPS = 0;
-// #ifdef _STAT_QPS_
-// 		//起始时间戳(微秒)
-// 		static muduo::Timestamp timeStart_;
-// 		//统计请求次数
-// 		static muduo::AtomicInt32 numRequest_;
-// 		//历史请求次数
-// 		static muduo::AtomicInt32 numRequestTotal_;
-// 		//统计成功次数
-// 		static muduo::AtomicInt32 numRequestSucc_;
-// 		//统计失败次数
-// 		static muduo::AtomicInt32 numRequestFailed_;
-// 		//历史成功次数
-// 		static muduo::AtomicInt32 numRequestTotalSucc_;
-// 		//历史失败次数
-// 		static muduo::AtomicInt32 numRequestTotalFailed_;
-// 		static volatile long value = 0;
-// 		if (0 == __sync_val_compare_and_swap(&value, 0, 1)) {
-// 			timeStart_ = muduo::Timestamp::now();
-// 		}
-// 		//本次请求开始时间戳(微秒)
-// 		muduo::Timestamp timestart = muduo::Timestamp::now();
-// #endif
-// 		if (serverState_ == kRepairing) {
-// 			response::text::Result(
-// 				muduo::net::HttpResponse::k404NotFound,
-// 				"HTTP/1.1 405 服务维护中\r\n\r\n", rsp);
-// 		}
-// 		else {
-// 			rspdata = onProcess(req.query(), receiveTime, errcode, errmsg, latest, testTPS);
-// 			_LOG_INFO("\n%s", rspdata.c_str());
-// #ifdef _STAT_QPS_
-// 			if (errcode == ApiErrorCode::NoError) {
-// 				numRequestSucc_.incrementAndGet();
-// 				numRequestTotalSucc_.incrementAndGet();
-// 			}
-// 			else {
-// 				numRequestFailed_.incrementAndGet();
-// 				numRequestTotalFailed_.incrementAndGet();
-// 			}
-// #endif
-// 			rsp.setContentType("application/json;charset=utf-8");
-// 			rsp.setBody(rspdata);
-// 		}
-// #ifdef _STAT_QPS_
-// 		//本次请求结束时间戳(微秒)
-// 		muduo::Timestamp timenow = muduo::Timestamp::now();
-// 		numRequest_.incrementAndGet();
-// 		numRequestTotal_.incrementAndGet();
-// 		static volatile long value = 0;
-// 		if (0 == __sync_val_compare_and_swap(&value, 0, 1)) {
-// 			//间隔时间(s)打印一次
-// 			static int deltaTime_ = 10;
-// 			//统计间隔时间(s)
-// 			double totalTime = muduo::timeDifference(timenow, timeStart_);
-// 			if (totalTime >= (double)deltaTime_) {
-// 				//最近一次请求耗时(s)
-// 				double timdiff = muduo::timeDifference(timenow, timestart);
-// 				int64_t	requestNum = numRequest_.get();
-// 				//统计成功次数
-// 				int64_t requestNumSucc = numRequestSucc_.get();
-// 				//统计失败次数
-// 				int64_t requestNumFailed = numRequestFailed_.get();
-// 				//统计命中率
-// 				double ratio = (double)(requestNumSucc) / (double)(requestNum);
-// 				//历史请求次数
-// 				int64_t	requestNumTotal = numRequestTotal_.get();
-// 				//历史成功次数
-// 				int64_t requestNumTotalSucc = numRequestTotalSucc_.get();
-// 				//历史失败次数
-// 				int64_t requestNumTotalFailed = numRequestTotalFailed_.get();
-// 				//历史命中率
-// 				double ratioTotal = (double)(requestNumTotalSucc) / (double)(requestNumTotal);
-// 				//平均请求耗时(s)
-// 				double avgTime = totalTime / requestNum;
-// 				//每秒请求次数(QPS)
-// 				int64_t avgNum = (int64_t)(requestNum / totalTime);
-// 				std::stringstream s;
-// 				boost::property_tree::json_parser::write_json(s, latest, true);
-// 				std::string json = s.str();
-// 				_LOG_ERROR("\n%s\n" \
-// 					"I/O线程数[%d] 业务线程数[%d] 累计接收请求数[%d] 累计未处理请求数[%d]\n" \
-// 					"本次统计间隔时间[%d]s 请求超时时间[%d]s\n" \
-// 					"本次统计请求次数[%d] 成功[%d] 失败[%d] 命中率[%.3f]\n" \
-// 					"最近一次请求耗时[%d]ms [%s]\n" \
-// 					"平均请求耗时[%d]ms\n" \
-// 					"每秒请求次数(QPS) = [%d] 单线程每秒请求处理数(TPS) = [%d] 预计每秒请求处理总数(TPS) = [%d]\n" \
-// 					"历史请求次数[%d] 成功[%d] 失败[%d] 命中率[%.3f]",
-// 					json.c_str(),
-// 					numThreads_, workerNumThreads_, numTotalReq_.get(), numTotalBadReq_.get(),
-// 					totalTime, idleTimeout_,
-// 					requestNum, requestNumSucc, requestNumFailed, ratio,
-// 					timdiff * muduo::Timestamp::kMicroSecondsPerSecond / 1000, errmsg.c_str(),
-// 					avgTime * muduo::Timestamp::kMicroSecondsPerSecond / 1000,
-// 					avgNum, testTPS, testTPS * workerNumThreads_,
-// 					requestNumTotal, requestNumTotalSucc, requestNumTotalFailed, ratioTotal);
-// 				if (totalTime >= (double)deltaTime_) {
-// 					std::string monitordata = createMonitorData(latest, totalTime, kTimeoutSeconds_,
-// 						requestNum, requestNumSucc, requestNumFailed, ratio,
-// 						requestNumTotal, requestNumTotalSucc, requestNumTotalFailed, ratioTotal, testTPS);
-// 					REDISCLIENT.set("s.monitor.order", monitordata);
-// 				}
-// 				timeStart_ = timenow;
-// 				numRequest_.getAndSet(0);
-// 				numRequestSucc_.getAndSet(0);
-// 				numRequestFailed_.getAndSet(0);
-// 			}
-// 			__sync_val_compare_and_swap(&value, 1, 0);
-// 		}
-// #endif
-// #if 1
-// 		//rsp.setBody(rspdata);
-// #else
-// 		rsp.setContentType("application/xml;charset=utf-8");
-// 		rsp.setBody(getRequestStr(req));
-// #endif
-// 	}
 // 	//刷新客户端访问IP黑名单信息
 // 	else if (req.path() == "/refreshBlackList") {
 // 		//管理员挂维护/恢复服务
-// 		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-// 		if (it != adminList_.end()) {
+// 		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+// 		if (it != admin_list_.end()) {
 // 			rsp.setContentType("text/plain;charset=utf-8");
 // 			refreshBlackList();
 // 			rsp.setBody("success");
@@ -465,8 +439,8 @@ void LoginServ::processHttpRequest(
 // 	//刷新HTTP访问IP白名单信息
 // 	else if (req.path() == "/refreshWhiteList") {
 // 		//管理员挂维护/恢复服务
-// 		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-// 		if (it != adminList_.end()) {
+// 		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+// 		if (it != admin_list_.end()) {
 // 			rsp.setContentType("text/plain;charset=utf-8");
 // 			refreshWhiteList();
 // 			rsp.setBody("success");
@@ -481,8 +455,8 @@ void LoginServ::processHttpRequest(
 // 	//请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
 // 	else if (req.path() == "/repairServer") {
 // 		//管理员挂维护/恢复服务
-// 		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-// 		if (it != adminList_.end()) {
+// 		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+// 		if (it != admin_list_.end()) {
 // 			rsp.setContentType("text/plain;charset=utf-8");
 // 			std::string rspdata;
 // 			repairServer(req.query(), rspdata);
@@ -497,8 +471,8 @@ void LoginServ::processHttpRequest(
 // 	}
 // 	else if (req.path() == "/help") {
 // 		//管理员挂维护/恢复服务
-// 		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-// 		if (it != adminList_.end()) {
+// 		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+// 		if (it != admin_list_.end()) {
 // 			rsp.setContentType("text/html;charset=utf-8");
 // 			rsp.setBody("<html>"
 // 				"<head><title>help</title></head>"
@@ -516,15 +490,15 @@ void LoginServ::processHttpRequest(
 // 				"HTTP/1.1 504 权限不够\r\n\r\n", rsp);
 // 		}
 // 	}
-// 	else {
-// #if 1
-// 		response::text::Result(
-// 			muduo::net::HttpResponse::k404NotFound,
-// 			"HTTP/1.1 404 Not Found\r\n\r\n", rsp);
-// #else
-//		response::html::NotFound(rsp);
-// #endif
-// 	}
+	else {
+#if 1
+		response::text::Result(
+			muduo::net::HttpResponse::k404NotFound,
+			"HTTP/1.1 404 Not Found\r\n\r\n", rsp);
+#else
+		response::html::NotFound(rsp);
+#endif
+	}
 }
 
 std::string LoginServ::onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& errcode, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS) {
@@ -940,11 +914,11 @@ int LoginServ::execute(int opType, std::string const& account, double score, std
 }
 
 void LoginServ::refreshWhiteList() {
-	if (whiteListControl_ == IpVisitCtrlE::kOpenAccept) {
+	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
 		RunInLoop(httpServer_.getLoop(), std::bind(&LoginServ::refreshWhiteListInLoop, this));
 	}
-	else if (whiteListControl_ == IpVisitCtrlE::kOpen) {
+	else if (whiteListControl_ == eApiCtrl::kOpen) {
 		//同步刷新IP访问白名单
 		refreshWhiteListSync();
 	}
@@ -952,14 +926,14 @@ void LoginServ::refreshWhiteList() {
 
 bool LoginServ::refreshWhiteListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == IpVisitCtrlE::kOpen);
+	assert(whiteListControl_ == eApiCtrl::kOpen);
 	{
-		WRITE_LOCK(whiteList_mutex_);
-		whiteList_.clear();
+		WRITE_LOCK(white_list_mutex_);
+		white_list_.clear();
 	}
 	std::string s;
-	for (std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.begin();
-		it != whiteList_.end(); ++it) {
+	for (std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.begin();
+		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
@@ -968,12 +942,12 @@ bool LoginServ::refreshWhiteListSync() {
 
 bool LoginServ::refreshWhiteListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == IpVisitCtrlE::kOpenAccept);
+	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
 	httpServer_.getLoop()->assertInLoopThread();
-	whiteList_.clear();
+	white_list_.clear();
 	std::string s;
-	for (std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.begin();
-		it != whiteList_.end(); ++it) {
+	for (std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.begin();
+		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
@@ -996,7 +970,7 @@ bool LoginServ::repairServer(servTyE servTy, std::string const& servname, std::s
 		if (status == ServiceStateE::kRepairing) {
 			/* 如果之前服务中, 尝试挂维护中, 并返回之前状态
 			* 如果返回服务中, 说明刚好挂维护成功, 否则说明之前已被挂维护 */
-			//if (ServiceStateE::kRunning == __sync_val_compare_and_swap(&serverState_, ServiceStateE::kRunning, ServiceStateE::kRepairing)) {
+			//if (ServiceStateE::kRunning == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRunning, ServiceStateE::kRepairing)) {
 			//
 			//在指定类型服务中，并且不在维护节点中
 			//
@@ -1034,7 +1008,7 @@ bool LoginServ::repairServer(servTyE servTy, std::string const& servname, std::s
 		else if (status == ServiceStateE::kRunning) {
 			/* 如果之前挂维护中, 尝试恢复服务, 并返回之前状态
 			* 如果返回挂维护中, 说明刚好恢复服务成功, 否则说明之前已在服务中 */
-			//if (ServiceStateE::kRepairing == __sync_val_compare_and_swap(&serverState_, ServiceStateE::kRepairing, ServiceStateE::kRunning)) {
+			//if (ServiceStateE::kRepairing == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRepairing, ServiceStateE::kRunning)) {
 			//
 			//在指定类型服务中，并且在维护节点中
 			//

@@ -7,23 +7,23 @@
 
 bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == IpVisitCtrlE::kOpenAccept);
+	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
 	httpServer_.getLoop()->assertInLoopThread();
 	{
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-		if (it != adminList_.end()) {
+		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+		if (it != admin_list_.end()) {
 			return true;
 		}
 	}
 	{
 		//192.168.2.21:3640 192.168.2.21:3667
-		std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(peerAddr.ipv4NetEndian());
-		return (it != whiteList_.end()) && (IpVisitE::kEnable == it->second);
+		std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.find(peerAddr.ipv4NetEndian());
+		return (it != white_list_.end()) && (eApiVisit::kEnable == it->second);
 	}
 #if 0
 	//节点维护中
-	if (serverState_ == ServiceStateE::kRepairing) {
+	if (server_state_ == ServiceStateE::kRepairing) {
 		return false;
 	}
 #endif
@@ -95,7 +95,7 @@ void GateServ::onHttpMessage(
 	}
 	else if (httpContext.gotAll()) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		if (whiteListControl_ == IpVisitCtrlE::kOpen) {
+		if (whiteListControl_ == eApiCtrl::kOpen) {
 			std::string ipaddr;
 			{
 				std::string ipaddrs = httpContext.request().getHeader("X-Forwarded-For");
@@ -139,13 +139,13 @@ void GateServ::onHttpMessage(
 			bool is_ip_allowed = false;
 			{
 				//管理员挂维护/恢复服务
-				std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-				is_ip_allowed = (it != adminList_.end());
+				std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+				is_ip_allowed = (it != admin_list_.end());
 			}
 			if (!is_ip_allowed) {
-				READ_LOCK(whiteList_mutex_);
-				std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(peerAddr.ipv4NetEndian());
-				is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
+				READ_LOCK(white_list_mutex_);
+				std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.find(peerAddr.ipv4NetEndian());
+				is_ip_allowed = ((it != white_list_.end()) && (eApiVisit::kEnable == it->second));
 			}
 			if (!is_ip_allowed) {
 #if 0
@@ -213,12 +213,12 @@ void GateServ::asyncHttpHandler(const muduo::net::WeakTcpConnectionPtr& weakConn
 	if (conn) {
 #if 0
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		if (whiteListControl_ == IpVisitCtrlE::kOpen) {
+		if (whiteListControl_ == eApiCtrl::kOpen) {
 			bool is_ip_allowed = false;
 			{
-				READ_LOCK(whiteList_mutex_);
-				std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.find(conn->peerAddress().ipv4NetEndian());
-				is_ip_allowed = ((it != whiteList_.end()) && (IpVisitE::kEnable == it->second));
+				READ_LOCK(white_list_mutex_);
+				std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.find(conn->peerAddress().ipv4NetEndian());
+				is_ip_allowed = ((it != white_list_.end()) && (eApiVisit::kEnable == it->second));
 			}
 			if (!is_ip_allowed) {
 #if 0
@@ -382,8 +382,8 @@ void GateServ::processHttpRequest(
 	//刷新客户端访问IP黑名单信息
 	else if (req.path() == "/refreshBlackList") {
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-		if (it != adminList_.end()) {
+		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+		if (it != admin_list_.end()) {
 			rsp.setContentType("text/plain;charset=utf-8");
 			refreshBlackList();
 			rsp.setBody("success");
@@ -398,8 +398,8 @@ void GateServ::processHttpRequest(
 	//刷新HTTP访问IP白名单信息
 	else if (req.path() == "/refreshWhiteList") {
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-		if (it != adminList_.end()) {
+		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+		if (it != admin_list_.end()) {
 			rsp.setContentType("text/plain;charset=utf-8");
 			refreshWhiteList();
 			rsp.setBody("success");
@@ -414,8 +414,8 @@ void GateServ::processHttpRequest(
 	//请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
 	else if (req.path() == "/repairServer") {
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-		if (it != adminList_.end()) {
+		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+		if (it != admin_list_.end()) {
 			rsp.setContentType("text/plain;charset=utf-8");
 			std::string rspdata;
 			repairServer(req.query(), rspdata);
@@ -430,8 +430,8 @@ void GateServ::processHttpRequest(
 	}
 	else if (req.path() == "/help") {
 		//管理员挂维护/恢复服务
-		std::map<in_addr_t, IpVisitE>::const_iterator it = adminList_.find(peerAddr.ipv4NetEndian());
-		if (it != adminList_.end()) {
+		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
+		if (it != admin_list_.end()) {
 			rsp.setContentType("text/html;charset=utf-8");
 			rsp.setBody("<html>"
 				"<head><title>help</title></head>"
@@ -464,11 +464,11 @@ void GateServ::processHttpRequest(
 }
 
 void GateServ::refreshWhiteList() {
-	if (whiteListControl_ == IpVisitCtrlE::kOpenAccept) {
+	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
 		RunInLoop(httpServer_.getLoop(), std::bind(&GateServ::refreshWhiteListInLoop, this));
 	}
-	else if (whiteListControl_ == IpVisitCtrlE::kOpen) {
+	else if (whiteListControl_ == eApiCtrl::kOpen) {
 		//同步刷新IP访问白名单
 		refreshWhiteListSync();
 	}
@@ -476,14 +476,14 @@ void GateServ::refreshWhiteList() {
 
 bool GateServ::refreshWhiteListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == IpVisitCtrlE::kOpen);
+	assert(whiteListControl_ == eApiCtrl::kOpen);
 	{
-		WRITE_LOCK(whiteList_mutex_);
-		whiteList_.clear();
+		WRITE_LOCK(white_list_mutex_);
+		white_list_.clear();
 	}
 	std::string s;
-	for (std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.begin();
-		it != whiteList_.end(); ++it) {
+	for (std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.begin();
+		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
@@ -492,12 +492,12 @@ bool GateServ::refreshWhiteListSync() {
 
 bool GateServ::refreshWhiteListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == IpVisitCtrlE::kOpenAccept);
+	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
 	httpServer_.getLoop()->assertInLoopThread();
-	whiteList_.clear();
+	white_list_.clear();
 	std::string s;
-	for (std::map<in_addr_t, IpVisitE>::const_iterator it = whiteList_.begin();
-		it != whiteList_.end(); ++it) {
+	for (std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.begin();
+		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
 	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
@@ -544,7 +544,7 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 		if (status == ServiceStateE::kRepairing) {
 			/* 如果之前服务中, 尝试挂维护中, 并返回之前状态
 			* 如果返回服务中, 说明刚好挂维护成功, 否则说明之前已被挂维护 */
-			//if (ServiceStateE::kRunning == __sync_val_compare_and_swap(&serverState_, ServiceStateE::kRunning, ServiceStateE::kRepairing)) {
+			//if (ServiceStateE::kRunning == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRunning, ServiceStateE::kRepairing)) {
 			//
 			//在指定类型服务中，并且不在维护节点中
 			//
@@ -582,7 +582,7 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 		else if (status == ServiceStateE::kRunning) {
 			/* 如果之前挂维护中, 尝试恢复服务, 并返回之前状态
 			* 如果返回挂维护中, 说明刚好恢复服务成功, 否则说明之前已在服务中 */
-			//if (ServiceStateE::kRepairing == __sync_val_compare_and_swap(&serverState_, ServiceStateE::kRepairing, ServiceStateE::kRunning)) {
+			//if (ServiceStateE::kRepairing == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRepairing, ServiceStateE::kRunning)) {
 			//
 			//在指定类型服务中，并且在维护节点中
 			//
