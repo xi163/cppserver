@@ -79,30 +79,30 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			model.Lastloginip = conn->peerAddress().toIp();
 			std::string insert_id = mgo::InsertUser(
 				make_document(
-				kvp("userid", b_int64{ userId }),
-				kvp("account", model.Account),
-				kvp("agentid", model.AgentId),
-				kvp("linecode", model.Linecode),
-				kvp("nickname", model.Nickname),
-				kvp("headindex", model.Headindex),
-				kvp("registertime", b_date{ model.Registertime }),
-				kvp("regip", model.Regip),
-				kvp("lastlogintime", b_date{ model.Lastlogintime }),
-				kvp("lastloginip", model.Lastloginip),
-				kvp("activedays", model.Activedays),
-				kvp("keeplogindays", model.Keeplogindays),
-				kvp("alladdscore", b_int64{ model.Alladdscore }),
-				kvp("allsubscore", b_int64{ model.Allsubscore }),
-				kvp("addscoretimes", model.Addscoretimes),
-				kvp("subscoretimes", model.Subscoretimes),
-				kvp("gamerevenue", b_int64{ model.Gamerevenue }),
-				kvp("winorlosescore", b_int64{ model.WinLosescore }),
-				kvp("score", b_int64{ model.Score }),
-				kvp("status", model.Status),
-				kvp("onlinestatus", model.Onlinestatus),
-				kvp("gender", model.Gender),
-				kvp("integralvalue", b_int64{ model.Integralvalue })
-			).view());
+					kvp("userid", b_int64{ userId }),
+					kvp("account", model.Account),
+					kvp("agentid", model.AgentId),
+					kvp("linecode", model.Linecode),
+					kvp("nickname", model.Nickname),
+					kvp("headindex", model.Headindex),
+					kvp("registertime", b_date{ model.Registertime }),
+					kvp("regip", model.Regip),
+					kvp("lastlogintime", b_date{ model.Lastlogintime }),
+					kvp("lastloginip", model.Lastloginip),
+					kvp("activedays", model.Activedays),
+					kvp("keeplogindays", model.Keeplogindays),
+					kvp("alladdscore", b_int64{ model.Alladdscore }),
+					kvp("allsubscore", b_int64{ model.Allsubscore }),
+					kvp("addscoretimes", model.Addscoretimes),
+					kvp("subscoretimes", model.Subscoretimes),
+					kvp("gamerevenue", b_int64{ model.Gamerevenue }),
+					kvp("winorlosescore", b_int64{ model.WinLosescore }),
+					kvp("score", b_int64{ model.Score }),
+					kvp("status", model.Status),
+					kvp("onlinestatus", model.Onlinestatus),
+					kvp("gender", model.Gender),
+					kvp("integralvalue", b_int64{ model.Integralvalue })
+				).view());
 			if (insert_id.empty()) {
 				response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
 				return;
@@ -149,30 +149,30 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				model.Lastloginip = conn->peerAddress().toIp();
 				std::string insert_id = mgo::InsertUser(
 					make_document(
-					kvp("userid", b_int64{ userId }),
-					kvp("account", model.Account),
-					kvp("agentid", model.AgentId),
-					kvp("linecode", model.Linecode),
-					kvp("nickname", model.Nickname),
-					kvp("headindex", model.Headindex),
-					kvp("registertime", b_date{ model.Registertime }),
-					kvp("regip", model.Regip),
-					kvp("lastlogintime", b_date{ model.Lastlogintime }),
-					kvp("lastloginip", model.Lastloginip),
-					kvp("activedays", model.Activedays),
-					kvp("keeplogindays", model.Keeplogindays),
-					kvp("alladdscore", b_int64{ model.Alladdscore }),
-					kvp("allsubscore", b_int64{ model.Allsubscore }),
-					kvp("addscoretimes", model.Addscoretimes),
-					kvp("subscoretimes", model.Subscoretimes),
-					kvp("gamerevenue", b_int64{ model.Gamerevenue }),
-					kvp("winorlosescore", b_int64{ model.WinLosescore }),
-					kvp("score", b_int64{ model.Score }),
-					kvp("status", model.Status),
-					kvp("onlinestatus", model.Onlinestatus),
-					kvp("gender", model.Gender),
-					kvp("integralvalue", b_int64{ model.Integralvalue })
-				).view());
+						kvp("userid", b_int64{ userId }),
+						kvp("account", model.Account),
+						kvp("agentid", model.AgentId),
+						kvp("linecode", model.Linecode),
+						kvp("nickname", model.Nickname),
+						kvp("headindex", model.Headindex),
+						kvp("registertime", b_date{ model.Registertime }),
+						kvp("regip", model.Regip),
+						kvp("lastlogintime", b_date{ model.Lastlogintime }),
+						kvp("lastloginip", model.Lastloginip),
+						kvp("activedays", model.Activedays),
+						kvp("keeplogindays", model.Keeplogindays),
+						kvp("alladdscore", b_int64{ model.Alladdscore }),
+						kvp("allsubscore", b_int64{ model.Allsubscore }),
+						kvp("addscoretimes", model.Addscoretimes),
+						kvp("subscoretimes", model.Subscoretimes),
+						kvp("gamerevenue", b_int64{ model.Gamerevenue }),
+						kvp("winorlosescore", b_int64{ model.WinLosescore }),
+						kvp("score", b_int64{ model.Score }),
+						kvp("status", model.Status),
+						kvp("onlinestatus", model.Onlinestatus),
+						kvp("gender", model.Gender),
+						kvp("integralvalue", b_int64{ model.Integralvalue })
+					).view());
 				if (insert_id.empty()) {
 					response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
 					return;
@@ -220,7 +220,7 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			//缓存token
 			REDISCLIENT.SetToken(token, userId, req.Account);
 			response::json::OkMsg("登陆成功", Token(token), rsp);
-		}		
+		}
 		return;
 	}
 	case 1: {
@@ -249,16 +249,16 @@ void Login(
 		if (sType.find(ContentType_Text) != string::npos) {
 		}
 		else if (sType.find(ContentType_Json) != string::npos) {
-			
+
 		}
 		else if (sType.find(ContentType_Xml) != string::npos) {
-		
+
 		}
 		break;
 	}
 	case muduo::net::HttpRequest::kPost: {
 		std::string sType = req.getHeader(ContentType);
-		if (sType.find(ContentType_Text) != string::npos){
+		if (sType.find(ContentType_Text) != string::npos) {
 
 		}
 		else if (sType.find(ContentType_Json) != string::npos) {
@@ -288,7 +288,6 @@ void Login(
 					break;
 				}
 			}
-
 			if (decrypt.empty()) {
 				response::json::BadRequest(rsp);
 				return;
@@ -321,5 +320,5 @@ void Login(
 		break;
 	}
 	}
-	response::xml:: Test(req, rsp);
+	response::xml::Test(req, rsp);
 }
