@@ -120,7 +120,16 @@
     <ClInclude Include="..\..\..\Framework\game_login\register\GateServList.h">
       <Filter>register</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\MgoOperation.h">
+    <ClInclude Include="..\..\..\public\redisKeys.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoKeys.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoModel.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoOperation.h">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
@@ -202,7 +211,16 @@
     <ClCompile Include="..\..\..\Framework\game_login\register\GateServList.cc">
       <Filter>register</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\MgoOperation.cc">
+    <ClCompile Include="..\..\..\public\redisKeys.cc">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoKeys.cc">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoModel.cc">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoOperation.cc">
       <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>

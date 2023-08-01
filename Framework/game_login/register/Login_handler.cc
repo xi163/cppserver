@@ -1,7 +1,9 @@
 #include "public/Inc.h"
 #include "public/Response.h"
 #include "register/Login_handler.h"
-#include "public/MgoOperation.h"
+#include "public/mgoOperation.h"
+#include "public/mgoModel.h"
+#include "public/redisKeys.h"
 #include "GateServList.h"
 
 std::string md5code = "334270F58E3E9DEC";
@@ -46,7 +48,9 @@ struct Token :
 	std::string token;
 };
 
-void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp) {
+void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
+	const muduo::net::TcpConnectionPtr& conn,
+	muduo::Timestamp receiveTime) {
 	//0-游客 1-账号密码 2-手机号 3-第三方(微信/支付宝等) 4-邮箱
 	switch (req.Type) {
 	case 0: {
@@ -59,7 +63,8 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp) {
 				return;
 			}
 			//生成userid
-			int64_t userId = mgo::NewUserId(document{} << "seq" << 1 << finalize,
+			int64_t userId = mgo::NewUserId(
+				document{} << "seq" << 1 << finalize,
 				document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
 				document{} << "_id" << "userid" << finalize);
 			if (userId <= 0) {
@@ -68,36 +73,154 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp) {
 			}
 			_LOG_ERROR(">>>>>> userId = %d", userId);
 			//创建并插入user表
-			
+			mgo::model::GameUser model;
+			mgo::CreateGuestUser(userId, req.Account, model);
+			model.Regip = conn->peerAddress().toIp();
+			model.Lastloginip = conn->peerAddress().toIp();
+			std::string insert_id = mgo::InsertUser(
+				make_document(
+				kvp("userid", b_int64{ userId }),
+				kvp("account", model.Account),
+				kvp("agentid", model.AgentId),
+				kvp("linecode", model.Linecode),
+				kvp("nickname", model.Nickname),
+				kvp("headindex", model.Headindex),
+				kvp("registertime", bsoncxx::types::b_date{ std::chrono::system_clock::from_time_t(model.Registertime) }),
+				kvp("regip", model.Regip),
+				kvp("lastlogintime", bsoncxx::types::b_date{ std::chrono::system_clock::from_time_t(model.Lastlogintime) }),
+				kvp("lastloginip", model.Lastloginip),
+				kvp("activedays", model.Activedays),
+				kvp("keeplogindays", model.Keeplogindays),
+				kvp("alladdscore", b_int64{ model.Alladdscore }),
+				kvp("allsubscore", b_int64{ model.Allsubscore }),
+				kvp("addscoretimes", model.Addscoretimes),
+				kvp("subscoretimes", model.Subscoretimes),
+				kvp("gamerevenue", b_int64{ model.Gamerevenue }),
+				kvp("winorlosescore", b_int64{ model.WinLosescore }),
+				kvp("score", b_int64{ model.Score }),
+				kvp("status", model.Status),
+				kvp("onlinestatus", model.Onlinestatus),
+				kvp("gender", model.Gender),
+				kvp("integralvalue", b_int64{ model.Integralvalue })
+			).view());
+			if (insert_id.empty()) {
+				response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
+				return;
+			}
+			_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
 			//token签名加密
+			std::string token = utils::sign::Encode(LoginRsp(model.Account, model.UserId, &servList), redisKeys::Expire_Token, descode);
 			//更新redis account->uid
+			REDISCLIENT.SetAccountUid(model.Account, userId);
 			//缓存token
+			REDISCLIENT.SetToken(token, userId, model.Account);
+			response::json::OkMsg("登陆成功", Token(token), rsp);
 			return;
 		}
-		int64_t userId = mgo::NewUserId(document{} << "seq" << 1 << finalize,
-			document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
-			document{} << "_id" << "userid" << finalize);
+		//先查redis
+		int64_t userId = 0;
+		REDISCLIENT.GetAccountUid(req.Account, userId);
 		if (userId <= 0) {
-			response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
-			return;
+			//再查mongo
+			userId = mgo::GetUserId(
+				document{} << "userid" << 1 << finalize,
+				document{} << "account" << req.Account << finalize);
+			if (userId <= 0) {
+				//查询网关节点
+				GateServList servList;
+				GetGateServList(servList);
+				if (servList.size() == 0) {
+					response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
+					return;
+				}
+				//生成userid
+				int64_t userId = mgo::NewUserId(
+					document{} << "seq" << 1 << finalize,
+					document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
+					document{} << "_id" << "userid" << finalize);
+				if (userId <= 0) {
+					response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
+					return;
+				}
+				//创建并插入user表
+				mgo::model::GameUser model;
+				mgo::CreateGuestUser(userId, req.Account, model);
+				model.Regip = conn->peerAddress().toIp();
+				model.Lastloginip = conn->peerAddress().toIp();
+				std::string insert_id = mgo::InsertUser(
+					make_document(
+					kvp("userid", b_int64{ userId }),
+					kvp("account", model.Account),
+					kvp("agentid", model.AgentId),
+					kvp("linecode", model.Linecode),
+					kvp("nickname", model.Nickname),
+					kvp("headindex", model.Headindex),
+					kvp("registertime", bsoncxx::types::b_date{ std::chrono::system_clock::from_time_t(model.Registertime) }),
+					kvp("regip", model.Regip),
+					kvp("lastlogintime", bsoncxx::types::b_date{ std::chrono::system_clock::from_time_t(model.Lastlogintime) }),
+					kvp("lastloginip", model.Lastloginip),
+					kvp("activedays", model.Activedays),
+					kvp("keeplogindays", model.Keeplogindays),
+					kvp("alladdscore", b_int64{ model.Alladdscore }),
+					kvp("allsubscore", b_int64{ model.Allsubscore }),
+					kvp("addscoretimes", model.Addscoretimes),
+					kvp("subscoretimes", model.Subscoretimes),
+					kvp("gamerevenue", b_int64{ model.Gamerevenue }),
+					kvp("winorlosescore", b_int64{ model.WinLosescore }),
+					kvp("score", b_int64{ model.Score }),
+					kvp("status", model.Status),
+					kvp("onlinestatus", model.Onlinestatus),
+					kvp("gender", model.Gender),
+					kvp("integralvalue", b_int64{ model.Integralvalue })
+				).view());
+				if (insert_id.empty()) {
+					response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
+					return;
+				}
+				_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
+				//token签名加密
+				std::string token = utils::sign::Encode(LoginRsp(model.Account, userId, &servList), redisKeys::Expire_Token, descode);
+				//更新redis account->uid
+				REDISCLIENT.SetAccountUid(model.Account, userId);
+				//缓存token
+				REDISCLIENT.SetToken(token, userId, model.Account);
+				response::json::OkMsg("登陆成功", Token(token), rsp);
+			}
+			//查询mongo命中
+			else {
+				//查询网关节点
+				GateServList servList;
+				GetGateServList(servList);
+				if (servList.size() == 0) {
+					response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
+					return;
+				}
+				//token签名加密
+				std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
+				//更新redis account->uid
+				REDISCLIENT.SetAccountUid(req.Account, userId);
+				//缓存token
+				REDISCLIENT.SetToken(token, userId, req.Account);
+				response::json::OkMsg("登陆成功", Token(token), rsp);
+			}
 		}
-		_LOG_ERROR(">>>>>> userId = %d", userId);
-		//查询网关节点
-		GateServList servList;
-		GetGateServList(servList);
-		if (servList.size() == 0) {
-			response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
-			return;
-		}
-		std::string account = "test_0";
-		userId = 10120;
-		//token签名加密
-		std::string token = utils::sign::Encode(LoginRsp(account, userId, &servList), 500000, descode);
-		//更新redis account->uid
-		REDISCLIENT.SetAccountUid(account, userId);
-		//缓存token
-		REDISCLIENT.SetToken(token, userId, account);
-		response::json::OkMsg("登陆成功", Token(token), rsp);
+		//查询redis命中
+		else {
+			//查询网关节点
+			GateServList servList;
+			GetGateServList(servList);
+			if (servList.size() == 0) {
+				response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
+				return;
+			}
+			//token签名加密
+			std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
+			//更新redis account->uid
+			REDISCLIENT.SetAccountUid(req.Account, userId);
+			//缓存token
+			REDISCLIENT.SetToken(token, userId, req.Account);
+			response::json::OkMsg("登陆成功", Token(token), rsp);
+		}		
 		return;
 	}
 	case 1: {
@@ -117,6 +240,7 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp) {
 void Login(
 	const muduo::net::HttpRequest& req,
 	muduo::net::HttpResponse& rsp,
+	const muduo::net::TcpConnectionPtr& conn,
 	BufferPtr const& buf,
 	muduo::Timestamp receiveTime) {
 	switch (req.method()) {
@@ -188,7 +312,7 @@ void Login(
 			req.Account = account;
 			req.Type = lType;
 			req.Timestamp = timestamp;
-			DoLogin(req, rsp);
+			DoLogin(req, rsp, conn, receiveTime);
 			return;
 		}
 		else if (sType.find(ContentType_Xml) != string::npos) {

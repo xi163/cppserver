@@ -353,8 +353,8 @@ void CIpFinder::GetAddressByIp(unsigned long ipValue,
     strCountry = boost::locale::conv::to_utf<char>(strCountry, "gb2312");
     strLocation = boost::locale::conv::to_utf<char>(strLocation, "gb2312");
 
-    string oldstr_province("省");
-    string oldstr_city("市");
+    std::string oldstr_province("省");
+    std::string oldstr_city("市");
     strCountry = boost::trim_copy(strCountry);
     boost::replace_first(strCountry, oldstr_province, "");
     boost::replace_first(strCountry, oldstr_city, "");

@@ -1,6 +1,6 @@
 #include "public/Inc.h"
 #include "RedisClient.h"
-
+#include "../redisKeys.h"
 #include <thread>
 
 
@@ -23,20 +23,20 @@ extern "C" {
 #define prefix_token               "k.token."
 #define MAX_USER_ONLINE_INFO_IDLE_TIME   (60*3)
 //#include <muduo/base/Logging.h>
-//#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/std::string.hpp>
 //#include <algorithm>
 //#include "../crypto/crypto.h"
 
-const string passWord = "AliceLandy@20181024";
+const std::string passWord = "AliceLandy@20181024";
 
 
-string string_replace(string strbase, string src, string dst)
+std::string string_replace(std::string strbase, std::string src, std::string dst)
 {
-    string::size_type pos = 0;
-    string::size_type srclen = src.size();
-    string::size_type dstlen = dst.size();
+    std::string::size_type pos = 0;
+    std::string::size_type srclen = src.size();
+    std::string::size_type dstlen = dst.size();
     pos = strbase.find(src,pos);
-    while (pos != string::npos)
+    while (pos != std::string::npos)
     {
         strbase.replace(pos, srclen, dst);
         pos = strbase.find(src,(pos+dstlen));
@@ -62,7 +62,7 @@ RedisClient::~RedisClient()
 }
 
 #if USE_REDIS_CLUSTER
-bool RedisClient::initRedisCluster(string ip)
+bool RedisClient::initRedisCluster(std::string ip)
 {
     m_redisClientContext = redisClusterContextInit();
     redisClusterSetOptionAddNodes(m_redisClientContext, ip.c_str());
@@ -78,7 +78,7 @@ bool RedisClient::initRedisCluster(string ip)
 
 #elif 0
 
-bool RedisClient::initRedisCluster(string ip)
+bool RedisClient::initRedisCluster(std::string ip)
 {
 //    struct timeval timeout = {1, 500000 };
 //    m_redisClientContext = redisConnectWithTimeout(ip.c_str(), 6379, timeout);
@@ -90,14 +90,14 @@ bool RedisClient::initRedisCluster(string ip)
 }
 
 #else
-bool RedisClient::BlackListHget(string key,  string keyson, redis::RedisValue& values,map<string,int16_t> &usermap)
+bool RedisClient::BlackListHget(std::string key,  std::string keyson, redis::RedisValue& values,std::map<std::string,int16_t> &usermap)
 {
     bool OK = false;
     values.reset();
     usermap.clear();
     while(true)
     {
-        string cmd = "HMGET " + key+" "+keyson;
+        std::string cmd = "HMGET " + key+" "+keyson;
 
         // try to build the special command to read redis map value the the reply content.
         redisReply *reply = (redisReply *)REDIS_COMMAND(m_redisClientContext, cmd.c_str());
@@ -105,22 +105,22 @@ bool RedisClient::BlackListHget(string key,  string keyson, redis::RedisValue& v
         {
             OK = true;
 
-            vector<string> vec;
+            std::vector<std::string> vec;
             if(!reply->element||!reply->element[0]->str)
             {
                 OK = false;
                 break;
             }
-            string covers=reply->element[0]->str;
+            std::string covers=reply->element[0]->str;
             covers.erase(std::remove(covers.begin(), covers.end(), '"'), covers.end());
             boost::algorithm::split( vec,covers, boost::is_any_of( "|" ));
             for(int i=0;i<(int)vec.size();i++)
             {
-                vector<string> vec1;
+                std::vector<std::string> vec1;
                 boost::algorithm::split( vec1,vec[i] , boost::is_any_of( "," ));
                 if(vec1.size()==2)
                 {
-                    usermap.insert(pair<string,int16_t>(vec1[0],stoi(vec1[1])));
+                    usermap.insert(pair<std::string,int16_t>(vec1[0],stoi(vec1[1])));
                 }
                 vec1.clear();
             }
@@ -135,23 +135,23 @@ bool RedisClient::BlackListHget(string key,  string keyson, redis::RedisValue& v
     return OK;
 }
 
-bool RedisClient::initRedisCluster(string ip, string password)
+bool RedisClient::initRedisCluster(std::string ip, std::string password)
 {
-    string masterIp("127.0.0.1");
+    std::string masterIp("127.0.0.1");
     int masterPort=6379;
 
     struct timeval timev;
     timev.tv_sec = 3;
     timev.tv_usec = 0;
 
-    vector<string> vec;
+    std::vector<std::string> vec;
     boost::algorithm::split(vec, ip, boost::is_any_of( "," ));
     if(getMasterAddr(vec, timev, masterIp, masterPort) == 0)
     {
 
     }else
     {
-        vector<string> ipportVec;
+        std::vector<std::string> ipportVec;
         boost::algorithm::split(ipportVec, ip, boost::is_any_of( ":" ));
         masterIp = ipportVec[0];
         masterPort = stoi(ipportVec[1]);
@@ -172,16 +172,16 @@ bool RedisClient::initRedisCluster(string ip, string password)
         return true;
 }
 
-bool RedisClient::initRedisCluster(string ip, map<string, string> &addrMap, string password)
+bool RedisClient::initRedisCluster(std::string ip, std::map<std::string, std::string> &addrMap, std::string password)
 {
-    string masterIp("127.0.0.1");
+    std::string masterIp("127.0.0.1");
     int masterPort=6379;
 
     struct timeval timev;
     timev.tv_sec = 3;
     timev.tv_usec = 0;
 
-    vector<string> vec;
+    std::vector<std::string> vec;
     boost::algorithm::split(vec, ip, boost::is_any_of( "," ));
     if(getMasterAddr(vec, timev, masterIp, masterPort) == 0)
     {
@@ -189,7 +189,7 @@ bool RedisClient::initRedisCluster(string ip, map<string, string> &addrMap, stri
             masterIp = addrMap[masterIp];
     }else
     {
-        vector<string> ipportVec;
+        std::vector<std::string> ipportVec;
         boost::algorithm::split(ipportVec, ip, boost::is_any_of( ":" ));
         masterIp = ipportVec[0];
         masterPort = stoi(ipportVec[1]);
@@ -213,15 +213,15 @@ bool RedisClient::initRedisCluster(string ip, map<string, string> &addrMap, stri
 #endif
 
 //通过Sentinel获得master的ip和port
-int RedisClient::getMasterAddr(const vector<string> &addVec, struct timeval timeOut,string& masterIp, int& masterPort)
+int RedisClient::getMasterAddr(const std::vector<std::string> &addVec, struct timeval timeOut,std::string& masterIp, int& masterPort)
 {
     //建立和sentinel的连接
-    string strPort;
+    std::string strPort;
     redisContext* context = NULL;
     redisReply *reply = NULL;
     for(int i = 0; i < addVec.size(); ++i)
     {
-        vector<string> vec;
+        std::vector<std::string> vec;
         boost::algorithm::split(vec, addVec[i], boost::is_any_of( ":" ));
 
         _LOG_INFO("i[%d], ip[%s], port[%d]", i, vec[0].c_str(), stoi(vec[1]));
@@ -252,7 +252,7 @@ int RedisClient::getMasterAddr(const vector<string> &addVec, struct timeval time
     return 0;
 }
 
-bool RedisClient::auth(string pass)
+bool RedisClient::auth(std::string pass)
 {
     bool OK = false;
     while(true)
@@ -260,7 +260,7 @@ bool RedisClient::auth(string pass)
         redisReply *reply = (redisReply *)REDIS_COMMAND(m_redisClientContext, "AUTH %s", pass.c_str());
         if(reply)
         {
-            if(reply->str  && string(reply->str) == "OK")
+            if(reply->str  && std::string(reply->str) == "OK")
                 OK = true;
             freeReplyObject(reply);
             break;
@@ -277,7 +277,7 @@ bool RedisClient::ReConnect()
     return initRedisCluster(m_ip);
 }
 
-bool RedisClient::get(string key, string &value)
+bool RedisClient::get(std::string key, std::string &value)
 {
     bool OK = false;
     value = "";
@@ -300,7 +300,7 @@ bool RedisClient::get(string key, string &value)
     return OK;
 }
 
-bool RedisClient::set(string key, string value, int timeout)
+bool RedisClient::set(std::string key, std::string value, int timeout)
 {
     bool OK = false;
 
@@ -318,9 +318,9 @@ bool RedisClient::set(string key, string value, int timeout)
         if(reply)
         {
 //            LOG_INFO << " >>> redisClient::set reply type:" << reply->type;
-//            LOG_INFO << " >>> string value:" << reply->str << ",integer:" << reply->integer << "timeout:" << timeout;
+//            LOG_INFO << " >>> std::string value:" << reply->str << ",integer:" << reply->integer << "timeout:" << timeout;
 
-            if(reply->str  && string(reply->str) == "OK")
+            if(reply->str  && std::string(reply->str) == "OK")
                 OK = true;
             freeReplyObject(reply);
             break;
@@ -331,7 +331,7 @@ bool RedisClient::set(string key, string value, int timeout)
     return OK;
 }
 
-bool RedisClient::del(string key)
+bool RedisClient::del(std::string key)
 {
     bool OK = false;
     while(true)
@@ -349,7 +349,7 @@ bool RedisClient::del(string key)
     return OK;
 }
 
-int RedisClient::TTL(string key)
+int RedisClient::TTL(std::string key)
 {
     int ret = 0;
     while(true)
@@ -366,7 +366,7 @@ int RedisClient::TTL(string key)
     return ret;
 }
 
-bool RedisClient::resetExpired(string key, int timeout)
+bool RedisClient::resetExpired(std::string key, int timeout)
 {
     bool OK = false;
     while(true)
@@ -384,7 +384,7 @@ bool RedisClient::resetExpired(string key, int timeout)
     return OK;
 }
 // 过期时间为毫秒
-bool RedisClient::resetExpiredEx(string key, int timeout)
+bool RedisClient::resetExpiredEx(std::string key, int timeout)
 {
     bool OK = false;
     while(true)
@@ -402,7 +402,7 @@ bool RedisClient::resetExpiredEx(string key, int timeout)
     return OK;
 }
 
-bool RedisClient::exists(string key)
+bool RedisClient::exists(std::string key)
 {
     bool OK = false;
     while(true)
@@ -420,7 +420,7 @@ bool RedisClient::exists(string key)
     return OK;
 }
 
-bool RedisClient::persist(string key)
+bool RedisClient::persist(std::string key)
 {
     bool OK = false;
     while(true)
@@ -441,7 +441,7 @@ bool RedisClient::persist(string key)
     return OK;
 }
 
-bool RedisClient::hget(string key, string field, string &value)
+bool RedisClient::hget(std::string key, std::string field, std::string &value)
 {
     bool OK = false;
     value = "";
@@ -451,7 +451,7 @@ bool RedisClient::hget(string key, string field, string &value)
         if(reply)
         {
     //      LOG_INFO << " >>> redisClient::get key:" << key << ",field:" << field << ", reply type:" << reply->type;
-    //      LOG_INFO << " >>> string value:" << reply->str << ",integer:" << reply->integer;
+    //      LOG_INFO << " >>> std::string value:" << reply->str << ",integer:" << reply->integer;
 
             if(reply->str)
             {
@@ -467,7 +467,7 @@ bool RedisClient::hget(string key, string field, string &value)
     return OK;
 }
 
-bool RedisClient::hset(string key, string field, string value, int timeout)
+bool RedisClient::hset(std::string key, std::string field, std::string value, int timeout)
 {
     bool OK = false;
     while(true)
@@ -475,7 +475,7 @@ bool RedisClient::hset(string key, string field, string value, int timeout)
         redisReply *reply = (redisReply *)REDIS_COMMAND(m_redisClientContext, "HSET %s %s %s", key.c_str(), field.c_str(), value.c_str());
         if(reply)
         {
-            if(reply->str && string(reply->str) == "OK")
+            if(reply->str && std::string(reply->str) == "OK")
                 OK = true;
             freeReplyObject(reply);
 
@@ -491,7 +491,7 @@ bool RedisClient::hset(string key, string field, string value, int timeout)
     return OK;
 }
 
-bool RedisClient::hmget(string key, string* fields, int count, redis::RedisValue& values)
+bool RedisClient::hmget(std::string key, std::string* fields, int count, redis::RedisValue& values)
 {
     bool OK = false;
     values.reset();
@@ -500,7 +500,7 @@ bool RedisClient::hmget(string key, string* fields, int count, redis::RedisValue
     {
         if ((!fields)||(!count))
             break;
-        string cmd = "HMGET " + key;
+        std::string cmd = "HMGET " + key;
         for (int i=0;i<count;i++)
         {
             cmd += " " + fields[i];
@@ -514,7 +514,7 @@ bool RedisClient::hmget(string key, string* fields, int count, redis::RedisValue
             for(int i = 0; i < reply->elements; ++i)
             {
                 redisReply *tmpReply = reply->element[i];
-                string field = fields[i];
+                std::string field = fields[i];
                 if(tmpReply->str)
                 {
                     values[field] = tmpReply->str;
@@ -534,17 +534,17 @@ bool RedisClient::hmget(string key, string* fields, int count, redis::RedisValue
     return OK;
 }
 
-bool RedisClient::hmset(string key, redis::RedisValue& values, int timeout)
+bool RedisClient::hmset(std::string key, redis::RedisValue& values, int timeout)
 {
     bool OK = false;
-    string cmd = "HMSET " + key;
-    map<string,redis::RedisValItem> listval = values.get();
-    map<string,redis::RedisValItem>::iterator iter;
+    std::string cmd = "HMSET " + key;
+    std::map<std::string,redis::RedisValItem> listval = values.get();
+    std::map<std::string,redis::RedisValItem>::iterator iter;
     for (iter=listval.begin();iter!=listval.end();++iter)
     {
-        string field = iter->first;
+        std::string field = iter->first;
         redis::RedisValItem& item = iter->second;
-        string value = item.asString();
+        std::string value = item.asString();
         if (value.length())
         {
             value = string_replace(value," ","_");
@@ -559,7 +559,7 @@ bool RedisClient::hmset(string key, redis::RedisValue& values, int timeout)
         if(reply)
         {
             OK = false;
-            if(reply->str && string(reply->str) == "OK")
+            if(reply->str && std::string(reply->str) == "OK")
                 OK = true;
             freeReplyObject(reply);
             break;
@@ -579,13 +579,13 @@ bool RedisClient::hmset(string key, redis::RedisValue& values, int timeout)
     return OK;
 }
 
-bool RedisClient::hmget(string key, vector<string>fields, vector<string> &values)
+bool RedisClient::hmget(std::string key, std::vector<std::string>fields, std::vector<std::string> &values)
 {
     bool OK = false;
     values.resize(fields.size());
 
-    string cmd = "HMGET " + key;
-    for(string field : fields)
+    std::string cmd = "HMGET " + key;
+    for(std::string field : fields)
     {
         cmd += " "+field;
     }
@@ -612,10 +612,10 @@ bool RedisClient::hmget(string key, vector<string>fields, vector<string> &values
     return OK;
 }
 
-bool RedisClient::hmset(string key, vector<string>fields, vector<string> values,int timeout)
+bool RedisClient::hmset(std::string key, std::vector<std::string>fields, std::vector<std::string> values,int timeout)
 {
     bool OK = false;
-    string cmd = "HMSET " + key;
+    std::string cmd = "HMSET " + key;
     if(fields.size() == values.size())
     {
         for(int i = 0; i < fields.size(); ++i)
@@ -631,7 +631,7 @@ bool RedisClient::hmset(string key, vector<string>fields, vector<string> values,
             redisReply *reply = (redisReply *)REDIS_COMMAND(m_redisClientContext, cmd.c_str());
             if(reply)
             {
-                if(reply->str && string(reply->str) == "OK")
+                if(reply->str && std::string(reply->str) == "OK")
                     OK = true;
                 freeReplyObject(reply);
                 break;
@@ -652,15 +652,15 @@ bool RedisClient::hmset(string key, vector<string>fields, vector<string> values,
     return OK;
 }
 
-bool RedisClient::hmset(string key, map<string,string> fields,int timeout)
+bool RedisClient::hmset(std::string key, std::map<std::string,std::string> fields,int timeout)
 {
     bool OK = false;
-    string cmd = "HMSET " + key;
-    map<string,string>::iterator iter;
+    std::string cmd = "HMSET " + key;
+    std::map<std::string,std::string>::iterator iter;
     for (iter=fields.begin();iter!=fields.end();++iter)
     {
-        string field = iter->first;
-        string value = iter->second;
+        std::string field = iter->first;
+        std::string value = iter->second;
         if (value.length())
         {
             cmd += " " + field + " " + value;
@@ -674,7 +674,7 @@ bool RedisClient::hmset(string key, map<string,string> fields,int timeout)
         if(reply)
         {
             OK = true;
-            if(reply->str && string(reply->str) == "OK")
+            if(reply->str && std::string(reply->str) == "OK")
                 OK = true;
             freeReplyObject(reply);
             break;
@@ -694,7 +694,7 @@ bool RedisClient::hmset(string key, map<string,string> fields,int timeout)
 
 }
 
-bool RedisClient::hdel(string key, string field)
+bool RedisClient::hdel(std::string key, std::string field)
 {
     bool OK = false;
     while(true)
@@ -712,7 +712,7 @@ bool RedisClient::hdel(string key, string field)
     return OK;
 }
 
-bool RedisClient::exists(string key, string field)
+bool RedisClient::exists(std::string key, std::string field)
 {
     bool OK = false;
     while(true)
@@ -731,7 +731,7 @@ bool RedisClient::exists(string key, string field)
 }
 // edit by caiqing
 // @long -> int64_t
-bool RedisClient::hincrby(string key, string field, int64_t inc, int64_t* result)
+bool RedisClient::hincrby(std::string key, std::string field, int64_t inc, int64_t* result)
 {
     bool ok = false;
     while(true)
@@ -756,11 +756,11 @@ bool RedisClient::hincrby(string key, string field, int64_t inc, int64_t* result
     return ok;
 }
 
-bool RedisClient::hincrby_float(string key, string field, double inc, double* result)
+bool RedisClient::hincrby_float(std::string key, std::string field, double inc, double* result)
 {
-    string tmp("");
+    std::string tmp("");
     bool ok = false;
-    string strIncNum = std::to_string(inc);
+    std::string strIncNum = std::to_string(inc);
     while(true)
     {
         redisReply *reply = (redisReply *)REDIS_COMMAND(m_redisClientContext, "HINCRBYFLOAT %s %s %s", key.c_str(), field.c_str(), strIncNum.c_str());
@@ -784,7 +784,7 @@ bool RedisClient::hincrby_float(string key, string field, double inc, double* re
     return ok;
 }
 
-bool RedisClient::blpop(string key, string &value, int timeOut)
+bool RedisClient::blpop(std::string key, std::string &value, int timeOut)
 {
     bool OK = false;
 
@@ -822,7 +822,7 @@ bool RedisClient::blpop(string key, string &value, int timeOut)
 }
 
 // LLen key : query queue size.
-bool RedisClient::rpush(string key, string value)
+bool RedisClient::rpush(std::string key, std::string value)
 {
     bool OK = false;
     while(true)
@@ -841,7 +841,7 @@ bool RedisClient::rpush(string key, string value)
 }
 
 // LLen key : query queue size.
-bool RedisClient::lpush(string key, string value, long long int &len)
+bool RedisClient::lpush(std::string key, std::string value, long long int &len)
 {
     bool OK = false;
     len = 0;
@@ -863,7 +863,7 @@ bool RedisClient::lpush(string key, string value, long long int &len)
 }
 
 // 移出并获取列表的第一个元素
-bool RedisClient::rpop(string key, string &values){
+bool RedisClient::rpop(std::string key, std::string &values){
     bool OK = false;
     while(true)
     {
@@ -886,7 +886,7 @@ bool RedisClient::rpop(string key, string &values){
 }
 
 
-bool RedisClient::lrange(string key, int startIdx, int endIdx,vector<string> &values)
+bool RedisClient::lrange(std::string key, int startIdx, int endIdx,std::vector<std::string> &values)
 {
     bool OK = false;
     while(true)
@@ -918,7 +918,7 @@ bool RedisClient::lrange(string key, int startIdx, int endIdx,vector<string> &va
     return OK;
 }
 
-bool RedisClient::ltrim(string key, int startIdx, int endIdx)
+bool RedisClient::ltrim(std::string key, int startIdx, int endIdx)
 {
     bool OK = false;
     while(true)
@@ -926,7 +926,7 @@ bool RedisClient::ltrim(string key, int startIdx, int endIdx)
         redisReply *reply = (redisReply *)REDIS_COMMAND(m_redisClientContext, "LTRIM %s %d %d", key.c_str(), startIdx, endIdx);
         if(reply)
         {
-            if(reply->str  && string(reply->str) == "OK")
+            if(reply->str  && std::string(reply->str) == "OK")
                 OK = true;
             freeReplyObject(reply);
             break;
@@ -936,7 +936,7 @@ bool RedisClient::ltrim(string key, int startIdx, int endIdx)
     return OK;
 }
 
-bool RedisClient::llen(string key,int32_t &value)
+bool RedisClient::llen(std::string key,int32_t &value)
 {
     bool OK = false;
     value = 0;
@@ -961,7 +961,7 @@ bool RedisClient::llen(string key,int32_t &value)
 
 // add by caiqing 
 // 列表移除元素
-bool RedisClient::lrem(string key, int count, string value)
+bool RedisClient::lrem(std::string key, int count, std::string value)
 {
     bool OK = false;
     while(true)
@@ -982,51 +982,51 @@ bool RedisClient::lrem(string key, int count, string value)
 // count = 0 : 移除与 VALUE 相等的元素，数量为 COUNT 
 // count > 0 : 从表头开始向表尾搜索
 // count < 0 : 从表尾开始向表头搜索
-// bool RedisClient::lremCmd(eRedisKey keyId, int count, string value){
+// bool RedisClient::lremCmd(eRedisKey keyId, int count, std::string value){
 //     std::string keyName = REDIS_KEY_ID +  std::to_string((int)keyId);
 //     return lrem(keyName,count,value);
 // }
 
 // 列表添加元素
-// bool RedisClient::lpushCmd(eRedisKey keyId,string value,long long &len){
+// bool RedisClient::lpushCmd(eRedisKey keyId,std::string value,long long &len){
 //     std::string keyName = REDIS_KEY_ID +  std::to_string((int)keyId);
 //     return lpush(keyName,value,len);
 // }
 
 // 获取列表元素
-// bool RedisClient::lrangeCmd(eRedisKey keyId,vector<string> &list,int end,int start){
+// bool RedisClient::lrangeCmd(eRedisKey keyId,std::vector<std::string> &list,int end,int start){
 //    std::string keyName = REDIS_KEY_ID +  std::to_string((int)keyId);
 //    bool result = lrange(keyName,start,end,list);
 //    return result;
 // }
 
 // 移除列表元素
-// bool RedisClient::rpopCmd(eRedisKey keyId,string &lastElement){
+// bool RedisClient::rpopCmd(eRedisKey keyId,std::string &lastElement){
 //    std::string keyName = REDIS_KEY_ID +  std::to_string((int)keyId);
 //    bool result = rpop(keyName,lastElement);
 //    return result;
 // }
 
 // 移除集合中一个或多个成员
-// bool RedisClient::sremCmd(eRedisKey keyId,string value){
+// bool RedisClient::sremCmd(eRedisKey keyId,std::string value){
 //     std::string keyName = REDIS_KEY_ID + to_string((int)keyId);
 //     return  srem(keyName, value);
 // } 
 
 //为集合添加元素
-// bool RedisClient::saddCmd(eRedisKey keyId,string value){
+// bool RedisClient::saddCmd(eRedisKey keyId,std::string value){
 //     std::string keyName = REDIS_KEY_ID + to_string((int)keyId); 
 //     return sadd(keyName, value);
 // }
 
 // 获取集合元素
-// bool RedisClient::smembersCmd(eRedisKey keyId,vector<string> &list){
+// bool RedisClient::smembersCmd(eRedisKey keyId,std::vector<std::string> &list){
 //    std::string keyName = REDIS_KEY_ID + std::to_string((int)keyId);
 //    bool result = smembers(keyName,list);
 //    return result;
 // }
 // 移除锁
-// bool RedisClient::delnxCmd(eRedisKey keyId,string & lockValue){
+// bool RedisClient::delnxCmd(eRedisKey keyId,std::string & lockValue){
 //     std::string keyName = REDIS_KEY_ID + std::to_string((int)keyId);
 //     std::string values;
 //     get(keyName,values);
@@ -1038,7 +1038,7 @@ bool RedisClient::lrem(string key, int count, string value)
 //         return false;
 // }
 // 设置锁(使用条件:允许锁的偶尔失效)
-// int RedisClient::setnxCmd(eRedisKey keyId, string &value,int timeout){
+// int RedisClient::setnxCmd(eRedisKey keyId, std::string &value,int timeout){
 //     std::string keyName = REDIS_KEY_ID + std::to_string((int)keyId);
 //     int ret = -1,repeat = 0;
 //     while( ++repeat < 1000 ){
@@ -1059,7 +1059,7 @@ bool RedisClient::lrem(string key, int count, string value)
 // }
  
 //创建集合
-bool RedisClient::sadd(string key, string value)
+bool RedisClient::sadd(std::string key, std::string value)
 {
     // LOG_ERROR << __FILE__ << " " << key << " " << value << " " << __FUNCTION__;
     bool OK = false;
@@ -1078,7 +1078,7 @@ bool RedisClient::sadd(string key, string value)
 }
 
 //判断Key是否为集合
-bool RedisClient::sismember(string key, string value)
+bool RedisClient::sismember(std::string key, std::string value)
 {
     bool OK = false;
     while(true)
@@ -1095,7 +1095,7 @@ bool RedisClient::sismember(string key, string value)
     return OK;
 }
 
-bool RedisClient::srem(string key, string value)
+bool RedisClient::srem(std::string key, std::string value)
 {
     // LOG_ERROR << __FILE__ << " " << key << " " << value << " " << __FUNCTION__;
 
@@ -1114,7 +1114,7 @@ bool RedisClient::srem(string key, string value)
     return OK;
 }
 
-bool RedisClient::smembers(string key, vector<string> &list)
+bool RedisClient::smembers(std::string key, std::vector<std::string> &list)
 {
     bool OK = false;
     list.clear();
@@ -1147,6 +1147,19 @@ bool RedisClient::smembers(string key, vector<string> &list)
 #define Expire_AccountUid 604800
 #define Expire_Token (5*60)
 
+bool RedisClient::GetAccountUid(std::string const& account, int64_t& userId) {
+    std::string key = redisKeys::prefix_account_uid + account;
+    std::string val;
+    bool bv = get(key, val);
+    if (!val.empty()) {
+        userId = stoll(val);
+    }
+    else {
+        userId = 0;
+    }
+    return bv;
+}
+
 bool RedisClient::SetAccountUid(std::string const& account, int64_t userid) {
     std::string key = prefix_account_uid + account;
     return set(key, std::to_string(userid), Expire_AccountUid);
@@ -1163,7 +1176,7 @@ bool RedisClient::SetToken(std::string const& token, int64_t userid, std::string
 //=================================================
 bool RedisClient::SetUserOnlineInfo(int64_t userId, uint32_t nGameId, uint32_t nRoomId)
 {
-   string strKeyName = REDIS_ONLINE_PREFIX+ to_string(userId);
+   std::string strKeyName = REDIS_ONLINE_PREFIX+ to_string(userId);
 
     redis::RedisValue values;
     values["nGameId"] = nGameId;
@@ -1175,8 +1188,8 @@ bool RedisClient::GetUserOnlineInfo(int64_t userId, uint32_t &nGameId, uint32_t 
 {
     bool ok = false;
     redis::RedisValue redisValue;
-    string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    string fields[]   = {"nGameId", "nRoomId"};
+    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+    std::string fields[]   = {"nGameId", "nRoomId"};
     bool bExist = hmget(strKeyName, fields, CountArray(fields), redisValue);
     if  ((bExist) && (!redisValue.empty()))
     {
@@ -1187,47 +1200,47 @@ bool RedisClient::GetUserOnlineInfo(int64_t userId, uint32_t &nGameId, uint32_t 
     return ok;
 }
 
-bool RedisClient::SetUserOnlineInfoIP(int64_t userId, string ip)
+bool RedisClient::SetUserOnlineInfoIP(int64_t userId, std::string ip)
 {
-    string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
     return hset(strKeyName, "GameServerIP", ip, MAX_USER_ONLINE_INFO_IDLE_TIME);
 }
 
-bool RedisClient::GetUserOnlineInfoIP(int64_t userId, string &ip)
+bool RedisClient::GetUserOnlineInfoIP(int64_t userId, std::string &ip)
 {
-    string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
     return hget(strKeyName, "GameServerIP", ip);
 }
 
 bool RedisClient::ResetExpiredUserOnlineInfo(int64_t userId,int timeout)
 {
-    string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
     return resetExpired(strKeyName,timeout);
 }
 
 bool RedisClient::ExistsUserOnlineInfo(int64_t userId)
 {
-    string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
     return exists(strKeyName);
 }
 
 bool RedisClient::DelUserOnlineInfo(int64_t userId)
 {
-    string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
     return del(strKeyName);
 }
 
 int RedisClient::TTLUserOnlineInfo(int64_t userId)
 {
-    string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
     return TTL(strKeyName);
 }
 
-bool RedisClient::GetGameServerplayerNum(vector<string> &serverValues,uint64_t &nTotalCount)
+bool RedisClient::GetGameServerplayerNum(std::vector<std::string> &serverValues,uint64_t &nTotalCount)
 {
     bool OK = false;
-    string cmd = "MGET " ;
-    for(string &field : serverValues)
+    std::string cmd = "MGET " ;
+    for(std::string &field : serverValues)
     {
         cmd += " " + field;
     }
@@ -1242,7 +1255,7 @@ bool RedisClient::GetGameServerplayerNum(vector<string> &serverValues,uint64_t &
             {
                 if(reply->element[i]->str&&strcmp(reply->element[i]->str,"nil"))
                 {
-                    vector<string> vec{"0","0"};
+                    std::vector<std::string> vec{"0","0"};
                     boost::algorithm::split(vec, reply->element[i]->str, boost::is_any_of( "+" ));
                     nTotalCount+=(stod(vec[0])+stod(vec[1]));
 //                      nTotalCount+=(stod(reply->element[i]->str));
@@ -1256,11 +1269,11 @@ bool RedisClient::GetGameServerplayerNum(vector<string> &serverValues,uint64_t &
     return OK;
 }
 
-bool RedisClient::GetGameRoomplayerNum(vector<string> &serverValues, map<string, uint64_t> &mapPlayerNum)
+bool RedisClient::GetGameRoomplayerNum(std::vector<std::string> &serverValues, std::map<std::string, uint64_t> &mapPlayerNum)
 {
     bool OK = false;
-    string cmd = "MGET " ;
-    for(string &field : serverValues)
+    std::string cmd = "MGET " ;
+    for(std::string &field : serverValues)
     {
         cmd += " " + field;
     }
@@ -1275,7 +1288,7 @@ bool RedisClient::GetGameRoomplayerNum(vector<string> &serverValues, map<string,
             {
                 if(reply->element[i]->str&&strcmp(reply->element[i]->str,"nil"))
                 {
-                    vector<string> vec{"0","0"};
+                    std::vector<std::string> vec{"0","0"};
                     boost::algorithm::split(vec, reply->element[i]->str, boost::is_any_of( "+" ));
                     mapPlayerNum.emplace(serverValues[i],stod(vec[0]));
                 }
@@ -1288,11 +1301,11 @@ bool RedisClient::GetGameRoomplayerNum(vector<string> &serverValues, map<string,
     return OK;
 }
 
-bool RedisClient::GetGameAgentPlayerNum(vector<string> &keys, vector<string> &values)
+bool RedisClient::GetGameAgentPlayerNum(std::vector<std::string> &keys, std::vector<std::string> &values)
 {
     bool OK = false;
-    string cmd = "MGET " ;
-    for(string &field : keys)
+    std::string cmd = "MGET " ;
+    for(std::string &field : keys)
     {
         cmd += " agentid:" + field;
     }
@@ -1319,11 +1332,11 @@ bool RedisClient::GetGameAgentPlayerNum(vector<string> &keys, vector<string> &va
 }
 
 
-bool RedisClient::GetUserLoginInfo(int64_t userId, string field, string &value)
+bool RedisClient::GetUserLoginInfo(int64_t userId, std::string field, std::string &value)
 {
     bool ret = false;
     value = "";
-    string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
     if (hget(key, field, value))
     {
         ret = true;
@@ -1331,33 +1344,33 @@ bool RedisClient::GetUserLoginInfo(int64_t userId, string field, string &value)
     return ret;
 }
 
-bool RedisClient::SetUserLoginInfo(int64_t userId, string field, const string &value)
+bool RedisClient::SetUserLoginInfo(int64_t userId, std::string field, const std::string &value)
 {
-    string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
     return hset(key, field, value);
 }
 
 bool RedisClient::ResetExpiredUserLoginInfo(int64_t userId)
 {
-    string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
     return resetExpired(key);
 }
 
 bool RedisClient::ExistsUserLoginInfo(int64_t userId)
 {
-    string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
     return exists(key);
 }
 
 bool RedisClient::DeleteUserLoginInfo(int64_t userId)
 {
-    string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
     return del(key);
 }
 
 bool RedisClient::AddToMatchedUser(int64_t userId, int64_t blockUser)
 {
-    string key = REDIS_USER_BLOCK+to_string(userId);
+    std::string key = REDIS_USER_BLOCK+to_string(userId);
     long long int newLen = 0;
     bool result = lpush(key,to_string(blockUser),newLen);
     if(result)
@@ -1384,17 +1397,17 @@ bool RedisClient::AddToMatchedUser(int64_t userId, int64_t blockUser)
     return true;
 }
 
-bool RedisClient::GetMatchBlockList(int64_t userId,vector<string> &list)
+bool RedisClient::GetMatchBlockList(int64_t userId,std::vector<std::string> &list)
 {
-    string key = REDIS_USER_BLOCK+to_string(userId);
+    std::string key = REDIS_USER_BLOCK+to_string(userId);
     bool result = lrange(key,0,19,list);
     return result;
 }
 
 bool RedisClient::AddQuarantine(int64_t userId)
 {
-    string key = REDIS_QUARANTINE+to_string(userId);
-    string value;
+    std::string key = REDIS_QUARANTINE+to_string(userId);
+    std::string value;
     bool res = get(key,value);
     if(res)
     {
@@ -1412,8 +1425,8 @@ bool RedisClient::AddQuarantine(int64_t userId)
 
 bool RedisClient::RemoveQuarantine(int64_t userId)
 {
-    string key = REDIS_QUARANTINE+to_string(userId);
-    string value;
+    std::string key = REDIS_QUARANTINE+to_string(userId);
+    std::string value;
     bool res = get(key,value);
     if(res)
     {
@@ -1426,7 +1439,7 @@ bool RedisClient::RemoveQuarantine(int64_t userId)
 
 //int RedisClient::TTLUserLoginInfo(int64_t userId)
 //{
-//    string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+//    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
 //    return TTL(key);
 //}
 
@@ -1440,7 +1453,7 @@ bool RedisClient::RemoveQuarantine(int64_t userId)
 
 //=================================================
 //发布
-void RedisClient::publish(string channel, string msg)
+void RedisClient::publish(std::string channel, std::string msg)
 {
     while(true)
     {
@@ -1455,7 +1468,7 @@ void RedisClient::publish(string channel, string msg)
 }
 
 //订阅
-void RedisClient::subscribe(string channel)
+void RedisClient::subscribe(std::string channel)
 {
     while(true)
     {
@@ -1485,61 +1498,61 @@ void RedisClient::unsubscribe()
 }
 
 
-void RedisClient::publishRechargeScoreMessage(string msg)
+void RedisClient::publishRechargeScoreMessage(std::string msg)
 {
     publish("RechargeScoreMessage", msg);
 }
-void RedisClient::subscribeRechargeScoreMessage(function<void(string)> func)
+void RedisClient::subscribeRechargeScoreMessage(function<void(std::string)> func)
 {
     subscribe("RechargeScoreMessage");
     m_sub_func_map["RechargeScoreMessage"] = func;
 }
 
-void RedisClient::publishRechargeScoreToProxyMessage(string msg)
+void RedisClient::publishRechargeScoreToProxyMessage(std::string msg)
 {
     publish("RechargeScoreToProxyMessage", msg);
 }
-void RedisClient::subscribeRechargeScoreToProxyMessage(function<void(string)> func)
+void RedisClient::subscribeRechargeScoreToProxyMessage(function<void(std::string)> func)
 {
     subscribe("RechargeScoreToProxyMessage");
     m_sub_func_map["RechargeScoreToProxyMessage"] = func;
 }
 
-void RedisClient::publishRechargeScoreToGameServerMessage(string msg)
+void RedisClient::publishRechargeScoreToGameServerMessage(std::string msg)
 {
     publish("RechargeScoreToGameServerMessage", msg);
 }
-void RedisClient::subscribeRechargeScoreToGameServerMessage(function<void(string)> func)
+void RedisClient::subscribeRechargeScoreToGameServerMessage(function<void(std::string)> func)
 {
     subscribe("RechargeScoreToGameServerMessage");
     m_sub_func_map["RechargeScoreToGameServerMessage"] = func;
 }
 
-void RedisClient::publishExchangeScoreMessage(string msg)
+void RedisClient::publishExchangeScoreMessage(std::string msg)
 {
     publish("ExchangeScoreMessage", msg);
 }
-void RedisClient::subscribeExchangeScoreMessage(function<void(string)> func)
+void RedisClient::subscribeExchangeScoreMessage(function<void(std::string)> func)
 {
     subscribe("ExchangeScoreMessage");
     m_sub_func_map["ExchangeScoreMessage"] = func;
 }
 
-void RedisClient::publishExchangeScoreToProxyMessage(string msg)
+void RedisClient::publishExchangeScoreToProxyMessage(std::string msg)
 {
     publish("ExchangeScoreToProxyMessage", msg);
 }
-void RedisClient::subscribeExchangeScoreToProxyMessage(function<void(string)> func)
+void RedisClient::subscribeExchangeScoreToProxyMessage(function<void(std::string)> func)
 {
     subscribe("ExchangeScoreToProxyMessage");
     m_sub_func_map["ExchangeScoreToProxyMessage"] = func;
 }
 
-void RedisClient::publishExchangeScoreToGameServerMessage(string msg)
+void RedisClient::publishExchangeScoreToGameServerMessage(std::string msg)
 {
     publish("ExchangeScoreToGameServerMessage", msg);
 }
-void RedisClient::subscribeExchangeScoreToGameServerMessage(function<void(string)> func)
+void RedisClient::subscribeExchangeScoreToGameServerMessage(function<void(std::string)> func)
 {
     subscribe("ExchangeScoreToGameServerMessage");
     m_sub_func_map["ExchangeScoreToGameServerMessage"] = func;
@@ -1547,96 +1560,96 @@ void RedisClient::subscribeExchangeScoreToGameServerMessage(function<void(string
 
 
 //推送公共消息
-void RedisClient::pushPublishMsg(int msgId,string msg)
+void RedisClient::pushPublishMsg(int msgId,std::string msg)
 {
      publish("rs_public_msg_" + std::to_string((int)msgId), msg);
 }
 //订阅公共消息
-void RedisClient::subscribePublishMsg(int msgId,function<void(string)> func)
+void RedisClient::subscribePublishMsg(int msgId,function<void(std::string)> func)
 {
     std::string msgName = "rs_public_msg_" + std::to_string((int)msgId);
     subscribe(msgName);
     m_sub_func_map[msgName] = func;
 }
 
-void RedisClient::publishUserLoginMessage(string msg)
+void RedisClient::publishUserLoginMessage(std::string msg)
 {
     publish("UserLoginMessage", msg);
 }
 
-void RedisClient::subscribeUserLoginMessage(function<void(string)> func)
+void RedisClient::subscribeUserLoginMessage(function<void(std::string)> func)
 {
     subscribe("UserLoginMessage");
     m_sub_func_map["UserLoginMessage"] = func;
 }
 
-void RedisClient::publishUserKillBossMessage(string msg)
+void RedisClient::publishUserKillBossMessage(std::string msg)
 {
     publish("UserKillBossMessage", msg);
 }
-void RedisClient::subscribeUserKillBossMessage(function<void(string)> func)
+void RedisClient::subscribeUserKillBossMessage(function<void(std::string)> func)
 {
     subscribe("UserKillBossMessage");
     m_sub_func_map["UserKillBossMessage"] = func;
 }
 
-void RedisClient::publishNewChatMessage(string msg)
+void RedisClient::publishNewChatMessage(std::string msg)
 {
     publish("NewChatMessage", msg);
 }
-void RedisClient::subscribeNewChatMessage(function<void(string)> func)
+void RedisClient::subscribeNewChatMessage(function<void(std::string)> func)
 {
     subscribe("NewChatMessage");
     m_sub_func_map["NewChatMessage"] = func;
 }
 
-void RedisClient::publishNewMailMessage(string msg)
+void RedisClient::publishNewMailMessage(std::string msg)
 {
     publish("NewMailMessage", msg);
 }
-void RedisClient::subscribeNewMailMessage(function<void(string)> func)
+void RedisClient::subscribeNewMailMessage(function<void(std::string)> func)
 {
     subscribe("NewMailMessage");
     m_sub_func_map["NewMailMessage"] = func;
 }
 
-void RedisClient::publishNoticeMessage(string msg)
+void RedisClient::publishNoticeMessage(std::string msg)
 {
     publish("NoticeMessage", msg);
 }
-void RedisClient::subscribeNoticeMessage(function<void(string)> func)
+void RedisClient::subscribeNoticeMessage(function<void(std::string)> func)
 {
     subscribe("NoticeMessage");
     m_sub_func_map["NoticeMessage"] = func;
 }
 
-void RedisClient::publishStopGameServerMessage(string msg)
+void RedisClient::publishStopGameServerMessage(std::string msg)
 {
     publish("StopGameServerMessage", msg);
 }
-void RedisClient::subscribeStopGameServerMessage(function<void(string)> func)
+void RedisClient::subscribeStopGameServerMessage(function<void(std::string)> func)
 {
     subscribe("StopGameServerMessage");
     m_sub_func_map["StopGameServerMessage"] = func;
 }
 
-void RedisClient::publishRefreashConfigMessage(string msg)
+void RedisClient::publishRefreashConfigMessage(std::string msg)
 {
     publish("RefreashConfigMessage", msg);
 }
 
-void RedisClient::subscribeRefreshConfigMessage(function<void (string)> func)
+void RedisClient::subscribeRefreshConfigMessage(function<void (std::string)> func)
 {
     subscribe("RefreashConfigMessage");
     m_sub_func_map["RefreashConfigMessage"] = func;
 }
 
-void RedisClient::publishOrderScoreMessage(string msg)
+void RedisClient::publishOrderScoreMessage(std::string msg)
 {
     publish("OrderScoreMessage",msg);
 }
 
-void RedisClient::subsreibeOrderScoreMessage(function<void (string)> func)
+void RedisClient::subsreibeOrderScoreMessage(function<void (std::string)> func)
 {
     subscribe("OrderScoreMessage");
     m_sub_func_map["OrderScoreMessage"] = func;
@@ -1661,7 +1674,7 @@ void RedisClient::getSubMessage()
 #endif
         if(preply)
         {
-            string msgtype, channel, msg;
+            std::string msgtype, channel, msg;
             if(preply->type == REDIS_REPLY_ARRAY)
             {
                 if(preply->elements >= 3)
@@ -1676,7 +1689,7 @@ void RedisClient::getSubMessage()
                         msg = preply->element[2]->str;
                         if(m_sub_func_map.count(channel))
                         {
-                            function<void(string)> functor = m_sub_func_map[channel];
+                            function<void(std::string)> functor = m_sub_func_map[channel];
                             functor(msg);
                         }
                     }
@@ -1688,12 +1701,12 @@ void RedisClient::getSubMessage()
     }
 }
 
-bool RedisClient::PushSQL(string sql)
+bool RedisClient::PushSQL(std::string sql)
 {
     return rpush("SQLQueue", sql);
 }
 
-bool RedisClient::POPSQL(string &sql, int timeOut)
+bool RedisClient::POPSQL(std::string &sql, int timeOut)
 {
     return blpop("SQLQueue", sql, timeOut);
 }
@@ -1703,12 +1716,12 @@ bool RedisClient::POPSQL(string &sql, int timeOut)
 
 
 ////request on game server
-//bool RedisClient::setUserIdGameServerInfo(int userId, string ip)
+//bool RedisClient::setUserIdGameServerInfo(int userId, std::string ip)
 //{
 //    return set("GameServer:"+to_string(userId), ip, MAX_LOGIN_IDLE_TIME);
 //}
 
-//bool RedisClient::getUserIdGameServerInfo(int userId, string &ip)
+//bool RedisClient::getUserIdGameServerInfo(int userId, std::string &ip)
 //{
 //    ip = "";
 //    return get("GameServer:" + to_string(userId), ip);
@@ -1736,37 +1749,37 @@ bool RedisClient::POPSQL(string &sql, int timeOut)
 
 //int RedisClient::TTLUserIdGameServerInfo(int userId)
 //{
-//    string key = "GameServer:" + to_string(userId);
+//    std::string key = "GameServer:" + to_string(userId);
 //    return TTL(key);
 //}
 
-//int RedisClient::getVerifyCode(string phoneNum, int type, string &verifyCode)  //0 getVerifycode ok   1 noet exists 2 error
+//int RedisClient::getVerifyCode(std::string phoneNum, int type, std::string &verifyCode)  //0 getVerifycode ok   1 noet exists 2 error
 //{
-//    string key = phoneNum + "_" + to_string(type);
+//    std::string key = phoneNum + "_" + to_string(type);
 //    if(get(key, verifyCode) && !verifyCode.empty())
 //        return 0;
 //    else
 //        return 1;
 //}
 
-//void RedisClient::setVerifyCode(string phoneNum, int type, string &verifyCode)
+//void RedisClient::setVerifyCode(std::string phoneNum, int type, std::string &verifyCode)
 //{
-//    string key = phoneNum + "_" + to_string(type);
+//    std::string key = phoneNum + "_" + to_string(type);
 //    set(key, verifyCode, MAX_VERIFY_CODE_LOGIN_IDLE_TIME);
 //}
 
-//bool RedisClient::existsVerifyCode(string phoneNum, int type)
+//bool RedisClient::existsVerifyCode(std::string phoneNum, int type)
 //{
-//    string key = phoneNum + "_" + to_string(type);
+//    std::string key = phoneNum + "_" + to_string(type);
 //    return exists(key);
 //}
 
-//bool RedisClient::setUserLoginInfo(int userId, string &account, string &password, string &dynamicPassword, int temp,
-//                                 string &machineSerial, string &machineType, int nPlatformId, int nChannelId)
+//bool RedisClient::setUserLoginInfo(int userId, std::string &account, std::string &password, std::string &dynamicPassword, int temp,
+//                                 std::string &machineSerial, std::string &machineType, int nPlatformId, int nChannelId)
 //{
 
 
-//    string key = "LoginInfo_" + to_string(userId);
+//    std::string key = "LoginInfo_" + to_string(userId);
 //    Json::Value jsonValue;
 //    jsonValue["userId"] = userId;
 //    jsonValue["strAccount"] = account;
@@ -1778,7 +1791,7 @@ bool RedisClient::POPSQL(string &sql, int timeOut)
 //    jsonValue["nPlatformId"] = nPlatformId;
 //    jsonValue["nChannelId"] = nChannelId;
 //    Json::FastWriter writer;
-//    string strValue = writer.write(jsonValue);
+//    std::string strValue = writer.write(jsonValue);
 //    return set(key, strValue);
 //}
 
@@ -1786,7 +1799,7 @@ bool RedisClient::POPSQL(string &sql, int timeOut)
 //bool RedisClient::setUserLoginInfo(int64_t userId, Global_UserBaseInfo& baseinfo)
 //{
 //    redis::RedisValue redisValue;
-//    string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+//    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
 
 //    redisValue["userId"]             = to_string((int)baseinfo.nUserId);
 //    redisValue["proxyId"]            = to_string((int)baseinfo.nPromoterId);
@@ -1812,30 +1825,30 @@ bool RedisClient::POPSQL(string &sql, int timeOut)
 //    redisValue["loginTime"]          = to_string(baseinfo.nLoginTime);
 //    redisValue["gameStartTime"]      = to_string(baseinfo.nGameStartTime);
 
-//    redisValue["headUrl"]            = string(baseinfo.szHeadUrl);
-//    redisValue["account"]            = string(baseinfo.szAccount);
-//    redisValue["nickName"]           = string(baseinfo.szNickName);
-////    redisValue["regIp"]              = string(baseinfo.szIp);
-//    redisValue["loginIp"]            = string(baseinfo.szIp);
+//    redisValue["headUrl"]            = std::string(baseinfo.szHeadUrl);
+//    redisValue["account"]            = std::string(baseinfo.szAccount);
+//    redisValue["nickName"]           = std::string(baseinfo.szNickName);
+////    redisValue["regIp"]              = std::string(baseinfo.szIp);
+//    redisValue["loginIp"]            = std::string(baseinfo.szIp);
 
-////    string strLocation = Landy::Crypto::BufferToHexString((unsigned char*)baseinfo.szLocation, strlen(baseinfo.szLocation));
-////    redisValue["loginLocation"]           = strLocation; //string(baseinfo.szLocation);
+////    std::string strLocation = Landy::Crypto::BufferToHexString((unsigned char*)baseinfo.szLocation, strlen(baseinfo.szLocation));
+////    redisValue["loginLocation"]           = strLocation; //std::string(baseinfo.szLocation);
 
-//    redisValue["loginLocation"]      = string(baseinfo.szLocation);
+//    redisValue["loginLocation"]      = std::string(baseinfo.szLocation);
 
-//    redisValue["password"]           = string(baseinfo.szPassword);
-//    redisValue["dynamicPassword"]    = string(baseinfo.szDynamicPass);
-//    redisValue["bankPassword"]       = string(baseinfo.szBankPassword);
+//    redisValue["password"]           = std::string(baseinfo.szPassword);
+//    redisValue["dynamicPassword"]    = std::string(baseinfo.szDynamicPass);
+//    redisValue["bankPassword"]       = std::string(baseinfo.szBankPassword);
 
-//    redisValue["mobileNum"]          = string(baseinfo.szMobileNum);
-//    redisValue["regMachineType"]     = string(baseinfo.szMachineType);
-//    redisValue["regMachineSerial"]   = string(baseinfo.szMachineSerial);
+//    redisValue["mobileNum"]          = std::string(baseinfo.szMobileNum);
+//    redisValue["regMachineType"]     = std::string(baseinfo.szMachineType);
+//    redisValue["regMachineSerial"]   = std::string(baseinfo.szMachineSerial);
 
-//    redisValue["aliPayAccount"]      = string(baseinfo.szAlipayAccount);
-//    redisValue["aliPayName"]         = string(baseinfo.szAlipayName);
+//    redisValue["aliPayAccount"]      = std::string(baseinfo.szAlipayAccount);
+//    redisValue["aliPayName"]         = std::string(baseinfo.szAlipayName);
 
-//    redisValue["bankCardNum"]        = string(baseinfo.szBankCardNum);
-//    redisValue["bankCardName"]       = string(baseinfo.szBankCardName);
+//    redisValue["bankCardNum"]        = std::string(baseinfo.szBankCardNum);
+//    redisValue["bankCardName"]       = std::string(baseinfo.szBankCardName);
 
 //
 //    return hmset(key, redisValue);
@@ -1847,8 +1860,8 @@ bool RedisClient::POPSQL(string &sql, int timeOut)
 //    do
 //    {
 //        redis::RedisValue redisValue;
-//        string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
-//        string fields[] = {
+//        std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+//        std::string fields[] = {
 //            "userId","proxyId","bindProxyId","gem","platformId","channelId", "ostype", "gender","headId",
 //            "headboxId","vip","temp","manager","superAccount","totalRecharge","score","bankScore","chargeAmount", "loginTime", "gameStartTime",
 //            "headUrl","account","nickName","loginIp","uuid","loginLocation","password","dynamicPassword",

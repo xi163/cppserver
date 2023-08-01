@@ -222,7 +222,7 @@ private:
 	void processHttpRequest(
 		const muduo::net::HttpRequest& req,
 		muduo::net::HttpResponse& rsp,
-		muduo::net::InetAddress const& peerAddr,
+		const muduo::net::TcpConnectionPtr& conn,
 		BufferPtr const& buf,
 		muduo::Timestamp receiveTime);
 	std::string onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& code, std::string& errMsg, boost::property_tree::ptree& latest, int& testTPS);

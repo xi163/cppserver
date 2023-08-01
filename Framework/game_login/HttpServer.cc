@@ -255,11 +255,11 @@ void LoginServ::asyncHttpHandler(
 		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 		muduo::net::HttpContext& httpContext = boost::any_cast<muduo::net::HttpContext&>(entryContext.getContext());
 		assert(httpContext.gotAll());
-		const string& connection = httpContext.request().getHeader("Connection");
+		const std::string& connection = httpContext.request().getHeader("Connection");
 		bool close = (connection == "close") ||
 			(httpContext.request().getVersion() == muduo::net::HttpRequest::kHttp10 && connection != "Keep-Alive");
 		muduo::net::HttpResponse rsp(close);
-		processHttpRequest(httpContext.request(), rsp, conn->peerAddress(), buf, receiveTime);
+		processHttpRequest(httpContext.request(), rsp, conn, buf, receiveTime);
 		{
 			muduo::net::Buffer buf;
 			rsp.appendToBuffer(&buf);
@@ -297,7 +297,7 @@ void LoginServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
 
 void LoginServ::processHttpRequest(
 	const muduo::net::HttpRequest& req, muduo::net::HttpResponse& rsp,
-	muduo::net::InetAddress const& peerAddr,
+	const muduo::net::TcpConnectionPtr& conn,
 	BufferPtr const& buf,
 	muduo::Timestamp receiveTime) {
 	if (req.path() == "/") {
@@ -319,7 +319,7 @@ void LoginServ::processHttpRequest(
 		else {
 			//登陆
 			if (req.path() == "/login") {
-				Login(req, rsp, buf, receiveTime);
+				Login(req, rsp, conn, buf, receiveTime);
 			}
 		}
 	}

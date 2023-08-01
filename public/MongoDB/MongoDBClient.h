@@ -18,11 +18,12 @@
 #include <mongocxx/options/client.hpp>
 #include <mongocxx/options/client_session.hpp>
 
-//using namespace bsoncxx::builder::stream;
-//using namespace bsoncxx::builder::basic;
-//using namespace bsoncxx::types;
 //using namespace mongocxx;
 //using namespace bsoncxx;
+//using namespace bsoncxx::document;
+//using namespace bsoncxx::types;
+//using namespace bsoncxx::builder::stream;
+//using namespace bsoncxx::builder::basic;
 
 using bsoncxx::builder::stream::document;
 using bsoncxx::builder::stream::finalize;
@@ -34,6 +35,7 @@ using bsoncxx::builder::basic::array;
 using bsoncxx::builder::basic::sub_array;
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
+using bsoncxx::builder::basic::make_array;
 using bsoncxx::to_json;
 
 using bsoncxx::stdx::optional;
