@@ -14,8 +14,8 @@ namespace mgo {
 		model.Linecode = "10001_1";
 		model.Nickname = model.Account;
 		model.Headindex = 0;
-		model.Registertime = time(NULL);
-		model.Lastlogintime = time(NULL);
+		model.Registertime = std::chrono::system_clock::now();
+		model.Lastlogintime = std::chrono::system_clock::now();
 		model.Activedays = 0;
 		model.Keeplogindays = 0;
 		model.Alladdscore = 0;

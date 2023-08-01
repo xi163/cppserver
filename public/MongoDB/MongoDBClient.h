@@ -43,7 +43,16 @@ using bsoncxx::stdx::optional;
 //using bsoncxx::document::value;
 using bsoncxx::document::view_or_value;
 
+using bsoncxx::types::b_oid;
+using bsoncxx::types::b_date;
+using bsoncxx::types::b_bool;
+using bsoncxx::types::b_utf8;
+using bsoncxx::types::b_int32;
 using bsoncxx::types::b_int64;
+using bsoncxx::types::b_double;
+using bsoncxx::types::b_binary;
+using bsoncxx::types::b_array;
+using bsoncxx::types::b_timestamp;
 
 namespace MongoDBClient {
 

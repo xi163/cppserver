@@ -10,8 +10,8 @@ namespace mgo {
 				UserId = 0;
 				AgentId = 0;
 				Headindex = 0;
-				Registertime = 0;
-				Lastlogintime = 0;
+				//Registertime = 0;
+				//Lastlogintime = 0;
 				Activedays = 0;
 				Keeplogindays = 0;
 				Alladdscore = 0;
@@ -26,33 +26,33 @@ namespace mgo {
 				Gender = 0;
 				Integralvalue = 0;
 			}
-			std::string ID; //           primitive.ObjectID `bson:"_id,omitempty"`
-			int64_t UserId;          //   `bson:"userid"`
-			std::string Account;        //   `bson:"account"`
-			int AgentId;//       int      // `bson:"agentid"`
-			std::string Linecode;//      string    //`bson:"linecode"`
-			std::string 	Nickname;//      string    //`bson:"nickname"`
-			int 	Headindex;//     int       //`bson:"headindex"`
-			time_t	Registertime;//  time.Time //`bson:"registertime"`
-			std::string 	Regip;//        string    //`bson:"regip"`
-			time_t	Lastlogintime;// time.Time //`bson:"lastlogintime"`
-			std::string 	Lastloginip;// string    //`bson:"lastloginip"`
-			int 	Activedays;// int       //`bson:"activedays"`
-			int 	Keeplogindays;// int       //`bson:"keeplogindays"`
-			int64_t 	Alladdscore;//int64     //`bson:"alladdscore"`
-			int64_t 	Allsubscore;// int64     //`bson:"allsubscore"`
-			int 	Addscoretimes;// int       //`bson:"addscoretimes"`
-			int 	Subscoretimes;//int       //`bson:"subscoretimes"`
-			int64_t Gamerevenue;//int64     //`bson:"gamerevenue"`
-			int64_t WinLosescore;// int64     //`bson:"winorlosescore"`
-			int64_t Score;//int64     //`bson:"score"`
-			int 	Status;//      int      // `bson:"status"`
-			int 	Onlinestatus;//  int      // `bson:"onlinestatus"`
-			int 	Gender;//int      // `bson:"gender"`
-			int64_t Integralvalue;//int64    // `bson:"integralvalue"`
+			//b_oid Id; //`bson:"_id,omitempty"`
+			int64_t UserId;//`bson:"userid"`
+			std::string Account;//`bson:"account"`
+			int AgentId;//`bson:"agentid"`
+			std::string Linecode;//`bson:"linecode"`
+			std::string Nickname;//`bson:"nickname"`
+			int Headindex;//`bson:"headindex"`
+			time_point Registertime;//`bson:"registertime"`
+			std::string Regip;//`bson:"regip"`
+			time_point Lastlogintime;//`bson:"lastlogintime"`
+			std::string Lastloginip;//`bson:"lastloginip"`
+			int Activedays;//`bson:"activedays"`
+			int Keeplogindays;//`bson:"keeplogindays"`
+			int64_t Alladdscore;//`bson:"alladdscore"`
+			int64_t Allsubscore;//`bson:"allsubscore"`
+			int Addscoretimes;//`bson:"addscoretimes"`
+			int Subscoretimes;//`bson:"subscoretimes"`
+			int64_t Gamerevenue;//`bson:"gamerevenue"`
+			int64_t WinLosescore;//`bson:"winorlosescore"`
+			int64_t Score;//`bson:"score"`
+			int Status;//`bson:"status"`
+			int Onlinestatus;//`bson:"onlinestatus"`
+			int Gender;//`bson:"gender"`
+			int64_t Integralvalue;//`bson:"integralvalue"`
 		};
 	}
-	
+
 	void CreateGuestUser(int64_t seq, std::string const& account, model::GameUser& model);
 }
 
