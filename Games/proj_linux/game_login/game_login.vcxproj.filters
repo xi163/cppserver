@@ -110,7 +110,6 @@
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h">
       <Filter>internal\gate</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_login\ErrorCode.h" />
     <ClInclude Include="..\..\..\Framework\game_login\register\Login_handler.h">
       <Filter>register</Filter>
     </ClInclude>
@@ -134,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\public\mgoKeys.h">
       <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\ErrorCode.h">
+      <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -225,6 +227,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\mgoKeys.cc">
       <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\ErrorCode.cc">
+      <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

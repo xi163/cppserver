@@ -34,22 +34,4 @@ namespace response {
 	}
 }
 
-namespace response {
-	namespace json {
-		namespace err {
-
-			struct Msg {
-				int Code;
-				std::string ErrMsg;
-			};
-
-			static const Msg ErrOk = Msg{ 0, "OK" };
-			static const Msg ErrCreateGameUser = Msg{ 10001, "创建游戏账号失败" };
-			static const Msg ErrGameGateNotExist = Msg{ 10002, "没有可用的游戏网关" };
-
-			void Result(Msg const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		}
-	}
-}
-
 #endif

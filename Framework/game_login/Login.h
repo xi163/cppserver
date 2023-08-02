@@ -16,7 +16,7 @@
 #include "RpcClients.h"
 #include "RpcContainer.h"
 
-#include "ErrorCode.h"
+#include "public/ErrorCode.h"
 
 //最近一次请求操作的elapsed detail
 static void createLatestElapsed(
@@ -225,8 +225,8 @@ private:
 		const muduo::net::TcpConnectionPtr& conn,
 		BufferPtr const& buf,
 		muduo::Timestamp receiveTime);
-	std::string onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& code, std::string& errMsg, boost::property_tree::ptree& latest, int& testTPS);
-	int execute(int opType, std::string const& account, double score, std::string const& orderId, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS);
+	//std::string onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& code, std::string& errMsg, boost::property_tree::ptree& latest, int& testTPS);
+	//int execute(int opType, std::string const& account, double score, std::string const& orderId, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS);
 	void refreshWhiteList();
 	bool refreshWhiteListSync();
 	bool refreshWhiteListInLoop();

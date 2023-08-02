@@ -5,7 +5,7 @@
 #include "public/mgoModel.h"
 #include "public/redisKeys.h"
 #include "GateServList.h"
-#include "../ErrorCode.h"
+#include "public/ErrorCode.h"
 
 std::string md5code = "334270F58E3E9DEC";
 std::string descode = "111362EE140F157D";
@@ -49,9 +49,10 @@ struct Token :
 	std::string token;
 };
 
-void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
+int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 	const muduo::net::TcpConnectionPtr& conn,
 	muduo::Timestamp receiveTime) {
+	int errcode = ErrorCode::kOk;
 	//0-游客 1-账号密码 2-手机号 3-第三方(微信/支付宝等) 4-邮箱
 	switch (req.Type) {
 	case 0: {
@@ -60,8 +61,8 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			GateServList servList;
 			GetGateServList(servList);
 			if (servList.size() == 0) {
-				response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
-				return;
+				response::json::err::Result(ERR::ErrGameGateNotExist, BOOST::Any(), rsp);
+				return errcode;
 			}
 			//生成userid
 			int64_t userId = mgo::NewUserId(
@@ -69,8 +70,8 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
 				document{} << "_id" << "userid" << finalize);
 			if (userId <= 0) {
-				response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
-				return;
+				response::json::err::Result(ERR::ErrCreateGameUser, BOOST::Any(), rsp);
+				return errcode;
 			}
 			_LOG_ERROR(">>>>>> userId = %d", userId);
 			//创建并插入user表
@@ -105,8 +106,8 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 					kvp("integralvalue", b_int64{ model.Integralvalue })
 				).view());
 			if (insert_id.empty()) {
-				response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
-				return;
+				response::json::err::Result(ERR::ErrCreateGameUser, BOOST::Any(), rsp);
+				return errcode;
 			}
 			_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
 			//token签名加密
@@ -116,7 +117,7 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			//缓存token
 			REDISCLIENT.SetToken(token, userId, model.Account);
 			response::json::OkMsg("登陆成功", Token(token), rsp);
-			return;
+			return errcode;
 		}
 		//先查redis
 		int64_t userId = 0;
@@ -131,8 +132,8 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				GateServList servList;
 				GetGateServList(servList);
 				if (servList.size() == 0) {
-					response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
-					return;
+					response::json::err::Result(ERR::ErrGameGateNotExist, BOOST::Any(), rsp);
+					return errcode;
 				}
 				//生成userid
 				int64_t userId = mgo::NewUserId(
@@ -140,8 +141,8 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 					document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
 					document{} << "_id" << "userid" << finalize);
 				if (userId <= 0) {
-					response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
-					return;
+					response::json::err::Result(ERR::ErrCreateGameUser, BOOST::Any(), rsp);
+					return errcode;
 				}
 				//创建并插入user表
 				mgo::model::GameUser model;
@@ -175,8 +176,8 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 						kvp("integralvalue", b_int64{ model.Integralvalue })
 					).view());
 				if (insert_id.empty()) {
-					response::json::err::Result(response::json::err::ErrCreateGameUser, BOOST::Any(), rsp);
-					return;
+					response::json::err::Result(ERR::ErrCreateGameUser, BOOST::Any(), rsp);
+					return errcode;
 				}
 				_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
 				//token签名加密
@@ -193,8 +194,8 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				GateServList servList;
 				GetGateServList(servList);
 				if (servList.size() == 0) {
-					response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
-					return;
+					response::json::err::Result(ERR::ErrGameGateNotExist, BOOST::Any(), rsp);
+					return errcode;
 				}
 				//token签名加密
 				std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
@@ -211,8 +212,8 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			GateServList servList;
 			GetGateServList(servList);
 			if (servList.size() == 0) {
-				response::json::err::Result(response::json::err::ErrGameGateNotExist, BOOST::Any(), rsp);
-				return;
+				response::json::err::Result(ERR::ErrGameGateNotExist, BOOST::Any(), rsp);
+				return errcode;
 			}
 			//token签名加密
 			std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
@@ -222,7 +223,7 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			REDISCLIENT.SetToken(token, userId, req.Account);
 			response::json::OkMsg("登陆成功", Token(token), rsp);
 		}
-		return;
+		return errcode;
 	}
 	case 1: {
 		break;
@@ -236,6 +237,7 @@ void DoLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 	default:
 		break;
 	}
+	return errcode;
 }
 
 int Login(
@@ -244,7 +246,7 @@ int Login(
 	const muduo::net::TcpConnectionPtr& conn,
 	BufferPtr const& buf,
 	muduo::Timestamp receiveTime) {
-	int errcode = ApiErrorCode::NoError;
+	int errcode = ErrorCode::kOk;
 	switch (req.method()) {
 	case muduo::net::HttpRequest::kGet: {
 		std::string sType = req.getHeader(ContentType);
@@ -292,7 +294,7 @@ int Login(
 			}
 			if (decrypt.empty()) {
 				response::json::BadRequest(rsp);
-				return;
+				return errcode;
 			}
 			pt.clear();
 			{
@@ -307,14 +309,13 @@ int Login(
 			utils::MD5(src.c_str(), src.length(), md5, 1);
 			if (strncasecmp(md5, key.c_str(), std::min<size_t>(32, key.length())) != 0) {
 				response::json::BadRequest(rsp);
-				return;
+				return errcode;
 			}
 			LoginReq req;
 			req.Account = account;
 			req.Type = lType;
 			req.Timestamp = timestamp;
-			DoLogin(req, rsp, conn, receiveTime);
-			return;
+			return doLogin(req, rsp, conn, receiveTime);
 		}
 		else if (sType.find(ContentType_Xml) != string::npos) {
 

@@ -1,6 +1,5 @@
 
 #include "Login.h"
-#include "ErrorCode.h"
 
 LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr,

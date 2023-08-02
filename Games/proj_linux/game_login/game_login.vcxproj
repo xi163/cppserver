@@ -39,7 +39,6 @@
     <ClInclude Include="..\..\..\Framework\game_gate\Container.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
-    <ClInclude Include="..\..\..\Framework\game_login\ErrorCode.h" />
     <ClInclude Include="..\..\..\Framework\game_login\GameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_login\Login.h" />
     <ClInclude Include="..\..\..\Framework\game_login\register\GateServList.h" />
@@ -51,6 +50,7 @@
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h" />
+    <ClInclude Include="..\..\..\public\ErrorCode.h" />
     <ClInclude Include="..\..\..\public\Inc.h" />
     <ClInclude Include="..\..\..\public\IncMuduo.h" />
     <ClInclude Include="..\..\..\public\IPFinder.h" />
@@ -86,6 +86,7 @@
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc" />
+    <ClCompile Include="..\..\..\public\ErrorCode.cc" />
     <ClCompile Include="..\..\..\public\IPFinder.cpp" />
     <ClCompile Include="..\..\..\public\mgoKeys.cc" />
     <ClCompile Include="..\..\..\public\mgoModel.cc" />

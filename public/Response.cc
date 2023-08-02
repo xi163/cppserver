@@ -96,14 +96,3 @@ namespace response {
 		}
 	}
 }
-
-namespace response {
-	namespace json {
-		namespace err {
-
-			void Result(Msg const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
-				response::json::Result(msg.Code, msg.ErrMsg, data, rsp);
-			}
-		}
-	}
-}
