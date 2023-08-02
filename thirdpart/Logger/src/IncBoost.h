@@ -59,9 +59,9 @@ namespace boost {
 
 namespace BOOST {
 	void replace(std::string& json, const std::string& placeholder, const std::string& value);
-
+	
 	class Json;
-
+	
 	class Any {
 	public:
 		Any() {}
@@ -69,7 +69,7 @@ namespace BOOST {
 		virtual void bind(Json& obj) {}
 		virtual void bind(Json& obj, int i) {}
 	};
-
+	
 	class Json {
 	public:
 		void put(std::string const& key, int val);
@@ -100,7 +100,7 @@ namespace BOOST {
 	private:
 		boost::property_tree::ptree pt_;
 	};
-
+	
 	namespace json {
 		std::string Result(int code, std::string const& msg, Any const& data);
 	}
