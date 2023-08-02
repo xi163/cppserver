@@ -59,6 +59,7 @@ enum eApiVisit {
 	XX(OrderScoreCheckOrderNotExistsError, "订单不存在") \
 	XX(OrderScoreCheckDataError, "订单查询错误") \
 	XX(OrderScoreCheckUserNotExistsError, "玩家不存在") \
+	XX(AddScoreHandleUserNotExistsError, "玩家不存在") \
 	XX(AddScoreHandleInsertDataOutTime, "玩家上分等待超时") \
 	XX(AddScoreHandleInsertDataOverScore, "玩家上分超出代理现有总分值") \
 	XX(AddScoreHandleInsertDataOrderIDExists, "玩家上分订单已存在") \
@@ -75,13 +76,13 @@ enum ErrorCode {
 #undef ERROR_ENUM_Y
 
 struct Msg {
-	std::string const msg() const {
-		return desc.empty() ?
-			errmsg : "[" + desc + "]" + errmsg;
+	std::string const errmsg() const {
+		return name.empty() ?
+			desc : "[" + name + "]" + desc;
 	}
 	int code;
+	std::string name;
 	std::string desc;
-	std::string errmsg;
 };
 
 namespace ERR {
@@ -92,6 +93,11 @@ namespace ERR {
 	ERROR_MAP(ERROR_DEF_X, ERROR_DEF_Y)
 #undef ERROR_DEF_X
 #undef ERROR_DEF_Y
+
+#define ERROR_DECLARE(varname) \
+	std::string get##varname##Str(int varname);
+
+	ERROR_DECLARE(Error)
 }
 
 namespace response {

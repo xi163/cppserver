@@ -59,7 +59,7 @@ namespace LOGGER {
 	}
 
 	//write
-	void Logger::write(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, char const* fmt, ...) {
+	void Logger::write(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, char const* format, ...) {
 		AUTHORIZATION_CHECK;
 		if (impl_->check(level)) {
 			static size_t const PATHSZ = 512;
@@ -67,11 +67,11 @@ namespace LOGGER {
 			char msg[PATHSZ + MAXSZ + 2];
 			size_t pos = impl_->format(level, file, line, func, flag, msg, PATHSZ);
 			va_list ap;
-			va_start(ap, fmt);
+			va_start(ap, format);
 #ifdef _windows_
-			size_t n = vsnprintf_s(msg + pos, MAXSZ, _TRUNCATE, fmt, ap);
+			size_t n = vsnprintf_s(msg + pos, MAXSZ, _TRUNCATE, format, ap);
 #else
-			size_t n = vsnprintf(msg + pos, MAXSZ, fmt, ap);
+			size_t n = vsnprintf(msg + pos, MAXSZ, format, ap);
 #endif
 			va_end(ap);
 			msg[pos + n] = '\n';

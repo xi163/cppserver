@@ -25,7 +25,16 @@ namespace utils {
 		AUTHORIZATION_CHECK_S;
 		return utils::_gettid();
 	}
-
+	
+	std::string sprintf(char const* format, ...) {
+		AUTHORIZATION_CHECK_S;
+		va_list ap;
+		va_start(ap, format);
+		std::string s = utils::_sprintf(format, ap);
+		va_end(ap);
+		return s;
+	}
+	
 	std::string const trim_file(char const* _FILE_) {
 		AUTHORIZATION_CHECK_S;
 		return utils::_trim_file(_FILE_);

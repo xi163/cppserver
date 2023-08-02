@@ -52,7 +52,7 @@ namespace LOGGER {
 		char const* get_level();
 		void set_color(int level, int title, int text);
 		void init(char const* dir, int level, char const* prename, size_t logsize);
-		void write(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, char const* fmt, ...);
+		void write(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, char const* format, ...);
 		void write_s(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg);
 		void wait();
 		void enable();

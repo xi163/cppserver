@@ -56,7 +56,7 @@ void FFF(Base const& b) {
 	YY(AddScoreHandleInsertDataError, 32, "玩家上分失败") \
 	XX(SubScoreHandleInsertDataError, "玩家下分失败") \
 	XX(SubScoreHandleInsertOrderIDExists, "玩家下分订单已存在") \
-	XX(SubScoreHandleInsertDataUserInGaming,, "玩家正在游戏中，不能下分") \
+	XX(SubScoreHandleInsertDataUserInGaming, "玩家正在游戏中，不能下分") \
 	XX(SubScoreHandleInsertDataOverScore, "玩家下分超出玩家现有总分值") \
 	XX(SubScoreHandleInsertDataOutTime, "玩家下分等待超时") \
 	XX(OrderScoreCheckOrderNotExistsError, "订单不存在") \
@@ -98,11 +98,53 @@ namespace ERR {
 #undef ERROR_DEF_Y
 }
 
+#define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
+
+#define ERROR_DESC_X(n, s) { k##n, "k"#n, s },
+#define ERROR_DESC_Y(n, i, s){ k##n, "k"#n, s },
+#define TABLE_DECLARE(var, MY_MAP_) \
+	static struct { \
+		int id_; \
+		char const* name_; \
+		char const* desc_; \
+	}var[] = { \
+		MY_MAP_(ERROR_DESC_X, ERROR_DESC_Y) \
+	}
+//#undef ERROR_DESC_X
+//#undef ERROR_DESC_Y
+
+#define ERROR_FETCH(id, var, str) \
+	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
+		if (var[i].id_ == id) { \
+			std::string name = var[i].name_; \
+			std::string desc = var[i].desc_; \
+			str = name.empty() ? \
+				desc : "[" + name + "]" + desc;\
+			break; \
+		}\
+	}
+
+#define ERROR_DECLARE(varname) \
+	std::string Get##varname##Str(int varname);
+
+ERROR_DECLARE(Error)
+
+#define ERROR_IMPLEMENT(varname) \
+		std::string get##varname##Str(int varname) { \
+			TABLE_DECLARE(table_##varname##s_, ERROR_MAP); \
+			std::string str##varname; \
+			ERROR_FETCH(varname, table_##varname##s_, str##varname); \
+			return str##varname; \
+		}
+
+ERROR_IMPLEMENT(Error);
+
 int main() {
 	_LOG_DEBUG("错误信息：%s[%d]%s",
 		ERR::ErrGameRecordGetNoDataError.desc.c_str(),
 		ERR::ErrGameRecordGetNoDataError.code,
 		ERR::ErrGameRecordGetNoDataError.errmsg.c_str());
+	_LOG_DEBUG(getErrorStr(kAddScoreHandleInsertDataError).c_str());
 	//kNoError;
 	//kCreateGameUser;
 	//std::vector<Derive&> l;

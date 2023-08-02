@@ -2,6 +2,8 @@
 #include "gettimeofday.h"
 #include "../../rand/impl/StdRandomImpl.h"
 
+#define MAXBUFSZ 1024
+
 #ifdef _windows_
 //#include <DbgHelp.h>
 #include <ImageHlp.h>
@@ -49,6 +51,16 @@ namespace utils {
 #endif
 	}
 
+	std::string _sprintf(char const* format, ...) {
+		char buf[MAXBUFSZ] = { 0 };
+		va_list ap;
+		va_start(ap, format);
+		size_t n = vsnprintf(buf, sizeof buf, format, ap);
+		va_end(ap);
+		(void)n;
+		return buf;
+	}
+	
 	void _trim_file(char const* _FILE_, char* buf, size_t size) {
 #ifdef _windows_
 		char const* p = strrchr(_FILE_, '\\');
@@ -621,15 +633,13 @@ namespace utils {
 #endif
 #endif
 	}
-
-#define MAXBUFSZ 1024
 	
 	int _getNetCardIp(std::string const& netCardName, std::string& Ip) {
 #ifdef _linux_
 		int sockfd;
 		struct ifconf conf;
 		struct ifreq* ifr;
-		char buff[MAXBUFSZ] = { 0 };
+		char buf[MAXBUFSZ] = { 0 };
 		int num;
 		int i;
 		sockfd = ::socket(PF_INET, SOCK_DGRAM, 0);
@@ -637,7 +647,7 @@ namespace utils {
 			return -1;
 		}
 		conf.ifc_len = MAXBUFSZ;
-		conf.ifc_buf = buff;
+		conf.ifc_buf = buf;
 		if (::ioctl(sockfd, SIOCGIFCONF, &conf) < 0) {
 			::close(sockfd);
 			return -1;

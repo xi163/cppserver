@@ -32,6 +32,8 @@ namespace utils {
 		std::string createUUID();
 	}
 	
+	std::string sprintf(char const* format, ...);
+	
 	std::string buffer2HexStr(uint8_t const* buf, size_t len);
 
 	std::string clearDllPrefix(std::string const& path);
