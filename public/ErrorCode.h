@@ -4,7 +4,6 @@
 #include "Logger/src/Macro.h"
 #include "IncMuduo.h"
 
-
 #ifndef NotScore
 #define NotScore(a) ((a)<0.01f)
 #endif
