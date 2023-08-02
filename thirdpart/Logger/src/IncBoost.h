@@ -103,7 +103,9 @@ namespace BOOST {
 		boost::property_tree::ptree pt_;
 	};
 
-	std::string Result(int code, std::string const& msg, Any const& data);
+	namespace json {
+		std::string Result(int code, std::string const& msg, Any const& data);
+	}
 }
 
 #endif

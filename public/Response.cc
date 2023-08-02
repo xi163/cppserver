@@ -11,7 +11,7 @@ namespace response {
 	}
 	namespace json {
 		void Result(int code, std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
-			std::string json = BOOST::Result(code, msg, data);
+			std::string json = BOOST::json::Result(code, msg, data);
 			_LOG_ERROR("\n%s", json.c_str());
 			rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
 			rsp.setStatusMessage("OK");
@@ -31,7 +31,7 @@ namespace response {
 			Result(1, msg, data, rsp);
 		}
 		void BadRequest(muduo::net::HttpResponse& rsp) {
-			std::string json = BOOST::Result(
+			std::string json = BOOST::json::Result(
 				muduo::net::HttpResponse::k400BadRequest,
 				"bad request",
 				BOOST::Any());

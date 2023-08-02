@@ -96,12 +96,14 @@ namespace BOOST {
 		double_.clear();
 		objlist_.clear();
 	}
-	std::string Result(int code, std::string const& msg, Any const& data) {
-		Json obj;
-		obj.put("code", code);
-		obj.put("errmsg", msg);
-		obj.put("data", data);
-		std::string json = obj.to_json(false);
-		return Json::final_(json);
+	namespace json {
+		std::string Result(int code, std::string const& msg, Any const& data) {
+			Json obj;
+			obj.put("code", code);
+			obj.put("errmsg", msg);
+			obj.put("data", data);
+			std::string json = obj.to_json(false);
+			return Json::final_(json);
+		}
 	}
 }
