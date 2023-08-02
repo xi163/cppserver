@@ -4,6 +4,10 @@ namespace BOOST {
 	void replace(std::string& json, const std::string& placeholder, const std::string& value) {
 		boost::replace_all<std::string>(json, "\"" + placeholder + "\"", value);
 	}
+	static std::string& final_(std::string& json) {
+		boost::replace_all<std::string>(json, "\\", "");
+		return json;
+	}
 	void Json::put(std::string const& key, int val) {
 		pt_.put(key, ":" + key);
 		int_[":" + key] = val;
@@ -58,12 +62,8 @@ namespace BOOST {
 		replace_(json);
 		switch (v) {
 		case true:
-			return Json::final_(json);
+			return final_(json);
 		}
-		return json;
-	}
-	std::string& Json::final_(std::string& json) {
-		boost::replace_all<std::string>(json, "\\", "");
 		return json;
 	}
 	void Json::replace_(std::string& json) {
@@ -103,7 +103,7 @@ namespace BOOST {
 			obj.put("errmsg", msg);
 			obj.put("data", data);
 			std::string json = obj.to_json(false);
-			return Json::final_(json);
+			return final_(json);
 		}
 	}
 }

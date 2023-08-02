@@ -71,9 +71,6 @@ namespace BOOST {
 	};
 
 	class Json {
-		namespace json {
-			friend std::string json::Result(int code, std::string const& msg, Any const& data);
-		}
 	public:
 		void put(std::string const& key, int val);
 		void put(std::string const& key, int64_t val);
@@ -94,7 +91,6 @@ namespace BOOST {
 	private:
 		void reset_();
 		void replace_(std::string& json);
-		static std::string& final_(std::string& json);
 	private:
 		std::map<std::string, int> int_;
 		std::map<std::string, int64_t> i64_;
