@@ -103,17 +103,4 @@ namespace response {
 	}
 }
 
-// 代理信息
-struct agent_info_t {
-	int64_t		score;              //代理分数 
-	int32_t		status;             //是否被禁用 0正常 1停用
-	int32_t		agentId;            //agentId
-	int32_t		cooperationtype;    //合作模式  1 买分 2 信用
-	std::string descode;            //descode 
-	std::string md5code;            //MD5 
-};
-
-static std::map<int32_t, agent_info_t> agent_info_;
-static mutable boost::shared_mutex agent_info_mutex_;
-
 #endif
