@@ -478,7 +478,7 @@ namespace utils {
 		}
 	}
 
-	void _parseQuery(std::string const& queryStr, std::map<std::string, std::string>& params) {
+	bool _parseQuery(std::string const& queryStr, std::map<std::string, std::string>& params) {
 		params.clear();
 		do {
 			std::string subStr;
@@ -521,6 +521,7 @@ namespace utils {
 				}
 			}
 		} while (0);
+		return params.size() > 0;
 	}
 
 	std::string _GetModulePath(std::string* filename, bool exec) {

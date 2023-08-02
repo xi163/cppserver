@@ -343,7 +343,7 @@ void LoginServ::processHttpRequest(
 			//onProcess(req.query(), receiveTime, errcode, errmsg, latest, testTPS);
 			int errcode = Login(req, rsp, conn, buf, receiveTime);
 #ifdef _STAT_QPS_
-			if (errcode == ErrorCode::NoError) {
+			if (errcode == ErrorCode::kOk) {
 				numRequestSucc_.incrementAndGet();
 				numRequestTotalSucc_.incrementAndGet();
 			}
@@ -909,7 +909,7 @@ void LoginServ::processHttpRequest(
 // }
 
 // int LoginServ::execute(int opType, std::string const& account, double score, std::string const& orderId, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS) {
-// 	int errcode = ErrorCode::NoError;
+// 	int errcode = ErrorCode::kOk;
 // 	return errcode;
 // }
 

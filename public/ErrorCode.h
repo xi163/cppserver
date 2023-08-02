@@ -110,7 +110,7 @@ struct agent_info_t {
 	std::string md5code;            //MD5 
 };
 
-//static std::map<int32_t, agent_info_t> agent_info_;
-//static mutable boost::shared_mutex agent_info_mutex_;
+static std::map<int32_t, agent_info_t> agent_info_;
+static mutable boost::shared_mutex agent_info_mutex_;
 
 #endif

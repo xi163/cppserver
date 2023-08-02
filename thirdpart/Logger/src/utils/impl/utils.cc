@@ -123,9 +123,9 @@ namespace utils {
 		utils::_replaceEscChar(s);
 	}
 	
-	void parseQuery(std::string const& queryStr, std::map<std::string, std::string>& params) {
+	bool parseQuery(std::string const& queryStr, std::map<std::string, std::string>& params) {
 		AUTHORIZATION_CHECK;
-		utils::_parseQuery(queryStr, params);
+		return utils::_parseQuery(queryStr, params);
 	}
 
 	std::string GetModulePath(std::string* filename, bool exec) {
