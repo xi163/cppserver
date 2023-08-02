@@ -33,9 +33,12 @@ enum eApiVisit {
 
 #define ERROR_MAP(XX, YY) \
 	XX(Ok, "OK") \
+	XX(Failed, "FAILED") \
 	\
 	YY(CreateGameUser, 10001, "创建游戏账号失败") \
 	XX(GameGateNotExist, "没有可用的游戏网关") \
+	XX(Decrypt, "请求token参数解密失败") \
+	XX(CheckMd5, "请求token参数MD5校验失败") \
 	\
 	YY(InsideErrorOrNonExcutive, -10, "内部异常或未执行任务") \
 	XX(GameHandleProxyIDError, "代理ID不存在或代理已停用") \
@@ -84,9 +87,9 @@ struct Msg {
 
 namespace ERR {
 #define ERROR_DEF_X(n, s) \
-	static const Msg Err##n = Msg{ k##n, "k"#n, s };
+	static const Msg E##n = Msg{ k##n, "k"#n, s };
 #define ERROR_DEF_Y(n, i, s) \
-	static const Msg Err##n = Msg{ k##n, "k"#n, s };
+	static const Msg E##n = Msg{ k##n, "k"#n, s };
 	ERROR_MAP(ERROR_DEF_X, ERROR_DEF_Y)
 #undef ERROR_DEF_X
 #undef ERROR_DEF_Y
@@ -95,7 +98,7 @@ namespace ERR {
 namespace response {
 	namespace json {
 		namespace err {
-			void Result(Msg const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
+			int Result(Msg const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
 		}
 	}
 }

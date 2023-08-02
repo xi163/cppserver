@@ -10,27 +10,28 @@ namespace response {
 		}
 	}
 	namespace json {
-		void Result(int code, std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
+		int Result(int code, std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
 			std::string json = BOOST::json::Result(code, msg, data);
 			_LOG_ERROR("\n%s", json.c_str());
 			rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
 			rsp.setStatusMessage("OK");
 			rsp.setContentType(ContentType_Json_utf8);
 			rsp.setBody(json);
+			return code;
 		}
-		void Ok(BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
-			Result(0, "ok", data, rsp);
+		int Ok(BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
+			return Result(0, "ok", data, rsp);
 		}
-		void OkMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
-			Result(0, msg, data, rsp);
+		int OkMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
+			return Result(0, msg, data, rsp);
 		}
-		void Err(BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
-			Result(1, "error", data, rsp);
+		int Err(BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
+			return Result(1, "error", data, rsp);
 		}
-		void ErrMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
-			Result(1, msg, data, rsp);
+		int ErrMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
+			return Result(1, msg, data, rsp);
 		}
-		void BadRequest(muduo::net::HttpResponse& rsp) {
+		int BadRequest(muduo::net::HttpResponse& rsp) {
 			std::string json = BOOST::json::Result(
 				muduo::net::HttpResponse::k400BadRequest,
 				"bad request",
@@ -39,6 +40,7 @@ namespace response {
 			rsp.setStatusMessage("OK");
 			rsp.setContentType(ContentType_Json_utf8);
 			rsp.setBody(json);
+			return muduo::net::HttpResponse::k400BadRequest;
 		}
 	}
 	namespace xml {

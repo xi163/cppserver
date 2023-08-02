@@ -17,12 +17,12 @@ namespace response {
 		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
 	}
 	namespace json {
-		void Result(int code, std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		void BadRequest(muduo::net::HttpResponse& rsp);
-		void Ok(BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		void OkMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		void Err(BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		void ErrMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
+		int Result(int code, std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
+		int BadRequest(muduo::net::HttpResponse& rsp);
+		int Ok(BOOST::Any const& data, muduo::net::HttpResponse& rsp);
+		int OkMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
+		int Err(BOOST::Any const& data, muduo::net::HttpResponse& rsp);
+		int ErrMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
 	}
 	namespace xml {
 		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
