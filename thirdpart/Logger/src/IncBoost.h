@@ -71,7 +71,9 @@ namespace BOOST {
 	};
 
 	class Json {
-		friend std::string Result(int code, std::string const& msg, Any const& data);
+		namespace json {
+			friend std::string json::Result(int code, std::string const& msg, Any const& data);
+		}
 	public:
 		void put(std::string const& key, int val);
 		void put(std::string const& key, int64_t val);
