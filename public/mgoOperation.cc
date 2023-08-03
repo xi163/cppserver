@@ -178,8 +178,10 @@ namespace mgo {
 				switch (view["userid"].type()) {
 				case bsoncxx::type::k_int64:
 					info.userId = view["userid"].get_int64();
+					break;
 				case bsoncxx::type::k_int32:
 					info.userId = view["userid"].get_int32();
+					break;
 				}
 			}
 			if (view["score"]) {
@@ -253,8 +255,10 @@ namespace mgo {
 				switch (view["userid"].type()) {
 				case bsoncxx::type::k_int64:
 					info.userId = view["userid"].get_int64();
+					break;
 				case bsoncxx::type::k_int32:
 					info.userId = view["userid"].get_int32();
+					break;
 				}
 			}
 			if (view["account"]) {
@@ -268,16 +272,20 @@ namespace mgo {
 				switch (view["agentid"].type()) {
 				case bsoncxx::type::k_int64:
 					info.agentId = view["agentid"].get_int64();
+					break;
 				case bsoncxx::type::k_int32:
 					info.agentId = view["agentid"].get_int32();
+					break;
 				}
 			}
 			if (view["headindex"]) {
 				switch (view["headindex"].type()) {
 				case bsoncxx::type::k_int64:
 					info.headId = view["headindex"].get_int64();
+					break;
 				case bsoncxx::type::k_int32:
 					info.headId = view["headindex"].get_int32();
+					break;
 				}
 			}
 			if (view["nickname"]) {
@@ -589,8 +597,10 @@ namespace mgo {
 					switch (view["agentid"].type()) {
 					case bsoncxx::type::k_int64:
 						agentId = view["agentid"].get_int64();
+						break;
 					case bsoncxx::type::k_int32:
 						agentId = view["agentid"].get_int32();
+						break;
 					}
 				}
 				if (agentId <= 0) {
