@@ -47,6 +47,9 @@ namespace response {
 			int Result(Msg const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
 				return response::json::Result(msg.code, msg.errmsg(), data, rsp);
 			}
+			int Result(Msg const& msg, std::string const& extra, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
+				return response::json::Result(msg.code, msg.errmsg() + std::move(extra), data, rsp);
+			}
 		}
 	}
 }

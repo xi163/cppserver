@@ -109,6 +109,7 @@ namespace response {
 	namespace json {
 		namespace err {
 			int Result(Msg const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
+			int Result(Msg const& msg, std::string const& extra, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
 		}
 	}
 }
