@@ -64,7 +64,7 @@ namespace RedisLock {
 		CRedLock();
 		virtual ~CRedLock();
 	public:
-		bool AddServerUrl(const char *ip, const int port);
+		bool AddServerUrl(const char *ip, const int port, std::string const& passwd);
 		void SetRetry(const int count, const int delay);
 		bool Lock(const char *resource, const int ttl, CLock &lock);
 		bool ContinueLock(const char *resource, const int ttl, CLock &lock);

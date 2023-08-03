@@ -592,7 +592,7 @@ namespace mgo {
 				mgoKeys::tbl::AGENTINFO,
 				select, where);
 			for (auto& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				//_LOG_WARN(to_json(view).c_str());
 				if (view["agentid"]) {
 					switch (view["agentid"].type()) {
 					case bsoncxx::type::k_int64:

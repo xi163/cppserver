@@ -99,14 +99,35 @@ namespace RedisLock {
 	}
 
 	// ----------------
+	// auth redis server
+	// ----------------
+	static bool auth(redisContext* c, std::string const& passwd) {
+		redisReply* reply = (redisReply*)redisCommand(c, "AUTH %s", passwd.c_str());
+		if (reply) {
+			if (reply->type != REDIS_REPLY_ERROR && reply->str && std::string(reply->str) == "OK") {
+				return true;
+			}
+			freeReplyObject(reply);
+		}
+		return false;
+	}
+	
+	// ----------------
 	// add redis server
 	// ----------------
-	bool CRedLock::AddServerUrl(const char *ip, const int port) {
+	bool CRedLock::AddServerUrl(const char *ip, const int port, std::string const& passwd) {
 		redisContext *c = NULL;
 		struct timeval timeout = { 1, 500000 }; // 1.5 seconds
 		c = redisConnectWithTimeout(ip, port, timeout);
 		if (c) {
-			m_redisServer.push_back(c);
+			if (!passwd.empty()) {
+				if (auth(c, passwd)) {
+					m_redisServer.push_back(c);
+				}
+			}
+			else {
+				m_redisServer.push_back(c);
+			}
 		}
 		m_quoRum = (int)m_redisServer.size() / 2 + 1;
 		return true;
