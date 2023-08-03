@@ -104,9 +104,10 @@ namespace RedisLock {
 	static bool auth(redisContext* c, std::string const& passwd) {
 		redisReply* reply = (redisReply*)redisCommand(c, "AUTH %s", passwd.c_str());
 		if (reply) {
-			if (reply->type != REDIS_REPLY_ERROR && reply->str && std::string(reply->str) == "OK") {
+			if (reply->type == REDIS_REPLY_STATUS && reply->str && strcasecmp(reply->str, "OK") == 0) {
 				return true;
 			}
+			_LOG_ERROR("%.*s", strlen(reply->str), reply->str);
 			freeReplyObject(reply);
 		}
 		return false;
@@ -122,12 +123,19 @@ namespace RedisLock {
 		if (c) {
 			if (!passwd.empty()) {
 				if (auth(c, passwd)) {
+					_LOG_WARN("%.*s:%d succ", strlen(ip), ip, port);
 					m_redisServer.push_back(c);
+				}
+				else {
+					_LOG_ERROR("%.*s:%d failed", strlen(ip), ip, port);
 				}
 			}
 			else {
 				m_redisServer.push_back(c);
 			}
+		}
+		else {
+			_LOG_ERROR("redisConnectWithTimeout %.*s:%d", strlen(ip), ip, port);
 		}
 		m_quoRum = (int)m_redisServer.size() / 2 + 1;
 		return true;

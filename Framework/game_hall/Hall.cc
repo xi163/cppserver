@@ -297,7 +297,7 @@ void HallServ::threadInit() {
 		it != redlockVec_.end(); ++it) {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, *it, boost::is_any_of(":"));
-		REDISLOCK.AddServerUrl(vec[0].c_str(), atol(vec[1].c_str()));
+		REDISLOCK.AddServerUrl(vec[0].c_str(), atol(vec[1].c_str()), redisPasswd_);
 		s += "\n" + vec[0];
 		s += ":" + vec[1];
 	}
