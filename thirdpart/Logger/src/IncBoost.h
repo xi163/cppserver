@@ -103,6 +103,7 @@ namespace BOOST {
 	
 	namespace json {
 		std::string Result(int code, std::string const& msg, Any const& data);
+		std::string Result(int code, std::string const& msg, std::string const& extra, Any const& data);
 	}
 }
 

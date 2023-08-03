@@ -101,7 +101,25 @@ namespace BOOST {
 			Json obj;
 			obj.put("code", code);
 			obj.put("errmsg", msg);
-			obj.put("data", data);
+			switch (typeid(data) == typeid(Any)) {
+			case false:
+				obj.put("data", data);
+			}
+			std::string json = obj.to_json(false);
+			return final_(json);
+		}
+		std::string Result(int code, std::string const& msg, std::string const& extra, Any const& data) {
+			Json obj;
+			obj.put("code", code);
+			obj.put("errmsg", msg);
+			switch (typeid(data) == typeid(Any)) {
+			case false:
+				obj.put("data", data);
+			}
+			switch (extra.empty()) {
+			case false:
+				obj.put("extra", extra);
+			}
 			std::string json = obj.to_json(false);
 			return final_(json);
 		}

@@ -52,7 +52,7 @@ namespace response {
 				case true:
 					return response::json::Result(msg.code, msg.errmsg(), data, rsp);
 				default:
-					return response::json::Result(msg.code, msg.errmsg() + " " + std::move(extra), data, rsp);
+					return response::json::Result(msg.code, msg.errmsg(), std::move(extra), data, rsp);
 				}
 			}
 		}

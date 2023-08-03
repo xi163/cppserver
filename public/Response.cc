@@ -19,6 +19,15 @@ namespace response {
 			rsp.setBody(json);
 			return code;
 		}
+		int Result(int code, std::string const& msg, std::string const& extra, BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
+			std::string json = BOOST::json::Result(code, msg, extra, data);
+			_LOG_ERROR("\n%s", json.c_str());
+			rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
+			rsp.setStatusMessage("OK");
+			rsp.setContentType(ContentType_Json_utf8);
+			rsp.setBody(json);
+			return code;
+		}
 		int Ok(BOOST::Any const& data, muduo::net::HttpResponse& rsp) {
 			return Result(0, "ok", data, rsp);
 		}

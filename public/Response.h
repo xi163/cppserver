@@ -18,6 +18,7 @@ namespace response {
 	}
 	namespace json {
 		int Result(int code, std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
+		int Result(int code, std::string const& msg, std::string const& extra, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
 		int BadRequest(muduo::net::HttpResponse& rsp);
 		int Ok(BOOST::Any const& data, muduo::net::HttpResponse& rsp);
 		int OkMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
