@@ -17,5 +17,17 @@ namespace rpc {
 			_LOG_WARN("\nreq:%s\nrsp:%s", req->DebugString().c_str(), rsp.DebugString().c_str());
 			done(&rsp);
 		}
+
+		void GameGate::NotifyUserScore(const ::ProxyServer::Message::UserScoreReqPtr& req,
+			const ::ProxyServer::Message::UserScoreRsp* responsePrototype,
+			const muduo::net::RpcDoneCallback& done) {
+			::ProxyServer::Message::UserScoreRsp rsp;
+			muduo::net::TcpConnectionPtr peer(gServer->sessions_.get(req->userid()).lock());
+			if (peer) {
+				BufferPtr buffer = GateServ::packOrderScoreMsg(req->userid(), req->score());
+				muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
+			}
+			done(&rsp);
+		}
 	}
 }

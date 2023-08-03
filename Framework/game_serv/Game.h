@@ -106,8 +106,6 @@ public:
 	void DelContext(int64_t userId);
 	bool IsStopped() { return false; }
 public:
-	bool GetUserBaseInfo(int64_t userid,
-		UserBaseInfo& baseInfo);
 	bool SendGameErrorCode(
 		const muduo::net::TcpConnectionPtr& conn,
 		uint8_t mainid, uint8_t subid,

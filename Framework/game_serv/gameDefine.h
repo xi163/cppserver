@@ -37,40 +37,41 @@
 
 //const static int PACKET_SIZE = 60 * 1024;
 
+#include "structs.h"
 
-struct UserBaseInfo
-{
-	UserBaseInfo()
-	{
-		userId = -1;
-		account = "";
-		headId = 0;
-		nickName = "";
-		userScore = 0;
-		agentId = 0;
-		lineCode = "";
-		status = 0;
-		location = "";
-
-		takeMaxScore = 0;
-		takeMinScore = 0;
-		ip = 0;
-	}
-
-	int64_t    userId;                // set the user id.
-	std::string     account;
-	uint8_t    headId;                // set the header id.
-	std::string     nickName;
-	int64_t    userScore;             // set the score info.
-	uint32_t   agentId;
-	std::string     lineCode;
-	uint32_t   status;
-	uint32_t   ip;
-	std::string     location;
-
-	int64_t    takeMaxScore;
-	int64_t    takeMinScore;
-};
+// struct UserBaseInfo
+// {
+// 	UserBaseInfo()
+// 	{
+// 		userId = -1;
+// 		account = "";
+// 		headId = 0;
+// 		nickName = "";
+// 		userScore = 0;
+// 		agentId = 0;
+// 		lineCode = "";
+// 		status = 0;
+// 		location = "";
+// 
+// 		takeMaxScore = 0;
+// 		takeMinScore = 0;
+// 		ip = 0;
+// 	}
+// 
+// 	int64_t    userId;                // set the user id.
+// 	std::string     account;
+// 	uint8_t    headId;                // set the header id.
+// 	std::string     nickName;
+// 	int64_t    userScore;             // set the score info.
+// 	uint32_t   agentId;
+// 	std::string     lineCode;
+// 	uint32_t   status;
+// 	uint32_t   ip;
+// 	std::string     location;
+// 
+// 	int64_t    takeMaxScore;
+// 	int64_t    takeMinScore;
+// };
 
 //    int64_t    allChargeAmount;       // charge mount all
 //    int64_t    allWinScore;           // gain score all

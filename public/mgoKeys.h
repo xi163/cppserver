@@ -20,10 +20,18 @@ namespace mgoKeys {
 		static char const* AUTO_INCREMENT = "auto_increment";
 
 		static char const* GAMEUSER = "game_user";
+		static char const* AGENTINFO = "proxy_info";
 		static char const* LOG_LOGIN = "login_log";
 		static char const* LOG_LOGOUT = "logout_log";
 		static char const* LOG_GAME = "game_log";
 		static char const* PLAY_RECORD = "play_record";
+		
+		static char const* ADDSCORE_ORDER = "add_score_order";
+		static char const* SUBSCORE_ORDER = "sub_score_order";
+		static char const* USERSCORE_RECORD = "user_score_record";
+		static char const* AGENT_SCORE_RECORD = "proxy_score_record";
+
+		static char const* IP_WHITE_LIST = "ip_white_list";
 	}
 }
 

@@ -6,6 +6,7 @@
 
 #include "proto/Game.Common.pb.h"
 #include "proto/GameServer.Message.pb.h"
+#include "public/mgoOperation.h"
 
 //#include "TaskService.h"
 
@@ -629,7 +630,7 @@ void GameServ::cmd_on_user_enter_room(
 		}
 		UserBaseInfo userInfo;
 		if (conn) {
-			if (!GetUserBaseInfo(pre_header_->userId, userInfo)) {
+			if (!mgo::GetUserBaseInfo(pre_header_->userId, userInfo)) {
 				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -1004,34 +1005,6 @@ bool GameServ::SendGameErrorCode(
 	rspdata.set_retcode(errcode);
 	rspdata.set_errormsg(errmsg);
 	send(conn, &rspdata, mainid, subid, pre_header_, header_);
-}
-
-bool GameServ::GetUserBaseInfo(int64_t userid, UserBaseInfo& baseInfo) {
-	try {
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		auto query_value = document{} << "userid" << userid << finalize;
-		bsoncxx::stdx::optional<bsoncxx::document::value> result = userCollection.find_one(query_value.view());
-		if (result) {
-			bsoncxx::document::view view = result->view();
-			baseInfo.userId = view["userid"].get_int64();
-			baseInfo.account = view["account"].get_utf8().value.to_string();
-			baseInfo.agentId = view["agentid"].get_int32();
-			baseInfo.lineCode = view["linecode"].get_utf8().value.to_string();
-			baseInfo.headId = view["headindex"].get_int32();
-			baseInfo.nickName = view["nickname"].get_utf8().value.to_string();
-			baseInfo.userScore = view["score"].get_int64();
-			baseInfo.status = view["status"].get_int32();
-			int64_t totalAddScore = view["alladdscore"].get_int64();
-			int64_t totalSubScore = view["allsubscore"].get_int64();
-			int64_t totalWinScore = view["winorlosescore"].get_int64();
-			int64_t totalBet = totalAddScore - totalSubScore;
-			return true;
-		}
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return (false);
 }
 
 void GameServ::db_refresh_game_room_info() {

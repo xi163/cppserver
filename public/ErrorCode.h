@@ -8,13 +8,18 @@
 #define NotScore(a) ((a)<0.01f)
 #endif
 
-enum eApiType {
-	OpUnknown = -1,
-	OpAddScore = 2,
-	OpSubScore = 3,
+enum eCooType {
+	buyScore = 1, //代理买分
+	credit = 2,   //代理信用  
 };
 
-enum ServiceStateE {
+enum eApiType {
+	OpUnknown = -1,
+	OpAddScore = 2,//上分
+	OpSubScore = 3,//下分
+};
+
+enum {
 	kRunning = 0,//服务中
 	kRepairing = 1,//维护中
 };

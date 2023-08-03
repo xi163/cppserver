@@ -329,6 +329,22 @@ void GateServ::asyncOfflineHandler(Context& entryContext) {
 	onUserOfflineGame(entryContext);
 }
 
+BufferPtr GateServ::packOrderScoreMsg(int16_t userid, int64_t score) {
+	::Game::Common::ProxyNotifyOrderScoreMessage msg;
+	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
+	msg.set_userid(userid);
+	msg.set_score(score);
+
+	BufferPtr buffer = packet::packMessage(
+		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+		::Game::Common::PROXY_NOTIFY_USER_ORDER_SCORE_MESSAGE, &msg);
+
+	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+		::Game::Common::PROXY_NOTIFY_USER_ORDER_SCORE_MESSAGE);
+	
+	return buffer;
+}
+
 BufferPtr GateServ::packClientShutdownMsg(int64_t userid, int status) {
 	::Game::Common::ProxyNotifyShutDownUserClientMessage msg;
 	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);

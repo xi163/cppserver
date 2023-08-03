@@ -12,7 +12,7 @@
 #define PARAM_ERROR     1,__FILE__,__LINE__,__FUNC__,NULL
 #define PARAM_WARN      2,__FILE__,__LINE__,__FUNC__,NULL
 #define PARAM_INFO      3,__FILE__,__LINE__,__FUNC__,NULL
-#define PARAM_TRACE     4,__FILE__,__LINE__,__FUNC__,__STACK__
+#define PARAM_TRACE     4,__FILE__,__LINE__,__FUNC__,NULL
 #define PARAM_DEBUG     5,__FILE__,__LINE__,__FUNC__,NULL
 
 namespace LOGGER {

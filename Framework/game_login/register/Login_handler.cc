@@ -75,7 +75,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			mgo::CreateGuestUser(userId, req.Account, model);
 			model.Regip = conn->peerAddress().toIp();
 			model.Lastloginip = conn->peerAddress().toIp();
-			std::string insert_id = mgo::InsertUser(
+			std::string insert_id = mgo::AddUser(
 				make_document(
 					kvp("userid", b_int64{ userId }),
 					kvp("account", model.Account),
@@ -142,7 +142,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				mgo::CreateGuestUser(userId, req.Account, model);
 				model.Regip = conn->peerAddress().toIp();
 				model.Lastloginip = conn->peerAddress().toIp();
-				std::string insert_id = mgo::InsertUser(
+				std::string insert_id = mgo::AddUser(
 					make_document(
 						kvp("userid", b_int64{ userId }),
 						kvp("account", model.Account),

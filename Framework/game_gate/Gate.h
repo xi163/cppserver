@@ -97,7 +97,7 @@ public:
 	void threadInit();
 	bool InitServer();
 	void Start(int numThreads, int numWorkerThreads, int maxSize);
-private:
+public:
 	bool onCondition(const muduo::net::InetAddress& peerAddr);
 	void onConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onConnected(
@@ -112,6 +112,7 @@ private:
 		BufferPtr const& buf,
 		muduo::Timestamp receiveTime);
 	void asyncOfflineHandler(Context& entryContext);
+	static BufferPtr packOrderScoreMsg(int16_t userid, int64_t score);
 	static BufferPtr packClientShutdownMsg(int64_t userid, int status = 0);
 	static BufferPtr packNoticeMsg(
 		int32_t agentid, std::string const& title,

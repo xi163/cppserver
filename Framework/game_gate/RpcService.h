@@ -13,6 +13,10 @@ namespace rpc {
 				const ::ProxyServer::Message::GameGateReqPtr& req,
 				const ::ProxyServer::Message::GameGateRsp* responsePrototype,
 				const muduo::net::RpcDoneCallback& done);
+
+			virtual void NotifyUserScore(const ::ProxyServer::Message::UserScoreReqPtr& req,
+				const ::ProxyServer::Message::UserScoreRsp* responsePrototype,
+				const muduo::net::RpcDoneCallback& done);
 		};
 	}
 }
