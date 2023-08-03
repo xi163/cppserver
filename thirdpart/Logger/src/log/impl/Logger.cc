@@ -65,7 +65,7 @@ namespace LOGGER {
 			static size_t const PATHSZ = 512;
 			static size_t const MAXSZ = 81920;
 			char msg[PATHSZ + MAXSZ + 2];
-			size_t pos = impl_->format(level, file, line, func, flag, msg, PATHSZ);
+			size_t pos = impl_->format_s(level, file, line, func, flag, msg, PATHSZ);
 			va_list ap;
 			va_start(ap, format);
 #ifdef _windows_

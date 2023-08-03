@@ -61,7 +61,7 @@ namespace LOGGER {
 	private:
 		bool started();
 		bool check(int level);
-		size_t format(int level, char const* file, int line, char const* func, uint8_t flag, char* buffer, size_t size);
+		size_t format_s(int level, char const* file, int line, char const* func, uint8_t flag, char* buffer, size_t size);
 		void notify(char const* msg, size_t len, size_t pos, uint8_t flag, char const* stack, size_t stacklen);
 		void stdoutbuf(int level, char const* msg, size_t len, size_t pos, uint8_t flag, char const* stack = NULL, size_t stacklen = 0);
 		void checkSync(uint8_t flag);

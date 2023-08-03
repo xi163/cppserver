@@ -114,7 +114,7 @@ namespace LOGGER {
 			static size_t const PATHSZ = 512;
 			static size_t const MAXSZ = 81920;
 			char msg[PATHSZ + MAXSZ + 2];
-			size_t pos = format(level, file, line, func, flag, msg, PATHSZ);
+			size_t pos = format_s(level, file, line, func, flag, msg, PATHSZ);
 			va_list ap;
 			va_start(ap, format);
 #ifdef _windows_
@@ -174,7 +174,7 @@ namespace LOGGER {
 	}
 
 	//format
-	size_t LoggerImpl::format(int level, char const* file, int line, char const* func, uint8_t flag, char* buffer, size_t size) {
+	size_t LoggerImpl::format_s(int level, char const* file, int line, char const* func, uint8_t flag, char* buffer, size_t size) {
 		struct tm tm;
 		struct timeval tv;
 		update(tm, tv);
