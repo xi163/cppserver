@@ -492,7 +492,7 @@ void GameServ::cmd_keep_alive_ping(
 		int64_t userid = 0;
 		uint32_t agentid = 0;
 		std::string account;
-		if (redis_get_token_info(token, userid, account, agentid)) {
+		if (REDISCLIENT.GetToken(token, userid, account, agentid)) {
 			//std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 			//if (player && player->isOffline()) {
 			//	rspdata.set_retcode(3);
@@ -1038,28 +1038,6 @@ void GameServ::redis_update_room_player_nums() {
 
 void GameServ::on_refresh_game_config(std::string msg) {
 	db_refresh_game_room_info();
-}
-
-
-bool GameServ::redis_get_token_info(
-	std::string const& token,
-	int64_t& userid, std::string& account, uint32_t& agentid) {
-	try {
-		std::string value;
-		if (REDISCLIENT.get("k.token." + token, value)) {
-			boost::property_tree::ptree root;
-			std::stringstream s(value);
-			boost::property_tree::read_json(s, root);
-			userid = root.get<int64_t>("uid");
-			account = root.get<std::string>("account");
-			//agentid = root.get<uint32_t>("agentid");
-			return userid > 0;
-		}
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return false;
 }
 
 bool GameServ::db_update_online_status(int64_t userid, int32_t status) {

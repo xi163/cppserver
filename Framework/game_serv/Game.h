@@ -114,9 +114,6 @@ public:
 		packet::header_t const* header_);
 public:
 	bool LoadGameRoomKindInfo(uint32_t gameid, uint32_t roomid);
-	bool redis_get_token_info(
-		std::string const& token,
-		int64_t& userid, std::string& account, uint32_t& agentid);
 	bool db_update_online_status(int64_t userid, int32_t status);
 	void db_refresh_game_room_info();
 	//void db_update_game_room_info();

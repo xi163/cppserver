@@ -120,10 +120,6 @@ private:
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 public:
 	void random_game_server_ipport(uint32_t roomid, std::string& ipport);
-	//redis查询token，判断是否过期
-	bool redis_get_token_info(
-		std::string const& token,
-		int64_t& userid, std::string& account, uint32_t& agentid);
 	//db更新用户登陆信息(登陆IP，时间)
 	bool db_update_login_info(
 		int64_t userid,

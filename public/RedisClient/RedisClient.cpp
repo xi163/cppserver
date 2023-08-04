@@ -1176,6 +1176,27 @@ bool RedisClient::SetToken(std::string const& token, int64_t userid, std::string
     return set(key, obj.to_json(), redisKeys::Expire_Token);
 }
 
+bool RedisClient::GetToken(std::string const& token,
+    int64_t& userid, std::string& account, uint32_t& agentid) {
+    std::string key = redisKeys::prefix_token + token;
+	try {
+		std::string value;
+		if (get(key, value)) {
+			boost::property_tree::ptree pt;
+			std::stringstream ss(value);
+			boost::property_tree::read_json(ss, pt);
+			userid = pt.get<int64_t>("uid");
+			account = pt.get<std::string>("account");
+			//agentid = pt.get<uint32_t>("agentid");
+			return userid > 0;
+		}
+	}
+	catch (std::exception& e) {
+		_LOG_ERROR(e.what());
+	}
+	return false;
+}
+
 //=================================================
 bool RedisClient::SetUserOnlineInfo(int64_t userId, uint32_t nGameId, uint32_t nRoomId)
 {

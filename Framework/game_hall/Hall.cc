@@ -559,7 +559,7 @@ void HallServ::cmd_on_user_login(
 			//系统当前时间
 			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 			//redis查询token，判断是否过期
-			if (redis_get_token_info(token, userid, account, agentid)) {
+			if (REDISCLIENT.GetToken(token, userid, account, agentid)) {
 				mongocxx::collection coll = MONGODBCLIENT["gamemain"]["game_user"];
 				bsoncxx::document::value query_value = document{} << "userid" << userid << finalize;
 				bsoncxx::stdx::optional<bsoncxx::document::value> result = coll.find_one(query_value.view());
@@ -1192,28 +1192,6 @@ void HallServ::random_game_server_ipport(uint32_t roomid, std::string& ipport) {
 			ipport = rooms[index];
 		}
 	}
-}
-
-//redis查询token，判断是否过期
-bool HallServ::redis_get_token_info(
-	std::string const& token,
-	int64_t& userid, std::string& account, uint32_t& agentid) {
-	try {
-		std::string value;
-		if (REDISCLIENT.get("k.token." + token, value)) {
-			boost::property_tree::ptree root;
-			std::stringstream s(value);
-			boost::property_tree::read_json(s, root);
-			userid = root.get<int64_t>("uid");
-			account = root.get<std::string>("account");
-			//agentid = root.get<uint32_t>("agentid");
-			return userid > 0;
-		}
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return false;
 }
 
 //db更新用户登陆信息(登陆IP，时间)
