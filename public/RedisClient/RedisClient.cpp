@@ -1145,7 +1145,7 @@ bool RedisClient::smembers(std::string key, std::vector<std::string> &list)
     return OK;
 }
 
-bool RedisClient::ExpireAccountUid(std::string const& account) {
+bool RedisClient::ResetExpiredAccountUid(std::string const& account) {
     std::string key = redisKeys::prefix_account_uid + account;
     return resetExpired(key, redisKeys::Expire_AccountUid);
 }
@@ -1166,6 +1166,11 @@ bool RedisClient::GetAccountUid(std::string const& account, int64_t& userId) {
 bool RedisClient::SetAccountUid(std::string const& account, int64_t userid) {
     std::string key = redisKeys::prefix_account_uid + account;
     return set(key, std::to_string(userid), redisKeys::Expire_AccountUid);
+}
+
+bool RedisClient::ResetExpiredToken(std::string const& token) {
+	std::string key = redisKeys::prefix_token + token;
+	return resetExpired(key, redisKeys::Expire_Token);
 }
 
 bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::string const& account) {

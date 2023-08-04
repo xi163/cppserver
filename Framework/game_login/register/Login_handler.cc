@@ -210,7 +210,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			//token签名加密
 			std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
 			//更新redis account->uid
-			REDISCLIENT.ExpireAccountUid(req.Account);
+			REDISCLIENT.ResetExpiredAccountUid(req.Account);
 			//缓存token
 			REDISCLIENT.SetTokenInfo(token, userId, req.Account);
 			//return response::json::OkMsg("登陆成功", Token(token), rsp);

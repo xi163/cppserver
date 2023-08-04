@@ -227,9 +227,10 @@ private:
 
 
 public:
-    bool ExpireAccountUid(std::string const& account);
+    bool ResetExpiredAccountUid(std::string const& account);
     bool GetAccountUid(std::string const& account, int64_t& userId);
     bool SetAccountUid(std::string const& account, int64_t userid);
+    bool ResetExpiredToken(std::string const& token);
     bool SetTokenInfo(std::string const& token, int64_t userid, std::string const& account);
     bool GetTokenInfo(std::string const& token,
         int64_t& userid, std::string& account, uint32_t& agentid);

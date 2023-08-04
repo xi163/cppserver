@@ -516,7 +516,7 @@ void HallServ::cmd_keep_alive_ping(
 		rspdata.set_errormsg("[Hall]KEEP ALIVE PING OK.");
 		//用户登陆token
 		std::string const& token = reqdata.session();
-		REDISCLIENT.resetExpired("k.token." + token);
+		REDISCLIENT.ResetExpiredToken(token);
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_SERVER_SUBID::KEEP_ALIVE_RES,
 			pre_header_, header_);
@@ -629,7 +629,7 @@ void HallServ::cmd_on_user_login(
 						//redis更新登陆时间
 						REDISCLIENT.SetUserLoginInfo(userid, "lastlogintime", std::to_string(chrono::system_clock::to_time_t(now)));
 						//redis更新token过期时间
-						REDISCLIENT.resetExpired("k.token." + token);
+						REDISCLIENT.ResetExpiredToken(token);
 						_LOG_DEBUG("%d LOGIN SERVER OK!", userid);
 					}
 					else {
