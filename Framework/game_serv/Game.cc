@@ -500,7 +500,7 @@ void GameServ::cmd_keep_alive_ping(
 			//}
 			/*else */if (REDISCLIENT.ResetExpiredUserOnlineInfo(userid)) {
 				rspdata.set_retcode(0);
-				rspdata.set_errormsg("KEEP ALIVE PING OK.");
+				rspdata.set_errormsg("[Game]KEEP ALIVE PING OK.");
 			}
 			else {
 				rspdata.set_retcode(2);
@@ -1046,13 +1046,13 @@ bool GameServ::redis_get_token_info(
 	int64_t& userid, std::string& account, uint32_t& agentid) {
 	try {
 		std::string value;
-		if (REDISCLIENT.get(token, value)) {
+		if (REDISCLIENT.get("k.token." + token, value)) {
 			boost::property_tree::ptree root;
 			std::stringstream s(value);
 			boost::property_tree::read_json(s, root);
 			userid = root.get<int64_t>("userid");
 			account = root.get<std::string>("account");
-			agentid = root.get<uint32_t>("agentid");
+			//agentid = root.get<uint32_t>("agentid");
 			return userid > 0;
 		}
 	}

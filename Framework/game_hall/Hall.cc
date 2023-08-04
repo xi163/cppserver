@@ -513,7 +513,7 @@ void HallServ::cmd_keep_alive_ping(
 		::Game::Common::KeepAliveMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		rspdata.set_retcode(0);
-		rspdata.set_errormsg("KEEP ALIVE PING OK.");
+		rspdata.set_errormsg("[Hall]KEEP ALIVE PING OK.");
 		//用户登陆token
 		std::string const& token = reqdata.session();
 		REDISCLIENT.resetExpired("k.token." + token);
