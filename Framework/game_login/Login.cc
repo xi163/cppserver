@@ -145,7 +145,7 @@ bool LoginServ::InitRedisCluster(std::string const& ipaddr, std::string const& p
 
 bool LoginServ::InitMongoDB(std::string const& url) {
 	//http://mongocxx.org/mongocxx-v3/tutorial/
-	_LOG_INFO(url.c_str());
+	_LOG_INFO("%s", url.c_str());
 	mongocxx::instance instance{};
 	//mongoDBUrl_ = url;
 	//http://mongocxx.org/mongocxx-v3/tutorial/

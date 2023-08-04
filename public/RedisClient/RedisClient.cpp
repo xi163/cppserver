@@ -224,7 +224,7 @@ int RedisClient::getMasterAddr(const std::vector<std::string> &addVec, struct ti
         std::vector<std::string> vec;
         boost::algorithm::split(vec, addVec[i], boost::is_any_of( ":" ));
 
-        _LOG_INFO("i[%d], ip[%s], port[%d]", i, vec[0].c_str(), stoi(vec[1]));
+        //_LOG_INFO("i[%d], ip[%s], port[%d]", i, vec[0].c_str(), stoi(vec[1]));
         context = redisConnectWithTimeout(vec[0].c_str(), stoi(vec[1]), timeOut);
 //        context = redisConnect(vec[0].c_str(), stoi(vec[1]));
         if (context == NULL || context->err)

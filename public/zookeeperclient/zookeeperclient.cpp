@@ -97,7 +97,7 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
         {
             // 连接建立
             m_session_timeout = zoo_recv_timeout(m_zkHandle);
-            _LOG_ERROR("session_timeout=%ld\n", m_session_timeout);
+            //_LOG_ERROR("session_timeout=%ld\n", m_session_timeout);
             if(m_connectedWatcherHandler)
                 m_connectedWatcherHandler();
 
