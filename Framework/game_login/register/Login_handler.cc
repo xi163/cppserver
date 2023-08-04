@@ -110,7 +110,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			//更新redis account->uid
 			REDISCLIENT.SetAccountUid(model.Account, userId);
 			//缓存token
-			REDISCLIENT.SetToken(token, userId, model.Account);
+			REDISCLIENT.SetTokenInfo(token, userId, model.Account);
 			//return response::json::OkMsg("登陆成功", Token(token), rsp);
 			return response::json::err::Result(ERR::EOk, Token(token), rsp);
 		}
@@ -177,7 +177,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				//更新redis account->uid
 				REDISCLIENT.SetAccountUid(model.Account, userId);
 				//缓存token
-				REDISCLIENT.SetToken(token, userId, model.Account);
+				REDISCLIENT.SetTokenInfo(token, userId, model.Account);
 				//return response::json::OkMsg("登陆成功", Token(token), rsp);
 				return response::json::err::Result(ERR::EOk, Token(token), rsp);
 			}
@@ -194,7 +194,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				//更新redis account->uid
 				REDISCLIENT.SetAccountUid(req.Account, userId);
 				//缓存token
-				REDISCLIENT.SetToken(token, userId, req.Account);
+				REDISCLIENT.SetTokenInfo(token, userId, req.Account);
 				//return response::json::OkMsg("登陆成功", Token(token), rsp);
 				return response::json::err::Result(ERR::EOk, Token(token), rsp);
 			}
@@ -212,7 +212,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			//更新redis account->uid
 			REDISCLIENT.ExpireAccountUid(req.Account);
 			//缓存token
-			REDISCLIENT.SetToken(token, userId, req.Account);
+			REDISCLIENT.SetTokenInfo(token, userId, req.Account);
 			//return response::json::OkMsg("登陆成功", Token(token), rsp);
 			return response::json::err::Result(ERR::EOk, Token(token), rsp);
 		}

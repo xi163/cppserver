@@ -492,7 +492,7 @@ void GameServ::cmd_keep_alive_ping(
 		int64_t userid = 0;
 		uint32_t agentid = 0;
 		std::string account;
-		if (REDISCLIENT.GetToken(token, userid, account, agentid)) {
+		if (REDISCLIENT.GetTokenInfo(token, userid, account, agentid)) {
 			//std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 			//if (player && player->isOffline()) {
 			//	rspdata.set_retcode(3);

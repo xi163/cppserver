@@ -559,7 +559,7 @@ void HallServ::cmd_on_user_login(
 			//系统当前时间
 			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 			//redis查询token，判断是否过期
-			if (REDISCLIENT.GetToken(token, userid, account, agentid)) {
+			if (REDISCLIENT.GetTokenInfo(token, userid, account, agentid)) {
 				mongocxx::collection coll = MONGODBCLIENT["gamemain"]["game_user"];
 				bsoncxx::document::value query_value = document{} << "userid" << userid << finalize;
 				bsoncxx::stdx::optional<bsoncxx::document::value> result = coll.find_one(query_value.view());

@@ -1168,7 +1168,7 @@ bool RedisClient::SetAccountUid(std::string const& account, int64_t userid) {
     return set(key, std::to_string(userid), redisKeys::Expire_AccountUid);
 }
 
-bool RedisClient::SetToken(std::string const& token, int64_t userid, std::string const& account) {
+bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::string const& account) {
     std::string key = redisKeys::prefix_token + token;
     BOOST::Json obj;
     obj.put("account", account);
@@ -1176,7 +1176,7 @@ bool RedisClient::SetToken(std::string const& token, int64_t userid, std::string
     return set(key, obj.to_json(), redisKeys::Expire_Token);
 }
 
-bool RedisClient::GetToken(std::string const& token,
+bool RedisClient::GetTokenInfo(std::string const& token,
     int64_t& userid, std::string& account, uint32_t& agentid) {
     std::string key = redisKeys::prefix_token + token;
 	try {
