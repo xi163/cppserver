@@ -1211,7 +1211,7 @@ void CGameTable::clearKickUsers() {
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i);
 		if (player) {
-			//离线，踢出玩家
+			//离线，踢出玩家-掐断网关需要游戏服更改用户离线
 			if (player->GetUserStatus() == sOffline) {
 				bPlaying_[i] = false;
 				m_bRoundEndExit[i] = false;

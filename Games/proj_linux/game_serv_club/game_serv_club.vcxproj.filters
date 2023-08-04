@@ -28,6 +28,9 @@
     <Filter Include="public\MongoDB">
       <UniqueIdentifier>{ad00e382-a5a7-4d7a-bd56-593c44f9dc18}</UniqueIdentifier>
     </Filter>
+    <Filter Include="public\Database">
+      <UniqueIdentifier>{5154a998-b65f-4260-8a4b-671bd397a9b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
@@ -113,6 +116,18 @@
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoKeys.h">
+      <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoModel.h">
+      <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoOperation.h">
+      <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\redisKeys.h">
+      <Filter>public\Database</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -173,6 +188,18 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
       <Filter>public\MongoDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoKeys.cc">
+      <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoModel.cc">
+      <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoOperation.cc">
+      <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\redisKeys.cc">
+      <Filter>public\Database</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

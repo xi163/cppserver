@@ -19,20 +19,20 @@ public:
 		std::shared_ptr<IPlayer> const& player,
 		uint8_t const* msg, size_t len,
 		uint8_t mainId,
-		uint8_t subId);
+		uint8_t subId, bool v = false, int flag = 0);
 	bool send(
 		std::shared_ptr<IPlayer> const& player,
 		uint8_t const* msg, size_t len,
-		uint8_t subId);
+		uint8_t subId, bool v = false, int flag = 0);
 	bool send(
 		std::shared_ptr<IPlayer> const& player,
 		::google::protobuf::Message* msg,
 		uint8_t mainId,
-		uint8_t subId);
+		uint8_t subId, bool v = false, int flag = 0);
 	bool send(
 		std::shared_ptr<IPlayer> const& player,
 		::google::protobuf::Message* msg,
-		uint8_t subId);
+		uint8_t subId, bool v = false, int flag = 0);
 	virtual void Init(std::shared_ptr<ITableDelegate>& tableDelegate,
 		TableState& tableState,
 		tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo,

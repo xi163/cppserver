@@ -80,7 +80,7 @@ bool CTable::send(
     std::shared_ptr<IPlayer> const& player,
     uint8_t const* msg, size_t len,
     uint8_t mainId,
-    uint8_t subId) {
+    uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
             boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> tuple = tableContext_->GetContext(player->GetUserId());
@@ -89,7 +89,18 @@ bool CTable::send(
             std::shared_ptr<packet::header_t> header = tuple.get<2>();
             muduo::net::TcpConnectionPtr conn(weakConn.lock());
             if (conn) {
-                tableContext_->send(conn, msg, len, mainId, subId, pre_header.get(), header.get());
+                switch (v) {
+				case true: {
+					int old = const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok;
+					const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = flag;
+					tableContext_->send(conn, msg, len, mainId, subId, pre_header.get(), header.get());
+					const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = old;
+                    break;
+				}
+                default:
+                    tableContext_->send(conn, msg, len, mainId, subId, pre_header.get(), header.get());
+                    break;
+                }
                 return true;
             }
         }
@@ -103,7 +114,7 @@ bool CTable::send(
 bool CTable::send(
     std::shared_ptr<IPlayer> const& player,
     uint8_t const* msg, size_t len,
-    uint8_t subId) {
+    uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
             boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> tuple = tableContext_->GetContext(player->GetUserId());
@@ -112,7 +123,18 @@ bool CTable::send(
             std::shared_ptr<packet::header_t> header = tuple.get<2>();
             muduo::net::TcpConnectionPtr conn(weakConn.lock());
             if (conn) {
-                tableContext_->send(conn, msg, len, subId, pre_header.get(), header.get());
+                switch (v) {
+                case true: {
+					int old = const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok;
+					const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = flag;
+					tableContext_->send(conn, msg, len, subId, pre_header.get(), header.get());
+					const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = old;
+                    break;
+                }
+                default:
+                    tableContext_->send(conn, msg, len, subId, pre_header.get(), header.get());
+                    break;   
+                }
                 return true;
             }
         }
@@ -127,7 +149,7 @@ bool CTable::send(
     std::shared_ptr<IPlayer> const& player,
     ::google::protobuf::Message* msg,
     uint8_t mainId,
-    uint8_t subId) {
+    uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
             boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> tuple = tableContext_->GetContext(player->GetUserId());
@@ -136,7 +158,18 @@ bool CTable::send(
             std::shared_ptr<packet::header_t> header = tuple.get<2>();
             muduo::net::TcpConnectionPtr conn(weakConn.lock());
             if (conn) {
-                tableContext_->send(conn, msg, mainId, subId, pre_header.get(), header.get());
+                switch (v) {
+                case true: {
+                    int old = const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok;
+                    const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = flag;
+                    tableContext_->send(conn, msg, mainId, subId, pre_header.get(), header.get());
+                    const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = old;
+                    break;
+                }
+                default:
+                    tableContext_->send(conn, msg, mainId, subId, pre_header.get(), header.get());
+                    break;
+                }
                 return true;
             }
         }
@@ -151,7 +184,7 @@ bool CTable::send(
 bool CTable::send(
     std::shared_ptr<IPlayer> const& player,
     ::google::protobuf::Message* msg,
-    uint8_t subId) {
+    uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
             boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> tuple = tableContext_->GetContext(player->GetUserId());
@@ -160,7 +193,19 @@ bool CTable::send(
             std::shared_ptr<packet::header_t> header = tuple.get<2>();
             muduo::net::TcpConnectionPtr conn(weakConn.lock());
             if (conn) {
-                tableContext_->send(conn, msg, subId, pre_header.get(), header.get());
+                switch (v) {
+                case true: {
+                    int old = const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok;
+                    const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = flag;
+                    tableContext_->send(conn, msg, subId, pre_header.get(), header.get());
+                    const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = old;
+                    break;
+                }
+                default:
+                    tableContext_->send(conn, msg, subId, pre_header.get(), header.get());
+                    break;
+                }
+                return true;
             }
         }
         else {
@@ -222,7 +267,7 @@ bool CTable::SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::
 }
 
 bool CTable::SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len) {
-    int  mainId = Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC;
+    uint8_t mainId = Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC;
     if (!player->IsRobot()) {
         ::GameServer::MSG_CSC_Passageway pass;
         pass.mutable_header()->set_sign(PROTO_BUF_SIGN);
@@ -292,15 +337,26 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
             if (player && player->Valid()) {
                 int64_t userId = player->GetUserId();
                 switch (sendErrCode) {
-                case 0:
-                default:
+                case 0: {
 					::GameServer::MSG_S2C_UserEnterMessageResponse msg;
 					msg.mutable_header()->set_sign(HEADER_SIGN);
 					msg.set_retcode(sendErrCode);
-					msg.set_errormsg("");
+					msg.set_errormsg("游戏结束,您已被清理");
 					send(player, &msg,
 						Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-						GameServer::SUB_S2C_ENTER_ROOM_RES);
+						GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+                    break;
+                }
+				default: {
+					::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+					msg.mutable_header()->set_sign(HEADER_SIGN);
+					msg.set_retcode(sendErrCode);
+					msg.set_errormsg("游戏结束,您已被清理");
+					send(player, &msg,
+						Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+						GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+                    break;
+				}
                 }
                 if (!OnUserStandup(player, sendState, sendToSelf)) {
                     _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
@@ -319,15 +375,26 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
         if (player && player->Valid()) {
             int64_t userId = player->GetUserId();
 			switch (sendErrCode) {
-			case 0:
-			default:
+			case 0: {
 				::GameServer::MSG_S2C_UserEnterMessageResponse msg;
 				msg.mutable_header()->set_sign(HEADER_SIGN);
 				msg.set_retcode(sendErrCode);
-				msg.set_errormsg("");
+				msg.set_errormsg("游戏结束,您已被清理");
 				send(player, &msg,
 					Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-					GameServer::SUB_S2C_ENTER_ROOM_RES);
+					GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+				break;
+			}
+			default: {
+				::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+				msg.mutable_header()->set_sign(HEADER_SIGN);
+				msg.set_retcode(sendErrCode);
+				msg.set_errormsg("游戏结束,您已被清理");
+				send(player, &msg,
+					Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+					GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+				break;
+			}
 			}
             if (!OnUserStandup(player, sendState, sendToSelf)) {
                 _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
@@ -642,8 +709,8 @@ bool CTable::OnUserEnterAction(std::shared_ptr<IPlayer> const& player, packet::i
 }
 
 void CTable::SendUserSitdownFinish(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
-    int mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
-    int subId = GameServer::SUB_S2C_ENTER_ROOM_RES;
+    uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
+    uint8_t subId = GameServer::SUB_S2C_ENTER_ROOM_RES;
     GameServer::MSG_S2C_UserEnterMessageResponse rspdata;
     rspdata.mutable_header()->set_sign(HEADER_SIGN);
     rspdata.set_retcode(0);
@@ -666,8 +733,8 @@ bool CTable::OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendStat
         }
         else {
             if (roomInfo_->serverStatus != SERVER_RUNNING && gameInfo_->gameType == GameType_BaiRen) {
-                int mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
-                int subId = GameServer::SUB_S2C_USER_LEFT_RES;
+                uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
+                uint8_t subId = GameServer::SUB_S2C_USER_LEFT_RES;
                 ::GameServer::MSG_C2S_UserLeftMessageResponse response;
                 ::Game::Common::Header* resp_header = response.mutable_header();
                 resp_header->set_sign(HEADER_SIGN);
@@ -719,8 +786,8 @@ void CTable::BroadcastUserInfoToOther(std::shared_ptr<IPlayer> const& player) {
 }
 
 void CTable::SendAllOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player) {
-    int mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
-    int subId = GameServer::SUB_S2C_USER_ENTER_NOTIFY;
+    uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
+    uint8_t subId = GameServer::SUB_S2C_USER_ENTER_NOTIFY;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         std::shared_ptr<IPlayer> other = items_[i];
         if (other && other != player) {
@@ -742,8 +809,8 @@ void CTable::SendAllOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player) 
 }
 
 void CTable::SendOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player, tagUserInfo& userInfo) {
-    int mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
-    int subId = GameServer::SUB_S2C_USER_ENTER_NOTIFY;
+    uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
+    uint8_t subId = GameServer::SUB_S2C_USER_ENTER_NOTIFY;
     if (player) {
         GameServer::MSG_S2C_UserBaseInfo msg;
         Game::Common::Header* header = msg.mutable_header();

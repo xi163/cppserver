@@ -57,6 +57,7 @@ private:
 		muduo::net::WeakTcpConnectionPtr const& weakConn,
 		BufferPtr const& buf,
 		muduo::Timestamp receiveTime);
+	void asyncOfflineHandler(std::string const& ipPort);
 	void send(
 		const muduo::net::TcpConnectionPtr& conn,
 		uint8_t const* msg, size_t len,
@@ -90,10 +91,10 @@ private:
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	void cmd_on_user_ready(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
-	//µã»÷Àë¿ª°´Å¥
+	//ç‚¹å‡»ç¦»å¼€æŒ‰é’®
 	void cmd_on_user_left_room(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
-	//¹Ø±ÕÒ³Ãæ
+	//å…³é—­é¡µé¢
 	void cmd_on_user_offline(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	void cmd_on_game_message(
@@ -103,11 +104,13 @@ private:
 public:
 	void KickOffLine(int64_t userId, int32_t kickType);
 	boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> GetContext(int64_t userId);
+	void AddContext(
+		const muduo::net::TcpConnectionPtr& conn,
+		packet::internal_prev_header_t const* pre_header_,
+		packet::header_t const* header_);
 	void DelContext(int64_t userId);
 	bool IsStopped() { return false; }
 public:
-	bool GetUserBaseInfo(int64_t userid,
-		UserBaseInfo& baseInfo);
 	bool SendGameErrorCode(
 		const muduo::net::TcpConnectionPtr& conn,
 		uint8_t mainid, uint8_t subid,
@@ -116,9 +119,6 @@ public:
 		packet::header_t const* header_);
 public:
 	bool LoadGameRoomKindInfo(uint32_t gameid, uint32_t roomid);
-	bool redis_get_token_info(
-		std::string const& token,
-		int64_t& userid, std::string& account, uint32_t& agentid);
 	bool db_update_online_status(int64_t userid, int32_t status);
 	void db_refresh_game_room_info();
 	//void db_update_game_room_info();
@@ -130,7 +130,7 @@ public:
 	uint32_t roomId_;
 	std::shared_ptr<ZookeeperClient> zkclient_;
 	std::string nodePath_, nodeValue_, invalidNodePath_;
-	//redis¶©ÔÄ/·¢²¼
+	//redisè®¢é˜…/å‘å¸ƒ
 	std::shared_ptr<RedisClient> redisClient_;
 	std::string redisIpaddr_;
 	std::string redisPasswd_;
@@ -144,13 +144,20 @@ public:
 	CmdCallbacks handlers_;
 	muduo::net::TcpServer server_;
 	muduo::AtomicInt32 numConnected_;
-	//×À×ÓÂß¼­Ïß³Ì/¶¨Ê±Æ÷
+	
+	//æ¡Œå­é€»è¾‘çº¿ç¨‹/å®šæ—¶å™¨
 	std::shared_ptr<muduo::net::EventLoopThread> logicThread_;
 	//std::shared_ptr<muduo::net::EventLoopThreadPool> logicThread_;
+	
 	std::map<std::string, muduo::net::WeakTcpConnectionPtr> mapGateConns_;
 	mutable boost::shared_mutex mutexGateConns_;
+	
 	std::map<int64_t, std::shared_ptr<gate_t>> mapUserGates_;
 	mutable boost::shared_mutex mutexUserGates_;
+	
+	std::map<std::string, std::set<int64_t>> mapGateUsers_;
+	mutable boost::shared_mutex mutexGateUsers_;
+	
 	CIpFinder ipFinder_;
 };
 

@@ -6,6 +6,7 @@
 
 #include "proto/Game.Common.pb.h"
 #include "proto/GameServer.Message.pb.h"
+#include "public/mgoOperation.h"
 
 //#include "TaskService.h"
 
@@ -226,7 +227,7 @@ bool GameServ::InitRedisCluster(std::string const& ipaddr, std::string const& pa
 
 bool GameServ::InitMongoDB(std::string const& url) {
 	//http://mongocxx.org/mongocxx-v3/tutorial/
-	_LOG_INFO(url.c_str());
+	_LOG_INFO("%s", url.c_str());
 	mongocxx::instance instance{};
 	//mongoDBUrl_ = url;
 	//http://mongocxx.org/mongocxx-v3/tutorial/
@@ -248,11 +249,11 @@ void GameServ::threadInit() {
 		it != redlockVec_.end(); ++it) {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, *it, boost::is_any_of(":"));
-		REDISLOCK.AddServerUrl(vec[0].c_str(), atol(vec[1].c_str()));
+		REDISLOCK.AddServerUrl(vec[0].c_str(), atol(vec[1].c_str()), redisPasswd_);
 		s += "\n" + vec[0];
 		s += ":" + vec[1];
 	}
-	_LOG_WARN("redisLock%s", s.c_str());
+	//_LOG_WARN("redisLock%s", s.c_str());
 }
 
 bool GameServ::InitServer() {
@@ -323,6 +324,10 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
+		RunInLoop(logicThread_->getLoop(),
+			std::bind(
+				&GameServ::asyncOfflineHandler,
+				this, conn->peerAddress().toIpPort()));
 	}
 }
 
@@ -424,6 +429,25 @@ void GameServ::asyncLogicHandler(
 	}
 }
 
+void GameServ::asyncOfflineHandler(std::string const& ipPort) {
+	WRITE_LOCK(mutexGateUsers_);
+	std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
+	if (it != mapGateUsers_.end()) {
+		for (std::set<int64_t>::iterator ir = it->second.begin();
+			ir != it->second.end(); ++ir) {
+			std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(*ir);
+			if (player) {
+				std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+				if (table) {
+					table->assertThisThread();
+					table->OnUserOffline(player);
+				}
+			}
+		}
+		mapGateUsers_.erase(it);
+	}
+}
+
 void GameServ::send(
 	const muduo::net::TcpConnectionPtr& conn,
 	uint8_t const* msg, size_t len,
@@ -491,10 +515,15 @@ void GameServ::cmd_keep_alive_ping(
 		int64_t userid = 0;
 		uint32_t agentid = 0;
 		std::string account;
-		if (redis_get_token_info(token, userid, account, agentid)) {
-			if (REDISCLIENT.ResetExpiredUserOnlineInfo(userid)) {
+		if (REDISCLIENT.GetTokenInfo(token, userid, account, agentid)) {
+			//std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
+			//if (player && player->isOffline()) {
+			//	rspdata.set_retcode(3);
+			//	rspdata.set_errormsg("KEEP ALIVE PING Error User Offline!");
+			//}
+			/*else */if (REDISCLIENT.ResetExpiredUserOnlineInfo(userid)) {
 				rspdata.set_retcode(0);
-				rspdata.set_errormsg("KEEP ALIVE PING OK.");
+				rspdata.set_errormsg("[Game]KEEP ALIVE PING OK.");
 			}
 			else {
 				rspdata.set_retcode(2);
@@ -538,20 +567,10 @@ void GameServ::cmd_on_user_enter_room(
 			if (REDISCLIENT.GetUserLoginInfo(pre_header_->userId, "dynamicPassword", redisPasswd)) {
 				std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
 				if (passwd == redisPasswd) {
-					std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
-					std::shared_ptr<packet::header_t> header(new packet::header_t());
-					memcpy(pre_header.get(), pre_header_, packet::kPrevHeaderLen);
-					memcpy(header.get(), header_, packet::kHeaderLen);
-					std::shared_ptr<gate_t>  gate(new gate_t());
-					gate->IpPort = conn->peerAddress().toIpPort();
-					gate->pre_header = pre_header;
-					gate->header = header;
-					{
-						WRITE_LOCK(mutexUserGates_);
-						mapUserGates_[pre_header_->userId] = gate;
-					}
+					AddContext(conn, pre_header_, header_);
 				}
 				else {
+					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 					//桌子密码错误
 					SendGameErrorCode(conn,
 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -561,6 +580,7 @@ void GameServ::cmd_on_user_enter_room(
 				}
 			}
 			else {
+				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				//会话不存在
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -570,6 +590,7 @@ void GameServ::cmd_on_user_enter_room(
 			}
 		}
 		else {
+			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			//游戏已结束
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -590,6 +611,7 @@ void GameServ::cmd_on_user_enter_room(
 					table->OnUserEnterAction(player, pre_header_, header_);
 				}
 				else {
+					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 					REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 					SendGameErrorCode(conn,
 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -598,6 +620,7 @@ void GameServ::cmd_on_user_enter_room(
 				}
 			}
 			else {
+				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -629,8 +652,9 @@ void GameServ::cmd_on_user_enter_room(
 		}
 		UserBaseInfo userInfo;
 		if (conn) {
-			if (!GetUserBaseInfo(pre_header_->userId, userInfo)) {
+			if (!mgo::GetUserBaseInfo(pre_header_->userId, userInfo)) {
 				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_USERNOTEXIST,
@@ -640,6 +664,7 @@ void GameServ::cmd_on_user_enter_room(
 		}
 		else {
 			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_NOSESSION,
@@ -650,6 +675,7 @@ void GameServ::cmd_on_user_enter_room(
 		if (roomInfo_.enterMinScore > 0 &&
 			userInfo.userScore < roomInfo_.enterMinScore) {
 			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -661,6 +687,7 @@ void GameServ::cmd_on_user_enter_room(
 		if (roomInfo_.enterMaxScore > 0 &&
 			userInfo.userScore > roomInfo_.enterMaxScore) {
 			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -683,6 +710,7 @@ void GameServ::cmd_on_user_enter_room(
 			}
 			else {
 				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -757,6 +785,7 @@ void GameServ::cmd_on_user_left_room(
 					}
 				}
 				else {
+					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 					rspdata.set_retcode(2);
 					rspdata.set_errormsg("正在游戏中，不能离开");
 				}
@@ -876,10 +905,50 @@ boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_
 	return boost::make_tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>>(weakConn, pre_header, header);
 }
 
+void GameServ::AddContext(
+	const muduo::net::TcpConnectionPtr& conn,
+	packet::internal_prev_header_t const* pre_header_,
+	packet::header_t const* header_) {
+	std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
+	std::shared_ptr<packet::header_t> header(new packet::header_t());
+	memcpy(pre_header.get(), pre_header_, packet::kPrevHeaderLen);
+	memcpy(header.get(), header_, packet::kHeaderLen);
+	std::shared_ptr<gate_t>  gate(new gate_t());
+	gate->IpPort = conn->peerAddress().toIpPort();
+	gate->pre_header = pre_header;
+	gate->header = header;
+	{
+		WRITE_LOCK(mutexUserGates_);
+		mapUserGates_[pre_header_->userId] = gate;
+	}
+	{
+		WRITE_LOCK(mutexGateUsers_);
+		std::set<int64_t>& ref = mapGateUsers_[gate->IpPort];
+		ref.insert(pre_header_->userId);
+	}
+}
+
 void GameServ::DelContext(int64_t userId) {
 	_LOG_ERROR("%d", userId);
-	WRITE_LOCK(mutexUserGates_);
-	mapUserGates_.erase(userId);
+	std::string ipPort;
+	{
+		READ_LOCK(mutexUserGates_);
+		std::map<int64_t, std::shared_ptr<gate_t>>::iterator it = mapUserGates_.find(userId);
+		if (it != mapUserGates_.end()) {
+			ipPort = it->second->IpPort;
+		}
+	}
+	{
+		WRITE_LOCK(mutexGateUsers_);
+		std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
+		if (it != mapGateUsers_.end()) {
+			it->second.erase(userId);
+		}
+	}
+	{
+		WRITE_LOCK(mutexUserGates_);
+		mapUserGates_.erase(userId);
+	}
 }
 
 bool GameServ::LoadGameRoomKindInfo(uint32_t gameid, uint32_t roomid) {
@@ -1006,34 +1075,6 @@ bool GameServ::SendGameErrorCode(
 	send(conn, &rspdata, mainid, subid, pre_header_, header_);
 }
 
-bool GameServ::GetUserBaseInfo(int64_t userid, UserBaseInfo& baseInfo) {
-	try {
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		auto query_value = document{} << "userid" << userid << finalize;
-		bsoncxx::stdx::optional<bsoncxx::document::value> result = userCollection.find_one(query_value.view());
-		if (result) {
-			bsoncxx::document::view view = result->view();
-			baseInfo.userId = view["userid"].get_int64();
-			baseInfo.account = view["account"].get_utf8().value.to_string();
-			baseInfo.agentId = view["agentid"].get_int32();
-			baseInfo.lineCode = view["linecode"].get_utf8().value.to_string();
-			baseInfo.headId = view["headindex"].get_int32();
-			baseInfo.nickName = view["nickname"].get_utf8().value.to_string();
-			baseInfo.userScore = view["score"].get_int64();
-			baseInfo.status = view["status"].get_int32();
-			int64_t totalAddScore = view["alladdscore"].get_int64();
-			int64_t totalSubScore = view["allsubscore"].get_int64();
-			int64_t totalWinScore = view["winorlosescore"].get_int64();
-			int64_t totalBet = totalAddScore - totalSubScore;
-			return true;
-		}
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return (false);
-}
-
 void GameServ::db_refresh_game_room_info() {
 
 }
@@ -1049,28 +1090,6 @@ void GameServ::redis_update_room_player_nums() {
 
 void GameServ::on_refresh_game_config(std::string msg) {
 	db_refresh_game_room_info();
-}
-
-
-bool GameServ::redis_get_token_info(
-	std::string const& token,
-	int64_t& userid, std::string& account, uint32_t& agentid) {
-	try {
-		std::string value;
-		if (REDISCLIENT.get(token, value)) {
-			boost::property_tree::ptree root;
-			std::stringstream s(value);
-			boost::property_tree::read_json(s, root);
-			userid = root.get<int64_t>("userid");
-			account = root.get<std::string>("account");
-			agentid = root.get<uint32_t>("agentid");
-			return userid > 0;
-		}
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return false;
 }
 
 bool GameServ::db_update_online_status(int64_t userid, int32_t status) {

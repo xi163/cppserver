@@ -324,6 +324,10 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
+		RunInLoop(logicThread_->getLoop(),
+			std::bind(
+				&GameServ::asyncOfflineHandler,
+				this, conn->peerAddress().toIpPort()));
 	}
 }
 
@@ -422,6 +426,25 @@ void GameServ::asyncLogicHandler(
 	}
 	else {
 		_LOG_ERROR("error");
+	}
+}
+
+void GameServ::asyncOfflineHandler(std::string const& ipPort) {
+	WRITE_LOCK(mutexGateUsers_);
+	std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
+	if (it != mapGateUsers_.end()) {
+		for (std::set<int64_t>::iterator ir = it->second.begin();
+			ir != it->second.end(); ++ir) {
+			std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(*ir);
+			if (player) {
+				std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+				if (table) {
+					table->assertThisThread();
+					table->OnUserOffline(player);
+				}
+			}
+		}
+		mapGateUsers_.erase(it);
 	}
 }
 
@@ -544,18 +567,7 @@ void GameServ::cmd_on_user_enter_room(
 			if (REDISCLIENT.GetUserLoginInfo(pre_header_->userId, "dynamicPassword", redisPasswd)) {
 				std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
 				if (passwd == redisPasswd) {
-					std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
-					std::shared_ptr<packet::header_t> header(new packet::header_t());
-					memcpy(pre_header.get(), pre_header_, packet::kPrevHeaderLen);
-					memcpy(header.get(), header_, packet::kHeaderLen);
-					std::shared_ptr<gate_t>  gate(new gate_t());
-					gate->IpPort = conn->peerAddress().toIpPort();
-					gate->pre_header = pre_header;
-					gate->header = header;
-					{
-						WRITE_LOCK(mutexUserGates_);
-						mapUserGates_[pre_header_->userId] = gate;
-					}
+					AddContext(conn, pre_header_, header_);
 				}
 				else {
 					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
@@ -893,10 +905,50 @@ boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_
 	return boost::make_tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>>(weakConn, pre_header, header);
 }
 
+void GameServ::AddContext(
+	const muduo::net::TcpConnectionPtr& conn,
+	packet::internal_prev_header_t const* pre_header_,
+	packet::header_t const* header_) {
+	std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
+	std::shared_ptr<packet::header_t> header(new packet::header_t());
+	memcpy(pre_header.get(), pre_header_, packet::kPrevHeaderLen);
+	memcpy(header.get(), header_, packet::kHeaderLen);
+	std::shared_ptr<gate_t>  gate(new gate_t());
+	gate->IpPort = conn->peerAddress().toIpPort();
+	gate->pre_header = pre_header;
+	gate->header = header;
+	{
+		WRITE_LOCK(mutexUserGates_);
+		mapUserGates_[pre_header_->userId] = gate;
+	}
+	{
+		WRITE_LOCK(mutexGateUsers_);
+		std::set<int64_t>& ref = mapGateUsers_[gate->IpPort];
+		ref.insert(pre_header_->userId);
+	}
+}
+
 void GameServ::DelContext(int64_t userId) {
 	_LOG_ERROR("%d", userId);
-	WRITE_LOCK(mutexUserGates_);
-	mapUserGates_.erase(userId);
+	std::string ipPort;
+	{
+		READ_LOCK(mutexUserGates_);
+		std::map<int64_t, std::shared_ptr<gate_t>>::iterator it = mapUserGates_.find(userId);
+		if (it != mapUserGates_.end()) {
+			ipPort = it->second->IpPort;
+		}
+	}
+	{
+		WRITE_LOCK(mutexGateUsers_);
+		std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
+		if (it != mapGateUsers_.end()) {
+			it->second.erase(userId);
+		}
+	}
+	{
+		WRITE_LOCK(mutexUserGates_);
+		mapUserGates_.erase(userId);
+	}
 }
 
 bool GameServ::LoadGameRoomKindInfo(uint32_t gameid, uint32_t roomid) {
