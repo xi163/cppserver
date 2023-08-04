@@ -51,7 +51,7 @@ ZookeeperClient::ZookeeperClient()
 ZookeeperClient::ZookeeperClient(const string &server, int timeout, bool debug)
 {
 //    cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    _LOG_DEBUG("ZookeeperClient::ZookeeperClient(%s,%d,%d)",server.c_str(),timeout,debug);
+    //_LOG_DEBUG("ZookeeperClient::ZookeeperClient(%s,%d,%d)",server.c_str(),timeout,debug);
 
     ZooLogLevel log_level = debug ? ZOO_LOG_LEVEL_DEBUG : ZOO_LOG_LEVEL_ERROR;
     zoo_set_debug_level(log_level);
@@ -85,7 +85,7 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
                                                const shared_ptr<ZookeeperClient> &zkClientPtr, void *context)
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    _LOG_DEBUG("ZookeeperClient::connectingSessionWatcher()");
+    //_LOG_DEBUG("ZookeeperClient::connectingSessionWatcher()");
 
     if(ZOO_SESSION_EVENT == type)
     {
@@ -119,7 +119,7 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
 bool ZookeeperClient::connectServer()
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    _LOG_DEBUG("ZookeeperClient::connectServer()");
+    //_LOG_DEBUG("ZookeeperClient::connectServer()");
 
     const clientid_t *clientid = zoo_client_id(m_zkHandle);
     ZkWatcherOperateContext *context = new ZkWatcherOperateContext(server_, (void*)"connect server", shared_from_this());
@@ -316,7 +316,7 @@ void ZookeeperClient::sessionWatcher(zhandle_t *zh, int type, int state, const c
 //  cout<<"[sessionWatcher] type:{"<<ZookeeperClientUtils::watcherEventType2String(type)<<"} ,state:{"<<ZookeeperClientUtils::state2String(state)<<"}";
 
     string strtype = ZookeeperClientUtils::watcherEventType2String(type);
-    _LOG_DEBUG("ZookeeperClient::sessionWatcher(zh=%x,type=%s,state=%d)",zh,strtype.c_str(),state);
+    //_LOG_DEBUG("ZookeeperClient::sessionWatcher(zh=%x,type=%s,state=%d)",zh,strtype.c_str(),state);
 
     ZkWatcherOperateContext *context = (ZkWatcherOperateContext *)watcherCtx;
     if (context && context->m_sessionWatcherHandler && context->m_zkClientPtr)

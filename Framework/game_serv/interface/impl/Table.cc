@@ -267,7 +267,7 @@ bool CTable::SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::
 }
 
 bool CTable::SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len) {
-    int  mainId = Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC;
+    uint8_t mainId = Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC;
     if (!player->IsRobot()) {
         ::GameServer::MSG_CSC_Passageway pass;
         pass.mutable_header()->set_sign(PROTO_BUF_SIGN);
@@ -687,8 +687,8 @@ bool CTable::OnUserEnterAction(std::shared_ptr<IPlayer> const& player, packet::i
 }
 
 void CTable::SendUserSitdownFinish(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
-    int mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
-    int subId = GameServer::SUB_S2C_ENTER_ROOM_RES;
+    uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
+    uint8_t subId = GameServer::SUB_S2C_ENTER_ROOM_RES;
     GameServer::MSG_S2C_UserEnterMessageResponse rspdata;
     rspdata.mutable_header()->set_sign(HEADER_SIGN);
     rspdata.set_retcode(0);
@@ -711,8 +711,8 @@ bool CTable::OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendStat
         }
         else {
             if (roomInfo_->serverStatus != SERVER_RUNNING && gameInfo_->gameType == GameType_BaiRen) {
-                int mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
-                int subId = GameServer::SUB_S2C_USER_LEFT_RES;
+                uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
+                uint8_t subId = GameServer::SUB_S2C_USER_LEFT_RES;
                 ::GameServer::MSG_C2S_UserLeftMessageResponse response;
                 ::Game::Common::Header* resp_header = response.mutable_header();
                 resp_header->set_sign(HEADER_SIGN);
@@ -764,8 +764,8 @@ void CTable::BroadcastUserInfoToOther(std::shared_ptr<IPlayer> const& player) {
 }
 
 void CTable::SendAllOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player) {
-    int mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
-    int subId = GameServer::SUB_S2C_USER_ENTER_NOTIFY;
+    uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
+    uint8_t subId = GameServer::SUB_S2C_USER_ENTER_NOTIFY;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         std::shared_ptr<IPlayer> other = items_[i];
         if (other && other != player) {
@@ -787,8 +787,8 @@ void CTable::SendAllOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player) 
 }
 
 void CTable::SendOtherUserInfoToUser(std::shared_ptr<IPlayer> const& player, tagUserInfo& userInfo) {
-    int mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
-    int subId = GameServer::SUB_S2C_USER_ENTER_NOTIFY;
+    uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
+    uint8_t subId = GameServer::SUB_S2C_USER_ENTER_NOTIFY;
     if (player) {
         GameServer::MSG_S2C_UserBaseInfo msg;
         Game::Common::Header* header = msg.mutable_header();

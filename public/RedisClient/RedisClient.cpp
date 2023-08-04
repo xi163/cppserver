@@ -238,7 +238,7 @@ int RedisClient::getMasterAddr(const std::vector<std::string> &addVec, struct ti
         reply = static_cast<redisReply*> ( redisCommand(context,"SENTINEL get-master-addr-by-name mymaster") );
         if(reply->type != REDIS_REPLY_ARRAY || reply -> elements != 2)
         {
-            _LOG_ERROR("use sentinel to get-master-addr-by-name failure, will find next");
+            //_LOG_ERROR("use sentinel to get-master-addr-by-name failure, will find next");
             freeReplyObject(reply);
             continue;
         }

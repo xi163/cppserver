@@ -92,13 +92,12 @@ int main(int argc, char* argv[]) {
 			"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$"))) {
 	}
 	else {
-		std::string strIpAddr;
 		std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
-		if (utils::getNetCardIp(netcardName, strIpAddr) < 0) {
+		if (utils::getNetCardIp(netcardName, ip) < 0) {
 			_LOG_FATAL("获取网卡 %s IP失败", netcardName.c_str());
 			return -1;
 		}
-		_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), strIpAddr.c_str());
+		_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), ip.c_str());
 	}
 	muduo::net::EventLoop loop;
 	muduo::net::InetAddress listenAddr(ip, port);//tcp

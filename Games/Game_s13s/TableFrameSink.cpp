@@ -1152,33 +1152,33 @@ void CGameTable::OnTimerGameEnd() {
 	ClearAllTimer();
 	clearKickUsers();
 	//有真人玩家且够游戏人数，继续下一局游戏
-	if (table_->GetRealPlayerCount() > 0 && table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
-		if (writeRealLog_) {
-			_LOG_INFO("[%s][%d][%s] 继续下一局游戏!",
-				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
-		}
-		ClearGameData();
-		table_->SetGameStatus(GAME_STATUS_READY);
-	    gameStatus_ = GAME_STATUS_READY;
-		aniPlay_.add_START_time(AnimatePlay::NextE, std::chrono::system_clock::now());
-		maxAndroid_ = randomMaxAndroidCount();
-		timerIdGameReadyOver_ = ThisThreadTimer->runAfter(aniPlay_.Get_DELAY_time(GAME_STATUS_NEXT), boost::bind(&CGameTable::GameTimerReadyOver, this));
-	}
-	else if (table_->GetRealPlayerCount() > 0) {
-	//else if (table_->GetPlayerCount() > 0) {
-		if (writeRealLog_) {
-			_LOG_INFO("[%s][%d][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
-				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
-				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
-		}
-		ClearGameData();
-		table_->SetGameStatus(GAME_STATUS_READY);
-	    gameStatus_ = GAME_STATUS_READY;
-		//totalMatchSeconds_ = 0;
-		maxAndroid_ = randomMaxAndroidCount();
-		timerIdGameReadyOver_ = ThisThreadTimer->runEvery(sliceMatchSeconds_, boost::bind(&CGameTable::OnTimerGameReadyOver, this));
-	}
-	else {
+// 	if (table_->GetRealPlayerCount() > 0 && table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
+// 		if (writeRealLog_) {
+// 			_LOG_INFO("[%s][%d][%s] 继续下一局游戏!",
+// 				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
+// 		}
+// 		ClearGameData();
+// 		table_->SetGameStatus(GAME_STATUS_READY);
+// 	    gameStatus_ = GAME_STATUS_READY;
+// 		aniPlay_.add_START_time(AnimatePlay::NextE, std::chrono::system_clock::now());
+// 		maxAndroid_ = randomMaxAndroidCount();
+// 		timerIdGameReadyOver_ = ThisThreadTimer->runAfter(aniPlay_.Get_DELAY_time(GAME_STATUS_NEXT), boost::bind(&CGameTable::GameTimerReadyOver, this));
+// 	}
+// 	else if (table_->GetRealPlayerCount() > 0) {
+// 	//else if (table_->GetPlayerCount() > 0) {
+// 		if (writeRealLog_) {
+// 			_LOG_INFO("[%s][%d][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
+// 				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),
+// 				table_->GetRealPlayerCount(), table_->GetRobotPlayerCount(), table_->GetPlayerCount());
+// 		}
+// 		ClearGameData();
+// 		table_->SetGameStatus(GAME_STATUS_READY);
+// 	    gameStatus_ = GAME_STATUS_READY;
+// 		//totalMatchSeconds_ = 0;
+// 		maxAndroid_ = randomMaxAndroidCount();
+// 		timerIdGameReadyOver_ = ThisThreadTimer->runEvery(sliceMatchSeconds_, boost::bind(&CGameTable::OnTimerGameReadyOver, this));
+// 	}
+// 	else {
 		//没有真人玩家或不够游戏人数(<MIN_GAME_PLAYER)，清理腾出桌子
 		if (writeRealLog_) {
 			_LOG_INFO("[%s][%d][%s] 终止游戏并退出(real=%d AI=%d total=%d)",
@@ -1201,7 +1201,7 @@ void CGameTable::OnTimerGameEnd() {
 		table_->SetGameStatus(GAME_STATUS_INIT);
 		gameStatus_ = GAME_STATUS_INIT;
 		writeRealLog_ = false;
-	}
+//	}
 }
 
 //踢人用户清理
