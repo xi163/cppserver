@@ -181,7 +181,7 @@ void ApiServ::threadInit() {
 		s += "\n" + vec[0];
 		s += ":" + vec[1];
 	}
-	_LOG_WARN("redisLock%s", s.c_str());
+	//_LOG_WARN("redisLock%s", s.c_str());
 }
 
 bool ApiServ::InitServer() {
