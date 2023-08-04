@@ -1050,7 +1050,7 @@ bool GameServ::redis_get_token_info(
 			boost::property_tree::ptree root;
 			std::stringstream s(value);
 			boost::property_tree::read_json(s, root);
-			userid = root.get<int64_t>("userid");
+			userid = root.get<int64_t>("uid");
 			account = root.get<std::string>("account");
 			//agentid = root.get<uint32_t>("agentid");
 			return userid > 0;
