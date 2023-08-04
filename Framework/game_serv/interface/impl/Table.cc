@@ -337,15 +337,26 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
             if (player && player->Valid()) {
                 int64_t userId = player->GetUserId();
                 switch (sendErrCode) {
-                case 0:
-                default:
+                case 0: {
 					::GameServer::MSG_S2C_UserEnterMessageResponse msg;
 					msg.mutable_header()->set_sign(HEADER_SIGN);
 					msg.set_retcode(sendErrCode);
-					msg.set_errormsg("");
+					msg.set_errormsg("游戏结束,您已被清理");
 					send(player, &msg,
 						Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
 						GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+                    break;
+                }
+				default: {
+					::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+					msg.mutable_header()->set_sign(HEADER_SIGN);
+					msg.set_retcode(sendErrCode);
+					msg.set_errormsg("游戏结束,您已被清理");
+					send(player, &msg,
+						Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+						GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+                    break;
+				}
                 }
                 if (!OnUserStandup(player, sendState, sendToSelf)) {
                     _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
@@ -364,15 +375,26 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
         if (player && player->Valid()) {
             int64_t userId = player->GetUserId();
 			switch (sendErrCode) {
-			case 0:
-			default:
+			case 0: {
 				::GameServer::MSG_S2C_UserEnterMessageResponse msg;
 				msg.mutable_header()->set_sign(HEADER_SIGN);
 				msg.set_retcode(sendErrCode);
-				msg.set_errormsg("");
+				msg.set_errormsg("游戏结束,您已被清理");
 				send(player, &msg,
 					Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
 					GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+				break;
+			}
+			default: {
+				::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+				msg.mutable_header()->set_sign(HEADER_SIGN);
+				msg.set_retcode(sendErrCode);
+				msg.set_errormsg("游戏结束,您已被清理");
+				send(player, &msg,
+					Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+					GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+				break;
+			}
 			}
             if (!OnUserStandup(player, sendState, sendToSelf)) {
                 _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);

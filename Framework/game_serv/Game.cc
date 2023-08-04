@@ -493,7 +493,12 @@ void GameServ::cmd_keep_alive_ping(
 		uint32_t agentid = 0;
 		std::string account;
 		if (redis_get_token_info(token, userid, account, agentid)) {
-			if (REDISCLIENT.ResetExpiredUserOnlineInfo(userid)) {
+			//std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
+			//if (player && player->isOffline()) {
+			//	rspdata.set_retcode(3);
+			//	rspdata.set_errormsg("KEEP ALIVE PING Error User Offline!");
+			//}
+			/*else */if (REDISCLIENT.ResetExpiredUserOnlineInfo(userid)) {
 				rspdata.set_retcode(0);
 				rspdata.set_errormsg("KEEP ALIVE PING OK.");
 			}

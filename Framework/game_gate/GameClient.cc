@@ -102,7 +102,7 @@ void GateServ::asyncGameHandler(
 			header->subId == ::GameServer::SUB_S2C_ENTER_ROOM_RES) {
 			if (pre_header->ok == -1) {
 				entryContext.resetClientConn(servTyE::kGameTy);
-				_LOG_ERROR("-------------------进房间失败/游戏结束，清理用户游戏节点");
+				_LOG_TRACE("userId.%d.resetClientConn[kGameTy]", userId);
 			}
 		}
 		else if ((
@@ -111,7 +111,7 @@ void GateServ::asyncGameHandler(
 			header->subId == ::GameServer::SUB_S2C_USER_LEFT_RES) {
 			if (pre_header->ok == 0) {
 				entryContext.resetClientConn(servTyE::kGameTy);
-				_LOG_ERROR("-------------------离开房间/游戏结束，清理用户游戏节点");
+				_LOG_WARN("userId.%d.resetClientConn[kGameTy]", userId);
 			}
 		}
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
