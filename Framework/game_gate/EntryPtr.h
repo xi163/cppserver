@@ -201,6 +201,10 @@ struct Context /*: public muduo::noncopyable*/ {
 	inline void setClientConn(servTyE ty, ClientConn const& client) {
 		client_[ty] = client;
 	}
+	inline void resetClientConn(servTyE ty) {
+		muduo::net::WeakTcpConnectionPtr weakConn;
+		client_[ty].second = weakConn;
+	}
 	inline ClientConn const& getClientConn(servTyE ty) { return client_[ty]; }
 public:
 	uint32_t ipaddr_;

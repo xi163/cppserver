@@ -553,6 +553,7 @@ void GameServ::cmd_on_user_enter_room(
 					}
 				}
 				else {
+					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 					//桌子密码错误
 					SendGameErrorCode(conn,
 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -562,6 +563,7 @@ void GameServ::cmd_on_user_enter_room(
 				}
 			}
 			else {
+				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				//会话不存在
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -571,6 +573,7 @@ void GameServ::cmd_on_user_enter_room(
 			}
 		}
 		else {
+			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			//游戏已结束
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -591,6 +594,7 @@ void GameServ::cmd_on_user_enter_room(
 					table->OnUserEnterAction(player, pre_header_, header_);
 				}
 				else {
+					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 					REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 					SendGameErrorCode(conn,
 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -599,6 +603,7 @@ void GameServ::cmd_on_user_enter_room(
 				}
 			}
 			else {
+				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -632,6 +637,7 @@ void GameServ::cmd_on_user_enter_room(
 		if (conn) {
 			if (!mgo::GetUserBaseInfo(pre_header_->userId, userInfo)) {
 				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_USERNOTEXIST,
@@ -641,6 +647,7 @@ void GameServ::cmd_on_user_enter_room(
 		}
 		else {
 			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_NOSESSION,
@@ -651,6 +658,7 @@ void GameServ::cmd_on_user_enter_room(
 		if (roomInfo_.enterMinScore > 0 &&
 			userInfo.userScore < roomInfo_.enterMinScore) {
 			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -662,6 +670,7 @@ void GameServ::cmd_on_user_enter_room(
 		if (roomInfo_.enterMaxScore > 0 &&
 			userInfo.userScore > roomInfo_.enterMaxScore) {
 			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -684,6 +693,7 @@ void GameServ::cmd_on_user_enter_room(
 			}
 			else {
 				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -758,6 +768,7 @@ void GameServ::cmd_on_user_left_room(
 					}
 				}
 				else {
+					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 					rspdata.set_retcode(2);
 					rspdata.set_errormsg("正在游戏中，不能离开");
 				}
