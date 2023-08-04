@@ -64,7 +64,7 @@ ZookeeperClient::ZookeeperClient(const string &server, int timeout, bool debug)
 ZookeeperClient::~ZookeeperClient()
 {
 //    cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    _LOG_DEBUG("ZookeeperClient::~ZookeeperClient()");
+    //_LOG_DEBUG("ZookeeperClient::~ZookeeperClient()");
 
     closeServer();
 }

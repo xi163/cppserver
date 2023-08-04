@@ -37,7 +37,7 @@ RpcChannel::RpcChannel()
   : codec_(std::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3)),
     services_(NULL)
 {
-  LOG_INFO << "RpcChannel::ctor - " << this;
+  //LOG_INFO << "RpcChannel::ctor - " << this;
 }
 
 RpcChannel::RpcChannel(const TcpConnectionPtr& conn)
@@ -45,12 +45,12 @@ RpcChannel::RpcChannel(const TcpConnectionPtr& conn)
     conn_(conn),
     services_(NULL)
 {
-  LOG_INFO << "RpcChannel::ctor - " << this;
+  //LOG_INFO << "RpcChannel::ctor - " << this;
 }
 
 RpcChannel::~RpcChannel()
 {
-  LOG_INFO << "RpcChannel::dtor - " << this;
+  //LOG_INFO << "RpcChannel::dtor - " << this;
 }
 
   // Call the given method of the remote service.  The signature of this
@@ -122,10 +122,10 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
       else
       {
 #ifndef NDEBUG
-        LOG_WARN << "Size " << outstandings_.size();
+        //LOG_WARN << "Size " << outstandings_.size();
         for (it = outstandings_.begin(); it != outstandings_.end(); ++it)
         {
-          LOG_WARN << "id " << it->first;
+         // LOG_WARN << "id " << it->first;
         }
 #endif
       }

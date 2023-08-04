@@ -105,8 +105,8 @@ TcpClient::TcpClient(EventLoop* loop,
 
 TcpClient::~TcpClient()
 {
-  LOG_INFO << "TcpClient::~TcpClient[" << name_
-           << "] - connector " << get_pointer(connector_);
+  //LOG_INFO << "TcpClient::~TcpClient[" << name_
+  //         << "] - connector " << get_pointer(connector_);
   RunInLoop(loop_,
       std::bind(&detail::removeAllInLoop, loop_, connection_, connector_));
 //  TcpConnectionPtr conn;
