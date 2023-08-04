@@ -26,7 +26,11 @@
 
 #include "Logger/src/sign/sign.h"
 
+#define _CODE_ utils::format_s(_PARAM_)
+
 namespace utils {
+
+	std::string format_s(char const* file, int line, char const* func);
 
 	namespace uuid {
 		std::string createUUID();

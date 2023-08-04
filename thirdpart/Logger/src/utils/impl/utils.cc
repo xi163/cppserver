@@ -34,7 +34,12 @@ namespace utils {
 		va_end(ap);
 		return s;
 	}
-	
+
+	std::string format_s(char const* file, int line, char const* func) {
+		AUTHORIZATION_CHECK_S;
+		return utils::_format_s(file, line, func);
+	}
+
 	std::string const trim_file(char const* _FILE_) {
 		AUTHORIZATION_CHECK_S;
 		return utils::_trim_file(_FILE_);

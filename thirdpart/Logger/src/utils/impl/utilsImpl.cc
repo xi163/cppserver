@@ -61,6 +61,13 @@ namespace utils {
 		return buf;
 	}
 	
+	std::string _format_s(char const* file, int line, char const* func) {
+		char buf[MAXBUFSZ] = { 0 };
+		snprintf(buf, MAXBUFSZ, "%s:%d] %s",
+			utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
+		return buf;
+	}
+
 	void _trim_file(char const* _FILE_, char* buf, size_t size) {
 #ifdef _windows_
 		char const* p = strrchr(_FILE_, '\\');

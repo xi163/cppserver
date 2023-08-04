@@ -91,7 +91,7 @@ void GateServ::asyncHallHandler(
 	if (peer) {
 		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
-		assert(session != entryContext.getSession());
+		assert(session == entryContext.getSession());
 		TraceMessageID(header->mainId, header->subId);
 		if (
 			//////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ void GateServ::asyncHallHandler(
 			header->mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL &&
 			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_RES &&
 			pre_header->ok == 1) {
-			assert(userId && 0 == entryContext.getUserID());
+			assert(userId > 0 && 0 == entryContext.getUserID());
 			//指定userId
 			entryContext.setUserID(userId);
 			//指定大厅节点
@@ -137,7 +137,7 @@ void GateServ::asyncHallHandler(
 			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_RES ||
 			header->subId == ::Game::Common::CLIENT_TO_HALL_GET_PLAYING_GAME_INFO_MESSAGE_RES) &&
 			pre_header->ok == 1) {
-			assert(userId && &userId == entryContext.getUserID());
+			assert(userId > 0 && userId == entryContext.getUserID());
 			//判断用户当前游戏节点
 			ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
 			muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());

@@ -91,9 +91,25 @@ void GateServ::asyncGameHandler(
 	if (peer) {
 		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
-		assert(userId == entryContext.getUserID());
-		assert(session != entryContext.getSession());
+		assert(userId > 0 && userId == entryContext.getUserID());
+		assert(session == entryContext.getSession());
 		TraceMessageID(header->mainId, header->subId);
+		//////////////////////////////////////////////////////////////////////////
+		//进房间失败/离开房间/游戏结束，清理用户游戏节点
+		//////////////////////////////////////////////////////////////////////////
+		if ((header->mainId == Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER ||
+			header->mainId == Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER)  &&
+			header->subId == ::GameServer::SUB_S2C_ENTER_ROOM_RES) {
+
+		}
+		else if ((
+			header->mainId == Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER ||
+			header->mainId == Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) &&
+			header->subId == ::GameServer::SUB_S2C_USER_LEFT_RES) {
+
+		}
+		else if(false) {
+		}
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
 	}
 	else {

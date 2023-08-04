@@ -142,6 +142,8 @@ typedef std::chrono::system_clock::time_point time_point;
 
 #endif
 
+#define _PARAM_ __FILE__,__LINE__,__FUNC__
+
 typedef int pid_t;
 typedef int tid_t;
 
