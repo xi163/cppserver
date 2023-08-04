@@ -225,5 +225,11 @@
     <ClCompile Include="..\..\..\public\ErrorCode.cc">
       <Filter>public</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_api\handler\addscore_handler.cc">
+      <Filter>handler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_api\handler\subscore_handler.cc">
+      <Filter>handler</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

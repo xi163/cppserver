@@ -69,8 +69,10 @@
     <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Framework\game_api\handler\addscore_handler.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\handler\GateServList.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\handler\order_handler.cc" />
+    <ClCompile Include="..\..\..\Framework\game_api\handler\subscore_handler.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\Clients.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\Container.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
