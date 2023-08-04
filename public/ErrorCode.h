@@ -57,6 +57,7 @@ enum eApiVisit {
 	\
 	YY(AddScoreHandleInsertDataError, 32, "玩家上分失败") \
 	XX(SubScoreHandleInsertDataError, "玩家下分失败") \
+	XX(SubScoreHandleUserNotExistsError, "玩家不存在") \	
 	XX(SubScoreHandleInsertOrderIDExists, "玩家下分订单已存在") \
 	XX(SubScoreHandleInsertDataUserInGaming, "玩家正在游戏中，不能下分") \
 	XX(SubScoreHandleInsertDataOverScore, "玩家下分超出玩家现有总分值") \

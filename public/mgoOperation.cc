@@ -518,6 +518,42 @@ namespace mgo {
 		return "";
 	}
 	
+	std::string SubOrder(document::view_or_value const& view) {
+		try {
+			auto result = opt::InsertOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::SUBSCORE_ORDER,
+				view);
+			if (!result) {
+			}
+			else {
+				auto docid = result->inserted_id();
+				switch (docid.type()) {
+				case bsoncxx::type::k_oid:
+					bsoncxx::oid oid = docid.get_oid().value;
+					std::string insert_id = oid.to_string();
+					_LOG_DEBUG(insert_id.c_str());
+					return insert_id;
+				}
+			}
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return "";
+	}
+	
 	bool ExistAddOrder(document::view_or_value const& where) {
 		try {
 			auto result = opt::FindOne(
@@ -544,7 +580,34 @@ namespace mgo {
 		}
 		return false;
 	}
-
+	
+	bool ExistSubOrder(document::view_or_value const& where) {
+		try {
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::SUBSCORE_ORDER,
+				{}, where);
+			if (result) {
+				return true;
+			}
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+	
 	std::string AddOrderRecord(document::view_or_value const& view) {
 		try {
 			auto result = opt::InsertOne(

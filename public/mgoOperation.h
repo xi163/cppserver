@@ -77,9 +77,10 @@ namespace mgo {
 		document::view_or_value const& where);
 
 	std::string AddOrder(document::view_or_value const& view);
-	
-	bool ExistAddOrder(document::view_or_value const& where);
+	std::string SubOrder(document::view_or_value const& view);
 
+	bool ExistAddOrder(document::view_or_value const& where);
+	bool ExistSubOrder(document::view_or_value const& where);
 	std::string AddOrderRecord(document::view_or_value const& view);
 
 	bool LoadAgentInfos(
