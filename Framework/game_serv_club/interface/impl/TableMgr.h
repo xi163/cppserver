@@ -27,11 +27,11 @@ public:
 	void Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
 	std::shared_ptr<CTable> Get(uint32_t tableId);
 	/// <summary>
-	/// 返回指定桌子，前提是桌子未满
+	/// 杩斿洖鎸囧畾妗屽瓙锛屽墠鎻愭槸妗屽瓙鏈弧
 	/// </summary>
 	std::shared_ptr<CTable> Find(uint32_t tableId);
 	/// <summary>
-	/// 查找能进的桌子，没有则取空闲桌子
+	/// 鏌ユ壘鑳借繘鐨勬瀛愶紝娌℃湁鍒欏彇绌洪棽妗屽瓙
 	/// </summary>
 	std::shared_ptr<CTable> FindSuit(std::shared_ptr<IPlayer> const& player, uint32_t exceptTableId = INVALID_TABLE);
 	void Delete(uint32_t tableId);

@@ -31,7 +31,7 @@ void CRobot::Reset() {
 }
 
 /// <summary>
-/// IRobotDelegate消息回调
+/// IRobotDelegate娑堟伅鍥炶皟
 /// </summary>
 bool CRobot::SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data, size_t len) {
 	if ((mainId == 0) || (mainId == Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC)) {
@@ -45,7 +45,7 @@ bool CRobot::SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data,
 }
 
 /// <summary>
-/// ITableDelegate消息回调
+/// ITableDelegate娑堟伅鍥炶皟
 /// </summary>
 bool CRobot::SendTableMessage(uint8_t subId, uint8_t const* data, size_t len) {
 	if (INVALID_TABLE != tableId_) {

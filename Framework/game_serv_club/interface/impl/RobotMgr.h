@@ -25,7 +25,7 @@ protected:
 	tagGameRoomInfo* roomInfo_;
 	tagAndroidStrategyParam robotStrategy_;
 	ITableContext* tableContext_;
-	//std::shared_ptr<muduo::net::EventLoopThread> logicThread_;//×À×ÓÂß¼­Ïß³Ì/¶¨Ê±Æ÷
+	//std::shared_ptr<muduo::net::EventLoopThread> logicThread_;//æ¡Œå­é€»è¾‘çº¿ç¨‹/å®šæ—¶å™¨
 	std::map<int64_t, std::shared_ptr<CRobot>> items_;
 	std::list<std::shared_ptr<CRobot>> freeItems_;
 	mutable boost::shared_mutex mutex_;

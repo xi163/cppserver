@@ -19,14 +19,14 @@ void CPlayer::Reset() {
 }
 
 /// <summary>
-/// IRobotDelegate消息回调
+/// IRobotDelegate娑堟伅鍥炶皟
 /// </summary>
 bool CPlayer::SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data, size_t len) {
 	return false;
 }
 
 /// <summary>
-/// ITableDelegate消息回调
+/// ITableDelegate娑堟伅鍥炶皟
 /// </summary>
 bool CPlayer::SendTableMessage(uint8_t subId, uint8_t const* data, size_t len) {
 	return false;

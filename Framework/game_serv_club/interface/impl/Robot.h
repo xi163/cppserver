@@ -16,11 +16,11 @@ public:
 	virtual inline bool IsOfficial() { return false; }
 	virtual inline std::shared_ptr<IRobotDelegate> GetDelegate() { return robotDelegate_; }
 	/// <summary>
-	/// IRobotDelegate消息回调
+	/// IRobotDelegate娑堟伅鍥炶皟
 	/// </summary>
 	virtual bool SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data, size_t len);
 	/// <summary>
-	/// ITableDelegate消息回调
+	/// ITableDelegate娑堟伅鍥炶皟
 	/// </summary>
 	virtual bool SendTableMessage(uint8_t subId, uint8_t const* data, size_t len);
 	virtual void setReady();

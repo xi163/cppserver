@@ -17,11 +17,11 @@ public:
 	virtual inline bool IsOfficial() { return official_; }
 	virtual inline std::shared_ptr<IRobotDelegate> GetDelegate() { return std::shared_ptr<IRobotDelegate>(); }
 	/// <summary>
-	/// IRobotDelegateÏûÏ¢»Øµ÷
+	/// IRobotDelegateæ¶ˆæ¯å›è°ƒ
 	/// </summary>
 	virtual bool SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data, size_t len);
 	/// <summary>
-	/// ITableDelegateÏûÏ¢»Øµ÷
+	/// ITableDelegateæ¶ˆæ¯å›è°ƒ
 	/// </summary>
 	virtual bool SendTableMessage(uint8_t subId, uint8_t const* data, size_t len);
 	virtual inline int64_t  GetUserId() { return baseInfo_.userId; }
@@ -62,12 +62,12 @@ public:
 	virtual inline void setTrustee(bool trustship) { trustee_ = trustship; }
 	virtual inline bool getTrustee() { return trustee_; }
 protected:
-	bool official_;//¹Ù·½ÕËºÅ
-	uint32_t tableId_;//×À×ÓID
-	uint32_t chairId_;//×ùÎ»ID
-	uint8_t status_; //Íæ¼Ò×´Ì¬
-	bool trustee_;//ÍĞ¹Ü×´Ì¬
-	UserBaseInfo baseInfo_;//»ù´¡Êı¾İ
+	bool official_;//å®˜æ–¹è´¦å·
+	uint32_t tableId_;//æ¡Œå­ID
+	uint32_t chairId_;//åº§ä½ID
+	uint8_t status_; //ç©å®¶çŠ¶æ€
+	bool trustee_;//æ‰˜ç®¡çŠ¶æ€
+	UserBaseInfo baseInfo_;//åŸºç¡€æ•°æ®
 };
 
 #endif
