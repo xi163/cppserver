@@ -164,6 +164,9 @@ void GateServ::asyncHallHandler(
 						}
 					}
 				}
+				else {
+					_LOG_ERROR("%d 游戏节点IP不存在!", userId);
+				}
 			}
 			else {
 				//用户当前游戏节点不存在/不可用，需要指定
@@ -189,6 +192,9 @@ void GateServ::asyncHallHandler(
 						//目标游戏节点不可用，要求zk实时监控
 						_LOG_INFO("%d 游戏节点[%s]不可用，指定失败!", userId, serverIp.c_str());
 					}
+				}
+				else {
+					_LOG_ERROR("%d 游戏节点IP不存在!", userId);
 				}
 			}
 		}

@@ -203,9 +203,58 @@ void GateServ::sendGameMessage(
 		}
 	}
 	else {
-		packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
-		packet::header_t const* header = packet::get_header(buf);
-		_LOG_ERROR("%s error", fmtMessageID(header->mainId, header->subId).c_str());
+		{
+			//用户当前游戏节点不存在/不可用，需要指定
+			if (clientConn.first.empty()) {
+				_LOG_WARN("%d 游戏节点不存在，需要指定", userId);
+			}
+			else {
+				_LOG_ERROR("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
+			}
+			std::string serverIp;
+			//serverIp = roomid:ip:port
+			if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
+				//获取目标游戏节点
+				ClientConn clientConn;
+				clients_[servTyE::kGameTy].clients_->get(serverIp, clientConn);
+				muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
+				if (gameConn) {
+					//指定用户游戏节点
+					entryContext.setClientConn(servTyE::kGameTy, clientConn);
+					_LOG_INFO("%d 游戏节点[%s]，指定成功!", userId, serverIp.c_str());
+				}
+				else {
+					//目标游戏节点不可用，要求zk实时监控
+					_LOG_INFO("%d 游戏节点[%s]不可用，指定失败!", userId, serverIp.c_str());
+				}
+			}
+			else {
+				_LOG_ERROR("%d 游戏节点IP不存在!", userId);
+			}
+		}
+		ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
+		muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
+		if (gameConn) {
+			assert(gameConn->connected());
+#if !defined(NDEBUG)
+#if 0
+			assert(
+				std::find(
+					std::begin(clients_[servTyE::kGameTy].names_),
+					std::end(clients_[servTyE::kGameTy].names_),
+					clientConn.first) != clients_[servTyE::kGameTy].names_.end());
+#endif
+			clients_[servTyE::kGameTy].clients_->check(clientConn.first, true);
+#endif
+			if (buf) {
+				gameConn->send(buf.get());
+			}
+		}
+		else {
+			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
+			packet::header_t const* header = packet::get_header(buf);
+			_LOG_ERROR("%s error", fmtMessageID(header->mainId, header->subId).c_str());
+		}
 	}
 }
 
