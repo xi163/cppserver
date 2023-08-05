@@ -430,7 +430,7 @@ void GameServ::asyncLogicHandler(
 }
 
 void GameServ::asyncOfflineHandler(std::string const& ipPort) {
-	READ_LOCK(mutexGateUsers_);
+	//READ_LOCK(mutexGateUsers_);
 	std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
 	if (it != mapGateUsers_.end()) {
 		for (std::set<int64_t>::iterator ir = it->second.begin();
@@ -884,7 +884,7 @@ boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_
 	muduo::net::WeakTcpConnectionPtr weakConn;
 	if (userId > 0) {
 		{
-			READ_LOCK(mutexUserGates_);
+			//READ_LOCK(mutexUserGates_);
 			std::map<int64_t, std::shared_ptr<gate_t>>::iterator it = mapUserGates_.find(userId);
 			if (it != mapUserGates_.end()) {
 				gate = it->second;
@@ -917,11 +917,11 @@ void GameServ::AddContext(
 	gate->pre_header = pre_header;
 	gate->header = header;
 	{
-		WRITE_LOCK(mutexUserGates_);
+		//WRITE_LOCK(mutexUserGates_);
 		mapUserGates_[pre_header_->userId] = gate;
 	}
 	{
-		WRITE_LOCK(mutexGateUsers_);
+		//WRITE_LOCK(mutexGateUsers_);
 		std::set<int64_t>& ref = mapGateUsers_[gate->IpPort];
 		ref.insert(pre_header_->userId);
 	}
@@ -931,14 +931,14 @@ void GameServ::DelContext(int64_t userId) {
 	_LOG_ERROR("%d", userId);
 	std::string ipPort;
 	{
-		READ_LOCK(mutexUserGates_);
+		//READ_LOCK(mutexUserGates_);
 		std::map<int64_t, std::shared_ptr<gate_t>>::iterator it = mapUserGates_.find(userId);
 		if (it != mapUserGates_.end()) {
 			ipPort = it->second->IpPort;
 		}
 	}
 	{
-		WRITE_LOCK(mutexGateUsers_);
+		//WRITE_LOCK(mutexGateUsers_);
 		std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
 		if (it != mapGateUsers_.end()) {
 			it->second.erase(userId);
@@ -948,7 +948,7 @@ void GameServ::DelContext(int64_t userId) {
 		}
 	}
 	{
-		WRITE_LOCK(mutexUserGates_);
+		//WRITE_LOCK(mutexUserGates_);
 		mapUserGates_.erase(userId);
 	}
 }
