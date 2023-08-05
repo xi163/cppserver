@@ -114,6 +114,7 @@ public:
 	void asyncOfflineHandler(Context& entryContext);
 	static BufferPtr packOrderScoreMsg(int16_t userid, int64_t score);
 	static BufferPtr packKickGameUserMsg();
+	static BufferPtr packNotifyFailedMsg(uint8_t mainId, uint8_t subId);
 	static BufferPtr packClientShutdownMsg(int64_t userid, int status = 0);
 	static BufferPtr packNoticeMsg(
 		int32_t agentid, std::string const& title,

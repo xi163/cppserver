@@ -345,6 +345,22 @@ BufferPtr GateServ::packKickGameUserMsg() {
 	return buffer;
 }
 
+BufferPtr GateServ::packNotifyFailedMsg(uint8_t mainId, uint8_t subId) {
+	::Game::Common::ProxyNotifyFailedMessage msg;
+	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
+	msg.set_mainid(mainId);
+	msg.set_subid(subId);
+
+	BufferPtr buffer = packet::packMessage(
+		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+		::Game::Common::PROXY_NOTIFY_FAILED_MESSAGE, &msg);
+
+	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+		::Game::Common::PROXY_NOTIFY_FAILED_MESSAGE);
+
+	return buffer;
+}
+
 BufferPtr GateServ::packOrderScoreMsg(int16_t userid, int64_t score) {
 	::Game::Common::ProxyNotifyOrderScoreMessage msg;
 	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);

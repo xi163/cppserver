@@ -45,6 +45,7 @@ enum MESSAGE_CLIENT_TO_PROXY_SUBID
     PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY      = 9;                      // 在其他地方登陆 Game.Common.ProxyNotifyShutDownUserClientMessage
     PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY             = 10;                     //  ProxyServer.Message.NotifyNoticeMessageFromProxyServerMessage
     PROXY_NOTIFY_USER_ORDER_SCORE_MESSAGE                 = 11;                     // 玩家上下分消息 ProxyNotifyOrderScoreMessage
+	PROXY_NOTIFY_FAILED_MESSAGE                           = 12;
 }
 
 enum MESSAGE_CLIENT_TO_HALL_SUBID
@@ -238,4 +239,9 @@ message HallNotifyReLoginServerMessage
 message HttpNotifyRepairServerResp
 {
     int32                  status                 = 1;  //1 cannot join 2 stop game
+}
+
+message ProxyNotifyFailedMessage {
+	int32 mainId = 1;
+	int32 subId = 2;
 }

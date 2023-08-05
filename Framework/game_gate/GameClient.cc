@@ -254,6 +254,14 @@ void GateServ::sendGameMessage(
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 			packet::header_t const* header = packet::get_header(buf);
 			_LOG_ERROR("%s error", fmtMessageID(header->mainId, header->subId).c_str());
+			EntryPtr entry(entryContext.getWeakEntryPtr().lock());
+			if (entry) {
+				muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());
+				if (peer) {
+					BufferPtr buffer = GateServ::packNotifyFailedMsg(header->mainId, header->subId);
+					muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
+				}
+			}
 		}
 	}
 }
