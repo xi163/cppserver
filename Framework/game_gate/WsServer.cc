@@ -337,10 +337,10 @@ BufferPtr GateServ::packKickGameUserMsg() {
 
 	BufferPtr buffer = packet::packMessage(
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
-		GameServer::SUB_S2C_ENTER_ROOM_RES, &msg);
+		::GameServer::SUB_S2C_ENTER_ROOM_RES, &msg);
 
 	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
-		::Game::Common::SUB_S2C_ENTER_ROOM_RES);
+		::GameServer::SUB_S2C_ENTER_ROOM_RES);
 
 	return buffer;
 }
