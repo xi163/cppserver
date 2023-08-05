@@ -430,6 +430,7 @@ void GameServ::asyncLogicHandler(
 }
 
 void GameServ::asyncOfflineHandler(std::string const& ipPort) {
+	_LOG_ERROR("%s", ipPort.c_str());
 	//READ_LOCK(mutexGateUsers_);
 	std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
 	if (it != mapGateUsers_.end()) {
@@ -908,6 +909,7 @@ void GameServ::AddContext(
 	const muduo::net::TcpConnectionPtr& conn,
 	packet::internal_prev_header_t const* pre_header_,
 	packet::header_t const* header_) {
+	_LOG_ERROR("%d", pre_header_->userId);
 	std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
 	std::shared_ptr<packet::header_t> header(new packet::header_t());
 	memcpy(pre_header.get(), pre_header_, packet::kPrevHeaderLen);
