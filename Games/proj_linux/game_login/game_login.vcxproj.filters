@@ -137,6 +137,9 @@
     <ClInclude Include="..\..\..\public\ErrorCode.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\structs.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">

@@ -166,7 +166,7 @@ void GateServ::onZookeeperConnected() {
 		}
 	}
 	{
-		//游戏服 roomid:ip:port
+		//游戏服 roomid:ip:port:type
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
 			"/GAME/GameServers",
@@ -213,7 +213,7 @@ void GateServ::onHallWatcher(
 void GateServ::onGameWatcher(
 	int type, int state, const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//游戏服 roomid:ip:port
+	//游戏服 roomid:ip:port:type
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/GameServers",

@@ -50,6 +50,7 @@
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\redisKeys.h" />
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
+    <ClInclude Include="..\..\..\public\structs.h" />
     <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />

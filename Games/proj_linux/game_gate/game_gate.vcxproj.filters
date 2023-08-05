@@ -28,14 +28,14 @@
     <Filter Include="internal\gate">
       <UniqueIdentifier>{2ec38b62-5305-46a4-86d1-7bb5c83875a4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\nodes">
-      <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\rpc">
       <UniqueIdentifier>{0d90d279-6461-4187-b57d-fd0766d874f8}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\Database">
       <UniqueIdentifier>{45562f0a-867f-4511-9512-6a72df22987f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\nodes">
+      <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +114,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h">
       <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\structs.h">
+      <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

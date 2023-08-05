@@ -175,7 +175,7 @@ void HallServ::onZookeeperConnected() {
 		}
 	}
 	{
-		//游戏服 roomid:ip:port
+		//游戏服 roomid:ip:port:type
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
 			"/GAME/GameServers",
@@ -223,7 +223,7 @@ void HallServ::onGateWatcher(int type, int state,
 void HallServ::onGameWatcher(int type, int state,
 	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//游戏服 roomid:ip:port
+	//游戏服 roomid:ip:port:type
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/GameServers",
@@ -775,11 +775,7 @@ void HallServ::cmd_get_game_server_message(
 		else {
 			//随机一个指定类型游戏节点
 			std::string ipport;
-			if ((roomid - gameid * 10) < 20) {
-				random_game_server_ipport(roomid, ipport);
-			}
-			else {
-			}
+			random_game_server_ipport(roomid, ipport);
 			//可能ipport节点不可用，要求zk实时监控
 			if (!ipport.empty()) {
 				//redis更新玩家游戏节点
@@ -1175,21 +1171,15 @@ void HallServ::on_refresh_game_config(std::string msg) {
 	db_refresh_game_room_info();
 }
 
-/// <summary>
-/// 随机一个指定类型游戏节点
-/// </summary>
-/// <param name="roomid"></param>
-/// <param name="ipport"></param>
 void HallServ::random_game_server_ipport(uint32_t roomid, std::string& ipport) {
 	ipport.clear();
-	static STD::Random r;
 	READ_LOCK(room_servers_mutex_);
 	std::map<int, std::vector<std::string>>::iterator it = room_servers_.find(roomid);
 	if (it != room_servers_.end()) {
 		std::vector<std::string>& rooms = it->second;
 		if (rooms.size() > 0) {
-			int index = r.betweenInt(0, rooms.size() - 1).randInt_mt();
-			ipport = rooms[index];
+			int index = RANDOM().betweenInt(0, rooms.size() - 1).randInt_mt();
+			ipport = rooms[index];//roomid:ip:port:type
 		}
 	}
 }

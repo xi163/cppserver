@@ -125,6 +125,9 @@
     <ClInclude Include="..\..\..\public\redisKeys.h">
       <Filter>public\Database</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\structs.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">

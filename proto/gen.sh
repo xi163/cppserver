@@ -14,6 +14,7 @@
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/Game.Common.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/ProxyServer.Message.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/HallServer.Message.proto
+protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/HallClubServer.Message.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/GameServer.Message.proto
 #protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/MatchServer.Message.proto
 #protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/Longhu.Message.proto

@@ -139,6 +139,85 @@ ERROR_DECLARE(Error)
 
 ERROR_IMPLEMENT(Error);
 
+
+
+
+
+//1-金币场 2-好友房 3-俱乐部
+#define GAMEMODE_MAP(XX, YY) \
+	YY(GoldCoin, 1, "金币场") \
+	XX(FriendRoom, "好友房") \
+	XX(Club, "俱乐部") \
+
+enum {
+
+	GoldCoin = 1,
+	FriendRoom = 2,
+	Club = 3,
+};
+
+#define GAMEMODE_ENUM_X(n, s) k##n,
+#define GAMEMODE_ENUM_Y(n, i, s) k##n = i,
+enum {
+	GAMEMODE_MAP(GAMEMODE_ENUM_X, GAMEMODE_ENUM_Y)
+};
+#undef GAMEMODE_ENUM_X
+#undef GAMEMODE_ENUM_Y
+
+#define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
+
+#define GAMEMODE_DESC_X(n, s) { k##n, "k"#n, s },
+#define GAMEMODE_DESC_Y(n, i, s){ k##n, "k"#n, s },
+#define TABLE_DECLARE(var, MY_MAP_) \
+	static struct { \
+		int id_; \
+		char const* name_; \
+		char const* desc_; \
+	}var[] = { \
+		MY_MAP_(GAMEMODE_DESC_X, GAMEMODE_DESC_Y) \
+	}
+
+#define GAMEMODE_FETCH_NAME(id, var, name) \
+	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
+		if (var[i].id_ == id) { \
+			name = var[i].name_; \
+			break; \
+		}\
+	}
+
+#define GAMEMODE_FETCH_DESC(id, var, desc) \
+	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
+		if (var[i].id_ == id) { \
+			desc = var[i].desc_; \
+			break; \
+		}\
+	}
+
+#define GAMEMODE_FETCH_STR(id, var, str) \
+	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
+		if (var[i].id_ == id) { \
+			std::string name = var[i].name_; \
+			std::string desc = var[i].desc_; \
+			str = name.empty() ? \
+				desc : "[" + name + "]" + desc;\
+			break; \
+		}\
+	}
+
+#define GAMEMODE_IMPLEMENT(NAME, varname) \
+		static std::string get##varname(int varname) { \
+			TABLE_DECLARE(table_##varname##s_, GAMEMODE_MAP); \
+			std::string str##varname; \
+			GAMEMODE_FETCH_##NAME(varname, table_##varname##s_, str##varname); \
+			return str##varname; \
+		}
+
+GAMEMODE_IMPLEMENT(NAME, ModeName)
+GAMEMODE_IMPLEMENT(DESC, ModeDesc)
+GAMEMODE_IMPLEMENT(STR, ModeStr)
+#undef GAMEMODE_DESC_X
+#undef GAMEMODE_DESC_Y
+
 int main() {
 	_LOG_DEBUG("错误信息：%s[%d]%s",
 		ERR::ErrGameRecordGetNoDataError.desc.c_str(),
