@@ -434,14 +434,19 @@ void GameServ::asyncOfflineHandler(std::string const& ipPort) {
 	//READ_LOCK(mutexGateUsers_);
 	std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
 	if (it != mapGateUsers_.end()) {
-		for (std::set<int64_t>::iterator ir = it->second.begin();
-			ir != it->second.end(); ++ir) {
-			std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(*ir);
-			if (player) {
-				std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
-				if (table) {
-					table->assertThisThread();
-					table->OnUserOffline(player);
+		if (!it->second.empty()) {
+			std::vector<int64_t> v;
+			std::copy(it->second.begin(), it->second.end(), std::back_inserter(v));
+			for (std::vector<int64_t>::iterator ir = v.begin();
+				ir != v.end(); ++ir) {
+				std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(*ir);
+				if (player) {
+					std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+					if (table) {
+						table->assertThisThread();
+						//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
+						table->OnUserOffline(player);
+					}
 				}
 			}
 		}
