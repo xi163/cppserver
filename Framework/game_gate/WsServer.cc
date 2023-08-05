@@ -332,8 +332,8 @@ void GateServ::asyncOfflineHandler(Context& entryContext) {
 BufferPtr GateServ::packKickGameUserMsg() {
 	::GameServer::MSG_S2C_UserEnterMessageResponse msg;
 	msg.mutable_header()->set_sign(HEADER_SIGN);
-	msg.set_retcode(6);
-	msg.set_errormsg("您已被强制踢出游戏");
+	msg.set_retcode(0);
+	msg.set_errormsg("游戏服务异常中止");
 
 	BufferPtr buffer = packet::packMessage(
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
