@@ -245,4 +245,5 @@ message ProxyNotifyFailedMessage {
 	Game.Common.Header     header                 = 1;
 	int32 mainId = 2;
 	int32 subId = 3;
+	string msg = 4;
 }

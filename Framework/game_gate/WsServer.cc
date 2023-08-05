@@ -350,6 +350,7 @@ BufferPtr GateServ::packNotifyFailedMsg(uint8_t mainId, uint8_t subId) {
 	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
 	msg.set_mainid(mainId);
 	msg.set_subid(subId);
+	msg.set_msg("请求服务不可用");
 
 	BufferPtr buffer = packet::packMessage(
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
