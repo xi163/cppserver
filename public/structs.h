@@ -3,11 +3,11 @@
 
 #include "Logger/src/Macro.h"
 
-//1-½ğ±Ò³¡ 2-ºÃÓÑ·¿ 3-¾ãÀÖ²¿
+//1-é‡‘å¸åœº 2-å¥½å‹æˆ¿ 3-ä¿±ä¹éƒ¨
 #define GAMEMODE_MAP(XX, YY) \
-	YY(GoldCoin, 1, "½ğ±Ò³¡") \
-	XX(FriendRoom, "ºÃÓÑ·¿") \
-	XX(Club, "¾ãÀÖ²¿") \
+	YY(GoldCoin, 1, "é‡‘å¸åœº") \
+	XX(FriendRoom, "å¥½å‹æˆ¿") \
+	XX(Club, "ä¿±ä¹éƒ¨") \
 
 #define GAMEMODE_ENUM_X(n, s) k##n,
 #define GAMEMODE_ENUM_Y(n, i, s) k##n = i,
@@ -73,10 +73,10 @@ struct agent_info_t {
 		agentId = 0;
 		cooperationtype = 0;
 	}
-	int64_t		score;              //´úÀí·ÖÊı 
-	int32_t		status;             //ÊÇ·ñ±»½ûÓÃ 0Õı³£ 1Í£ÓÃ
+	int64_t		score;              //ä»£ç†åˆ†æ•° 
+	int32_t		status;             //æ˜¯å¦è¢«ç¦ç”¨ 0æ­£å¸¸ 1åœç”¨
 	int32_t		agentId;            //agentId
-	int32_t		cooperationtype;    //ºÏ×÷Ä£Ê½  1 Âò·Ö 2 ĞÅÓÃ
+	int32_t		cooperationtype;    //åˆä½œæ¨¡å¼  1 ä¹°åˆ† 2 ä¿¡ç”¨
 	std::string descode;            //descode 
 	std::string md5code;            //MD5 
 };

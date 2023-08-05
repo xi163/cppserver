@@ -752,7 +752,7 @@ namespace mgo {
 				if (view["ipstatus"]) {
 					switch (view["ipstatus"].type()) {
 					case bsoncxx::type::k_int32:
-						//0ÔÊÐí·ÃÎÊ 1½ûÖ¹·ÃÎÊ
+						//0å…è®¸è®¿é—® 1ç¦æ­¢è®¿é—®
 						ipstatus = (view["ipstatus"].get_int32() > 0) ?
 							eApiVisit::kDisable : eApiVisit::kEnable;
 						break;

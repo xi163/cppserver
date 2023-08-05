@@ -35,16 +35,16 @@ namespace redisKeys {
 	static uint32_t const Expire_PhoneUid = Expire_1Week;
 	static uint32_t const Expire_EmailUid = Expire_1Week;
 	static uint32_t const Expire_UidGameInfo = 3 * 60;
-	//static uint32_t const Expire_Ecs_UserCoin   = 60 * 60 * 24 * 30; //ÓÃ»§½ğ±Ò
-	//static uint32_t const Expire_Ecs_Lock       = 60 * 60 * 12;      //·¿¼äËø
-	//static uint32_t const Expire_Ecs_Server     = 60 * 3;            //ecs·şÎñ
+	//static uint32_t const Expire_Ecs_UserCoin   = 60 * 60 * 24 * 30; //ç”¨æˆ·é‡‘å¸
+	//static uint32_t const Expire_Ecs_Lock       = 60 * 60 * 12;      //æˆ¿é—´é”
+	//static uint32_t const Expire_Ecs_Server     = 60 * 3;            //ecsæœåŠ¡
 	static uint32_t const Expire_Session = 60 * 60 * 72;
-	//static uint32_t const Expire_Admin_Total = 60 * 60 * 24 * 45; //Í³¼Æ
+	//static uint32_t const Expire_Admin_Total = 60 * 60 * 24 * 45; //ç»Ÿè®¡
 	static uint32_t const Expire_UserInfo = 3600 * 24;
 	//static uint32_t const InfoTtlWeek           = 7 * 3600 * 24;
 	//static uint32_t const DEFULT_REDIS_WEEk_TTL = 7 * 3600 * 24;
-	//static uint32_t const MonthTtl              = 30 * 3600 * 24; //Ò»¸öÔÂ»º´æ
-	static uint32_t const HalfMonthTtl = 15 * 3600 * 24; //°ë¸öÔÂ»º´æ
+	//static uint32_t const MonthTtl              = 30 * 3600 * 24; //ä¸€ä¸ªæœˆç¼“å­˜
+	static uint32_t const HalfMonthTtl = 15 * 3600 * 24; //åŠä¸ªæœˆç¼“å­˜
 
 	struct Keys {
 		int	DB; //0-15
