@@ -430,7 +430,7 @@ void GameServ::asyncLogicHandler(
 }
 
 void GameServ::asyncOfflineHandler(std::string const& ipPort) {
-	WRITE_LOCK(mutexGateUsers_);
+	READ_LOCK(mutexGateUsers_);
 	std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
 	if (it != mapGateUsers_.end()) {
 		for (std::set<int64_t>::iterator ir = it->second.begin();
@@ -444,7 +444,6 @@ void GameServ::asyncOfflineHandler(std::string const& ipPort) {
 				}
 			}
 		}
-		mapGateUsers_.erase(it);
 	}
 }
 
@@ -943,6 +942,9 @@ void GameServ::DelContext(int64_t userId) {
 		std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
 		if (it != mapGateUsers_.end()) {
 			it->second.erase(userId);
+			if (it->second.empty()) {
+				mapGateUsers_.erase(it);
+			}
 		}
 	}
 	{

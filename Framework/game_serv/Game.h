@@ -6,17 +6,6 @@
 #include "Packet.h"
 #include "ITableContext.h"
 
-#if BOOST_VERSION < 104700
-namespace boost
-{
-	template <typename T>
-	inline size_t hash_value(const boost::shared_ptr<T>& x)
-	{
-		return boost::hash_value(x.get());
-	}
-} // namespace boost
-#endif
-
 struct gate_t {
 	std::string IpPort;
 	std::shared_ptr<packet::internal_prev_header_t> pre_header;
