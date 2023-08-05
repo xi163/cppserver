@@ -242,6 +242,7 @@ message HttpNotifyRepairServerResp
 }
 
 message ProxyNotifyFailedMessage {
-	int32 mainId = 1;
-	int32 subId = 2;
+	Game.Common.Header     header                 = 1;
+	int32 mainId = 2;
+	int32 subId = 3;
 }
