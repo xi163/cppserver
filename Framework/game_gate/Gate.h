@@ -113,6 +113,7 @@ public:
 		muduo::Timestamp receiveTime);
 	void asyncOfflineHandler(Context& entryContext);
 	static BufferPtr packOrderScoreMsg(int16_t userid, int64_t score);
+	static BufferPtr packKickGameUserMsg();
 	static BufferPtr packClientShutdownMsg(int64_t userid, int status = 0);
 	static BufferPtr packNoticeMsg(
 		int32_t agentid, std::string const& title,
@@ -152,6 +153,7 @@ private:
 		muduo::net::WeakTcpConnectionPtr const& weakConn,
 		BufferPtr const& buf,
 		muduo::Timestamp receiveTime);
+	void asyncGameOfflineHandler(std::string const& ipPort);
 	void sendGameMessage(
 		Context& entryContext,
 		BufferPtr const& buf, int64_t userId);
@@ -223,6 +225,12 @@ public:
 	std::vector<Buckets> bucketsPool_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
+	
+	std::map<std::string, std::set<int64_t>> mapHallUsers_;
+	mutable boost::shared_mutex mutexHallUsers_;
+
+	std::map<std::string, std::set<int64_t>> mapGameUsers_;
+	mutable boost::shared_mutex mutexGameUsers_;
 
 	//管理员挂维护/恢复服务
 	volatile long server_state_;

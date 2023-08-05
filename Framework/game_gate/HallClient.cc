@@ -100,9 +100,9 @@ void GateServ::asyncHallHandler(
 			header->mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL &&
 			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_RES &&
 			pre_header->ok == 1) {
-			assert(userId > 0 && 0 == entryContext.getUserID());
+			assert(userId > 0 && 0 == entryContext.getUserId());
 			//指定userId
-			entryContext.setUserID(userId);
+			entryContext.setUserId(userId);
 			//指定大厅节点
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, conn->name(), boost::is_any_of(":"));
@@ -137,7 +137,7 @@ void GateServ::asyncHallHandler(
 			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_RES ||
 			header->subId == ::Game::Common::CLIENT_TO_HALL_GET_PLAYING_GAME_INFO_MESSAGE_RES) &&
 			pre_header->ok == 1) {
-			assert(userId > 0 && userId == entryContext.getUserID());
+			assert(userId > 0 && userId == entryContext.getUserId());
 			//判断用户当前游戏节点
 			ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
 			muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
@@ -223,7 +223,7 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 			muduo::net::TcpConnectionPtr peer_(sessions_.get(userid).lock());
 			if (peer_) {
 				Context& entryContext_ = boost::any_cast<Context&>(peer_->getContext());
-				assert(entryContext_.getUserID() == userid);
+				assert(entryContext_.getUserId() == userid);
 				//相同userid，不同session，非当前最新，则关闭之
 				if (entryContext_.getSession() != session) {
 					BufferPtr buffer = packClientShutdownMsg(userid, 0); assert(buffer);
@@ -252,7 +252,7 @@ void GateServ::sendHallMessage(
 	muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 	if (hallConn) {
 		assert(hallConn->connected());
-		assert(entryContext.getUserID() > 0);
+		assert(entryContext.getUserId() > 0);
 		//判断节点是否维护中
 		if (!clients_[servTyE::kHallTy].isRepairing(clientConn.first)) {
 #if !defined(NDEBUG)
@@ -320,7 +320,7 @@ void GateServ::sendHallMessage(
 					assert(hallConn->connected());
 					//判断节点是否维护中
 					if (bok = !clients_[servTyE::kHallTy].isRepairing(clientConn.first)) {
-						if (entryContext.getUserID() > 0) {
+						if (entryContext.getUserId() > 0) {
 							//账号已经登陆，但登陆大厅失效了，重新指定账号登陆大厅
 							entryContext.setClientConn(servTyE::kHallTy, clientConn);
 						}
@@ -340,7 +340,7 @@ void GateServ::sendHallMessage(
 
 void GateServ::onUserOfflineHall(Context& entryContext) {
 	MY_TRY()
-	int64_t userId = entryContext.getUserID();
+	int64_t userId = entryContext.getUserId();
 	uint32_t clientip = entryContext.getFromIp();
 	std::string const& session = entryContext.getSession();
 	std::string const& aeskey = entryContext.getAesKey();

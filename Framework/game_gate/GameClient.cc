@@ -20,6 +20,10 @@ void GateServ::onGameConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
+		RunInLoop(threadTimer_->getLoop(),
+			std::bind(
+				&GateServ::asyncGameOfflineHandler,
+				this, conn->peerAddress().toIpPort()));
 	}
 }
 
@@ -91,7 +95,7 @@ void GateServ::asyncGameHandler(
 	if (peer) {
 		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
-		assert(userId > 0 && userId == entryContext.getUserID());
+		assert(userId > 0 && userId == entryContext.getUserId());
 		assert(session == entryContext.getSession());
 		TraceMessageID(header->mainId, header->subId);
 		//////////////////////////////////////////////////////////////////////////
@@ -99,19 +103,79 @@ void GateServ::asyncGameHandler(
 		//////////////////////////////////////////////////////////////////////////
 		if (header->mainId == Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER ||
 			header->mainId == Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) {
-			if (header->subId == ::GameServer::SUB_S2C_ENTER_ROOM_RES && pre_header->ok == -1) {
-				entryContext.resetClientConn(servTyE::kGameTy);
-				_LOG_TRACE("userId.%d.resetClientConn[kGameTy]", userId);
+			if (header->subId == ::GameServer::SUB_S2C_ENTER_ROOM_RES) {
+				if (pre_header->ok == -1) {
+					entryContext.resetClientConn(servTyE::kGameTy);
+					{
+						WRITE_LOCK(mutexGameUsers_);
+						std::map<std::string, std::set<int64_t>>::iterator it = mapGameUsers_.find(conn->peerAddress().toIpPort());
+						if (it != mapGameUsers_.end()) {
+							std::set<int64_t>::iterator ir = it->second.find(userId);
+							if (ir != it->second.end()) {
+								it->second.erase(ir);
+								if (it->second.empty()) {
+									mapGameUsers_.erase(it);
+								}
+							}
+						}
+					}
+				}
+				else {
+					{
+						WRITE_LOCK(mutexGameUsers_);
+						std::set<int64_t>& ref = mapGameUsers_[conn->peerAddress().toIpPort()];
+						ref.insert(userId);
+					}
+				}
 			}
 			else if (header->subId == ::GameServer::SUB_S2C_USER_LEFT_RES && pre_header->ok == 0) {
 				entryContext.resetClientConn(servTyE::kGameTy);
-				_LOG_WARN("userId.%d.resetClientConn[kGameTy]", userId);
+				{
+					WRITE_LOCK(mutexGameUsers_);
+					std::map<std::string, std::set<int64_t>>::iterator it = mapGameUsers_.find(conn->peerAddress().toIpPort());
+					if (it != mapGameUsers_.end()) {
+						std::set<int64_t>::iterator ir = it->second.find(userId);
+						if (ir != it->second.end()) {
+							it->second.erase(ir);
+							if (it->second.empty()) {
+								mapGameUsers_.erase(it);
+							}
+						}
+					}
+				}
 			}
 		}
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
 	}
 	else {
 		_LOG_ERROR("error");
+	}
+}
+
+void GateServ::asyncGameOfflineHandler(std::string const& ipPort) {
+	_LOG_ERROR("%s", ipPort.c_str());
+	{
+		BufferPtr buffer;
+		READ_LOCK(mutexGameUsers_);
+		std::map<std::string, std::set<int64_t>>::iterator it = mapGameUsers_.find(ipPort);
+		if (it != mapGameUsers_.end()) {
+			for (std::set<int64_t>::iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
+				muduo::net::TcpConnectionPtr peer(sessions_.get(*ir).lock());
+				if (peer) {
+					if (!buffer) {
+						buffer = GateServ::packKickGameUserMsg();
+					}
+					muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
+				}
+			}
+		}
+	}
+	{
+		WRITE_LOCK(mutexGameUsers_);
+		std::map<std::string, std::set<int64_t>>::iterator it = mapGameUsers_.find(ipPort);
+		if (it != mapGameUsers_.end()) {
+			mapGameUsers_.erase(it);
+		}
 	}
 }
 
@@ -148,7 +212,7 @@ void GateServ::sendGameMessage(
 void GateServ::onUserOfflineGame(
 	Context& entryContext, bool leave) {
 	//MY_TRY()
-	int64_t userId = entryContext.getUserID();
+	int64_t userId = entryContext.getUserId();
 	uint32_t clientIp = entryContext.getFromIp();
 	std::string const& session = entryContext.getSession();
 	std::string const& aeskey = entryContext.getAesKey();

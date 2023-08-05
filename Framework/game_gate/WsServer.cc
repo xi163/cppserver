@@ -209,7 +209,7 @@ void GateServ::asyncClientHandler(
 				TraceMessageID(header->mainId, header->subId);
 				{
 					Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-					int64_t userId = entryContext.getUserID();
+					int64_t userId = entryContext.getUserId();
 					uint32_t clientIp = entryContext.getFromIp();
 					std::string const& session = entryContext.getSession();
 					std::string const& aesKey = entryContext.getAesKey();
@@ -258,7 +258,7 @@ void GateServ::asyncClientHandler(
 				TraceMessageID(header->mainId, header->subId);
 				{
 					Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-					int64_t userId = entryContext.getUserID();
+					int64_t userId = entryContext.getUserId();
 					uint32_t clientIp = entryContext.getFromIp();
 					std::string const& session = entryContext.getSession();
 					std::string const& aesKey = entryContext.getAesKey();
@@ -321,12 +321,28 @@ void GateServ::asyncOfflineHandler(Context& entryContext) {
 	if (!session.empty()) {
 		entities_.remove(session);
 	}
-	int64_t userid = entryContext.getUserID();
+	int64_t userid = entryContext.getUserId();
 	if (userid > 0) {
 		sessions_.remove(userid, session);
 	}
 	onUserOfflineHall(entryContext);
 	onUserOfflineGame(entryContext);
+}
+
+BufferPtr GateServ::packKickGameUserMsg() {
+	::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+	msg.mutable_header()->set_sign(HEADER_SIGN);
+	msg.set_retcode(6);
+	msg.set_errormsg("您已被强制踢出游戏");
+
+	BufferPtr buffer = packet::packMessage(
+		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+		GameServer::SUB_S2C_ENTER_ROOM_RES, &msg);
+
+	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+		::Game::Common::SUB_S2C_ENTER_ROOM_RES);
+
+	return buffer;
 }
 
 BufferPtr GateServ::packOrderScoreMsg(int16_t userid, int64_t score) {

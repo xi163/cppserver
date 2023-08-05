@@ -187,8 +187,8 @@ struct Context /*: public muduo::noncopyable*/ {
 	inline in_addr_t getFromIp() { return ipaddr_; }
 	inline void setSession(std::string const& session) { session_ = session; }
 	inline std::string const& getSession() const { return session_; }
-	inline void setUserID(int64_t userid) { userid_ = userid; }
-	inline int64_t getUserID() const { return userid_; }
+	inline void setUserId(int64_t userid) { userid_ = userid; }
+	inline int64_t getUserId() const { return userid_; }
 	inline void setAesKey(std::string key) { aeskey_ = key; }
 	inline std::string const& getAesKey() const { return aeskey_; }
 	inline void setClientConn(servTyE ty,
@@ -204,6 +204,14 @@ struct Context /*: public muduo::noncopyable*/ {
 	inline void resetClientConn(servTyE ty) {
 		muduo::net::WeakTcpConnectionPtr weakConn;
 		client_[ty].second = weakConn;
+		switch (ty) {
+		case kHallTy:
+			_LOG_WARN("[kHallTy] %d", userid_);
+			break;
+		case kGameTy:
+			_LOG_TRACE("[kGameTy] %d", userid_);
+			break;
+		}
 	}
 	inline ClientConn const& getClientConn(servTyE ty) { return client_[ty]; }
 public:

@@ -210,7 +210,7 @@ void LoginServ::asyncClientHandler(
 					TraceMessageID(header->mainId, header->subId);
 					{
 						Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-						int64_t userId = entryContext.getUserID();
+						int64_t userId = entryContext.getUserId();
 						uint32_t clientIp = entryContext.getFromIp();
 						std::string const& session = entryContext.getSession();
 						std::string const& aesKey = entryContext.getAesKey();
@@ -258,7 +258,7 @@ void LoginServ::asyncClientHandler(
 					TraceMessageID(header->mainId, header->subId);
 					{
 						Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-						int64_t userId = entryContext.getUserID();
+						int64_t userId = entryContext.getUserId();
 						uint32_t clientIp = entryContext.getFromIp();
 						std::string const& session = entryContext.getSession();
 						std::string const& aesKey = entryContext.getAesKey();
@@ -320,7 +320,7 @@ void LoginServ::asyncOfflineHandler(Context& entryContext) {
 	if (!session.empty()) {
 		entities_.remove(session);
 	}
-	int64_t userid = entryContext.getUserID();
+	int64_t userid = entryContext.getUserId();
 	if (userid > 0) {
 		sessions_.remove(userid, session);
 	}
