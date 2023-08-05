@@ -437,8 +437,7 @@ void GameServ::asyncOfflineHandler(std::string const& ipPort) {
 		if (!it->second.empty()) {
 			std::vector<int64_t> v;
 			std::copy(it->second.begin(), it->second.end(), std::back_inserter(v));
-			for (std::vector<int64_t>::iterator ir = v.begin();
-				ir != v.end(); ++ir) {
+			for (std::vector<int64_t>::iterator ir = v.begin(); ir != v.end(); ++ir) {
 				std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(*ir);
 				if (player) {
 					std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
