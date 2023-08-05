@@ -943,9 +943,12 @@ void GameServ::DelContext(int64_t userId) {
 		//WRITE_LOCK(mutexGateUsers_);
 		std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
 		if (it != mapGateUsers_.end()) {
-			it->second.erase(userId);
-			if (it->second.empty()) {
-				mapGateUsers_.erase(it);
+			std::set<int64_t>::iterator ir = it->second.find(userId);
+			if (ir != it->second.end()) {
+				it->second.erase(ir);
+				if (it->second.empty()) {
+					mapGateUsers_.erase(it);
+				}
 			}
 		}
 	}
