@@ -54,7 +54,6 @@ enum eApiVisit {
 	\
 	YY(GAME_STATUS_END, 200, "游戏结束") \
 
-
 enum GameType {
 	GAMETYPE_MAP(ENUM_X, ENUM_Y)
 };
