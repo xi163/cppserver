@@ -189,12 +189,6 @@
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
       <Filter>public\RedisClient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp">
-      <Filter>public\RedisLock</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
-      <Filter>public\MongoDB</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\public\mgoKeys.cc">
       <Filter>public\Database</Filter>
     </ClCompile>
@@ -209,6 +203,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\response.cc">
       <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cc">
+      <Filter>public\MongoDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
+      <Filter>public\RedisLock</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

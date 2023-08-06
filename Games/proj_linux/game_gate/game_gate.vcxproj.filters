@@ -16,12 +16,6 @@
     <Filter Include="public\RedisClient">
       <UniqueIdentifier>{837ec515-8426-483e-b048-c0852e06dbf5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public\RedisLock">
-      <UniqueIdentifier>{771d1074-c44a-41e8-8c13-0334ce027cfc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="public\MongoDB">
-      <UniqueIdentifier>{a3afe50a-15f2-4fef-b361-bb62af7cfec2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal">
       <UniqueIdentifier>{f011722e-2749-40df-a8a0-8dc69e17839e}</UniqueIdentifier>
     </Filter>
@@ -36,6 +30,12 @@
     </Filter>
     <Filter Include="internal\nodes">
       <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\MongoDB">
+      <UniqueIdentifier>{d4c4e4b9-c4d6-4adf-995a-e2d89200c364}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\RedisLock">
+      <UniqueIdentifier>{77508d50-0533-4e3b-bca7-81758f31b060}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -57,17 +57,11 @@
     <ClInclude Include="..\..\..\public\Packet.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
-      <Filter>public\MongoDB</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
       <Filter>pb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
-      <Filter>public\RedisLock</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\IPFinder.h">
       <Filter>public</Filter>
@@ -124,6 +118,12 @@
     <ClInclude Include="..\..\..\public\response.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
+      <Filter>public\MongoDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
+      <Filter>public\RedisLock</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
@@ -160,17 +160,11 @@
     <ClCompile Include="..\..\..\Framework\game_gate\WsServer.cc">
       <Filter>internal\nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
-      <Filter>public\MongoDB</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
       <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp">
-      <Filter>public\RedisLock</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\IPFinder.cpp">
       <Filter>public</Filter>
@@ -208,6 +202,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\response.cc">
       <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cc">
+      <Filter>public\MongoDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
+      <Filter>public\RedisLock</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

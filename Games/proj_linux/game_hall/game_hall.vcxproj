@@ -69,11 +69,11 @@
     <ClCompile Include="..\..\..\public\mgoKeys.cc" />
     <ClCompile Include="..\..\..\public\mgoModel.cc" />
     <ClCompile Include="..\..\..\public\mgoOperation.cc" />
-    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp" />
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cc" />
     <ClCompile Include="..\..\..\public\Packet.cc" />
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />
     <ClCompile Include="..\..\..\public\redisKeys.cc" />
-    <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp" />
+    <ClCompile Include="..\..\..\public\RedisLock\redlock.cc" />
     <ClCompile Include="..\..\..\public\response.cc" />
     <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp" />

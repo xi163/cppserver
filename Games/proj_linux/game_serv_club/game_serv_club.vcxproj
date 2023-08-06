@@ -64,8 +64,8 @@
     <ClInclude Include="..\..\..\public\Packet.h" />
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\redisKeys.h" />
-    <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
     <ClInclude Include="..\..\..\public\gameStruct.h" />
+    <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
     <ClInclude Include="..\..\..\public\response.h" />
     <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
@@ -89,11 +89,11 @@
     <ClCompile Include="..\..\..\public\mgoKeys.cc" />
     <ClCompile Include="..\..\..\public\mgoModel.cc" />
     <ClCompile Include="..\..\..\public\mgoOperation.cc" />
-    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp" />
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cc" />
     <ClCompile Include="..\..\..\public\Packet.cc" />
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />
     <ClCompile Include="..\..\..\public\redisKeys.cc" />
-    <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp" />
+    <ClCompile Include="..\..\..\public\RedisLock\redlock.cc" />
     <ClCompile Include="..\..\..\public\response.cc" />
     <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp" />

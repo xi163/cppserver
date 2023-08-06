@@ -16,12 +16,6 @@
     <Filter Include="public\RedisClient">
       <UniqueIdentifier>{14a84c59-504d-4fe1-ad65-317e939c8df9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public\RedisLock">
-      <UniqueIdentifier>{d609d22f-045e-44c0-8bb6-f7ddc5ef3430}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="public\MongoDB">
-      <UniqueIdentifier>{a553fc8f-f2fc-4a3a-99e6-9e8ef8aacbf0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal">
       <UniqueIdentifier>{01b551a3-569e-494c-91a2-493d80b5668b}</UniqueIdentifier>
     </Filter>
@@ -39,6 +33,12 @@
     </Filter>
     <Filter Include="handler">
       <UniqueIdentifier>{94a44213-2fdc-4977-9e85-c11b159a60bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\MongoDB">
+      <UniqueIdentifier>{fb70acdb-a598-4eef-9fab-8c420a9369b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\RedisLock">
+      <UniqueIdentifier>{bcd91129-e071-44bd-84a2-6bd2f98cd15e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -89,12 +89,6 @@
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
       <Filter>public\RedisClient</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
-      <Filter>public\RedisLock</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
-      <Filter>public\MongoDB</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -139,6 +133,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\public\errorCode.h">
       <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
+      <Filter>public\MongoDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
+      <Filter>public\RedisLock</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -186,12 +186,6 @@
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
       <Filter>public\RedisClient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp">
-      <Filter>public\RedisLock</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cpp">
-      <Filter>public\MongoDB</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\Container.cc">
       <Filter>internal\gate</Filter>
     </ClCompile>
@@ -233,6 +227,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\response.cc">
       <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cc">
+      <Filter>public\MongoDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
+      <Filter>public\RedisLock</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

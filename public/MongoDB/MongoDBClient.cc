@@ -9,4 +9,4 @@ namespace MongoDBClient {
 	std::string ThreadLocalSingleton::s_mongoDBConntionString_ = "";
 	mongocxx::options::client ThreadLocalSingleton::s_options_;
 
-}//namespace MongoDBClient
+}
