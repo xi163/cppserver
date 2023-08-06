@@ -45,7 +45,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " query game_user agentid." << req.p_agent_info->agentId << ".account." << req.Account << " invalid";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::Result(ERR_AddScoreHandleUserNotExistsError, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_AddScoreHandleUserNotExistsError, ss.str().c_str(), rsp);
 		}
 		userId = user.userId;
 		beforeScore = user.score;
@@ -72,7 +72,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 				<< ".account." << req.Account << " redisLock failed";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::Result(ERR_AddScoreHandleInsertDataOutTime, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_AddScoreHandleInsertDataOutTime, ss.str().c_str(), rsp);
 		}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		muduo::Timestamp et_redislock_q = muduo::Timestamp::now();
@@ -91,7 +91,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " query add_score_order existed";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::Result(ERR_AddScoreHandleInsertDataOrderIDExists, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_AddScoreHandleInsertDataOrderIDExists, ss.str().c_str(), rsp);
 		}
 #else
 		//redis查询注单orderid是否已经存在，mongodb[add_score_order]需要建立唯一约束 UNIQUE(orderid)
@@ -105,7 +105,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " query add_score_order existed";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::Result(ERR_AddScoreHandleInsertDataOrderIDExists, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_AddScoreHandleInsertDataOrderIDExists, ss.str().c_str(), rsp);
 		}
 #endif
 		// 合作模式判断 1 买分 2 信用
@@ -118,7 +118,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
 			// 玩家上分超出代理现有总分值
-			return response::json::Result(ERR_AddScoreHandleInsertDataOverScore, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_AddScoreHandleInsertDataOverScore, ss.str().c_str(), rsp);
 		}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		muduo::Timestamp et_addorder_q = muduo::Timestamp::now();
@@ -154,7 +154,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " insert add_score_order error";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::Result(ERR_AddScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_AddScoreHandleInsertDataError, ss.str().c_str(), rsp);
 		}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		muduo::Timestamp et_addorder_i = muduo::Timestamp::now();
@@ -179,7 +179,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " update game_user error";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::Result(ERR_AddScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_AddScoreHandleInsertDataError, ss.str().c_str(), rsp);
 		}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		muduo::Timestamp et_user_u = muduo::Timestamp::now();
@@ -210,7 +210,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " insert user_score_record error";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::Result(ERR_AddScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_AddScoreHandleInsertDataError, ss.str().c_str(), rsp);
 		}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		muduo::Timestamp et_record_i = muduo::Timestamp::now();
@@ -238,7 +238,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 					<< ".account." << req.Account << " redisLock failed";
 				_LOG_ERROR(ss.str().c_str());
 				ss << " " << _CODE_;
-				return response::json::Result(ERR_AddScoreHandleInsertDataOutTime, ss.str().c_str(), BOOST::Any(), rsp);
+				return response::json::Result(ERR_AddScoreHandleInsertDataOutTime, ss.str().c_str(), rsp);
 			}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 			muduo::Timestamp et_redislock_q = muduo::Timestamp::now();
@@ -259,7 +259,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 				ss << "orderid." << req.orderId << " update agent_info error";
 				_LOG_ERROR(ss.str().c_str());
 				ss << " " << _CODE_;
-				return response::json::Result(ERR_AddScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
+				return response::json::Result(ERR_AddScoreHandleInsertDataError, ss.str().c_str(), rsp);
 			}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 			muduo::Timestamp et_agent_u = muduo::Timestamp::now();
@@ -292,8 +292,14 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 #endif
 		//}
 		//调试模式下，打印从接收网络请求(receive)到处理完逻辑业务所经历时间dt(s)
-		std::string s = utils::sprintf("dt(%.6fs)", muduo::timeDifference(muduo::Timestamp::now(), receiveTime));
-		return response::json::Result(ERR_Ok, s, BOOST::Any(), rsp);
+		std::string s = utils::sprintf(" dt(%.6fs)", muduo::timeDifference(muduo::Timestamp::now(), receiveTime));
+		OrderRsp orderRsp;
+		orderRsp.userId = req.userId;
+		orderRsp.account = req.Account;
+		orderRsp.orderId = req.orderId;
+		orderRsp.scoreI64 = req.scoreI64;
+		orderRsp.Type = req.Type;
+		return response::json::OkMsg("上分成功" + s, rsp, orderRsp);
 	}
 	catch (const bsoncxx::exception& e) {
 		if (btransaction) {
@@ -305,14 +311,14 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " " << e.what();
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::Result(ERR_AddScoreHandleInsertDataOrderIDExists, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_AddScoreHandleInsertDataOrderIDExists, ss.str().c_str(), rsp);
 		}
 		default: {
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " " << e.what();
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), rsp);
 		}
 		}
 	}
@@ -324,7 +330,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		ss << "orderid." << req.orderId << " " << e.what();
 		_LOG_ERROR(ss.str().c_str());
 		ss << " " << _CODE_;
-		return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), BOOST::Any(), rsp);
+		return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), rsp);
 	}
 	catch (...) {
 		if (btransaction) {
@@ -334,6 +340,6 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		ss << "orderid." << req.orderId << " unknown";
 		_LOG_ERROR(ss.str().c_str());
 		ss << " " << _CODE_;
-		return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), BOOST::Any(), rsp);
+		return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), rsp);
 	}
 }

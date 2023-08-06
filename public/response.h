@@ -17,15 +17,17 @@ namespace response {
 		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
 	}
 	namespace json {
-		int Result(int code, std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		int Result(int code, std::string const& msg, std::string const& extra, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		int Result(Msg const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		int Result(Msg const& msg, std::string const& extra, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
+		int Result(int code, std::string const& msg, muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
+		int Result(int code, std::string const& msg, std::string const& extra, muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
+		int Result(Msg const& msg, muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
+		int Result(Msg const& msg, std::string const& extra, muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
+		int Ok(muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
+		int OkMsg(std::string const& msg, muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
+		int OkMsg(std::string const& msg, std::string const& extra, muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
+		int Err(muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
+		int ErrMsg(std::string const& msg, muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
+		int ErrMsg(std::string const& msg, std::string const& extra, muduo::net::HttpResponse& rsp, BOOST::Any const& data = BOOST::Any());
 		int BadRequest(muduo::net::HttpResponse& rsp);
-		int Ok(BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		int OkMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		int Err(BOOST::Any const& data, muduo::net::HttpResponse& rsp);
-		int ErrMsg(std::string const& msg, BOOST::Any const& data, muduo::net::HttpResponse& rsp);
 	}
 	namespace xml {
 		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);

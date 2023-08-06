@@ -69,10 +69,11 @@ enum TTTY {
 // 	//static const Msg Hello = Msg{ TTTY::Hello ,"Hello","Hello" };
 // 	MSG_X(Hello, "你好", TTTY)
 // }
-
+int i;
 
 
 int main() {
+	::i = 0;
 	_LOG_ERROR(Ok.errmsg().c_str());
 	
 	_LOG_ERROR(Succ.errmsg().c_str());

@@ -6,11 +6,11 @@
 struct OrderReq {
 	int	Type;
 	int64_t userId;
+	int64_t scoreI64;
+	double Score;
+	int64_t	Timestamp;
 	std::string Account;
 	std::string orderId;
-	int64_t	Timestamp;
-	double Score;
-	int64_t scoreI64;
 	agent_info_t* p_agent_info;
 	//boost::property_tree::ptree& latest;
 	int* testTPS;
@@ -19,9 +19,17 @@ struct OrderReq {
 struct OrderRsp :
 	public BOOST::Any {
 	void bind(BOOST::Json& obj) {
+		obj.put("userid", userId);
+		obj.put("account", account);
+		obj.put("orderid", orderId);
+		obj.put("type", Type);
+		obj.put("score", scoreI64);
 	}
+	int	Type;
 	int64_t	userId;
-	BOOST::Any* data;
+	int64_t scoreI64;
+	std::string account;
+	std::string orderId;
 };
 
 int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
