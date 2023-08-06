@@ -4,9 +4,6 @@
 #include "Logger/src/Macro.h"
 
 #define ERRORCODE_MAP(XX, YY) \
-	XX(Ok, "成功") \
-	XX(Failed, "失败") \
-	\
 	YY(CreateGameUser, 10001, "创建游戏账号失败") \
 	XX(GameGateNotExist, "没有可用的游戏网关") \
 	XX(Decrypt, "请求token参数解密失败") \

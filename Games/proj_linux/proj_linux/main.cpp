@@ -50,28 +50,38 @@ enum TTTY {
 
 	Hello = 1,
 };
-struct Msg {
-	std::string const errmsg() const {
-		return name.empty() ?
-			desc : "[" + name + "]" + desc;
-	}
-	int code;
-	std::string name;
-	std::string desc;
-};
+// struct Msg {
+// 	std::string const errmsg() const {
+// 		return name.empty() ?
+// 			desc : "[" + name + "]" + desc;
+// 	}
+// 	int code;
+// 	std::string name;
+// 	std::string desc;
+// };
+// 
+// #define MSG_X(n, s, T) \
+// 	static const Msg n = Msg{ T::n, #n, s };
+// #define MSG_Y(n, i, s, T) \
+// 	static const Msg n = Msg{ T::n, #n, s };
+// 
+// namespace tip {
+// 	//static const Msg Hello = Msg{ TTTY::Hello ,"Hello","Hello" };
+// 	MSG_X(Hello, "你好", TTTY)
+// }
 
-#define MSG_X(n, s, T) \
-	static const Msg n = Msg{ T::n, #n, s };
-#define MSG_Y(n, i, s, T) \
-	static const Msg n = Msg{ T::n, #n, s };
 
-namespace tip {
-	//static const Msg Hello = Msg{ TTTY::Hello ,"Hello","Hello" };
-	MSG_X(Hello, "你好", TTTY)
-}
 
 int main() {
-	tip::Hello;
+	_LOG_ERROR(Ok.errmsg().c_str());
+	
+	_LOG_ERROR(Succ.errmsg().c_str());
+	_LOG_ERROR(Failed.errmsg().c_str());
+	
+	_LOG_ERROR(NoError.errmsg().c_str());
+	_LOG_ERROR(Error.errmsg().c_str());
+
+	//tip::Hello;
 	//std::vector<Derive&> l;
 	Derive d;
 	d.Foo(1,1);

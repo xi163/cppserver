@@ -70,21 +70,53 @@ struct Msg {
 	std::string desc;
 };
 
+#define K_MSG(n, s) \
+	static const Msg n = Msg{ k##n, "k"#n, s };
 #define P_MSG(p, n, s) \
 	static const Msg p##n = Msg{ n, #n, s };
 #define P_K_MSG(p, n, s) \
 	static const Msg p##n = Msg{ k##n, "k"#n, s };
 
-#define MSG_X(n, s) P_MSG(MSG_, n, s)
-#define MSG_Y(n, i, s) P_MSG(MSG_, n, s)
+#define K_MSG_X(n, s) K_MSG(n, s)
+#define K_MSG_Y(n, i, s) K_MSG(n, s)
 
-#define K_MSG_X(n, s) P_K_MSG(MSG_, n, s)
-#define K_MSG_Y(n, i, s) P_K_MSG(MSG_, n, s)
+#define M_MSG_X(n, s) P_MSG(MSG_, n, s)
+#define M_MSG_Y(n, i, s) P_MSG(MSG_, n, s)
+
+#define M_K_MSG_X(n, s) P_K_MSG(MSG_, n, s)
+#define M_K_MSG_Y(n, i, s) P_K_MSG(MSG_, n, s)
 
 #define E_MSG_X(n, s) P_MSG(ERR_, n, s)
 #define E_MSG_Y(n, i, s) P_MSG(ERR_, n, s)
 
 #define E_K_MSG_X(n, s) P_K_MSG(ERR_, n, s)
 #define E_K_MSG_Y(n, i, s) P_K_MSG(ERR_, n, s)
+
+#define OK_MAP(XX, YY) \
+	XX(Ok, "成功")
+
+#define SUCC_MAP(XX, YY) \
+	XX(Succ, "成功") \
+	XX(Failed, "失败")
+
+#define NOERROR_MAP(XX, YY) \
+	XX(NoError, "正确") \
+	XX(Error, "错误")
+
+enum {
+	OK_MAP(K_ENUM_X, K_ENUM_Y)
+};
+
+enum {
+	SUCC_MAP(K_ENUM_X, K_ENUM_Y)
+};
+
+enum {
+	NOERROR_MAP(K_ENUM_X, K_ENUM_Y)
+};
+
+OK_MAP(K_MSG_X, K_MSG_Y)
+SUCC_MAP(K_MSG_X, K_MSG_Y)
+NOERROR_MAP(K_MSG_X, K_MSG_Y)
 
 #endif
