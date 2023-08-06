@@ -118,6 +118,12 @@
     <ClInclude Include="..\..\..\public\gameConst.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\errorCode.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\response.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
@@ -199,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc">
       <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\response.cc">
+      <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

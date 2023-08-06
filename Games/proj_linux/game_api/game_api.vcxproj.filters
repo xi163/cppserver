@@ -134,6 +134,12 @@
     <ClInclude Include="..\..\..\public\gameConst.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\response.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\errorCode.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -224,6 +230,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_api\handler\subscore_handler.cc">
       <Filter>handler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\response.cc">
+      <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -39,6 +39,7 @@
     <ClInclude Include="..\..\..\Framework\game_hall\Hall.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
+    <ClInclude Include="..\..\..\public\errorCode.h" />
     <ClInclude Include="..\..\..\public\gameConst.h" />
     <ClInclude Include="..\..\..\public\gameStruct.h" />
     <ClInclude Include="..\..\..\public\Inc.h" />
@@ -52,6 +53,7 @@
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\redisKeys.h" />
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
+    <ClInclude Include="..\..\..\public\response.h" />
     <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />
@@ -72,6 +74,7 @@
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />
     <ClCompile Include="..\..\..\public\redisKeys.cc" />
     <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp" />
+    <ClCompile Include="..\..\..\public\response.cc" />
     <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp" />
