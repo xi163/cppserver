@@ -1,7 +1,7 @@
 #ifndef INCLUDE_ORDERHANDLER_H
 #define INCLUDE_ORDERHANDLER_H
 
-#include "public/structs.h"
+#include "public/gameStruct.h"
 
 struct OrderReq {
 	int	Type;

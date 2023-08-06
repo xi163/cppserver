@@ -116,9 +116,6 @@
     <ClInclude Include="..\..\..\Framework\game_login\register\Register_handler.h">
       <Filter>register</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\Response.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_login\register\GateServList.h">
       <Filter>register</Filter>
     </ClInclude>
@@ -134,10 +131,10 @@
     <ClInclude Include="..\..\..\public\mgoKeys.h">
       <Filter>public\Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\ErrorCode.h">
+    <ClInclude Include="..\..\..\public\gameStruct.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\structs.h">
+    <ClInclude Include="..\..\..\public\gameConst.h">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
@@ -213,9 +210,6 @@
     <ClCompile Include="..\..\..\Framework\game_login\register\Register_handler.cc">
       <Filter>register</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\Response.cc">
-      <Filter>public</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_login\register\GateServList.cc">
       <Filter>register</Filter>
     </ClCompile>
@@ -230,9 +224,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\mgoKeys.cc">
       <Filter>public\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\ErrorCode.cc">
-      <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,11 +1,11 @@
 #include "public/Inc.h"
-#include "public/Response.h"
+#include "public/response.h"
 #include "register/Login_handler.h"
 #include "public/mgoOperation.h"
 #include "public/mgoModel.h"
 #include "public/redisKeys.h"
 #include "GateServList.h"
-#include "public/ErrorCode.h"
+#include "public/errorCode.h"
 
 std::string md5code = "334270F58E3E9DEC";
 std::string descode = "111362EE140F157D";
@@ -60,7 +60,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			GateServList servList;
 			GetGateServList(servList);
 			if (servList.size() == 0) {
-				return response::json::err::Result(ERR::EGameGateNotExist, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameGateNotExist, BOOST::Any(), rsp);
 			}
 			//生成userid
 			int64_t userId = mgo::NewUserId(
@@ -68,7 +68,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
 				document{} << "_id" << "userid" << finalize);
 			if (userId <= 0) {
-				return response::json::err::Result(ERR::ECreateGameUser, BOOST::Any(), rsp);
+				return response::json::Result(ERR_CreateGameUser, BOOST::Any(), rsp);
 			}
 			//创建并插入user表
 			mgo::model::GameUser model;
@@ -102,7 +102,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 					kvp("integralvalue", b_int64{ model.Integralvalue })
 				).view());
 			if (insert_id.empty()) {
-				return response::json::err::Result(ERR::ECreateGameUser, BOOST::Any(), rsp);
+				return response::json::Result(ERR_CreateGameUser, BOOST::Any(), rsp);
 			}
 			_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
 			//token签名加密
@@ -112,7 +112,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			//缓存token
 			REDISCLIENT.SetTokenInfo(token, userId, model.Account);
 			//return response::json::OkMsg("登陆成功", Token(token), rsp);
-			return response::json::err::Result(ERR::EOk, Token(token), rsp);
+			return response::json::Result(ERR_Ok, Token(token), rsp);
 		}
 		//先查redis
 		int64_t userId = 0;
@@ -127,7 +127,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				GateServList servList;
 				GetGateServList(servList);
 				if (servList.size() == 0) {
-					return response::json::err::Result(ERR::EGameGateNotExist, BOOST::Any(), rsp);
+					return response::json::Result(ERR_GameGateNotExist, BOOST::Any(), rsp);
 				}
 				//生成userid
 				int64_t userId = mgo::NewUserId(
@@ -135,7 +135,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 					document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
 					document{} << "_id" << "userid" << finalize);
 				if (userId <= 0) {
-					return response::json::err::Result(ERR::ECreateGameUser, BOOST::Any(), rsp);
+					return response::json::Result(ERR_CreateGameUser, BOOST::Any(), rsp);
 				}
 				//创建并插入user表
 				mgo::model::GameUser model;
@@ -169,7 +169,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 						kvp("integralvalue", b_int64{ model.Integralvalue })
 					).view());
 				if (insert_id.empty()) {
-					return response::json::err::Result(ERR::ECreateGameUser, BOOST::Any(), rsp);
+					return response::json::Result(ERR_CreateGameUser, BOOST::Any(), rsp);
 				}
 				_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
 				//token签名加密
@@ -179,7 +179,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				//缓存token
 				REDISCLIENT.SetTokenInfo(token, userId, model.Account);
 				//return response::json::OkMsg("登陆成功", Token(token), rsp);
-				return response::json::err::Result(ERR::EOk, Token(token), rsp);
+				return response::json::Result(ERR_Ok, Token(token), rsp);
 			}
 			//查询mongo命中
 			else {
@@ -187,7 +187,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				GateServList servList;
 				GetGateServList(servList);
 				if (servList.size() == 0) {
-					return response::json::err::Result(ERR::EGameGateNotExist, BOOST::Any(), rsp);
+					return response::json::Result(ERR_GameGateNotExist, BOOST::Any(), rsp);
 				}
 				//token签名加密
 				std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
@@ -196,7 +196,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				//缓存token
 				REDISCLIENT.SetTokenInfo(token, userId, req.Account);
 				//return response::json::OkMsg("登陆成功", Token(token), rsp);
-				return response::json::err::Result(ERR::EOk, Token(token), rsp);
+				return response::json::Result(ERR_Ok, Token(token), rsp);
 			}
 		}
 		//查询redis命中
@@ -205,7 +205,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			GateServList servList;
 			GetGateServList(servList);
 			if (servList.size() == 0) {
-				return response::json::err::Result(ERR::EGameGateNotExist, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameGateNotExist, BOOST::Any(), rsp);
 			}
 			//token签名加密
 			std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
@@ -214,7 +214,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			//缓存token
 			REDISCLIENT.SetTokenInfo(token, userId, req.Account);
 			//return response::json::OkMsg("登陆成功", Token(token), rsp);
-			return response::json::err::Result(ERR::EOk, Token(token), rsp);
+			return response::json::Result(ERR_Ok, Token(token), rsp);
 		}
 	}
 	case 1: {
@@ -284,7 +284,7 @@ int Login(
 				}
 			}
 			if (decrypt.empty()) {
-				return response::json::err::Result(ERR::EDecrypt, BOOST::Any(), rsp);
+				return response::json::Result(ERR_Decrypt, BOOST::Any(), rsp);
 			}
 			pt.clear();
 			{
@@ -298,7 +298,7 @@ int Login(
 			char md5[32 + 1] = { 0 };
 			utils::MD5(src.c_str(), src.length(), md5, 1);
 			if (strncasecmp(md5, key.c_str(), std::min<size_t>(32, key.length())) != 0) {
-				return response::json::err::Result(ERR::ECheckMd5, BOOST::Any(), rsp);
+				return response::json::Result(ERR_CheckMd5, BOOST::Any(), rsp);
 			}
 			LoginReq req;
 			req.Account = account;

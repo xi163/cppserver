@@ -129,6 +129,7 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\sign\sign.h">
       <Filter>src\sign</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\const.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">

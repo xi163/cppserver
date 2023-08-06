@@ -4,7 +4,7 @@
 #include "proto/GameServer.Message.pb.h"
 
 #include "Login.h"
-#include "public/Response.h"
+#include "public/response.h"
 #include "register/Login_handler.h"
 #include "register/Register_handler.h"
 

@@ -1,12 +1,12 @@
 #include "public/Inc.h"
-#include "public/Response.h"
+#include "public/response.h"
 #include "handler/order_handler.h"
 #include "public/mgoOperation.h"
 #include "public/mgoKeys.h"
 #include "public/mgoModel.h"
 #include "public/redisKeys.h"
 #include "GateServList.h"
-#include "public/ErrorCode.h"
+#include "public/errorCode.h"
 #include "../Api.h"
 
 extern ApiServ* gServer;
@@ -44,7 +44,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " query game_user agentid." << req.p_agent_info->agentId << ".account." << req.Account << " invalid";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::ESubScoreHandleUserNotExistsError, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleUserNotExistsError, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 		userId = user.userId;
 		beforeScore = user.score;
@@ -71,7 +71,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 				<< ".account." << req.Account << " redisLock failed";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::ESubScoreHandleInsertDataOutTime, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleInsertDataOutTime, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		muduo::Timestamp et_redislock_q = muduo::Timestamp::now();
@@ -90,7 +90,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " query sub_score_order existed";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::ESubScoreHandleInsertOrderIDExists, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleInsertOrderIDExists, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 #else
 		//redis查询注单orderid是否已经存在，mongodb[sub_score_order]需要建立唯一约束 UNIQUE(orderid)
@@ -104,7 +104,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " query sub_score_order existed";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::ESubScoreHandleInsertOrderIDExists, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleInsertOrderIDExists, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 #endif
 #ifdef _STAT_ORDER_QPS_DETAIL_
@@ -119,7 +119,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " " << req.Account << " is playing "/* << redisGameId << "." << redisRoomId*/;
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::ESubScoreHandleInsertDataUserInGaming, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleInsertDataUserInGaming, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 		if (beforeScore < req.scoreI64) {
 			std::stringstream ss;
@@ -127,7 +127,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
 			// 玩家下分超出玩家现有总分
-			return response::json::err::Result(ERR::ESubScoreHandleInsertDataOverScore, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleInsertDataOverScore, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 		time_point time_point_now = std::chrono::system_clock::now();
 		session.start_transaction();
@@ -156,7 +156,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " insert sub_score_order error";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::ESubScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		muduo::Timestamp et_suborder_i = muduo::Timestamp::now();
@@ -181,7 +181,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " update game_user error";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::ESubScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		muduo::Timestamp et_user_u = muduo::Timestamp::now();
@@ -212,7 +212,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " insert user_score_record error";
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::ESubScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		muduo::Timestamp et_record_i = muduo::Timestamp::now();
@@ -240,7 +240,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 					<< ".account." << req.Account << " redisLock failed";
 				_LOG_ERROR(ss.str().c_str());
 				ss << " " << _CODE_;
-				return response::json::err::Result(ERR::ESubScoreHandleInsertDataOutTime, ss.str().c_str(), BOOST::Any(), rsp);
+				return response::json::Result(ERR_SubScoreHandleInsertDataOutTime, ss.str().c_str(), BOOST::Any(), rsp);
 			}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 			muduo::Timestamp et_redislock_q = muduo::Timestamp::now();
@@ -261,7 +261,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 				ss << "orderid." << req.orderId << " update agent_info error";
 				_LOG_ERROR(ss.str().c_str());
 				ss << " " << _CODE_;
-				return response::json::err::Result(ERR::ESubScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
+				return response::json::Result(ERR_SubScoreHandleInsertDataError, ss.str().c_str(), BOOST::Any(), rsp);
 			}
 #ifdef _STAT_ORDER_QPS_DETAIL_
 			muduo::Timestamp et_agent_u = muduo::Timestamp::now();
@@ -295,7 +295,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		//}
 		//调试模式下，打印从接收网络请求(receive)到处理完逻辑业务所经历时间dt(s)
 		std::string s = utils::sprintf("dt(%.6fs)", muduo::timeDifference(muduo::Timestamp::now(), receiveTime));
-		return response::json::err::Result(ERR::EOk, s, BOOST::Any(), rsp);
+		return response::json::Result(ERR_Ok, s, BOOST::Any(), rsp);
 	}
 	catch (const bsoncxx::exception& e) {
 		if (btransaction) {
@@ -307,14 +307,14 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			ss << "orderid." << req.orderId << " " << e.what();
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::ESubScoreHandleInsertOrderIDExists, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_SubScoreHandleInsertOrderIDExists, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 		default: {
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " " << e.what();
 			_LOG_ERROR(ss.str().c_str());
 			ss << " " << _CODE_;
-			return response::json::err::Result(ERR::EInsideErrorOrNonExcutive, ss.str().c_str(), BOOST::Any(), rsp);
+			return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), BOOST::Any(), rsp);
 		}
 		}
 	}
@@ -326,7 +326,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		ss << "orderid." << req.orderId << " " << e.what();
 		_LOG_ERROR(ss.str().c_str());
 		ss << " " << _CODE_;
-		return response::json::err::Result(ERR::EInsideErrorOrNonExcutive, ss.str().c_str(), BOOST::Any(), rsp);
+		return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), BOOST::Any(), rsp);
 	}
 	catch (...) {
 		if (btransaction) {
@@ -336,6 +336,6 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		ss << "orderid." << req.orderId << " unknown";
 		_LOG_ERROR(ss.str().c_str());
 		ss << " " << _CODE_;
-		return response::json::err::Result(ERR::EInsideErrorOrNonExcutive, ss.str().c_str(), BOOST::Any(), rsp);
+		return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), BOOST::Any(), rsp);
 	}
 }

@@ -259,7 +259,7 @@ void GameServ::threadInit() {
 
 bool GameServ::InitServer() {
 	initTraceMessageID();
-	if (LoadGameRoomKindInfo(gameId_, roomId_)) {
+	if (mgo::LoadClubGameRoomInfo(gameId_,roomId_, gameInfo_, roomInfo_)) {
 		CPlayerMgr::get_mutable_instance().Init(&roomInfo_);
 		CTableMgr::get_mutable_instance().Init(&gameInfo_, &roomInfo_, logicThread_, this);
 		if (roomInfo_.bEnableAndroid) {
@@ -961,117 +961,6 @@ void GameServ::DelContext(int64_t userId) {
 		//WRITE_LOCK(mutexUserGates_);
 		mapUserGates_.erase(userId);
 	}
-}
-
-bool GameServ::LoadGameRoomKindInfo(uint32_t gameid, uint32_t roomid) {
-	bool bok = false;
-	try {
-		mongocxx::collection kindCollection = MONGODBCLIENT["gameconfig"]["game_kind"];
-		bsoncxx::document::value query_value = document{} << "gameid" << (int32_t)gameid << finalize;
-		bsoncxx::stdx::optional<bsoncxx::document::value> result = kindCollection.find_one(query_value.view());
-		if (result) {
-			_LOG_DEBUG("QueryResult:%s", bsoncxx::to_json(result->view()).c_str());
-			bsoncxx::document::view view = result->view();
-			//int32_t gameid_ = view["gameid"].get_int32();
-			std::string gamename = view["gamename"].get_utf8().value.to_string();
-			int32_t sortid = view["sort"].get_int32();
-			std::string serviceName = view["servicename"].get_utf8().value.to_string();
-			int32_t revenueRatio = view["revenueRatio"].get_int32();
-			int32_t gametype = view["type"].get_int32();
-			int32_t ishot = view["ishot"].get_int32();
-			int32_t status_ = view["status"].get_int32();
-			int32_t updateNumTimes = view["updatePlayerNum"].get_int32();
-			int32_t matchMask = view["matchmask"].get_int32();//0b000010;
-			auto rooms = view["rooms"].get_array();
-			for (auto& doc : rooms.value) {
-				if (doc["roomid"].get_int32() == roomid) {
-					std::string roomname = doc["roomname"].get_utf8().value.to_string();
-					int32_t Tablecount = doc["tablecount"].get_int32();
-					int64_t floorScore = doc["floorscore"].get_int64();
-					int64_t ceilScore = doc["ceilscore"].get_int64();
-					int64_t enterMinScore = doc["enterminscore"].get_int64();
-					int64_t enterMaxScore = doc["entermaxscore"].get_int64();
-					int32_t minPlayerNum = doc["minplayernum"].get_int32();
-					int32_t maxPlayerNum = doc["maxplayernum"].get_int32();
-					int64_t broadcastScore = doc["broadcastscore"].get_int64();
-					int32_t enableRobot = doc["enableandroid"].get_int32();
-					int32_t robotCount = doc["androidcount"].get_int32();//每张桌子最大机器人数
-					int32_t maxRobotCount = doc["androidmaxusercount"].get_int32();
-					int64_t maxJettonScore = doc["maxjettonscore"].get_int64();
-					int64_t totalStock = doc["totalstock"].get_int64();
-					int64_t totalStockLowerLimit = doc["totalstocklowerlimit"].get_int64();
-					int64_t totalStockHighLimit = doc["totalstockhighlimit"].get_int64();
-					int64_t totalStockSecondLowerLimit = doc["totalstocksecondlowerlimit"].get_int64();
-					int64_t totalStockSecondHighLimit = doc["totalstocksecondhighlimit"].get_int64();
-					int32_t sysKillAllRatio = doc["systemkillallratio"].get_int32();
-					int32_t systemReduceRatio = doc["systemreduceratio"].get_int32();
-					int32_t changeCardRatio = doc["changecardratio"].get_int32();
-					int32_t roomstatus = doc["status"].get_int32();
-					int32_t realChangeRobot = 0;
-					std::vector<int64_t> jettonsVec;
-					bsoncxx::types::b_array jettons;
-					bsoncxx::document::element elem = doc["jettons"];
-					if (elem.type() == bsoncxx::type::k_array)
-						jettons = elem.get_array();
-					else
-						jettons = doc["jettons"]["_v"].get_array();
-					for (auto& jetton : jettons.value) {
-						jettonsVec.push_back(jetton.get_int64());
-					}
-					//百人场
-					if (gametype == GameType_BaiRen) {
-						realChangeRobot = doc["realChangeAndroid"].get_int32();
-						bsoncxx::types::b_array robotPercentage = doc["androidPercentage"]["_v"].get_array();
-						for (auto& percent : robotPercentage.value) {
-							roomInfo_.enterAndroidPercentage.push_back(percent.get_double());
-						}
-					}
-					gameInfo_.gameId = gameid;
-					gameInfo_.gameName = gamename;
-					gameInfo_.sortId = sortid;
-					gameInfo_.gameServiceName = serviceName;
-					gameInfo_.revenueRatio = revenueRatio;
-					gameInfo_.gameType = gametype;
-					for (int i = 0; i < MTH_MAX; ++i) {
-						gameInfo_.matchforbids[i] = ((matchMask & (1 << i)) != 0);
-					}
-					roomInfo_.gameId = gameid;
-					roomInfo_.roomId = roomid;
-					roomInfo_.roomName = roomname;
-					roomInfo_.tableCount = Tablecount;
-					roomInfo_.floorScore = floorScore;
-					roomInfo_.ceilScore = ceilScore;
-					roomInfo_.enterMinScore = enterMinScore;
-					roomInfo_.enterMaxScore = enterMaxScore;
-					roomInfo_.minPlayerNum = minPlayerNum;
-					roomInfo_.maxPlayerNum = maxPlayerNum;
-					roomInfo_.broadcastScore = broadcastScore;
-					roomInfo_.maxJettonScore = maxJettonScore;
-					roomInfo_.androidCount = robotCount;
-					roomInfo_.maxAndroidCount = maxRobotCount;
-					roomInfo_.totalStock = totalStock;
-					roomInfo_.totalStockLowerLimit = totalStockLowerLimit;
-					roomInfo_.totalStockHighLimit = totalStockHighLimit;
-					roomInfo_.totalStockSecondLowerLimit = totalStockSecondLowerLimit;
-					roomInfo_.totalStockSecondHighLimit = totalStockSecondHighLimit;
-					roomInfo_.systemKillAllRatio = sysKillAllRatio;
-					roomInfo_.systemReduceRatio = systemReduceRatio;
-					roomInfo_.changeCardRatio = changeCardRatio;
-					roomInfo_.serverStatus = roomstatus;
-					roomInfo_.realChangeAndroid = realChangeRobot;
-					roomInfo_.bEnableAndroid = enableRobot;
-					roomInfo_.jettons = jettonsVec;
-					roomInfo_.updatePlayerNumTimes = updateNumTimes;
-					bok = true;
-					break;
-				}
-			}
-		}
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
 }
 
 bool GameServ::SendGameErrorCode(

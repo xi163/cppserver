@@ -50,7 +50,8 @@
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h" />
-    <ClInclude Include="..\..\..\public\ErrorCode.h" />
+    <ClInclude Include="..\..\..\public\gameConst.h" />
+    <ClInclude Include="..\..\..\public\gameStruct.h" />
     <ClInclude Include="..\..\..\public\Inc.h" />
     <ClInclude Include="..\..\..\public\IncMuduo.h" />
     <ClInclude Include="..\..\..\public\IPFinder.h" />
@@ -62,8 +63,6 @@
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\redisKeys.h" />
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
-    <ClInclude Include="..\..\..\public\Response.h" />
-    <ClInclude Include="..\..\..\public\structs.h" />
     <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />
@@ -87,7 +86,6 @@
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc" />
-    <ClCompile Include="..\..\..\public\ErrorCode.cc" />
     <ClCompile Include="..\..\..\public\IPFinder.cpp" />
     <ClCompile Include="..\..\..\public\mgoKeys.cc" />
     <ClCompile Include="..\..\..\public\mgoModel.cc" />
@@ -97,7 +95,6 @@
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />
     <ClCompile Include="..\..\..\public\redisKeys.cc" />
     <ClCompile Include="..\..\..\public\RedisLock\redlock.cpp" />
-    <ClCompile Include="..\..\..\public\Response.cc" />
     <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp" />

@@ -144,8 +144,9 @@ typedef std::chrono::system_clock::time_point time_point;
 
 #define _PARAM_ __FILE__,__LINE__,__FUNC__
 
-typedef int pid_t;
-typedef int tid_t;
+typedef int pid_t, tid_t;
+
+#include "Logger/src/const.h"
 
 #ifdef _windows_
 #pragma execution_character_set("utf-8")

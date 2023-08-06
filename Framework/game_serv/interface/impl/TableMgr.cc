@@ -41,7 +41,7 @@ void CTableMgr::Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shar
 	if (!gameInfo || !roomInfo) {
 		return;
 	}
-	TableDelegateCreator creator = LoadLibrary(gameInfo->gameServiceName);
+	TableDelegateCreator creator = LoadLibrary(gameInfo->serviceName);
 	if (!creator) {
 		exit(0);
 	}

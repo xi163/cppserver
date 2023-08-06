@@ -45,190 +45,34 @@ public:
 void FFF(Base const& b) {
 
 }
-#define ERROR_MAP(XX, YY) \
-	XX(Ok, "OK") \
-	\
-	YY(CreateGameUser, 10001, "创建游戏账号失败") \
-	XX(GameGateNotExist, "没有可用的游戏网关") \
-	\
-	YY(InsideErrorOrNonExcutive, -10, "内部异常或未执行任务") \
-	\
-	YY(AddScoreHandleInsertDataError, 32, "玩家上分失败") \
-	XX(SubScoreHandleInsertDataError, "玩家下分失败") \
-	XX(SubScoreHandleInsertOrderIDExists, "玩家下分订单已存在") \
-	XX(SubScoreHandleInsertDataUserInGaming, "玩家正在游戏中，不能下分") \
-	XX(SubScoreHandleInsertDataOverScore, "玩家下分超出玩家现有总分值") \
-	XX(SubScoreHandleInsertDataOutTime, "玩家下分等待超时") \
-	XX(OrderScoreCheckOrderNotExistsError, "订单不存在") \
-	XX(OrderScoreCheckDataError, "订单查询错误") \
-	XX(OrderScoreCheckUserNotExistsError, "玩家不存在") \
-	XX(AddScoreHandleInsertDataOutTime, "玩家上分等待超时") \
-	XX(AddScoreHandleInsertDataOverScore, "玩家上分超出代理现有总分值") \
-	XX(AddScoreHandleInsertDataOrderIDExists, "玩家上分订单已存在") \
-	\
-	YY(KickOutGameUserOffLineUserAccountError, 93, "玩家账号已被封停") \
-	XX(GameRecordGetNoDataError, "无注单数据")
 
+enum TTTY {
 
-#define ERROR_ENUM_X(n, s) k##n,
-#define ERROR_ENUM_Y(n, i, s) k##n = i,
-enum ErrorCode {
-	ERROR_MAP(ERROR_ENUM_X, ERROR_ENUM_Y)
+	Hello = 1,
 };
-#undef ERROR_ENUM_X
-#undef ERROR_ENUM_Y
-
 struct Msg {
-	std::string msg() {
-		return desc.empty() ?
-			errmsg : "[" + desc + "]" + errmsg;
+	std::string const errmsg() const {
+		return name.empty() ?
+			desc : "[" + name + "]" + desc;
 	}
 	int code;
+	std::string name;
 	std::string desc;
-	std::string errmsg;
 };
 
-namespace ERR {
-#define ERROR_DEF_X(n, s) \
-	static const Msg Err##n = Msg{ k##n, "k"#n, s };
-#define ERROR_DEF_Y(n, i, s) \
-	static const Msg Err##n = Msg{ k##n, "k"#n, s };
-	ERROR_MAP(ERROR_DEF_X, ERROR_DEF_Y)
-#undef ERROR_DEF_X
-#undef ERROR_DEF_Y
+#define MSG_X(n, s, T) \
+	static const Msg n = Msg{ T::n, #n, s };
+#define MSG_Y(n, i, s, T) \
+	static const Msg n = Msg{ T::n, #n, s };
+
+namespace tip {
+	//static const Msg Hello = Msg{ TTTY::Hello ,"Hello","Hello" };
+	MSG_X(Hello, "你好", TTTY)
 }
 
-#define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
-
-#define ERROR_DESC_X(n, s) { k##n, "k"#n, s },
-#define ERROR_DESC_Y(n, i, s){ k##n, "k"#n, s },
-#define TABLE_DECLARE(var, MY_MAP_) \
-	static struct { \
-		int id_; \
-		char const* name_; \
-		char const* desc_; \
-	}var[] = { \
-		MY_MAP_(ERROR_DESC_X, ERROR_DESC_Y) \
-	}
-//#undef ERROR_DESC_X
-//#undef ERROR_DESC_Y
-
-#define ERROR_FETCH(id, var, str) \
-	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
-		if (var[i].id_ == id) { \
-			std::string name = var[i].name_; \
-			std::string desc = var[i].desc_; \
-			str = name.empty() ? \
-				desc : "[" + name + "]" + desc;\
-			break; \
-		}\
-	}
-
-#define ERROR_DECLARE(varname) \
-	std::string Get##varname##Str(int varname);
-
-ERROR_DECLARE(Error)
-
-#define ERROR_IMPLEMENT(varname) \
-		std::string get##varname##Str(int varname) { \
-			TABLE_DECLARE(table_##varname##s_, ERROR_MAP); \
-			std::string str##varname; \
-			ERROR_FETCH(varname, table_##varname##s_, str##varname); \
-			return str##varname; \
-		}
-
-ERROR_IMPLEMENT(Error);
-
-
-
-
-
-//1-金币场 2-好友房 3-俱乐部
-#define GAMEMODE_MAP(XX, YY) \
-	YY(GoldCoin, 1, "金币场") \
-	XX(FriendRoom, "好友房") \
-	XX(Club, "俱乐部") \
-
-enum {
-
-	GoldCoin = 1,
-	FriendRoom = 2,
-	Club = 3,
-};
-
-#define GAMEMODE_ENUM_X(n, s) k##n,
-#define GAMEMODE_ENUM_Y(n, i, s) k##n = i,
-enum {
-	GAMEMODE_MAP(GAMEMODE_ENUM_X, GAMEMODE_ENUM_Y)
-};
-#undef GAMEMODE_ENUM_X
-#undef GAMEMODE_ENUM_Y
-
-#define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
-
-#define GAMEMODE_DESC_X(n, s) { k##n, "k"#n, s },
-#define GAMEMODE_DESC_Y(n, i, s){ k##n, "k"#n, s },
-#define TABLE_DECLARE(var, MY_MAP_) \
-	static struct { \
-		int id_; \
-		char const* name_; \
-		char const* desc_; \
-	}var[] = { \
-		MY_MAP_(GAMEMODE_DESC_X, GAMEMODE_DESC_Y) \
-	}
-
-#define GAMEMODE_FETCH_NAME(id, var, name) \
-	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
-		if (var[i].id_ == id) { \
-			name = var[i].name_; \
-			break; \
-		}\
-	}
-
-#define GAMEMODE_FETCH_DESC(id, var, desc) \
-	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
-		if (var[i].id_ == id) { \
-			desc = var[i].desc_; \
-			break; \
-		}\
-	}
-
-#define GAMEMODE_FETCH_STR(id, var, str) \
-	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
-		if (var[i].id_ == id) { \
-			std::string name = var[i].name_; \
-			std::string desc = var[i].desc_; \
-			str = name.empty() ? \
-				desc : "[" + name + "]" + desc;\
-			break; \
-		}\
-	}
-
-#define GAMEMODE_IMPLEMENT(NAME, varname) \
-		static std::string get##varname(int varname) { \
-			TABLE_DECLARE(table_##varname##s_, GAMEMODE_MAP); \
-			std::string str##varname; \
-			GAMEMODE_FETCH_##NAME(varname, table_##varname##s_, str##varname); \
-			return str##varname; \
-		}
-
-GAMEMODE_IMPLEMENT(NAME, ModeName)
-GAMEMODE_IMPLEMENT(DESC, ModeDesc)
-GAMEMODE_IMPLEMENT(STR, ModeStr)
-#undef GAMEMODE_DESC_X
-#undef GAMEMODE_DESC_Y
-
 int main() {
-	_LOG_DEBUG("错误信息：%s[%d]%s",
-		ERR::ErrGameRecordGetNoDataError.desc.c_str(),
-		ERR::ErrGameRecordGetNoDataError.code,
-		ERR::ErrGameRecordGetNoDataError.errmsg.c_str());
-	_LOG_DEBUG(getErrorStr(kAddScoreHandleInsertDataError).c_str());
-	//kNoError;
-	//kCreateGameUser;
+	tip::Hello;
 	//std::vector<Derive&> l;
-	std::string s = utils::random::charStr(128);
-	_LOG_DEBUG(s.c_str());
 	Derive d;
 	d.Foo(1,1);
 	FFF(d);

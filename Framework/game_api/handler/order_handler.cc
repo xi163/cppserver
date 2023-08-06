@@ -1,12 +1,12 @@
 #include "public/Inc.h"
-#include "public/Response.h"
+#include "public/response.h"
 #include "handler/order_handler.h"
 #include "public/mgoOperation.h"
 #include "public/mgoKeys.h"
 #include "public/mgoModel.h"
 #include "public/redisKeys.h"
 #include "GateServList.h"
-#include "public/ErrorCode.h"
+#include "public/errorCode.h"
 #include "../Api.h"
 
 extern ApiServ* gServer;
@@ -62,37 +62,37 @@ int Order(
 		}
 		HttpParams params;
 		if (!utils::parseQuery(req.query(), params)) {
-			return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+			return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 		}
 		if (!isdecrypt_) {
 			//type
 			HttpParams::const_iterator typeKey = params.find("type");
 			if (typeKey == params.end() || typeKey->second.empty() ||
 				(opType = atol(typeKey->second.c_str())) < 0) {
-				return response::json::err::Result(ERR::EGameHandleOperationTypeError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleOperationTypeError, BOOST::Any(), rsp);
 			}
 			//2.上分 3.下分
 			if (opType != int(eApiType::OpAddScore) && opType != int(eApiType::OpSubScore)) {
-				return response::json::err::Result(ERR::EGameHandleOperationTypeError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleOperationTypeError, BOOST::Any(), rsp);
 			}
 			//agentid
 			HttpParams::const_iterator agentIdKey = params.find("agentid");
 			if (agentIdKey == params.end() || agentIdKey->second.empty() ||
 				(agentId = atol(agentIdKey->second.c_str())) <= 0) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 			}
 #ifdef _NO_LOGIC_PROCESS_
 			//userid
 			HttpParams::const_iterator userIdKey = params.find("userid");
 			if (userIdKey == params.end() || userIdKey->second.empty() ||
 				(userId = atoll(userIdKey->second.c_str())) <= 0) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 			}
 #endif
 			//account
 			HttpParams::const_iterator accountKey = params.find("account");
 			if (accountKey == params.end() || accountKey->second.empty()) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 			}
 			else {
 				account = accountKey->second;
@@ -100,7 +100,7 @@ int Order(
 			//orderid
 			HttpParams::const_iterator orderIdKey = params.find("orderid");
 			if (orderIdKey == params.end() || orderIdKey->second.empty()) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 		}
 			else {
 				orderId = orderIdKey->second;
@@ -110,7 +110,7 @@ int Order(
 			if (scoreKey == params.end() || scoreKey->second.empty() || !utils::isDigitalStr(scoreKey->second) ||
 				(score = utils::floors(scoreKey->second.c_str())) <= 0 || NotScore(score) ||
 				(scoreI64 = utils::rate100(scoreKey->second)) <= 0) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 			}
 
 			// 获取当前代理数据
@@ -119,7 +119,7 @@ int Order(
 				std::map<int32_t, agent_info_t>::iterator it = gServer->agent_info_.find(agentId);
 				if (it == gServer->agent_info_.end()) {
 					// 代理ID不存在或代理已停用
-					return response::json::err::Result(ERR::EGameHandleProxyIDError, BOOST::Any(), rsp);
+					return response::json::Result(ERR_GameHandleProxyIDError, BOOST::Any(), rsp);
 				}
 				else {
 					p_agent_info = &it->second;
@@ -128,7 +128,7 @@ int Order(
 			// 没有找到代理，判断代理的禁用状态(0正常 1停用)
 			if (p_agent_info->status == 1) {
 				// 代理ID不存在或代理已停用
-				return response::json::err::Result(ERR::EGameHandleProxyIDError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleProxyIDError, BOOST::Any(), rsp);
 			}
 #ifndef _NO_LOGIC_PROCESS_
 			OrderReq orderReq;
@@ -145,23 +145,23 @@ int Order(
 		HttpParams::const_iterator typeKey = params.find("type");
 		if (typeKey == params.end() || typeKey->second.empty() ||
 			(opType = atol(typeKey->second.c_str())) < 0) {
-			return response::json::err::Result(ERR::EGameHandleOperationTypeError, BOOST::Any(), rsp);
+			return response::json::Result(ERR_GameHandleOperationTypeError, BOOST::Any(), rsp);
 		}
 		//2.上分 3.下分
 		if (opType != int(eApiType::OpAddScore) && opType != int(eApiType::OpSubScore)) {
-			return response::json::err::Result(ERR::EGameHandleOperationTypeError, BOOST::Any(), rsp);
+			return response::json::Result(ERR_GameHandleOperationTypeError, BOOST::Any(), rsp);
 		}
 		//agentid
 		HttpParams::const_iterator agentIdKey = params.find("agentid");
 		if (agentIdKey == params.end() || agentIdKey->second.empty() ||
 			(agentId = atol(agentIdKey->second.c_str())) <= 0) {
-			return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+			return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 		}
 		//timestamp
 		HttpParams::const_iterator timestampKey = params.find("timestamp");
 		if (timestampKey == params.end() || timestampKey->second.empty() ||
 			atol(timestampKey->second.c_str()) <= 0) {
-			return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+			return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 		}
 		else {
 			timestamp = timestampKey->second;
@@ -169,7 +169,7 @@ int Order(
 		//param
 		HttpParams::const_iterator paramValueKey = params.find("param");
 		if (paramValueKey == params.end() || paramValueKey->second.empty()) {
-			return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+			return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 		}
 		else {
 			param = paramValueKey->second;
@@ -177,7 +177,7 @@ int Order(
 		//key
 		HttpParams::const_iterator keyKey = params.find("key");
 		if (keyKey == params.end() || keyKey->second.empty()) {
-			return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+			return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 		}
 		else {
 			key = keyKey->second;
@@ -188,7 +188,7 @@ int Order(
 			std::map<int32_t, agent_info_t>::iterator it = gServer->agent_info_.find(agentId);
 			if (it == gServer->agent_info_.end()) {
 				// 代理ID不存在或代理已停用
-				return response::json::err::Result(ERR::EGameHandleProxyIDError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleProxyIDError, BOOST::Any(), rsp);
 			}
 			else {
 				p_agent_info = &it->second;
@@ -197,7 +197,7 @@ int Order(
 		// 没有找到代理，判断代理的禁用状态(0正常 1停用)
 		if (p_agent_info->status == 1) {
 			// 代理ID不存在或代理已停用
-			return response::json::err::Result(ERR::EGameHandleProxyIDError, BOOST::Any(), rsp);
+			return response::json::Result(ERR_GameHandleProxyIDError, BOOST::Any(), rsp);
 		}
 #if 0
 		agentId = 10000;
@@ -294,7 +294,7 @@ int Order(
 			char md5[32 + 1] = { 0 };
 			utils::MD5(src.c_str(), src.length(), md5, 1);
 			if (strncasecmp(md5, key.c_str(), std::min<size_t>(32, key.length())) != 0) {
-				return response::json::err::Result(ERR::EGameHandleProxyMD5CodeError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleProxyMD5CodeError, BOOST::Any(), rsp);
 			}
 			//param = utils::HTML::Decode(param);
 			//_LOG_DEBUG("HTML::Decode >>> %s", param.c_str());
@@ -317,14 +317,14 @@ int Order(
 			}
 			if (decrypt.empty()) {
 				// 参数转码或代理解密校验码错误
-				return response::json::err::Result(ERR::EGameHandleProxyDESCodeError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleProxyDESCodeError, BOOST::Any(), rsp);
 			}
 		}
 		{
 			HttpParams decryptParams;
 			_LOG_DEBUG(decrypt.c_str());
 			if (!utils::parseQuery(decrypt, decryptParams)) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 			}
 			//agentid
 			//HttpParams::const_iterator agentIdKey = decryptParams.find("agentid");
@@ -336,13 +336,13 @@ int Order(
 			HttpParams::const_iterator userIdKey = decryptParams.find("userid");
 			if (userIdKey == decryptParams.end() || userIdKey->second.empty() ||
 				(userId = atoll(userIdKey->second.c_str())) <= 0) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 			}
 #endif
 			//account
 			HttpParams::const_iterator accountKey = decryptParams.find("account");
 			if (accountKey == decryptParams.end() || accountKey->second.empty()) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 			}
 			else {
 				account = accountKey->second;
@@ -350,7 +350,7 @@ int Order(
 			//orderid
 			HttpParams::const_iterator orderIdKey = decryptParams.find("orderid");
 			if (orderIdKey == decryptParams.end() || orderIdKey->second.empty()) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 			}
 			else {
 				orderId = orderIdKey->second;
@@ -360,7 +360,7 @@ int Order(
 			if (scoreKey == decryptParams.end() || scoreKey->second.empty() || !utils::isDigitalStr(scoreKey->second) ||
 				(score = utils::floors(scoreKey->second.c_str())) <= 0 || NotScore(score) ||
 				(scoreI64 = utils::rate100(scoreKey->second)) <= 0) {
-				return response::json::err::Result(ERR::EGameHandleParamsError, BOOST::Any(), rsp);
+				return response::json::Result(ERR_GameHandleParamsError, BOOST::Any(), rsp);
 			}
 		}
 #ifndef _NO_LOGIC_PROCESS_

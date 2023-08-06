@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\thirdpart\Logger\src\atomic\Atomic.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\auth\auth.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\const.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\aes.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\base64.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\html.h" />

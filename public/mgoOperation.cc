@@ -238,6 +238,382 @@ namespace mgo {
 		return false;
 	}
 	
+	bool LoadGameRoomInfo(
+		uint32_t gameid, uint32_t roomid,
+		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_) {
+		try {
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_KIND,
+				{},
+				builder::stream::document{} << "gameid" << b_int32{ gameid } << finalize);
+			if (!result) {
+				return false;
+			}
+			document::view view = result->view();
+			if (view["gameid"]) {
+				switch (view["gameid"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.gameId = view["gameid"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.gameId = view["gameid"].get_int32();
+					break;
+				}
+			}
+			gameInfo_.gameId = gameid;
+			if (view["gamename"]) {
+				switch (view["gamename"].type()) {
+				case bsoncxx::type::k_utf8:
+					gameInfo_.gameName = view["gamename"].get_utf8().value.to_string();
+					break;
+				}
+			}
+			//排序方式
+			if (view["sort"]) {
+				switch (view["sort"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.sortId = view["sort"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.sortId = view["sort"].get_int32();
+					break;
+				}
+			}
+			//*.so名称
+			if (view["servicename"]) {
+				switch (view["servicename"].type()) {
+				case bsoncxx::type::k_utf8:
+					gameInfo_.serviceName = view["servicename"].get_utf8().value.to_string();
+					break;
+				}
+			}
+			//抽水百分比
+			if (view["revenueRatio"]) {
+				switch (view["revenueRatio"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.revenueRatio = view["revenueRatio"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.revenueRatio = view["revenueRatio"].get_int32();
+					break;
+				}
+			}
+			//百人/对战
+			if (view["type"]) {
+				switch (view["type"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.gameType = view["type"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.gameType = view["type"].get_int32();
+					break;
+				}
+			}
+// 			if (view["ishot"]) {
+// 				switch (view["ishot"].type()) {
+// 				case bsoncxx::type::k_int64:
+// 					view["ishot"].get_int64();
+// 					break;
+// 				case bsoncxx::type::k_int32:
+// 					view["ishot"].get_int32();
+// 					break;
+// 				}
+// 			}
+			//服务中/维护中
+			if (view["status"]) {
+				switch (view["status"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.serverStatus = view["status"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.serverStatus = view["status"].get_int32();
+					break;
+				}
+			}
+// 			if (view["updatePlayerNum"]) {
+// 				switch (view["updatePlayerNum"].type()) {
+// 				case bsoncxx::type::k_int64:
+// 					gameInfo_.updatePlayerNum = view["updatePlayerNum"].get_int64();
+// 					break;
+// 				case bsoncxx::type::k_int32:
+// 					gameInfo_.updatePlayerNum = view["updatePlayerNum"].get_int32();
+// 					break;
+// 				}
+// 			}
+// 			//金币场(kGoldCoin)匹配规则
+// 			if (view["matchmask"]) {
+// 				switch (view["matchmask"].type()) {
+// 				case bsoncxx::type::k_int64:
+// 					for (int i = 0; i < MTH_MAX; ++i) {
+// 						gameInfo_.matchforbids[i] = ((view["matchmask"].get_int64() & (1 << i)) != 0);
+// 					}
+// 					break;
+// 				case bsoncxx::type::k_int32:
+// 					for (int i = 0; i < MTH_MAX; ++i) {
+// 						gameInfo_.matchforbids[i] = ((view["matchmask"].get_int32() & (1 << i)) != 0);
+// 					}
+// 					break;
+// 				}
+// 			}
+			if (view["rooms"]) {
+				switch (view["rooms"].type()) {
+				case bsoncxx::type::k_array: {
+					auto rooms = view["rooms"].get_array();
+					for (auto& item : rooms.value) {
+						if (item["roomid"].get_int32() == roomid) {
+							continue;
+						}
+						roomInfo_.gameId = gameid;
+						roomInfo_.roomId = roomid;
+						roomInfo_.roomName = item["roomname"].get_utf8().value.to_string();
+						roomInfo_.tableCount = item["tablecount"].get_int32();
+						roomInfo_.floorScore = item["floorscore"].get_int64();
+						roomInfo_.ceilScore = item["ceilscore"].get_int64();
+						roomInfo_.enterMinScore = item["enterminscore"].get_int64();
+						roomInfo_.enterMaxScore = item["entermaxscore"].get_int64();
+						roomInfo_.minPlayerNum = item["minplayernum"].get_int32();
+						roomInfo_.maxPlayerNum = item["maxplayernum"].get_int32();
+						roomInfo_.broadcastScore = item["broadcastscore"].get_int64();
+						roomInfo_.bEnableAndroid = item["enableandroid"].get_int32();
+						roomInfo_.androidCount = item["androidcount"].get_int32();
+						roomInfo_.maxAndroidCount = item["androidmaxusercount"].get_int32();
+						roomInfo_.maxJettonScore = item["maxjettonscore"].get_int64();
+						roomInfo_.totalStock = item["totalstock"].get_int64();
+						roomInfo_.totalStockLowerLimit = item["totalstocklowerlimit"].get_int64();
+						roomInfo_.totalStockHighLimit = item["totalstockhighlimit"].get_int64();
+						roomInfo_.totalStockSecondLowerLimit = item["totalstocksecondlowerlimit"].get_int64();
+						roomInfo_.totalStockSecondHighLimit = item["totalstocksecondhighlimit"].get_int64();
+						roomInfo_.systemKillAllRatio = item["systemkillallratio"].get_int32();
+						roomInfo_.systemReduceRatio = item["systemreduceratio"].get_int32();
+						roomInfo_.changeCardRatio = item["changecardratio"].get_int32();
+						roomInfo_.serverStatus = item["status"].get_int32();
+						document::element elem = item["jettons"];
+						b_array jettons = elem.type() == bsoncxx::type::k_array ?
+										  elem.get_array() :
+										  elem["_v"].get_array();
+						for (auto& val : jettons.value) {
+							roomInfo_.jettons.emplace_back(val.get_int64());
+						}
+						if (gameInfo_.gameType == GameType_BaiRen) {
+							roomInfo_.realChangeAndroid = item["realChangeAndroid"].get_int32();
+							b_array percentage = item["androidPercentage"]["_v"].get_array();
+							for (auto& val : percentage.value) {
+								roomInfo_.enterAndroidPercentage.emplace_back(val.get_double());
+							}
+						}
+						return true;
+					}
+					break;
+				}
+				}
+			}
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+
+	bool LoadClubGameRoomInfo(
+		uint32_t gameid, uint32_t roomid,
+		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_) {
+		try {
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_KIND_CLUB,
+				{},
+				builder::stream::document{} << "gameid" << b_int32{ gameid } << finalize);
+			if (!result) {
+				return false;
+			}
+			document::view view = result->view();
+			if (view["gameid"]) {
+				switch (view["gameid"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.gameId = view["gameid"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.gameId = view["gameid"].get_int32();
+					break;
+				}
+			}
+			gameInfo_.gameId = gameid;
+			if (view["gamename"]) {
+				switch (view["gamename"].type()) {
+				case bsoncxx::type::k_utf8:
+					gameInfo_.gameName = view["gamename"].get_utf8().value.to_string();
+					break;
+				}
+			}
+			//排序方式
+			if (view["sort"]) {
+				switch (view["sort"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.sortId = view["sort"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.sortId = view["sort"].get_int32();
+					break;
+				}
+			}
+			//*.so名称
+			if (view["servicename"]) {
+				switch (view["servicename"].type()) {
+				case bsoncxx::type::k_utf8:
+					gameInfo_.serviceName = view["servicename"].get_utf8().value.to_string();
+					break;
+				}
+			}
+			//抽水百分比
+			if (view["revenueRatio"]) {
+				switch (view["revenueRatio"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.revenueRatio = view["revenueRatio"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.revenueRatio = view["revenueRatio"].get_int32();
+					break;
+				}
+			}
+			//百人/对战
+			if (view["type"]) {
+				switch (view["type"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.gameType = view["type"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.gameType = view["type"].get_int32();
+					break;
+				}
+			}
+// 			if (view["ishot"]) {
+// 				switch (view["ishot"].type()) {
+// 				case bsoncxx::type::k_int64:
+// 					view["ishot"].get_int64();
+// 					break;
+// 				case bsoncxx::type::k_int32:
+// 					view["ishot"].get_int32();
+// 					break;
+// 				}
+// 			}
+			//服务中/维护中
+			if (view["status"]) {
+				switch (view["status"].type()) {
+				case bsoncxx::type::k_int64:
+					gameInfo_.serverStatus = view["status"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					gameInfo_.serverStatus = view["status"].get_int32();
+					break;
+				}
+			}
+// 			if (view["updatePlayerNum"]) {
+// 				switch (view["updatePlayerNum"].type()) {
+// 				case bsoncxx::type::k_int64:
+// 					gameInfo_.updatePlayerNum = view["updatePlayerNum"].get_int64();
+// 					break;
+// 				case bsoncxx::type::k_int32:
+// 					gameInfo_.updatePlayerNum = view["updatePlayerNum"].get_int32();
+// 					break;
+// 				}
+// 			}
+// 			//金币场(kGoldCoin)匹配规则
+// 			if (view["matchmask"]) {
+// 				switch (view["matchmask"].type()) {
+// 				case bsoncxx::type::k_int64:
+// 					for (int i = 0; i < MTH_MAX; ++i) {
+// 						gameInfo_.matchforbids[i] = ((view["matchmask"].get_int64() & (1 << i)) != 0);
+// 					}
+// 					break;
+// 				case bsoncxx::type::k_int32:
+// 					for (int i = 0; i < MTH_MAX; ++i) {
+// 						gameInfo_.matchforbids[i] = ((view["matchmask"].get_int32() & (1 << i)) != 0);
+// 					}
+// 					break;
+// 				}
+// 			}
+			if (view["rooms"]) {
+				switch (view["rooms"].type()) {
+				case bsoncxx::type::k_array: {
+					auto rooms = view["rooms"].get_array();
+					for (auto& item : rooms.value) {
+						if (item["roomid"].get_int32() == roomid) {
+							continue;
+						}
+						roomInfo_.gameId = gameid;
+						roomInfo_.roomId = roomid;
+						roomInfo_.roomName = item["roomname"].get_utf8().value.to_string();
+						roomInfo_.tableCount = item["tablecount"].get_int32();
+						roomInfo_.floorScore = item["floorscore"].get_int64();
+						roomInfo_.ceilScore = item["ceilscore"].get_int64();
+						roomInfo_.enterMinScore = item["enterminscore"].get_int64();
+						roomInfo_.enterMaxScore = item["entermaxscore"].get_int64();
+						roomInfo_.minPlayerNum = item["minplayernum"].get_int32();
+						roomInfo_.maxPlayerNum = item["maxplayernum"].get_int32();
+						roomInfo_.broadcastScore = item["broadcastscore"].get_int64();
+						roomInfo_.bEnableAndroid = item["enableandroid"].get_int32();
+						roomInfo_.androidCount = item["androidcount"].get_int32();
+						roomInfo_.maxAndroidCount = item["androidmaxusercount"].get_int32();
+						roomInfo_.maxJettonScore = item["maxjettonscore"].get_int64();
+						roomInfo_.totalStock = item["totalstock"].get_int64();
+						roomInfo_.totalStockLowerLimit = item["totalstocklowerlimit"].get_int64();
+						roomInfo_.totalStockHighLimit = item["totalstockhighlimit"].get_int64();
+						roomInfo_.totalStockSecondLowerLimit = item["totalstocksecondlowerlimit"].get_int64();
+						roomInfo_.totalStockSecondHighLimit = item["totalstocksecondhighlimit"].get_int64();
+						roomInfo_.systemKillAllRatio = item["systemkillallratio"].get_int32();
+						roomInfo_.systemReduceRatio = item["systemreduceratio"].get_int32();
+						roomInfo_.changeCardRatio = item["changecardratio"].get_int32();
+						roomInfo_.serverStatus = item["status"].get_int32();
+						document::element elem = item["jettons"];
+						b_array jettons = elem.type() == bsoncxx::type::k_array ?
+										  elem.get_array() :
+										  elem["_v"].get_array();
+						for (auto& val : jettons.value) {
+							roomInfo_.jettons.emplace_back(val.get_int64());
+						}
+						if (gameInfo_.gameType == GameType_BaiRen) {
+							roomInfo_.realChangeAndroid = item["realChangeAndroid"].get_int32();
+							b_array percentage = item["androidPercentage"]["_v"].get_array();
+							for (auto& val : percentage.value) {
+								roomInfo_.enterAndroidPercentage.emplace_back(val.get_double());
+							}
+						}
+						return true;
+					}
+					break;
+				}
+				}
+			}
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+
 	bool GetUserBaseInfo(
 		document::view_or_value const& select,
 		document::view_or_value const& where,

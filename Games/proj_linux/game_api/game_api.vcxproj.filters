@@ -110,9 +110,6 @@
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h">
       <Filter>internal\gate</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\Response.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\redisKeys.h">
       <Filter>public\Database</Filter>
     </ClInclude>
@@ -131,10 +128,10 @@
     <ClInclude Include="..\..\..\Framework\game_api\handler\order_handler.h">
       <Filter>handler</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\ErrorCode.h">
+    <ClInclude Include="..\..\..\public\gameStruct.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\structs.h">
+    <ClInclude Include="..\..\..\public\gameConst.h">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
@@ -204,9 +201,6 @@
     <ClCompile Include="..\..\..\Framework\game_api\WsServer.cc">
       <Filter>internal\nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\Response.cc">
-      <Filter>public</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\public\redisKeys.cc">
       <Filter>public\Database</Filter>
     </ClCompile>
@@ -224,9 +218,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_api\handler\order_handler.cc">
       <Filter>handler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\ErrorCode.cc">
-      <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_api\handler\addscore_handler.cc">
       <Filter>handler</Filter>

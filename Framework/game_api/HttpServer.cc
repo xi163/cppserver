@@ -4,7 +4,7 @@
 #include "proto/GameServer.Message.pb.h"
 
 #include "Api.h"
-#include "public/Response.h"
+#include "public/response.h"
 #include "handler/order_handler.h"
 #include "public/mgoOperation.h"
 

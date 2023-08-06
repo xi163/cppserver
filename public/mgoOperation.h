@@ -2,8 +2,8 @@
 #define INCLUDE_MGO_OPERATION_H
 
 #include "public/Inc.h"
-#include "public/structs.h"
-#include "public/ErrorCode.h"
+#include "public/gameStruct.h"
+#include "public/errorCode.h"
 
 namespace mgo {
 	
@@ -64,6 +64,14 @@ namespace mgo {
 		document::view_or_value const& where,
 		UserBaseInfo& info);
 	
+	bool LoadGameRoomInfo(
+		uint32_t gameid, uint32_t roomid,
+		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_);
+
+	bool LoadClubGameRoomInfo(
+		uint32_t gameid, uint32_t roomid,
+		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_);
+
 	bool GetUserBaseInfo(int64_t userid, UserBaseInfo& info);
 
 	std::string AddUser(document::view_or_value const& view);

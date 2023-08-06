@@ -16,8 +16,8 @@
 #include "RpcClients.h"
 #include "RpcContainer.h"
 
-#include "public/ErrorCode.h"
-#include "public/structs.h"
+#include "public/errorCode.h"
+#include "public/gameStruct.h"
 
 //最近一次请求操作的elapsed detail
 static void createLatestElapsed(

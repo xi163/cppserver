@@ -109,13 +109,13 @@
     <ClInclude Include="..\..\..\public\redisKeys.h">
       <Filter>public\Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\Response.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\structs.h">
+    <ClInclude Include="..\..\..\public\gameStruct.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\gameConst.h">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
@@ -196,9 +196,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\redisKeys.cc">
       <Filter>public\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\Response.cc">
-      <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc">
       <Filter>pb</Filter>

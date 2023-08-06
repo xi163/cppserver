@@ -37,7 +37,7 @@
 
 //const static int PACKET_SIZE = 60 * 1024;
 
-#include "structs.h"
+#include "gameStruct.h"
 
 // struct UserBaseInfo
 // {
@@ -122,11 +122,11 @@
 
 
 
-enum GameType
-{
-    GameType_BaiRen = 0,
-    GameType_Confrontation = 1,
-};
+// enum GameType
+// {
+//     GameType_BaiRen = 0,
+//     GameType_Confrontation = 1,
+// };
 
 enum MongoDBOptType
 {
@@ -139,13 +139,13 @@ enum MongoDBOptType
 };
 
 
-enum GameStatus
-{
-    GAME_STATUS_INIT    = 0,
-    GAME_STATUS_FREE	= 1,			// 游戏Free
-    GAME_STATUS_START	= 100,			// 游戏进行
-    GAME_STATUS_END		= 200,			// 游戏End
-};
+// enum GameStatus
+// {
+//     GAME_STATUS_INIT    = 0,
+//     GAME_STATUS_FREE	= 1,			// 游戏Free
+//     GAME_STATUS_START	= 100,			// 游戏进行
+//     GAME_STATUS_END		= 200,			// 游戏End
+// };
 
 enum eServerState
 {
@@ -155,78 +155,12 @@ enum eServerState
 };
 
 
-//#pragma pack(1)
-
-struct tagGameInfo
-{
-    uint32_t    gameId;       // game id.
-    std::string      gameName;
-    uint32_t    sortId;       // game sort id.
-    uint8_t     gameType;     // 0-bairen   1-duizhan
-    std::string      gameServiceName;
-    uint8_t     revenueRatio;  // revenue
-    bool        matchforbids[10];// forbid match types
-};
-
-struct tagGameRoomInfo
-{
-    uint32_t    gameId;                // game id.
-    uint32_t    roomId;                // room kind id.
-    std::string      roomName;              // room kind name.
-
-    uint16_t    tableCount;            // table count.
-
-    int64_t     floorScore;            // cell score.
-    int64_t     ceilScore;             // cell score.
-    int64_t     enterMinScore;         // enter min score.
-    int64_t     enterMaxScore;         // enter max score.
-
-    uint32_t    minPlayerNum;          // start min player.
-    uint32_t    maxPlayerNum;          // start max player.
-
-    uint32_t    androidCount;          // start android count
-    uint32_t    maxAndroidCount;   // real user
-
-    int64_t     broadcastScore;        // broadcast score.
-    int64_t     maxJettonScore;        // max Jetton Score
-
-    int64_t     totalStock;
-    int64_t     totalStockLowerLimit;
-    int64_t     totalStockHighLimit;
-
-	int64_t     totalStockSecondLowerLimit;
-	int64_t     totalStockSecondHighLimit;
-
-    uint32_t    systemKillAllRatio;
-    uint32_t    systemReduceRatio;
-    uint32_t    changeCardRatio;
-
-    uint8_t     serverStatus;          // server status.
-    uint8_t     bEnableAndroid;       // is enable android.
-
-    std::vector<int64_t> jettons;
-
-    uint32_t    updatePlayerNumTimes;
-    std::vector<float> enterAndroidPercentage;  //Control the number of android entering according to the time
-    uint32_t    realChangeAndroid; //join 'realChangeAndroid' real user change out one android user (n:1)
-
-    int64_t     totalJackPot[5];          //预存N个奖池信息
-
-//    uint8_t     bisKeepAndroidin;       // is keep android in room.
-//    uint8_t     bisLeaveAnyTime;        // is user can leave game any time.
-//    uint8_t     bisAndroidWaitList;     // DDZ: android have to do wait list.
-//    uint8_t     bisDynamicJoin;         // is game can dynamic join.
-//    uint8_t     bisAutoReady;           // is game auto ready.
-//    uint8_t     bisEnterIsReady;		// is enter is ready.
-//    uint8_t     bisQipai;               // need to wait player ready.
-};
-
-struct TableState
-{
-    uint32_t    tableId;
-    uint8_t		bisLock;
-    uint8_t		bisLookOn;
-};
+// struct TableState
+// {
+//     uint32_t    tableId;
+//     uint8_t		bisLock;
+//     uint8_t		bisLookOn;
+// };
 
 struct tagScoreInfo
 {
@@ -618,7 +552,7 @@ enum eReplayOperType
     opBanker        = 17,//         |               | 定庄
     opPass          = 18,//  过牌    |            |
 };
-//#pragma pack()
+
 
 enum eMatchForbidBits
 {

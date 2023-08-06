@@ -39,6 +39,8 @@
     <ClInclude Include="..\..\..\Framework\game_hall\Hall.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
+    <ClInclude Include="..\..\..\public\gameConst.h" />
+    <ClInclude Include="..\..\..\public\gameStruct.h" />
     <ClInclude Include="..\..\..\public\Inc.h" />
     <ClInclude Include="..\..\..\public\IncMuduo.h" />
     <ClInclude Include="..\..\..\public\IPFinder.h" />
@@ -50,7 +52,6 @@
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\redisKeys.h" />
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
-    <ClInclude Include="..\..\..\public\structs.h" />
     <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />

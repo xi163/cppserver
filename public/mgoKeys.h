@@ -17,6 +17,7 @@ namespace mgoKeys {
 		static char const* ROBOT_USER = "android_user";
 		static char const* ROBOT_STRATEGY = "android_strategy";
 		static char const* GAME_KIND = "game_kind";
+		static char const* GAME_KIND_CLUB = "game_kind_club";
 		static char const* AUTO_INCREMENT = "auto_increment";
 
 		static char const* GAMEUSER = "game_user";
