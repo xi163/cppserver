@@ -143,7 +143,7 @@ void GateServ::asyncHallHandler(
 			muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 			if (gameConn) {
 				//用户当前游戏节点正常，判断是否一致
-				std::string serverIp;//roomid:ip:port:type
+				std::string serverIp;//roomid:ip:port:mode
 				if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
 					//与目标游戏节点不一致，重新指定
 					if (clientConn.first != serverIp) {
@@ -175,7 +175,7 @@ void GateServ::asyncHallHandler(
 				else {
 					_LOG_ERROR("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
 				}
-				std::string serverIp;//roomid:ip:port:type
+				std::string serverIp;//roomid:ip:port:mode
 				if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
 					//获取目标游戏节点
 					ClientConn clientConn;

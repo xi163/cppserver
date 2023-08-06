@@ -114,7 +114,7 @@ void GameServ::onZookeeperConnected() {
 	{
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
-		//roomid:ip:port:type
+		//roomid:ip:port:mode
 		nodeValue_ = std::to_string(roomId_) + ":" + vec[0] + ":" + vec[1] + ":" + std::to_string(kGoldCoin);
 		nodePath_ = "/GAME/GameServers/" + nodeValue_;
 		zkclient_->createNode(nodePath_, nodeValue_, true);

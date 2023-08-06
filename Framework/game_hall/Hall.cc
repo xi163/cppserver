@@ -175,7 +175,7 @@ void HallServ::onZookeeperConnected() {
 		}
 	}
 	{
-		//游戏服 roomid:ip:port:type
+		//游戏服 roomid:ip:port:mode
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
 			"/GAME/GameServers",
@@ -223,7 +223,7 @@ void HallServ::onGateWatcher(int type, int state,
 void HallServ::onGameWatcher(int type, int state,
 	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//游戏服 roomid:ip:port:type
+	//游戏服 roomid:ip:port:mode
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/GameServers",
@@ -1179,7 +1179,7 @@ void HallServ::random_game_server_ipport(uint32_t roomid, std::string& ipport) {
 		std::vector<std::string>& rooms = it->second;
 		if (rooms.size() > 0) {
 			int index = RANDOM().betweenInt(0, rooms.size() - 1).randInt_mt();
-			ipport = rooms[index];//roomid:ip:port:type
+			ipport = rooms[index];//roomid:ip:port:mode
 		}
 	}
 }

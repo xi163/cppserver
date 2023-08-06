@@ -211,7 +211,7 @@ void GateServ::sendGameMessage(
 			else {
 				_LOG_ERROR("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
 			}
-			std::string serverIp;//roomid:ip:port:type
+			std::string serverIp;//roomid:ip:port:mode
 			if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
 				//获取目标游戏节点
 				ClientConn clientConn;

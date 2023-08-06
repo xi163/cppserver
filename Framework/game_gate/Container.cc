@@ -73,7 +73,7 @@ void Container::add(std::string const& name) {
 	case servTyE::kGameTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		//name：roomid:ip:port:type
+		//name：roomid:ip:port:mode
 		muduo::net::InetAddress serverAddr(vec[1], atoi(vec[2].c_str()));
 		_LOG_WARN(">>> 游戏服[%s:%s] 房间号[%s] %s", vec[1].c_str(), vec[2].c_str(), vec[0].c_str(), getModeStr(atoi(vec[3].c_str())).c_str());
 		//try add & connect
