@@ -361,7 +361,7 @@ namespace mgo {
 				case bsoncxx::type::k_array: {
 					auto rooms = view["rooms"].get_array();
 					for (auto& item : rooms.value) {
-						if (item["roomid"].get_int32() == roomid) {
+						if (item["roomid"].get_int32() != roomid) {
 							continue;
 						}
 						roomInfo_.gameId = gameid;
@@ -549,7 +549,7 @@ namespace mgo {
 				case bsoncxx::type::k_array: {
 					auto rooms = view["rooms"].get_array();
 					for (auto& item : rooms.value) {
-						if (item["roomid"].get_int32() == roomid) {
+						if (item["roomid"].get_int32() != roomid) {
 							continue;
 						}
 						roomInfo_.gameId = gameid;
