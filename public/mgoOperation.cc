@@ -243,7 +243,7 @@ namespace mgo {
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_) {
 		try {
 			auto result = opt::FindOne(
-				mgoKeys::db::GAMEMAIN,
+				mgoKeys::db::GAMECONFIG,
 				mgoKeys::tbl::GAME_KIND,
 				{},
 				builder::stream::document{} << "gameid" << b_int32{ gameid } << finalize);
@@ -431,7 +431,7 @@ namespace mgo {
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_) {
 		try {
 			auto result = opt::FindOne(
-				mgoKeys::db::GAMEMAIN,
+				mgoKeys::db::GAMECONFIG,
 				mgoKeys::tbl::GAME_KIND_CLUB,
 				{},
 				builder::stream::document{} << "gameid" << b_int32{ gameid } << finalize);
