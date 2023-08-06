@@ -1,5 +1,5 @@
 #include "Container.h"
-#include "public/structs.h"
+#include "public/gameConst.h"
 
 void Container::add(std::vector<std::string> const& names) {
 	{
