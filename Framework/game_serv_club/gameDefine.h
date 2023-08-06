@@ -158,8 +158,8 @@ enum eServerState
 // struct TableState
 // {
 //     uint32_t    tableId;
-//     uint8_t		bisLock;
-//     uint8_t		bisLookOn;
+//     uint8_t		locked;
+//     uint8_t		lookon;
 // };
 
 struct tagScoreInfo

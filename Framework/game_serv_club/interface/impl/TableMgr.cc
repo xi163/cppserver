@@ -60,8 +60,8 @@ void CTableMgr::Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shar
 		}
 		TableState state = { 0 };
 		state.tableId = i;
-		state.bisLock = false;
-		state.bisLookOn = false;
+		state.locked = false;
+		state.lookon = false;
 		table->Init(tableDelegate, state, gameInfo, roomInfo, logicThread, tableContext);
 #if 0
 		static struct ___init {

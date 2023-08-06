@@ -17,6 +17,7 @@
 #include "RpcContainer.h"
 
 #include "public/errorCode.h"
+#include "public/gameConst.h"
 #include "public/gameStruct.h"
 
 //最近一次请求操作的elapsed detail

@@ -6,6 +6,9 @@
 #include "Packet.h"
 #include "ITableContext.h"
 
+#include "public/gameConst.h"
+#include "public/gameStruct.h"
+
 struct gate_t {
 	std::string IpPort;
 	std::shared_ptr<packet::internal_prev_header_t> pre_header;

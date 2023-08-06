@@ -7,7 +7,8 @@
 #include "proto/Game.Common.pb.h"
 #include "proto/GameServer.Message.pb.h"
 #include "public/mgoOperation.h"
-#include "public/structs.h"
+#include "public/gameConst.h"
+#include "public/gameStruct.h"
 
 //#include "TaskService.h"
 
