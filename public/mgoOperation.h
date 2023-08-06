@@ -2,6 +2,7 @@
 #define INCLUDE_MGO_OPERATION_H
 
 #include "public/Inc.h"
+#include "public/gameConst.h"
 #include "public/gameStruct.h"
 #include "public/errorCode.h"
 
