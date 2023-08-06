@@ -111,7 +111,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			REDISCLIENT.SetAccountUid(model.Account, userId);
 			//缓存token
 			REDISCLIENT.SetTokenInfo(token, userId, model.Account);
-			return response::json::OkMsg("登陆成功", Token(token), rsp);
+			return response::json::OkMsg("登陆成功", rsp, Token(token));
 		}
 		//先查redis
 		int64_t userId = 0;
@@ -177,7 +177,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				REDISCLIENT.SetAccountUid(model.Account, userId);
 				//缓存token
 				REDISCLIENT.SetTokenInfo(token, userId, model.Account);
-				return response::json::OkMsg("登陆成功", Token(token), rsp);
+				return response::json::OkMsg("登陆成功", rsp, Token(token));
 			}
 			//查询mongo命中
 			else {
@@ -193,7 +193,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				REDISCLIENT.SetAccountUid(req.Account, userId);
 				//缓存token
 				REDISCLIENT.SetTokenInfo(token, userId, req.Account);
-				return response::json::OkMsg("登陆成功", Token(token), rsp);
+				return response::json::OkMsg("登陆成功", rsp, Token(token));
 			}
 		}
 		//查询redis命中
@@ -210,7 +210,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			REDISCLIENT.ResetExpiredAccountUid(req.Account);
 			//缓存token
 			REDISCLIENT.SetTokenInfo(token, userId, req.Account);
-			return response::json::OkMsg("登陆成功", Token(token), rsp);
+			return response::json::OkMsg("登陆成功", rsp, Token(token));
 		}
 	}
 	case 1: {
