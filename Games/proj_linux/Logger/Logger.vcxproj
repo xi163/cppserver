@@ -71,6 +71,7 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\rand\StdRandom.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\sign\sign.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\timer\timer.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\time\time.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\track\MemTrack.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.h" />
@@ -106,6 +107,7 @@
     <ClCompile Include="..\..\..\thirdpart\Logger\src\rand\impl\StdRandom.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\sign\impl\sign.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\timer\timer.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\time\impl\time.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\track\impl\MemTrack.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.cc" />

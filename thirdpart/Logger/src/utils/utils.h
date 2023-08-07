@@ -23,7 +23,7 @@
 #include "Logger/src/rand/StdRandom.h"
 
 #include "Logger/src/lock/SpinLock.h"
-
+#include "Logger/src/time/time.h"
 #include "Logger/src/sign/sign.h"
 
 #define _CODE_ utils::format_s(_PARAM_)

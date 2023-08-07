@@ -7,9 +7,6 @@
 #define _RANDOM STD::RandomImpl::instance
 #define _WEIGHT STD::WeightImpl::instance
 
-//{std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())}
-//{std::chrono::system_clock::now().time_since_epoch().count()}
-
 //#define DEBUG_PRINT
 
 namespace STD {

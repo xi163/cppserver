@@ -130,6 +130,9 @@
       <Filter>src\sign</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\Logger\src\const.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\time\time.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -218,6 +221,12 @@
     </Filter>
     <Filter Include="src\sign\impl">
       <UniqueIdentifier>{61cd96b3-120a-484a-952d-8208094d8638}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\time">
+      <UniqueIdentifier>{95392037-de36-40bd-bf00-42b882493346}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\time\impl">
+      <UniqueIdentifier>{bf3a4ae3-72f8-48bf-bf30-4f7600d0bee5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -317,6 +326,9 @@
     <ClCompile Include="..\..\..\thirdpart\Logger\src\IncBoost.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\sign\impl\sign.cc">
       <Filter>src\sign\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\time\impl\time.cc">
+      <Filter>src\time\impl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

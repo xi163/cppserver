@@ -17,9 +17,9 @@ namespace utils {
 		std::string Encode(BOOST::Json const& data, int64_t expired, std::string const& secret) {
 			sign_t token;
 			__MY_TRY()
-				token.rand = utils::random::_charStr(_RANDOM().betweenInt(10, 20).randInt_mt());
+			token.rand = utils::random::_charStr(_RANDOM().betweenInt(10, 20).randInt_mt());
 			__MY_CATCH()
-				time_t now = (int64_t)time(NULL);
+			time_t now = (int64_t)time(NULL);
 			token.timestamp = (int64_t)now;
 			token.expired = now + expired;
 			BOOST::Json json;
