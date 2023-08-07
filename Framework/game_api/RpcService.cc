@@ -36,7 +36,7 @@ namespace rpc {
 		}
 		
 		void GameGate::doneUserScoreReq(const ::ProxyServer::Message::UserScoreRspPtr& rsp) {
-			//ptrUserScoreRsp_ = rsp;//引发崩溃BUG??？
+			//ptrUserScoreRsp_ = rsp;//引发崩溃BUG???
 		}
 	}
 }
