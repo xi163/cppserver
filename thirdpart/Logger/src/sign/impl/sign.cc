@@ -4,6 +4,7 @@
 #include "../../excp/impl/excpImpl.h"
 #include "../../crypt/aes.h"
 #include "../../log/impl/LoggerImpl.h"
+#include "../time/time.h"
 
 namespace utils {
 	namespace sign {
@@ -19,9 +20,9 @@ namespace utils {
 			__MY_TRY()
 			token.rand = utils::random::_charStr(_RANDOM().betweenInt(10, 20).randInt_mt());
 			__MY_CATCH()
-			time_t now = (int64_t)time(NULL);
-			token.timestamp = (int64_t)now;
-			token.expired = now + expired;
+			STD::time_point now(NOW());
+			token.timestamp = now.to_millisec();
+			token.expired = now.add(expired).to_millisec();
 			BOOST::Json json;
 			json.put("rand", token.rand);
 			json.put("timestamp", token.timestamp);
@@ -39,9 +40,9 @@ namespace utils {
 			__MY_TRY()
 			token.rand = utils::random::_charStr(_RANDOM().betweenInt(10, 20).randInt_mt());
 			__MY_CATCH()
-			time_t now = (int64_t)time(NULL);
-			token.timestamp = (int64_t)now;
-			token.expired = now + expired;
+			STD::time_point now(NOW());
+			token.timestamp = now.to_millisec();
+			token.expired = now.add(expired).to_millisec();
 			BOOST::Json json;
 			json.put("rand", token.rand);
 			json.put("timestamp", token.timestamp);
