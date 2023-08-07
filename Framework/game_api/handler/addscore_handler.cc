@@ -293,7 +293,7 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		//}
 		//调试模式下，打印从接收网络请求(receive)到处理完逻辑业务所经历时间dt(s)
 		std::string s = utils::sprintf(" dt(%.6fs)", muduo::timeDifference(muduo::Timestamp::now(), receiveTime));
-		BOOST::Json json;
+		json.clear();
 		json.put("account", req.Account);
 		json.put("orderid", req.orderId);
 		json.put("type", req.Type);
