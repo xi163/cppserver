@@ -271,24 +271,24 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			req.p_agent_info->score += req.scoreI64;
 		}
 		session.commit_transaction();
-		BOOST::Json root;
-		root.put("orderid", req.orderId);
-		root.put("userid", userId);
-		root.put("account", req.Account);
-		root.put("agentid", req.p_agent_info->agentId);
-		root.put("score", req.scoreI64);
-		root.put("status", 1);
-		REDISCLIENT.set("s.order:" + req.orderId + ":sub", root.to_json(), gServer->ttlExpired_);
+		BOOST::Json json;
+		json.put("orderid", req.orderId);
+		json.put("userid", userId);
+		json.put("account", req.Account);
+		json.put("agentid", req.p_agent_info->agentId);
+		json.put("score", req.scoreI64);
+		json.put("status", 1);
+		REDISCLIENT.set("s.order:" + req.orderId + ":sub", json.to_json(), gServer->ttlExpired_);
 #ifdef _STAT_ORDER_QPS_DETAIL_
 		//估算每秒请求处理数
 		* req->testTPS = (int)(1 / muduo::timeDifference(muduo::Timestamp::now(), st_collect));
 #endif
 		//if (onlinestatus) {
 #if 0
-			BOOST::Json obj;
-			obj.put("userId", userId);
-			obj.put("score", beforeScore - req.scoreI64);
-			REDISCLIENT.publishOrderScoreMessage(obj.to_json());
+			BOOST::Json json;
+			json.put("userId", userId);
+			json.put("score", beforeScore - req.scoreI64);
+			REDISCLIENT.publishOrderScoreMessage(json.to_json());
 #else
 			BroadcastGateUserScore(userId, beforeScore - req.scoreI64);
 #endif
