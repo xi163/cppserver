@@ -66,13 +66,17 @@ namespace BOOST {
 	public:
 		Any() {}
 		virtual ~Any() {}
-		virtual void bind(Json& obj) {}
-		virtual void bind(Json& obj, int i) {}
+		virtual void bind(Json&) {}
+		virtual void bind(Json&, int i) {}
 	};
 	
 	class Json {
 	public:
 		void clear();
+		
+		void parse(std::string const& s);
+		void parse(char const* data, size_t len);
+		
 		void put(std::string const& key, int val);
 		void put(std::string const& key, int64_t val);
 		void put(std::string const& key, float val);
@@ -90,14 +94,14 @@ namespace BOOST {
 		void push_back(Json const& val);
 		void push_back(Any const& val);
 		
-		std::string to_json(bool v = true);
+		std::string to_string(bool v = true);
 	private:
 		void replace_(std::string& json);
 		std::map<std::string, int> int_;
 		std::map<std::string, int64_t> i64_;
 		std::map<std::string, float> float_;
 		std::map<std::string, double> double_;
-		std::vector<Json> objlist_;
+		std::vector<Json> jsonlist_;
 		boost::property_tree::ptree pt_;
 	};
 	

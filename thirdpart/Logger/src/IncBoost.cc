@@ -13,8 +13,16 @@ namespace BOOST {
 		i64_.clear();
 		float_.clear();
 		double_.clear();
-		objlist_.clear();
+		jsonlist_.clear();
 		pt_.clear();
+	}
+	void Json::parse(std::string const& s) {
+		std::stringstream ss(s);
+		boost::property_tree::read_json(ss, pt_);
+	}
+	void Json::parse(char const* data, size_t len) {
+		std::string s(data, len);
+		parse(s);
 	}
 	void Json::put(std::string const& key, int val) {
 		pt_.put(key, ":" + key);
@@ -53,23 +61,23 @@ namespace BOOST {
 	}
 	void Json::put(std::string const& key, Json const& val) {
 		pt_.add_child(key, val.pt_);
-		objlist_.emplace_back(val);
+		jsonlist_.emplace_back(val);
 	}
 	void Json::put(std::string const& key, Any const& val) {
-		Json obj;
-		const_cast<Any&>(val).bind(obj);
-		put(key, obj);
+		Json json;
+		const_cast<Any&>(val).bind(json);
+		put(key, json);
 	}
 	void Json::push_back(Json const& val) {
 		pt_.push_back(std::make_pair("", val.pt_));
-		objlist_.emplace_back(val);
+		jsonlist_.emplace_back(val);
 	}
 	void Json::push_back(Any const& val) {
-		Json obj;
-		const_cast<Any&>(val).bind(obj, (int)pt_.size());
-		push_back(obj);
+		Json json;
+		const_cast<Any&>(val).bind(json, (int)pt_.size());
+		push_back(json);
 	}
-	std::string Json::to_json(bool v) {
+	std::string Json::to_string(bool v) {
 		std::stringstream ss;
 		boost::property_tree::write_json(ss, pt_, false);
 		std::string json = ss.str();
@@ -97,58 +105,58 @@ namespace BOOST {
 			it != double_.end(); ++it) {
 			replace(json, it->first, std::to_string(it->second));
 		}
-		for (std::vector<Json>::const_iterator it = objlist_.begin();
-			it != objlist_.end(); ++it) {
+		for (std::vector<Json>::const_iterator it = jsonlist_.begin();
+			it != jsonlist_.end(); ++it) {
 			const_cast<Json&>(*it).replace_(json);
 		}
 		clear();
 	}
 	namespace json {
 		std::string Result(int code, std::string const& msg, Json const& data) {
-			Json obj;
-			obj.put("code", code);
-			obj.put("errmsg", msg);
-			obj.put("data", data);
-			std::string json = obj.to_json(false);
-			return final_(json);
+			Json json;
+			json.put("code", code);
+			json.put("errmsg", msg);
+			json.put("data", data);
+			std::string s = json.to_string(false);
+			return final_(s);
 		}
 		std::string Result(int code, std::string const& msg, Any const& data) {
-			Json obj;
-			obj.put("code", code);
-			obj.put("errmsg", msg);
+			Json json;
+			json.put("code", code);
+			json.put("errmsg", msg);
 			switch (typeid(data) == typeid(Any)) {
 			case false:
-				obj.put("data", data);
+				json.put("data", data);
 			}
-			std::string json = obj.to_json(false);
-			return final_(json);
+			std::string s = json.to_string(false);
+			return final_(s);
 		}
 		std::string Result(int code, std::string const& msg, std::string const& extra, Json const& data) {
-			Json obj;
-			obj.put("code", code);
-			obj.put("errmsg", msg);
-			obj.put("data", data);
+			Json json;
+			json.put("code", code);
+			json.put("errmsg", msg);
+			json.put("data", data);
 			switch (extra.empty()) {
 			case false:
-				obj.put("extra", extra);
+				json.put("extra", extra);
 			}
-			std::string json = obj.to_json(false);
-			return final_(json);
+			std::string s = json.to_string(false);
+			return final_(s);
 		}
 		std::string Result(int code, std::string const& msg, std::string const& extra, Any const& data) {
-			Json obj;
-			obj.put("code", code);
-			obj.put("errmsg", msg);
+			Json json;
+			json.put("code", code);
+			json.put("errmsg", msg);
 			switch (typeid(data) == typeid(Any)) {
 			case false:
-				obj.put("data", data);
+				json.put("data", data);
 			}
 			switch (extra.empty()) {
 			case false:
-				obj.put("extra", extra);
+				json.put("extra", extra);
 			}
-			std::string json = obj.to_json(false);
-			return final_(json);
+			std::string s = json.to_string(false);
+			return final_(s);
 		}
 	}
 }

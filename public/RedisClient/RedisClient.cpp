@@ -1175,10 +1175,10 @@ bool RedisClient::ResetExpiredToken(std::string const& token) {
 
 bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::string const& account) {
     std::string key = redisKeys::prefix_token + token;
-    BOOST::Json obj;
-    obj.put("account", account);
-    obj.put("uid", userid);
-    return set(key, obj.to_json(), redisKeys::Expire_Token);
+    BOOST::Json json;
+    json.put("account", account);
+    json.put("uid", userid);
+    return set(key, json.to_string(), redisKeys::Expire_Token);
 }
 
 bool RedisClient::GetTokenInfo(std::string const& token,

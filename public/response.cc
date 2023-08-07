@@ -11,39 +11,39 @@ namespace response {
 	}
 	namespace json {
 		int Result(int code, std::string const& msg, muduo::net::HttpResponse& rsp, BOOST::Json const& data) {
-			std::string json = BOOST::json::Result(code, msg, data);
-			_LOG_ERROR("\n%s", json.c_str());
+			std::string s = BOOST::json::Result(code, msg, data);
+			_LOG_ERROR("\n%s", s.c_str());
 			rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
 			rsp.setStatusMessage("OK");
 			rsp.setContentType(ContentType_Json_utf8);
-			rsp.setBody(json);
+			rsp.setBody(s);
 			return code;
 		}
 		int Result(int code, std::string const& msg, muduo::net::HttpResponse& rsp, BOOST::Any const& data) {
-			std::string json = BOOST::json::Result(code, msg, data);
-			_LOG_ERROR("\n%s", json.c_str());
+			std::string s = BOOST::json::Result(code, msg, data);
+			_LOG_ERROR("\n%s", s.c_str());
 			rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
 			rsp.setStatusMessage("OK");
 			rsp.setContentType(ContentType_Json_utf8);
-			rsp.setBody(json);
+			rsp.setBody(s);
 			return code;
 		}
 		int Result(int code, std::string const& msg, std::string const& extra, muduo::net::HttpResponse& rsp, BOOST::Json const& data) {
-			std::string json = BOOST::json::Result(code, msg, extra, data);
-			_LOG_ERROR("\n%s", json.c_str());
+			std::string s = BOOST::json::Result(code, msg, extra, data);
+			_LOG_ERROR("\n%s", s.c_str());
 			rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
 			rsp.setStatusMessage("OK");
 			rsp.setContentType(ContentType_Json_utf8);
-			rsp.setBody(json);
+			rsp.setBody(s);
 			return code;
 		}
 		int Result(int code, std::string const& msg, std::string const& extra, muduo::net::HttpResponse& rsp, BOOST::Any const& data) {
-			std::string json = BOOST::json::Result(code, msg, extra, data);
-			_LOG_ERROR("\n%s", json.c_str());
+			std::string s = BOOST::json::Result(code, msg, extra, data);
+			_LOG_ERROR("\n%s", s.c_str());
 			rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
 			rsp.setStatusMessage("OK");
 			rsp.setContentType(ContentType_Json_utf8);
-			rsp.setBody(json);
+			rsp.setBody(s);
 			return code;
 		}
 		int Result(Msg const& msg, muduo::net::HttpResponse& rsp, BOOST::Json const& data) {
@@ -105,14 +105,14 @@ namespace response {
 			return Result(::Error.code, msg, extra, rsp, data);
 		}
 		int BadRequest(muduo::net::HttpResponse& rsp) {
-			std::string json = BOOST::json::Result(
+			std::string s = BOOST::json::Result(
 				muduo::net::HttpResponse::k400BadRequest,
 				"bad request",
 				BOOST::Any());
 			rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
 			rsp.setStatusMessage("OK");
 			rsp.setContentType(ContentType_Json_utf8);
-			rsp.setBody(json);
+			rsp.setBody(s);
 			return muduo::net::HttpResponse::k400BadRequest;
 		}
 	}
