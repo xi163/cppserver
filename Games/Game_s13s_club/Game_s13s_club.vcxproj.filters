@@ -47,24 +47,23 @@
     <ClInclude Include="AnimatePlay.h">
       <Filter>Game_s13s_club</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Framework\game_serv\interface\IPlayer.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Framework\game_serv\interface\IReplayRecord.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Framework\game_serv\interface\IRobotDelegate.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Framework\game_serv\interface\ITable.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Framework\game_serv\interface\ITableDelegate.h">
-      <Filter>interface</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\proto\s13s.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Framework\game_serv\gameDefine.h" />
+    <ClInclude Include="..\..\Framework\game_serv_club\interface\IPlayer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv_club\interface\IReplayRecord.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv_club\interface\IRobotDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv_club\interface\ITableDelegate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework\game_serv_club\interface\ITable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

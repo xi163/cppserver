@@ -9,7 +9,7 @@
 
 enum eCooType {
 	buyScore = 1, //代理买分
-	credit = 2,   //代理信用  
+	credit = 2,   //代理信用
 };
 
 enum eApiType {
