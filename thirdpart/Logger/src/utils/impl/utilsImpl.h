@@ -88,7 +88,7 @@ namespace utils {
 	bool _isDigitalStr(std::string const& s);
 
 	namespace random {
-		std::string _charStr(int n);
+		std::string _charStr(int n, rTy x = rTy::CharNumber);
 	}
 }
 

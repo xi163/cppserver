@@ -410,9 +410,9 @@ namespace utils {
 	}
 
 	namespace random {
-		std::string charStr(int n) {
+		std::string charStr(int n, rTy x) {
 			AUTHORIZATION_CHECK_S;
-			return _charStr(n);
+			return _charStr(n, x);
 		}
 	}
 }

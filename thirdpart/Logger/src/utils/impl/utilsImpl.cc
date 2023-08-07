@@ -860,7 +860,7 @@ namespace utils {
 	}
 
 	namespace random {
-		static char const* arr[] = {
+		static char const* arr[rTy::rMax] = {
 				"0123456789",
 				"abcdefghijklmnopqrstuvwxyz",
 				"abcdefghijklmnopqrstuvwxyz0123456789",
@@ -869,15 +869,15 @@ namespace utils {
 				"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz",
 				"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789",
 		};
-		std::string _charStr(int n) {
+		std::string _charStr(int n, rTy x) {
 			std::string s;
 			s.resize(n/* + 1*/);
-			static int const size = strlen((char const*)arr[5]);
-			//__LOG_TRACE("random len=%d size=%d arr[5]=%s", n, size, arr[5]);
+			static int const size = strlen((char const*)arr[x]);
+			//__LOG_TRACE("len=%d size=%d arr[%d]=%s", n, size, x, arr[x]);
 			for (int i = 0; i < n; ++i) {
 				int r = _RANDOM().betweenInt(0, size - 1).randInt_mt();
-				//__LOG_TRACE("s[%d] = arr[5][%d] = %c", i, r, arr[5][r]);
-				s[i] = arr[5][r];
+				//__LOG_TRACE("s[%d] = arr[%d][%d] = %c", i, x, r, arr[x][r]);
+				s[i] = arr[x][r];
 			}
 			//s[n] = '\0';
 			return s;

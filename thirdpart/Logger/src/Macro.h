@@ -148,6 +148,17 @@ typedef int pid_t, tid_t;
 
 #include "Logger/src/const.h"
 
+enum rTy {
+	Number = 0,
+	LowerChar = 1,
+	LowerCharNumber = 2,
+	UpperChar = 3,
+	UpperCharNumber = 4,
+	Char = 5,
+	CharNumber = 6,
+	rMax
+};
+
 #ifdef _windows_
 #pragma execution_character_set("utf-8")
 #endif

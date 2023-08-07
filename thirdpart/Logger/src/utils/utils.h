@@ -119,7 +119,7 @@ namespace utils {
 	bool isDigitalStr(std::string const& str);
 	
 	namespace random {
-		std::string charStr(int n);
+		std::string charStr(int n, rTy x = rTy::CharNumber);
 	}
 }
 
