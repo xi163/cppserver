@@ -19,36 +19,6 @@ struct LoginReq {
 	int64_t	Timestamp;
 };
 
-struct LoginRsp :
-	public BOOST::Any {
-	LoginRsp(
-		std::string const& Account,
-		int64_t userid,
-		BOOST::Any* data)
-		: Account(Account)
-		, Userid(userid), data(data) {
-	}
-	void bind(BOOST::Json& obj) {
-		obj.put("account", Account);
-		obj.put("userid", Userid);
-		obj.put("data", *data);
-	}
-	std::string Account;
-	int64_t	Userid;
-	BOOST::Any* data;
-};
-
-struct Token :
-	public BOOST::Any {
-	Token(std::string const& token)
-		: token(token) {
-	}
-	void bind(BOOST::Json& obj) {
-		obj.put("token", token);
-	}
-	std::string token;
-};
-
 int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 	const muduo::net::TcpConnectionPtr& conn,
 	muduo::Timestamp receiveTime) {
@@ -106,12 +76,18 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			}
 			_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
 			//token签名加密
-			std::string token = utils::sign::Encode(LoginRsp(model.Account, model.UserId, &servList), redisKeys::Expire_Token, descode);
+			BOOST::Json json;
+			json.put("account", model.Account);
+			json.put("userid", model.UserId);
+			json.put("data", servList);
+			std::string token = utils::sign::Encode(json, redisKeys::Expire_Token, descode);
 			//更新redis account->uid
 			REDISCLIENT.SetAccountUid(model.Account, userId);
 			//缓存token
 			REDISCLIENT.SetTokenInfo(token, userId, model.Account);
-			return response::json::OkMsg("登陆成功", rsp, Token(token));
+			json.clear();
+			json.put("token", token);
+			return response::json::OkMsg("登陆成功", rsp, json);
 		}
 		//先查redis
 		int64_t userId = 0;
@@ -172,12 +148,18 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				}
 				_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
 				//token签名加密
-				std::string token = utils::sign::Encode(LoginRsp(model.Account, userId, &servList), redisKeys::Expire_Token, descode);
+				BOOST::Json json;
+				json.put("account", model.Account);
+				json.put("userid", userId);
+				json.put("data", servList);
+				std::string token = utils::sign::Encode(json, redisKeys::Expire_Token, descode);
 				//更新redis account->uid
 				REDISCLIENT.SetAccountUid(model.Account, userId);
 				//缓存token
 				REDISCLIENT.SetTokenInfo(token, userId, model.Account);
-				return response::json::OkMsg("登陆成功", rsp, Token(token));
+				json.clear();
+				json.put("token", token);
+				return response::json::OkMsg("登陆成功", rsp, json);
 			}
 			//查询mongo命中
 			else {
@@ -188,12 +170,18 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 					return response::json::Result(ERR_GameGateNotExist, rsp);
 				}
 				//token签名加密
-				std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
+				BOOST::Json json;
+				json.put("account", req.Account);
+				json.put("userid", userId);
+				json.put("data", servList);
+				std::string token = utils::sign::Encode(json, redisKeys::Expire_Token, descode);
 				//更新redis account->uid
 				REDISCLIENT.SetAccountUid(req.Account, userId);
 				//缓存token
 				REDISCLIENT.SetTokenInfo(token, userId, req.Account);
-				return response::json::OkMsg("登陆成功", rsp, Token(token));
+				json.clear();
+				json.put("token", token);
+				return response::json::OkMsg("登陆成功", rsp, json);
 			}
 		}
 		//查询redis命中
@@ -205,12 +193,18 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				return response::json::Result(ERR_GameGateNotExist, rsp);
 			}
 			//token签名加密
-			std::string token = utils::sign::Encode(LoginRsp(req.Account, userId, &servList), redisKeys::Expire_Token, descode);
+			BOOST::Json json;
+			json.put("account", req.Account);
+			json.put("userid", userId);
+			json.put("data", servList);
+			std::string token = utils::sign::Encode(json, redisKeys::Expire_Token, descode);
 			//更新redis account->uid
 			REDISCLIENT.ResetExpiredAccountUid(req.Account);
 			//缓存token
 			REDISCLIENT.SetTokenInfo(token, userId, req.Account);
-			return response::json::OkMsg("登陆成功", rsp, Token(token));
+			json.clear();
+			json.put("token", token);
+			return response::json::OkMsg("登陆成功", rsp, json);
 		}
 	}
 	case 1: {

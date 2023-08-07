@@ -72,37 +72,39 @@ namespace BOOST {
 	
 	class Json {
 	public:
+		void clear();
 		void put(std::string const& key, int val);
 		void put(std::string const& key, int64_t val);
 		void put(std::string const& key, float val);
 		void put(std::string const& key, double val);
-
+		
 		void put(std::string const& key, int val, int i);
 		void put(std::string const& key, int64_t val, int i);
 		void put(std::string const& key, float val, int i);
 		void put(std::string const& key, double val, int i);
-
+		
 		void put(std::string const& key, std::string const& val);
+		void put(std::string const& key, Json const& val);
 		void put(std::string const& key, Any const& val);
-
+		
+		void push_back(Json const& val);
 		void push_back(Any const& val);
-
+		
 		std::string to_json(bool v = true);
 	private:
-		void reset_();
 		void replace_(std::string& json);
-	private:
 		std::map<std::string, int> int_;
 		std::map<std::string, int64_t> i64_;
 		std::map<std::string, float> float_;
 		std::map<std::string, double> double_;
 		std::vector<Json> objlist_;
-	private:
 		boost::property_tree::ptree pt_;
 	};
 	
 	namespace json {
+		std::string Result(int code, std::string const& msg, Json const& data);
 		std::string Result(int code, std::string const& msg, Any const& data = Any());
+		std::string Result(int code, std::string const& msg, std::string const& extra, Json const& data);
 		std::string Result(int code, std::string const& msg, std::string const& extra, Any const& data = Any());
 	}
 }

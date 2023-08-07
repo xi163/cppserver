@@ -16,22 +16,6 @@ struct OrderReq {
 	int* testTPS;
 };
 
-struct OrderRsp :
-	public BOOST::Any {
-	void bind(BOOST::Json& obj) {
-		obj.put("userid", userId);
-		obj.put("account", account);
-		obj.put("orderid", orderId);
-		obj.put("type", Type);
-		obj.put("score", scoreI64);
-	}
-	int	Type;
-	int64_t	userId;
-	int64_t scoreI64;
-	std::string account;
-	std::string orderId;
-};
-
 int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 	const muduo::net::TcpConnectionPtr& conn,
 	muduo::Timestamp receiveTime);

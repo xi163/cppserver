@@ -293,13 +293,12 @@ int addScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		//}
 		//调试模式下，打印从接收网络请求(receive)到处理完逻辑业务所经历时间dt(s)
 		std::string s = utils::sprintf(" dt(%.6fs)", muduo::timeDifference(muduo::Timestamp::now(), receiveTime));
-		OrderRsp orderRsp;
-		orderRsp.userId = req.userId;
-		orderRsp.account = req.Account;
-		orderRsp.orderId = req.orderId;
-		orderRsp.scoreI64 = req.scoreI64;
-		orderRsp.Type = req.Type;
-		return response::json::OkMsg("上分成功" + s, rsp, orderRsp);
+		BOOST::Json json;
+		json.put("account", req.Account);
+		json.put("orderid", req.orderId);
+		json.put("type", req.Type);
+		json.put("score", req.scoreI64);
+		return response::json::OkMsg("上分成功" + s, rsp, json);
 	}
 	catch (const bsoncxx::exception& e) {
 		if (btransaction) {

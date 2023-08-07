@@ -4,9 +4,17 @@ namespace BOOST {
 	void replace(std::string& json, const std::string& placeholder, const std::string& value) {
 		boost::replace_all<std::string>(json, "\"" + placeholder + "\"", value);
 	}
-	static std::string& final_(std::string& json) {
+	static inline std::string& final_(std::string& json) {
 		boost::replace_all<std::string>(json, "\\", "");
 		return json;
+	}
+	void Json::clear() {
+		int_.clear();
+		i64_.clear();
+		float_.clear();
+		double_.clear();
+		objlist_.clear();
+		pt_.clear();
 	}
 	void Json::put(std::string const& key, int val) {
 		pt_.put(key, ":" + key);
@@ -43,17 +51,23 @@ namespace BOOST {
 	void Json::put(std::string const& key, std::string const& val) {
 		pt_.put(key, val);
 	}
+	void Json::put(std::string const& key, Json const& val) {
+		pt_.add_child(key, val.pt_);
+		objlist_.emplace_back(val);
+	}
 	void Json::put(std::string const& key, Any const& val) {
 		Json obj;
 		const_cast<Any&>(val).bind(obj);
-		pt_.add_child(key, obj.pt_);
-		objlist_.emplace_back(obj);
+		put(key, obj);
+	}
+	void Json::push_back(Json const& val) {
+		pt_.push_back(std::make_pair("", val.pt_));
+		objlist_.emplace_back(val);
 	}
 	void Json::push_back(Any const& val) {
 		Json obj;
-		const_cast<Any&>(val).bind(obj, pt_.size());
-		pt_.push_back(std::make_pair("", obj.pt_));
-		objlist_.emplace_back(obj);
+		const_cast<Any&>(val).bind(obj, (int)pt_.size());
+		push_back(obj);
 	}
 	std::string Json::to_json(bool v) {
 		std::stringstream ss;
@@ -87,16 +101,17 @@ namespace BOOST {
 			it != objlist_.end(); ++it) {
 			const_cast<Json&>(*it).replace_(json);
 		}
-		reset_();
-	}
-	void Json::reset_() {
-		int_.clear();
-		i64_.clear();
-		float_.clear();
-		double_.clear();
-		objlist_.clear();
+		clear();
 	}
 	namespace json {
+		std::string Result(int code, std::string const& msg, Json const& data) {
+			Json obj;
+			obj.put("code", code);
+			obj.put("errmsg", msg);
+			obj.put("data", data);
+			std::string json = obj.to_json(false);
+			return final_(json);
+		}
 		std::string Result(int code, std::string const& msg, Any const& data) {
 			Json obj;
 			obj.put("code", code);
@@ -104,6 +119,18 @@ namespace BOOST {
 			switch (typeid(data) == typeid(Any)) {
 			case false:
 				obj.put("data", data);
+			}
+			std::string json = obj.to_json(false);
+			return final_(json);
+		}
+		std::string Result(int code, std::string const& msg, std::string const& extra, Json const& data) {
+			Json obj;
+			obj.put("code", code);
+			obj.put("errmsg", msg);
+			obj.put("data", data);
+			switch (extra.empty()) {
+			case false:
+				obj.put("extra", extra);
 			}
 			std::string json = obj.to_json(false);
 			return final_(json);

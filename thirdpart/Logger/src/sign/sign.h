@@ -5,9 +5,8 @@
 
 namespace utils {
 	namespace sign {
-
+		std::string Encode(BOOST::Json const& data, int64_t expired, std::string const& secret);
 		std::string Encode(BOOST::Any const& data, int64_t expired, std::string const& secret);
-
 	}
 }
 #endif
