@@ -871,12 +871,15 @@ namespace utils {
 		};
 		std::string _charStr(int n) {
 			std::string s;
-			s.resize(n + 1);
+			s.resize(n/* + 1*/);
 			static int const size = strlen((char const*)arr[5]);
+			//__LOG_TRACE("random len=%d size=%d arr[5]=%s", n, size, arr[5]);
 			for (int i = 0; i < n; ++i) {
-				s[i] = arr[5][_RANDOM().betweenInt(0, size - 1).randInt_mt()];
+				int r = _RANDOM().betweenInt(0, size - 1).randInt_mt();
+				//__LOG_TRACE("s[%d] = arr[5][%d] = %c", i, r, arr[5][r]);
+				s[i] = arr[5][r];
 			}
-			s[n] = '\0';
+			//s[n] = '\0';
 			return s;
 		}
 	}

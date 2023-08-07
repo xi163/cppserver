@@ -22,7 +22,7 @@
 #define _PARAM_ERROR     1,__FILE__,__LINE__,__FUNC__,NULL
 #define _PARAM_WARN      2,__FILE__,__LINE__,__FUNC__,NULL
 #define _PARAM_INFO      3,__FILE__,__LINE__,__FUNC__,NULL
-#define _PARAM_TRACE     4,__FILE__,__LINE__,__FUNC__,__STACK__
+#define _PARAM_TRACE     4,__FILE__,__LINE__,__FUNC__,NULL
 #define _PARAM_DEBUG     5,__FILE__,__LINE__,__FUNC__,NULL
 
 namespace LOGGER {
