@@ -238,6 +238,72 @@ namespace mgo {
 		return false;
 	}
 	
+	bool LoadGameRoomInfos(::HallServer::GetGameMessageResponse& gameinfos) {
+		//gameinfos.clear_header();
+		//gameinfos.clear_gamemessage();
+		try {
+			mongocxx::cursor cursor = opt::Find(
+				mgoKeys::db::GAMECONFIG,
+				mgoKeys::tbl::GAME_KIND,
+				{}, {});
+			for (auto& view : cursor) {
+				//_LOG_DEBUG("%s", to_json(view).c_str());
+				::HallServer::GameMessage* gameinfo_ = gameinfos.add_gamemessage();
+				gameinfo_->set_gameid(view["gameid"].get_int32());
+				gameinfo_->set_gamename(view["gamename"].get_utf8().value.to_string());
+				gameinfo_->set_gamesortid(view["sort"].get_int32());//游戏排序0 1 2 3 4
+				gameinfo_->set_gametype(view["type"].get_int32());//0-百人场 1-对战类
+				gameinfo_->set_gameishot(view["ishot"].get_int32());//0-正常 1-火爆 2-新
+				gameinfo_->set_gamestatus(view["status"].get_int32());//-1:关停 0:暂未开放 1：正常开启 2：敬请期待 3: 正在维护
+				if (view["rooms"]) {
+					switch (view["rooms"].type()) {
+					case bsoncxx::type::k_array: {
+						auto rooms = view["rooms"].get_array();
+						for (auto& item : rooms.value) {
+							::HallServer::GameRoomMessage* roomInfo_ = gameinfo_->add_gameroommsg();
+							roomInfo_->set_roomid(item["roomid"].get_int32());//房间编号 初 中 高 房间
+							roomInfo_->set_roomname(item["roomname"].get_utf8().value.to_string());
+							roomInfo_->set_tablecount(item["tablecount"].get_int32());
+							roomInfo_->set_ceilscore(item["ceilscore"].get_int64());
+							roomInfo_->set_floorscore(item["floorscore"].get_int64());
+							roomInfo_->set_enterminscore(item["enterminscore"].get_int64());//最小准入分
+							roomInfo_->set_entermaxscore(item["entermaxscore"].get_int64());//最大准入分
+							roomInfo_->set_minplayernum(item["minplayernum"].get_int32());//最少游戏人数
+							roomInfo_->set_maxplayernum(item["maxplayernum"].get_int32());//最多游戏人数
+							roomInfo_->set_maxjettonscore(item["maxjettonscore"].get_int64());//各区域最大下注(限红)
+							roomInfo_->set_status(item["status"].get_int32());//-1:关停 0:暂未开放 1：正常开启 2：敬请期待 3: 正在维护
+							document::element elem = item["jettons"];
+							b_array jettons = elem.type() == bsoncxx::type::k_array ?
+											  elem.get_array() :
+											  elem["_v"].get_array();
+							for (auto& val : jettons.value) {
+								roomInfo_->add_jettons(val.get_int64());
+							}
+						}
+						break;
+					}
+					}
+				}
+			}
+			return true;
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+	
 	bool LoadGameRoomInfo(
 		uint32_t gameid, uint32_t roomid,
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_) {
@@ -269,7 +335,7 @@ namespace mgo {
 					break;
 				}
 			}
-			//排序方式
+			//游戏排序0 1 2 3 4
 			if (view["sort"]) {
 				switch (view["sort"].type()) {
 				case bsoncxx::type::k_int64:
@@ -299,7 +365,7 @@ namespace mgo {
 					break;
 				}
 			}
-			//百人/对战
+			//0-百人场 1-对战类
 			if (view["type"]) {
 				switch (view["type"].type()) {
 				case bsoncxx::type::k_int64:
@@ -310,17 +376,18 @@ namespace mgo {
 					break;
 				}
 			}
-// 			if (view["ishot"]) {
-// 				switch (view["ishot"].type()) {
-// 				case bsoncxx::type::k_int64:
-// 					view["ishot"].get_int64();
-// 					break;
-// 				case bsoncxx::type::k_int32:
-// 					view["ishot"].get_int32();
-// 					break;
-// 				}
-// 			}
-			//服务中/维护中
+			//0-正常 1-火爆 2-新
+			if (view["ishot"]) {
+				switch (view["ishot"].type()) {
+				case bsoncxx::type::k_int64:
+					view["ishot"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					view["ishot"].get_int32();
+					break;
+				}
+			}
+			//-1:关停 0:暂未开放 1：正常开启 2：敬请期待 3: 正在维护
 			if (view["status"]) {
 				switch (view["status"].type()) {
 				case bsoncxx::type::k_int64:
@@ -365,7 +432,7 @@ namespace mgo {
 							continue;
 						}
 						roomInfo_.gameId = gameid;
-						roomInfo_.roomId = roomid;
+						roomInfo_.roomId = roomid;//房间编号 初 中 高 房间
 						roomInfo_.roomName = item["roomname"].get_utf8().value.to_string();
 						roomInfo_.tableCount = item["tablecount"].get_int32();
 						roomInfo_.floorScore = item["floorscore"].get_int64();
@@ -457,7 +524,7 @@ namespace mgo {
 					break;
 				}
 			}
-			//排序方式
+			//游戏排序0 1 2 3 4
 			if (view["sort"]) {
 				switch (view["sort"].type()) {
 				case bsoncxx::type::k_int64:
@@ -487,7 +554,7 @@ namespace mgo {
 					break;
 				}
 			}
-			//百人/对战
+			//0-百人场 1-对战类
 			if (view["type"]) {
 				switch (view["type"].type()) {
 				case bsoncxx::type::k_int64:
@@ -498,17 +565,18 @@ namespace mgo {
 					break;
 				}
 			}
-// 			if (view["ishot"]) {
-// 				switch (view["ishot"].type()) {
-// 				case bsoncxx::type::k_int64:
-// 					view["ishot"].get_int64();
-// 					break;
-// 				case bsoncxx::type::k_int32:
-// 					view["ishot"].get_int32();
-// 					break;
-// 				}
-// 			}
-			//服务中/维护中
+			//0-正常 1-火爆 2-新
+			if (view["ishot"]) {
+				switch (view["ishot"].type()) {
+				case bsoncxx::type::k_int64:
+					view["ishot"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					view["ishot"].get_int32();
+					break;
+				}
+			}
+			//-1:关停 0:暂未开放 1：正常开启 2：敬请期待 3: 正在维护
 			if (view["status"]) {
 				switch (view["status"].type()) {
 				case bsoncxx::type::k_int64:
@@ -553,7 +621,7 @@ namespace mgo {
 							continue;
 						}
 						roomInfo_.gameId = gameid;
-						roomInfo_.roomId = roomid;
+						roomInfo_.roomId = roomid;//房间编号
 						roomInfo_.roomName = item["roomname"].get_utf8().value.to_string();
 						roomInfo_.tableCount = item["tablecount"].get_int32();
 						roomInfo_.floorScore = item["floorscore"].get_int64();
@@ -828,7 +896,16 @@ namespace mgo {
 		}
 		return true;
 	}
-
+	
+	bool updateUserOnline(int64_t userid, int32_t status) {
+		return UpdateUser(
+			builder::stream::document{} << "$set"
+			<< open_document <<
+			"onlinestatus" << b_int32{ status }
+			<< close_document << finalize,
+			builder::stream::document{} << "userid" << userid << finalize);
+	}
+	
 	bool UpdateAgent(
 		document::view_or_value const& update,
 		document::view_or_value const& where) {

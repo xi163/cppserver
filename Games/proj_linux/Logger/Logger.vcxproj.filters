@@ -133,6 +133,12 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\time\time.h">
       <Filter>src\time</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\generic\generic.h">
+      <Filter>src\generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\generic\variant.h">
+      <Filter>src\generic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -227,6 +233,12 @@
     </Filter>
     <Filter Include="src\time\impl">
       <UniqueIdentifier>{bf3a4ae3-72f8-48bf-bf30-4f7600d0bee5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\generic">
+      <UniqueIdentifier>{b7215065-14e1-485c-aa27-df2a8c3a300b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\generic\impl">
+      <UniqueIdentifier>{ec6320ca-123c-463c-b707-2dc8af492645}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -329,6 +341,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\Logger\src\time\impl\time.cc">
       <Filter>src\time\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\generic\impl\generic.cc">
+      <Filter>src\generic\impl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

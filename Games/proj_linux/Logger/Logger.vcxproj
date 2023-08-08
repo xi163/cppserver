@@ -46,6 +46,8 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\crypt\url.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\excp.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\excp\impl\excpImpl.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\generic\generic.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\generic\variant.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\IncBoost.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\ini\ini.h" />
@@ -90,6 +92,7 @@
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\md5.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\sha1.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\crypt\url.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\generic\impl\generic.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\IncBoost.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\ini.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cc" />

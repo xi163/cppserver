@@ -5,6 +5,7 @@
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 #include "public/errorCode.h"
+#include "proto/HallServer.Message.pb.h"
 
 namespace mgo {
 	
@@ -44,7 +45,8 @@ namespace mgo {
 			document::view_or_value const& select,
 			document::view_or_value const& update,
 			document::view_or_value const& where);
-	}
+	
+	} // namespace opt
 	
 	int64_t NewUserId(
 		document::view_or_value const& select,
@@ -65,6 +67,9 @@ namespace mgo {
 		document::view_or_value const& where,
 		UserBaseInfo& info);
 	
+	bool LoadGameRoomInfos(
+		::HallServer::GetGameMessageResponse& gameinfos);
+	
 	bool LoadGameRoomInfo(
 		uint32_t gameid, uint32_t roomid,
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_);
@@ -80,6 +85,8 @@ namespace mgo {
 	bool UpdateUser(
 		document::view_or_value const& update,
 		document::view_or_value const& where);
+	
+	bool updateUserOnline(int64_t userid, int32_t status);
 	
 	bool UpdateAgent(
 		document::view_or_value const& update,

@@ -26,6 +26,8 @@
 #include "Logger/src/time/time.h"
 #include "Logger/src/sign/sign.h"
 
+#include "Logger/src/generic/generic.h"
+
 #define _CODE_ utils::format_s(_PARAM_)
 
 namespace utils {

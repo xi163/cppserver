@@ -162,13 +162,20 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 			maxAndroid_ = randomMaxAndroidCount();
 		//游戏开始了机器人新玩家不准进入
 		if (table_->GetGameStatus() >= GAME_STATUS_START) {
-			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 1";
+			if (table_->GetRobotPlayerCount() >= maxAndroid_) {
+				return false;
+			}
+			static STD::Random r(1, 100);
+			if (r.randInt_mt() <= 20) {
+				return true;
+			}
 			return false;
 		}
 		//匹配真人时间或没有真人玩家，机器人不准进入
-		if (totalMatchSeconds_ < timeoutMatchSeconds_ || table_->GetRealPlayerCount() < 1) {
-			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 2";
-			return false;
+//		if (totalMatchSeconds_ < timeoutMatchSeconds_ || table_->GetRealPlayerCount() < 1) {
+//			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 2";
+//
+//			return false;
 		}
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " " << table_->GetRobotPlayerCount() << "<" << maxAndroid_ << " true 1";
 		//根据房间机器人配置来决定补充多少机器人
@@ -176,10 +183,10 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 	}
 	else if (player->GetUserId() == 0) { //new real user enter
 		//游戏开始了真人新玩家不准进入
-		if (table_->GetGameStatus() >= GAME_STATUS_START) {
-			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 3";
-			return false;
-		}
+		//if (table_->GetGameStatus() >= GAME_STATUS_START) {
+		//	//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 3";
+		//	return false;
+		//}
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 2";
 		return true;
 	}
