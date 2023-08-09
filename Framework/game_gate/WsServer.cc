@@ -207,71 +207,67 @@ void GateServ::asyncClientHandler(
 			}
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL: {
 				TraceMessageID(header->mainId, header->subId);
-				{
-					Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-					int64_t userId = entryContext.getUserId();
-					uint32_t clientIp = entryContext.getFromIp();
-					std::string const& session = entryContext.getSession();
-					std::string const& aesKey = entryContext.getAesKey();
-					ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
-					muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
-					assert(header->len == len);
-					assert(header->len >= packet::kHeaderLen);
-					//非登录消息 userid > 0
-					if (header->subId != ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ &&
-						userId == 0) {
-						_LOG_ERROR("user Must Login Hall Server First!");
-						break;
-					}
-					BufferPtr buffer = packet::packMessage(
-						userId,
-						session,
-						aesKey,
-						clientIp,
-						0,
+				Context& entryContext = boost::any_cast<Context&>(conn->getContext());
+				int64_t userId = entryContext.getUserId();
+				uint32_t clientIp = entryContext.getFromIp();
+				std::string const& session = entryContext.getSession();
+				std::string const& aesKey = entryContext.getAesKey();
+				ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
+				muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
+				assert(header->len == len);
+				assert(header->len >= packet::kHeaderLen);
+				//非登录消息 userid > 0
+				if (header->subId != ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ &&
+					userId == 0) {
+					_LOG_ERROR("user Must Login Hall Server First!");
+					break;
+				}
+				BufferPtr buffer = packet::packMessage(
+					userId,
+					session,
+					aesKey,
+					clientIp,
+					0,
 #if 1
-						nodeValue_,
+					nodeValue_,
 #endif
-						buf->peek(),
-						header->len);
-					if (buffer) {
-						sendHallMessage(entryContext, buffer, userId);
-					}
+					buf->peek(),
+					header->len);
+				if (buffer) {
+					sendHallMessage(entryContext, buffer, userId);
 				}
 				break;
 			}
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER:
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC: {
 				TraceMessageID(header->mainId, header->subId);
-				{
-					Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-					int64_t userId = entryContext.getUserId();
-					uint32_t clientIp = entryContext.getFromIp();
-					std::string const& session = entryContext.getSession();
-					std::string const& aesKey = entryContext.getAesKey();
-					ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
-					muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
-					assert(header->len == len);
-					assert(header->len >= packet::kHeaderLen);
-					if (userId == 0) {
-						_LOG_ERROR("user Must Login Hall Server First!");
-						break;
+				Context& entryContext = boost::any_cast<Context&>(conn->getContext());
+				int64_t userId = entryContext.getUserId();
+				uint32_t clientIp = entryContext.getFromIp();
+				std::string const& session = entryContext.getSession();
+				std::string const& aesKey = entryContext.getAesKey();
+				ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
+				muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
+				assert(header->len == len);
+				assert(header->len >= packet::kHeaderLen);
+				if (userId == 0) {
+					_LOG_ERROR("user Must Login Hall Server First!");
+					break;
 				}
-					BufferPtr buffer = packet::packMessage(
-						userId,
-						session,
-						aesKey,
-						clientIp,
-						0,
+				BufferPtr buffer = packet::packMessage(
+					userId,
+					session,
+					aesKey,
+					clientIp,
+					0,
 #if 1
-						nodeValue_,
+					nodeValue_,
 #endif
-						buf->peek(),
-						header->len);
-					if (buffer) {
-						sendGameMessage(entryContext, buffer, userId);
-					}
-			}
+					buf->peek(),
+					header->len);
+				if (buffer) {
+					sendGameMessage(entryContext, buffer, userId);
+				}
 				break;
 			}
 			default: {
