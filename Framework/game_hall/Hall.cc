@@ -1,5 +1,6 @@
 
 #include "Hall.h"
+#include "public/mgoOperation.h"
 
 HallServ::HallServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr) :
@@ -629,7 +630,11 @@ void HallServ::cmd_on_user_login(
 						//redis更新登陆时间
 						REDISCLIENT.SetUserLoginInfo(userid, "lastlogintime", std::to_string(chrono::system_clock::to_time_t(now)));
 						//redis更新token过期时间
+#if 0
 						REDISCLIENT.ResetExpiredToken(token);
+#else
+						REDISCLIENT.SetTokenInfoIP(token, conn->peerAddress().toIpPort());
+#endif					
 						_LOG_DEBUG("%d LOGIN SERVER OK!", userid);
 					}
 					else {
@@ -675,7 +680,7 @@ void HallServ::cmd_on_user_offline(
 	uint8_t const* msg = packet::get_msg(buf);
 	size_t msgLen = packet::get_msglen(buf);
 	int64_t userid = pre_header_->userId;
-	db_update_online_status(userid, 0);
+	mgo::updateUserOnline(userid, 0);
 	std::string lastLoginTime;
 	if (REDISCLIENT.GetUserLoginInfo(userid, "lastlogintime", lastLoginTime)) {
 		std::chrono::system_clock::time_point loginTime = std::chrono::system_clock::from_time_t(stoull(lastLoginTime));
@@ -740,6 +745,7 @@ void HallServ::cmd_get_playing_game_info(
 			pre_header_, header_);
 	}
 }
+
 /// <summary>
 /// 查询指定游戏节点
 /// </summary>
@@ -1037,91 +1043,19 @@ void HallServ::cmd_get_task_award(
 }
 
 void HallServ::db_refresh_game_room_info() {
-	static STD::Random r(0, threadPool_.size() - 1);
-	int index = r.randInt_re();
-	assert(index >= 0 && index < threadPool_.size());
-	threadPool_[index]->run(std::bind(&HallServ::db_update_game_room_info, this));
+	MY_TRY()
+	int index = RANDOM().betweenInt(0, threadPool_.size() - 1).randInt_re();
+	if (index >= 0 && index < threadPool_.size()) {
+		threadPool_[index]->run(std::bind(&HallServ::db_update_game_room_info, this));
+	}
+	MY_CATCH()
 }
 
 void HallServ::db_update_game_room_info() {
 	WRITE_LOCK(gameinfo_mutex_);
 	gameinfo_.clear_header();
 	gameinfo_.clear_gamemessage();
-	try {
-		//游戏类型，抽水率，排序id，游戏类型，热度，维护状态，游戏名称
-		uint32_t gameid = 0, revenueratio = 0, gamesortid = 0, gametype = 0, gameishot = 0;
-		std::string gamename;
-		int32_t gamestatus = 0;
-		//房间号，桌子数量，最小/最多游戏人数，房间状态，房间名称
-		uint32_t roomid = 0, tableCount = 0, minPlayerNum = 0, maxPlayerNum = 0, roomstatus = 0;
-		std::string roomname;
-		//房间底注，房间顶注，最小/最大准入分，区域限红
-		int64_t floorscore, ceilscore, enterMinScore, enterMaxScore, maxJettonScore;
-
-		mongocxx::collection kindCollection = MONGODBCLIENT["gameconfig"]["game_kind"];
-		mongocxx::cursor cursor = kindCollection.find({});
-		for (auto& doc : cursor) {
-			//_LOG_DEBUG("%s", bsoncxx::to_json(doc).c_str());
-			gameid = doc["gameid"].get_int32();						//游戏ID
-			gamename = doc["gamename"].get_utf8().value.to_string();//游戏名称
-			gamesortid = doc["sort"].get_int32();					//游戏排序0 1 2 3 4
-			gametype = doc["type"].get_int32();						//0-百人场  1-对战类
-			gameishot = doc["ishot"].get_int32();					//0-正常 1-火爆 2-新
-			gamestatus = doc["status"].get_int32();					//-1:关停 0:暂未开放 1：正常开启  2：敬请期待
-			::HallServer::GameMessage* gameMsg = gameinfo_.add_gamemessage();
-			gameMsg->set_gameid(gameid);
-			gameMsg->set_gamename(gamename);
-			gameMsg->set_gamesortid(gamesortid);
-			gameMsg->set_gametype(gametype);
-			gameMsg->set_gameishot(gameishot);
-			gameMsg->set_gamestatus(gamestatus);
-			//各游戏房间
-			auto rooms = doc["rooms"].get_array();
-			for (auto& doc_ : rooms.value)
-			{
-				roomid = doc_["roomid"].get_int32();						//房间类型 初 中 高 房间
-				roomname = doc_["roomname"].get_utf8().value.to_string();//类型名称 初 中 高
-				tableCount = doc_["tablecount"].get_int32();				//桌子数量 有几桌游戏开启中
-				floorscore = doc_["floorscore"].get_int64();				//房间底注
-				ceilscore = doc_["ceilscore"].get_int64();				//房间顶注
-				enterMinScore = doc_["enterminscore"].get_int64();		//进游戏最低分(最小准入分)
-				enterMaxScore = doc_["entermaxscore"].get_int64();		//进游戏最大分(最大准入分)
-				minPlayerNum = doc_["minplayernum"].get_int32();			//最少游戏人数(至少几人局)
-				maxPlayerNum = doc_["maxplayernum"].get_int32();			//最多游戏人数(最大几人局)
-				maxJettonScore = doc_["maxjettonscore"].get_int64();		//各区域最大下注(区域限红)
-				roomstatus = doc_["status"].get_int32();					//-1:关停 0:暂未开放 1：正常开启  2：敬请期待
-
-				::HallServer::GameRoomMessage* roomMsg = gameMsg->add_gameroommsg();
-				roomMsg->set_roomid(roomid);
-				roomMsg->set_roomname(roomname);
-				roomMsg->set_tablecount(tableCount);
-				roomMsg->set_floorscore(floorscore);
-				roomMsg->set_ceilscore(ceilscore);
-				roomMsg->set_enterminscore(enterMinScore);
-				roomMsg->set_entermaxscore(enterMaxScore);
-				roomMsg->set_minplayernum(minPlayerNum);
-				roomMsg->set_maxplayernum(maxPlayerNum);
-				roomMsg->set_maxjettonscore(maxJettonScore);
-				roomMsg->set_status(roomstatus);
-				//配置可下注筹码数组
-				bsoncxx::types::b_array jettons;
-				bsoncxx::document::element elem = doc_["jettons"];
-				if (elem.type() == bsoncxx::type::k_array)
-					jettons = elem.get_array();
-				else
-					jettons = doc_["jettons"]["_v"].get_array();
-				for (auto& jetton : jettons.value) {
-					roomMsg->add_jettons(jetton.get_int64());
-				}
-				//房间在游戏中人数
-				roomMsg->set_playernum(0);
-			}
-		}
-		//redis_update_room_player_nums();
-	}
-	catch (exception& e) {
-		_LOG_ERROR(e.what());
-	}
+	mgo::LoadGameRoomInfos(gameinfo_);
 }
 
 
@@ -1240,36 +1174,6 @@ bool HallServ::db_update_login_info(
 	return bok;
 }
 
-//db更新用户在线状态
-bool HallServ::db_update_online_status(int64_t userid, int32_t status) {
-	bool bok = false;
-	try {
-		//////////////////////////////////////////////////////////////////////////
-		//玩家登陆网关服信息
-		//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-		//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-		//网关服ID格式：session|ip:port:port:pid
-		//第一个ip:port是网关服监听客户端的标识
-		//第二个ip:port是网关服监听订单服的标识
-		//pid标识网关服进程id
-		//////////////////////////////////////////////////////////////////////////
-		REDISCLIENT.del("s.uid:" + to_string(userid) + ":proxy");
-		bsoncxx::document::value query_value = document{} << "userid" << userid << finalize;
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		bsoncxx::document::value update_value = document{}
-			<< "$set" << open_document
-			<< "onlinestatus" << bsoncxx::types::b_int32{ status }
-			<< close_document
-			<< finalize;
-		userCollection.update_one(query_value.view(), update_value.view());
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
-}
-
 //db添加用户登陆日志
 bool HallServ::db_add_login_logger(
 	int64_t userid,
@@ -1330,4 +1234,107 @@ bool HallServ::db_add_logout_logger(
 		_LOG_ERROR(e.what());
 	}
 	return bok;
+}
+
+
+//===================俱乐部==================
+
+// 获取游戏服务器IP
+void HallServ::GetGameServerMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取我的俱乐部
+void HallServ::GetMyClubGameMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 加入俱乐部
+void HallServ::JoinTheClubMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 退出俱乐部
+void HallServ::ExitTheClubMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 设置是否开启自动成为合伙人
+void HallServ::SetAutoBecomePartnerMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 成为合伙人
+void HallServ::BecomePartnerMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 佣金兑换金币
+void HallServ::ExchangeRevenueMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取佣金提取记录 
+void HallServ::GetExchangeRevenueRecordMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取我的业绩
+void HallServ::GetMyAchievementMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取会员业绩详情
+void HallServ::GetAchievementDetailMemberMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取合伙人业绩详情
+void HallServ::GetAchievementDetailPartnerMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取俱乐部内我的团队我的俱乐部
+void HallServ::GetMyClubMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取我的团队成员
+void HallServ::GetMyTeamMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 设置下一级合伙人提成比例
+void HallServ::SetSubordinateRateMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取游戏明细记录
+void HallServ::GetPlayRecordMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取玩家俱乐部所有游戏记录列表
+void HallServ::GetAllPlayRecordMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取玩家账户明细列表
+void HallServ::GetUserScoreChangeRecordMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 我的上级信息
+void HallServ::GetClubPromoterInfoMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 开除此用户
+void HallServ::FireMemberMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+}
+
+// 获取俱乐部申请QQ
+void HallServ::GetApplyClubQQMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
 }

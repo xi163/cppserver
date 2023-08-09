@@ -1258,7 +1258,7 @@ bool RedisClient::ResetExpiredToken(std::string const& token) {
 	return resetExpired(key, redisKeys::Expire_Token);
 }
 
-bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::string const& account, std::string const& gateip) {
+bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::string const& account) {
     std::string key = redisKeys::prefix_token + token;
     //BOOST::Json json;
     //json.put("account", account);
@@ -1268,7 +1268,7 @@ bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::st
     STD::generic_map m;
     m["account"] = account;
     m["uid"] = userid;
-    m["gateip"] = gateip;
+    //m["gateip"] = gateip;
     return hmset(key, m, redisKeys::Expire_Token);
 }
 
@@ -1278,17 +1278,23 @@ bool RedisClient::GetTokenInfo(std::string const& token,
 	bool ok = false;
     STD::generic_map m;
 	std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userid);
-	std::string fields[] = { "uid", "account", "agentid", "gateip" };
+	std::string fields[] = { "uid", "account" };
 	bool bExist = hmget(strKeyName, fields, CountArray(fields), m);
-	if ((bExist) && (!m.empty()))
+	if (/*(bExist) &&*/ !m.empty())
 	{
-        userid = m["uid"].as_int64();
-        account = m["account"].as_string();
+        if (m.has("uid")) {
+            userid = m["uid"].as_int64();
+        }
+        if (m.has("account")) {
+            account = m["account"].as_string();
+        }
         //agentid = m["agentid"].as_uint();
         //gateip = m["gateip"].as_string();
-		ok = true;
 	}
-	return ok;
+    else {
+        _LOG_ERROR("");
+    }
+	return userid > 0 && !account.empty();
 // 	try {
 // 		std::string value;
 // 		if (get(key, value)) {
@@ -1307,43 +1313,54 @@ bool RedisClient::GetTokenInfo(std::string const& token,
 //	return false;
 }
 
+bool RedisClient::SetTokenInfoIP(std::string const& token, std::string const& gateip) {
+	std::string key = redisKeys::prefix_token + token;
+	return hset(key, "gateip", gateip, redisKeys::Expire_Token);
+}
+
+bool RedisClient::GetTokenInfoIP(std::string const& token, std::string& gateip)
+{
+    std::string key = redisKeys::prefix_token + token;
+	return hget(key, "gateip", gateip);
+}
+
 //=================================================
 bool RedisClient::SetUserOnlineInfo(int64_t userId, uint32_t nGameId, uint32_t nRoomId)
 {
    std::string strKeyName = REDIS_ONLINE_PREFIX+ to_string(userId);
 
-    redis::RedisValue values;
-    values["nGameId"] = nGameId;
-    values["nRoomId"] = nRoomId;
+   STD::generic_map values;
+    values["gameid"] = nGameId;
+    values["roomid"] = nRoomId;
     return hmset(strKeyName, values, MAX_USER_ONLINE_INFO_IDLE_TIME);
 }
 
 bool RedisClient::GetUserOnlineInfo(int64_t userId, uint32_t &nGameId, uint32_t &nRoomId)
 {
     bool ok = false;
-    redis::RedisValue redisValue;
+    STD::generic_map redisValue;
     std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    std::string fields[]   = {"nGameId", "nRoomId"};
+    std::string fields[]   = {"gameid", "roomid"};
     bool bExist = hmget(strKeyName, fields, CountArray(fields), redisValue);
     if  ((bExist) && (!redisValue.empty()))
     {
-        nGameId     = redisValue["nGameId"].asInt();
-        nRoomId     = redisValue["nRoomId"].asInt();
+        nGameId     = redisValue["gameid"].as_uint();
+        nRoomId     = redisValue["roomid"].as_uint();
         ok = true;
     }
     return ok;
 }
 
-bool RedisClient::SetUserOnlineInfoIP(int64_t userId, std::string ip)
+bool RedisClient::SetUserOnlineInfoIP(int64_t userId, std::string const& gameip)
 {
     std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    return hset(strKeyName, "GameServerIP", ip, MAX_USER_ONLINE_INFO_IDLE_TIME);
+    return hset(strKeyName, "gameip", gameip, MAX_USER_ONLINE_INFO_IDLE_TIME);
 }
 
-bool RedisClient::GetUserOnlineInfoIP(int64_t userId, std::string &ip)
+bool RedisClient::GetUserOnlineInfoIP(int64_t userId, std::string & gameip)
 {
     std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    return hget(strKeyName, "GameServerIP", ip);
+    return hget(strKeyName, "gameip", gameip);
 }
 
 bool RedisClient::ResetExpiredUserOnlineInfo(int64_t userId,int timeout)

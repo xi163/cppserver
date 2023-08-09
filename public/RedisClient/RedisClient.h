@@ -234,13 +234,15 @@ public:
     bool GetAccountUid(std::string const& account, int64_t& userId);
     bool SetAccountUid(std::string const& account, int64_t userid);
     bool ResetExpiredToken(std::string const& token);
-    bool SetTokenInfo(std::string const& token, int64_t userid, std::string const& account, std::string const& gateip = "");
+    bool SetTokenInfo(std::string const& token, int64_t userid, std::string const& account);
     bool GetTokenInfo(std::string const& token,
         int64_t& userid, std::string& account, uint32_t& agentid);
+    bool SetTokenInfoIP(std::string const& token, std::string const& gateip);
+    bool GetTokenInfoIP(std::string const& token, std::string& gateip);
     bool SetUserOnlineInfo(int64_t userId, uint32_t nGameId, uint32_t nRoomId);
     bool GetUserOnlineInfo(int64_t userId, uint32_t &nGameId, uint32_t &nRoomId);
-    bool SetUserOnlineInfoIP(int64_t userId, std::string ip);
-    bool GetUserOnlineInfoIP(int64_t userId, std::string &ip);
+    bool SetUserOnlineInfoIP(int64_t userId, std::string const& gameip);
+    bool GetUserOnlineInfoIP(int64_t userId, std::string &gameip);
     bool ResetExpiredUserOnlineInfo(int64_t userId,int timeout = MAX_USER_ONLINE_INFO_IDLE_TIME);
     bool ExistsUserOnlineInfo(int64_t userId);
     bool DelUserOnlineInfo(int64_t userId);

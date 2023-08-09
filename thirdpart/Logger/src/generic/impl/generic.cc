@@ -5,6 +5,10 @@
 
 namespace STD {
 
+	bool generic_map::has(std::string const& key) {
+		return find(key) != end();
+	}
+
 	any& generic_map::operator[](std::string const& key) {
 		map::iterator it = find(key);
 		if (it != end()) {

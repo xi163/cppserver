@@ -2,7 +2,7 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
-    <RemoteDebuggingMode>gdb</RemoteDebuggingMode>
+    <RemoteDebuggingMode>gdbserver</RemoteDebuggingMode>
     <RemoteDebuggerCommandArguments>
     </RemoteDebuggerCommandArguments>
     <PreLaunchCommand>
