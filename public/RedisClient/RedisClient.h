@@ -180,6 +180,9 @@ public:
     bool hmget(std::string key, std::string* fields, int count, redis::RedisValue& redisValue);
     bool hmset(std::string key, redis::RedisValue& redisValue, int timeout=0);
 
+	bool hmget(std::string key, std::string* fields, int count, STD::generic_map& m);
+	bool hmset(std::string key, STD::generic_map& m, int timeout = 0);
+
     bool hmget(std::string key, std::vector<std::string>fields, std::vector<std::string> &values);
     bool hmset(std::string key, std::vector<std::string>fields, std::vector<std::string>values, int timeout=0);
     bool hmset(std::string key, std::map<std::string,std::string> fields,int timeout=0);
@@ -231,7 +234,7 @@ public:
     bool GetAccountUid(std::string const& account, int64_t& userId);
     bool SetAccountUid(std::string const& account, int64_t userid);
     bool ResetExpiredToken(std::string const& token);
-    bool SetTokenInfo(std::string const& token, int64_t userid, std::string const& account);
+    bool SetTokenInfo(std::string const& token, int64_t userid, std::string const& account, std::string const& gateip = "");
     bool GetTokenInfo(std::string const& token,
         int64_t& userid, std::string& account, uint32_t& agentid);
     bool SetUserOnlineInfo(int64_t userId, uint32_t nGameId, uint32_t nRoomId);

@@ -579,6 +579,91 @@ bool RedisClient::hmset(std::string key, redis::RedisValue& values, int timeout)
     return OK;
 }
 
+bool RedisClient::hmget(std::string key, std::string* fields, int count, STD::generic_map& m) {
+	bool OK = false;
+    m.clear();
+	while (true)
+	{
+		if ((!fields) || (!count))
+			break;
+		std::string cmd = "HMGET " + key;
+		for (int i = 0; i < count; i++)
+		{
+			cmd += " " + fields[i];
+		}
+
+		// try to build the special command to read redis map value the the reply content.
+		redisReply* reply = (redisReply*)REDIS_COMMAND(m_redisClientContext, cmd.c_str());
+		if (reply)
+		{
+			OK = true;
+			for (int i = 0; i < reply->elements; ++i)
+			{
+				redisReply* tmpReply = reply->element[i];
+				std::string field = fields[i];
+				if (tmpReply->str)
+				{
+					m[field] = tmpReply->str;
+				}
+				//                else {
+				//                    values[field] = "";
+				//                }
+			}
+
+			freeReplyObject(reply);
+			break;
+		}
+		else
+			ReConnect();
+	}
+
+
+	return OK;
+}
+
+bool RedisClient::hmset(std::string key, STD::generic_map& m, int timeout = 0) {
+	bool OK = false;
+	std::string cmd = "HMSET " + key;
+    for(STD::generic_map::iterator it = m.begin(); it != m.end(); ++it)
+	{
+		std::string field = it->first;
+		std::string value = it->second.to_string();
+		if (value.length())
+		{
+			value = string_replace(value, " ", "_");
+			cmd += " " + field + " " + value;
+		}
+	}
+
+	while (true)
+	{
+		// try to build the special command to read redis map value the the reply content.
+		redisReply* reply = (redisReply*)REDIS_COMMAND(m_redisClientContext, cmd.c_str());
+		if (reply)
+		{
+			OK = false;
+			if (reply->str && std::string(reply->str) == "OK")
+				OK = true;
+			freeReplyObject(reply);
+			break;
+		}
+		else
+			ReConnect();
+	}
+
+	// set expired.
+	if (timeout)
+	{
+		resetExpired(key, timeout);
+	}
+	else
+	{
+		persist(key);
+	}
+
+	return OK;
+}
+
 bool RedisClient::hmget(std::string key, std::vector<std::string>fields, std::vector<std::string> &values)
 {
     bool OK = false;
@@ -1173,33 +1258,53 @@ bool RedisClient::ResetExpiredToken(std::string const& token) {
 	return resetExpired(key, redisKeys::Expire_Token);
 }
 
-bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::string const& account) {
+bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::string const& account, std::string const& gateip) {
     std::string key = redisKeys::prefix_token + token;
-    BOOST::Json json;
-    json.put("account", account);
-    json.put("uid", userid);
-    return set(key, json.to_string(), redisKeys::Expire_Token);
+    //BOOST::Json json;
+    //json.put("account", account);
+    //json.put("uid", userid);
+    //json.put("gateip", gateip);
+    //return set(key, json.to_string(), redisKeys::Expire_Token);
+    STD::generic_map m;
+    m["account"] = account;
+    m["uid"] = userid;
+    m["gateip"] = gateip;
+    return hmset(key, m, redisKeys::Expire_Token);
 }
 
 bool RedisClient::GetTokenInfo(std::string const& token,
     int64_t& userid, std::string& account, uint32_t& agentid) {
     std::string key = redisKeys::prefix_token + token;
-	try {
-		std::string value;
-		if (get(key, value)) {
-			boost::property_tree::ptree pt;
-			std::stringstream ss(value);
-			boost::property_tree::read_json(ss, pt);
-			userid = pt.get<int64_t>("uid");
-			account = pt.get<std::string>("account");
-			//agentid = pt.get<uint32_t>("agentid");
-			return userid > 0;
-		}
+	bool ok = false;
+    STD::generic_map m;
+	std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+	std::string fields[] = { "uid", "account", "agentid", "gateip" };
+	bool bExist = hmget(strKeyName, fields, CountArray(fields), m);
+	if ((bExist) && (!m.empty()))
+	{
+        userid = m["uid"].as_int64();
+        account = m["account"].as_string();
+        //agentid = m["agentid"].as_uint();
+        //gateip = m["gateip"].as_string();
+		ok = true;
 	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return false;
+	return ok;
+// 	try {
+// 		std::string value;
+// 		if (get(key, value)) {
+// 			boost::property_tree::ptree pt;
+// 			std::stringstream ss(value);
+// 			boost::property_tree::read_json(ss, pt);
+// 			userid = pt.get<int64_t>("uid");
+// 			account = pt.get<std::string>("account");
+// 			//agentid = pt.get<uint32_t>("agentid");
+// 			return userid > 0;
+// 		}
+// 	}
+// 	catch (std::exception& e) {
+// 		_LOG_ERROR(e.what());
+// 	}
+//	return false;
 }
 
 //=================================================
