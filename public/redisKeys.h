@@ -10,7 +10,7 @@ namespace redisKeys {
 	// "s."  - set
 	// "zs." - zset
 	static char const* prefix_uid = "h.uid.";
-	static char const* prefix_token = "k.token.";
+	static char const* prefix_token = "h.token.";
 	static char const* prefix_account_uid = "k.account.uid.";
 	static char const* prefix_phone_uid = "k.phone.uid.";
 	static char const* prefix_email_uid = "k.email.uid.";
