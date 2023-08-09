@@ -621,13 +621,13 @@ bool RedisClient::hmget(std::string key, std::string* fields, int count, STD::ge
 	return OK;
 }
 
-bool RedisClient::hmset(std::string key, STD::generic_map& m, int timeout = 0) {
+bool RedisClient::hmset(std::string key, STD::generic_map& m, int timeout) {
 	bool OK = false;
 	std::string cmd = "HMSET " + key;
     for(STD::generic_map::iterator it = m.begin(); it != m.end(); ++it)
 	{
 		std::string field = it->first;
-		std::string value = it->second.to_string();
+		std::string value = it->second.as_string();
 		if (value.length())
 		{
 			value = string_replace(value, " ", "_");
@@ -1277,7 +1277,7 @@ bool RedisClient::GetTokenInfo(std::string const& token,
     std::string key = redisKeys::prefix_token + token;
 	bool ok = false;
     STD::generic_map m;
-	std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+	std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userid);
 	std::string fields[] = { "uid", "account", "agentid", "gateip" };
 	bool bExist = hmget(strKeyName, fields, CountArray(fields), m);
 	if ((bExist) && (!m.empty()))
