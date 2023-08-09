@@ -94,7 +94,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		char const* data, size_t len) {
@@ -120,10 +120,10 @@ namespace packet {
 			//aeskey
 			assert(aeskey.length() <= packet::kAesKeySZ);
 			memcpy(pre_header->aeskey, aeskey.c_str(), std::min(packet::kAesKeySZ, aeskey.length()));
-#if 0
+#if 1
 			//servid
-			assert(servid.length() <= packet::kServIDSZ);
-			memcpy(pre_header->servID, servid.c_str(), std::min(packet::kServIDSZ, servid.length()));
+			assert(servid.length() <= packet::kServIdSZ);
+			memcpy(pre_header->servId, servid.c_str(), std::min(packet::kServIdSZ, servid.length()));
 #endif
 			//checksum
 			packet::setCheckSum(pre_header);
@@ -137,14 +137,14 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		char const* data, size_t len) {
 		//内部消息头internal_prev_header_t + len
 		BufferPtr buffer(new muduo::net::Buffer(packet::kPrevHeaderLen + len));
 		packMessage(buffer.get(), userid, session, aeskey, clientip, kicking,
-#if 0
+#if 1
 			servid,
 #endif
 			data, len);
@@ -159,7 +159,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		int mainId, int subId,
@@ -187,10 +187,10 @@ namespace packet {
 			//aeskey
 			assert(aeskey.length() <= packet::kAesKeySZ);
 			memcpy(pre_header->aeskey, aeskey.c_str(), std::min(packet::kAesKeySZ, aeskey.length()));
-#if 0
+#if 1
 			//servid
-			assert(servid.length() <= packet::kServIDSZ);
-			memcpy(pre_header->servID, servid.c_str(), std::min(packet::kServIDSZ, servid.length()));
+			assert(servid.length() <= packet::kServIdSZ);
+			memcpy(pre_header->servId, servid.c_str(), std::min(packet::kServIdSZ, servid.length()));
 #endif
 			//checksum
 			packet::setCheckSum(pre_header);
@@ -222,7 +222,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		int mainId, int subId,
@@ -230,7 +230,7 @@ namespace packet {
 		//内部消息头internal_prev_header_t + 命令消息头header_t + len
 		BufferPtr buffer(new muduo::net::Buffer(packet::kPrevHeaderLen + packet::kHeaderLen + len));
 		packMessage(buffer.get(), userid, session, aeskey, clientip, kicking,
-#if 0
+#if 1
 			servid,
 #endif
 			mainId, subId, data, len);
@@ -245,7 +245,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		int mainId, int subId,
@@ -277,10 +277,10 @@ namespace packet {
 			//aeskey
 			assert(aeskey.length() <= packet::kAesKeySZ);
 			memcpy(pre_header->aeskey, aeskey.c_str(), std::min(packet::kAesKeySZ, aeskey.length()));
-#if 0
+#if 1
 			//servid
-			assert(servid.length() <= packet::kServIDSZ);
-			memcpy(pre_header->servID, servid.c_str(), std::min(packet::kServIDSZ, servid.length()));
+			assert(servid.length() <= packet::kServIdSZ);
+			memcpy(pre_header->servId, servid.c_str(), std::min(packet::kServIdSZ, servid.length()));
 #endif
 			//checksum
 			packet::setCheckSum(pre_header);
@@ -309,7 +309,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		int mainId, int subId,
@@ -317,7 +317,7 @@ namespace packet {
 		size_t len = data ? data->ByteSize() : 0;
 		BufferPtr buffer(new muduo::net::Buffer(packet::kPrevHeaderLen + packet::kHeaderLen + len));
 		if (!packMessage(buffer.get(), userid, session, aeskey, clientip, kicking,
-#if 0
+#if 1
 			servid,
 #endif
 			mainId, subId, data)) {

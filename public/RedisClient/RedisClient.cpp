@@ -1274,12 +1274,10 @@ bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::st
 
 bool RedisClient::GetTokenInfo(std::string const& token,
     int64_t& userid, std::string& account, uint32_t& agentid) {
-    std::string key = redisKeys::prefix_token + token;
-	bool ok = false;
     STD::generic_map m;
-	std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userid);
 	std::string fields[] = { "uid", "account" };
-	bool bExist = hmget(strKeyName, fields, CountArray(fields), m);
+    std::string key = redisKeys::prefix_token + token;
+    bool bExist = hmget(key, fields, CountArray(fields), m);
 	if (/*(bExist) &&*/ !m.empty())
 	{
         if (m.has("uid")) {

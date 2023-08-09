@@ -51,7 +51,7 @@ void GateServ::onHallMessage(const muduo::net::TcpConnectionPtr& conn,
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
 			assert(header->crc == crc);
-			std::string session((char const*)pre_header->session, sizeof(pre_header->session));
+			std::string session((char const*)pre_header->session, packet::kSessionSZ);
 			assert(!session.empty() && session.size() == packet::kSessionSZ);
 			//session -> conn -> entryContext -> index
 			muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
@@ -84,7 +84,7 @@ void GateServ::asyncHallHandler(
 	}
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 	packet::header_t const* header = packet::get_header(buf);
-	std::string session((char const*)pre_header->session, sizeof(pre_header->session));
+	std::string session((char const*)pre_header->session, packet::kSessionSZ);
 	assert(!session.empty() && session.size() == packet::kSessionSZ);
 	//session -> conn
 	muduo::net::TcpConnectionPtr peer(weakConn.lock());
@@ -355,6 +355,7 @@ void GateServ::onUserOfflineHall(Context& entryContext) {
 			aeskey,
 			clientip,
 			0,
+			nodeValue_,
 			::Game::Common::MAIN_MESSAGE_PROXY_TO_HALL,
 			::Game::Common::MESSAGE_PROXY_TO_HALL_SUBID::HALL_ON_USER_OFFLINE,
 			NULL);

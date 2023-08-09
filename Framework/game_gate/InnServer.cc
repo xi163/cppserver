@@ -51,7 +51,7 @@ void GateServ::onInnMessage(
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
 			assert(header->crc == crc);
-			std::string session((char const*)pre_header->session, sizeof(pre_header->session));
+			std::string session((char const*)pre_header->session, packet::kSessionSZ);
 			assert(!session.empty() && session.size() == packet::kSessionSZ);
 			//session -> conn -> entryContext -> index
 			muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
@@ -84,7 +84,7 @@ void GateServ::asyncInnHandler(
 	}
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 	packet::header_t const* header = packet::get_header(buf);
-	std::string session((char const*)pre_header->session, sizeof(pre_header->session));
+	std::string session((char const*)pre_header->session, packet::kSessionSZ);
 	assert(!session.empty() && session.size() == packet::kSessionSZ);
 	//session -> conn -> entryContext
 	muduo::net::TcpConnectionPtr peer(weakConn.lock());

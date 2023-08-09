@@ -217,19 +217,6 @@ void GateServ::asyncClientHandler(
 					muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 					assert(header->len == len);
 					assert(header->len >= packet::kHeaderLen);
-#if 0
-					//////////////////////////////////////////////////////////////////////////
-					//玩家登陆网关服信息
-					//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-					//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-					//网关服ID格式：session|ip:port:port:pid
-					//第一个ip:port是网关服监听客户端的标识
-					//第二个ip:port是网关服监听订单服的标识
-					//pid标识网关服进程id
-					//////////////////////////////////////////////////////////////////////////
-					//网关服servid session|ip:port:port:pid
-					std::string const& servId = nodeValue_;
-#endif
 					//非登录消息 userid > 0
 					if (header->subId != ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ &&
 						userId == 0) {
@@ -242,8 +229,8 @@ void GateServ::asyncClientHandler(
 						aesKey,
 						clientIp,
 						0,
-#if 0
-						servId,
+#if 1
+						nodeValue_,
 #endif
 						buf->peek(),
 						header->len);
@@ -266,19 +253,6 @@ void GateServ::asyncClientHandler(
 					muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 					assert(header->len == len);
 					assert(header->len >= packet::kHeaderLen);
-#if 0
-					//////////////////////////////////////////////////////////////////////////
-					//玩家登陆网关服信息
-					//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-					//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-					//网关服ID格式：session|ip:port:port:pid
-					//第一个ip:port是网关服监听客户端的标识
-					//第二个ip:port是网关服监听订单服的标识
-					//pid标识网关服进程id
-					//////////////////////////////////////////////////////////////////////////
-					//网关服servid session|ip:port:port:pid
-					std::string const& servId = nodeValue_;
-#endif
 					if (userId == 0) {
 						_LOG_ERROR("user Must Login Hall Server First!");
 						break;
@@ -289,8 +263,8 @@ void GateServ::asyncClientHandler(
 						aesKey,
 						clientIp,
 						0,
-#if 0
-						servId,
+#if 1
+						nodeValue_,
 #endif
 						buf->peek(),
 						header->len);

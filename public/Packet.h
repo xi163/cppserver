@@ -49,8 +49,8 @@ namespace packet {
 		uint32_t clientIp;           //用户IP
 		uint8_t  session[SESSIONSZ]; //用户会话
 		uint8_t  aeskey[AESKEYSZ];   //AES_KEY
-#if 0
-		uint8_t  servID[SERVIDSZ];   //来自节点ID
+#if 1
+		uint8_t  servId[SERVIDSZ];   //来自节点ID
 #endif
 		uint16_t checksum;           //校验和CHKSUM
 	};
@@ -65,8 +65,8 @@ namespace packet {
 
 	static const size_t kSessionSZ = sizeof(((internal_prev_header_t*)0)->session);
 	static const size_t kAesKeySZ = sizeof(((internal_prev_header_t*)0)->aeskey);
-#if 0
-	static const size_t kServIDSZ = sizeof(((internal_prev_header_t*)0)->servID);
+#if 1
+	static const size_t kServIdSZ = sizeof(((internal_prev_header_t*)0)->servId);
 #endif
 
 	//enword
@@ -143,7 +143,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		char const* data, size_t len);
@@ -154,7 +154,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		char const* data, size_t len);
@@ -167,7 +167,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		int mainId, int subId,
@@ -179,7 +179,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		int mainId, int subId,
@@ -193,7 +193,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		int mainId, int subId,
@@ -205,7 +205,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 0
+#if 1
 		std::string const& servid,
 #endif
 		int mainId, int subId,

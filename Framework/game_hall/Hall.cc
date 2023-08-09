@@ -377,7 +377,7 @@ void HallServ::onMessage(
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
 			assert(header->crc == crc);
-			std::string session((char const*)pre_header->session, sizeof(pre_header->session));
+			std::string session((char const*)pre_header->session, packet::kSessionSZ);
 			assert(!session.empty() && session.size() == packet::kSessionSZ);
 			//session -> hash(session) -> index
 			int index = hash_session_(session) % threadPool_.size();
@@ -542,6 +542,9 @@ void HallServ::cmd_on_user_login(
 		//用户登陆token
 		std::string const& token = reqdata.session();
 		try {
+			//来自节点ID
+			std::string servid((char const*)pre_header_->servId, packet::kServIdSZ);
+			assert(!servid.empty() && servid.size() == packet::kServIdSZ);
 			//登陆IP
 			uint32_t ipaddr = pre_header_->clientIp;
 			//查询IP所在国家/地区
@@ -596,7 +599,7 @@ void HallServ::cmd_on_user_login(
 							goto end;
 						}
 						//全服通知到各网关服顶号处理
-						std::string session((char const*)pre_header_->session, sizeof(pre_header_->session));
+						std::string session((char const*)pre_header_->session, packet::kSessionSZ);
 						boost::property_tree::ptree root;
 						std::stringstream s;
 						root.put("userid", userid);
@@ -633,7 +636,7 @@ void HallServ::cmd_on_user_login(
 #if 0
 						REDISCLIENT.ResetExpiredToken(token);
 #else
-						REDISCLIENT.SetTokenInfoIP(token, conn->peerAddress().toIpPort());
+						REDISCLIENT.SetTokenInfoIP(token, servid);
 #endif					
 						_LOG_DEBUG("%d LOGIN SERVER OK!", userid);
 					}
