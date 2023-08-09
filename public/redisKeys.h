@@ -30,7 +30,7 @@ namespace redisKeys {
 	static uint32_t const Expire_30Days = 60 * 60 * 24 * 30;
 
 	static uint32_t const Expire_Uid = Expire_30Days;
-	static uint32_t const Expire_Token = 5 * 60;
+	static uint32_t const Expire_Token = 1 * 20;
 	static uint32_t const Expire_AccountUid = Expire_1Week;
 	static uint32_t const Expire_PhoneUid = Expire_1Week;
 	static uint32_t const Expire_EmailUid = Expire_1Week;

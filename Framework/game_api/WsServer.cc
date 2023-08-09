@@ -208,94 +208,64 @@ void ApiServ::asyncClientHandler(
 				}
 				case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL: {
 					TraceMessageID(header->mainId, header->subId);
-					{
-						Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-						int64_t userId = entryContext.getUserId();
-						uint32_t clientIp = entryContext.getFromIp();
-						std::string const& session = entryContext.getSession();
-						std::string const& aesKey = entryContext.getAesKey();
-						ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
-						muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
-						assert(header->len == len);
-						assert(header->len >= packet::kHeaderLen);
-#if 0
-						//////////////////////////////////////////////////////////////////////////
-						//玩家登陆网关服信息
-						//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-						//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-						//网关服ID格式：session|ip:port:port:pid
-						//第一个ip:port是网关服监听客户端的标识
-						//第二个ip:port是网关服监听订单服的标识
-						//pid标识网关服进程id
-						//////////////////////////////////////////////////////////////////////////
-						//网关服servid session|ip:port:port:pid
-						std::string const& servId = nodeValue_;
+					Context& entryContext = boost::any_cast<Context&>(conn->getContext());
+					int64_t userId = entryContext.getUserId();
+					uint32_t clientIp = entryContext.getFromIp();
+					std::string const& session = entryContext.getSession();
+					std::string const& aesKey = entryContext.getAesKey();
+					ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
+					muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
+					assert(header->len == len);
+					assert(header->len >= packet::kHeaderLen);
+					//非登录消息 userid > 0
+					if (header->subId != ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ &&
+						userId == 0) {
+						_LOG_ERROR("user Must Login Hall Server First!");
+						break;
+					}
+					BufferPtr buffer = packet::packMessage(
+						userId,
+						session,
+						aesKey,
+						clientIp,
+						0,
+#if 1
+						nodeValue_,
 #endif
-						//非登录消息 userid > 0
-						if (header->subId != ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ &&
-							userId == 0) {
-							_LOG_ERROR("user Must Login Hall Server First!");
-							break;
-						}
-						BufferPtr buffer = packet::packMessage(
-							userId,
-							session,
-							aesKey,
-							clientIp,
-							0,
-#if 0
-							servId,
-#endif
-							buf->peek(),
-							header->len);
-						if (buffer) {
-						}
+						buf->peek(),
+						header->len);
+					if (buffer) {
 					}
 					break;
 				}
 				case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER:
 				case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC: {
 					TraceMessageID(header->mainId, header->subId);
-					{
-						Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-						int64_t userId = entryContext.getUserId();
-						uint32_t clientIp = entryContext.getFromIp();
-						std::string const& session = entryContext.getSession();
-						std::string const& aesKey = entryContext.getAesKey();
-						ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
-						muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
-						assert(header->len == len);
-						assert(header->len >= packet::kHeaderLen);
-#if 0
-						//////////////////////////////////////////////////////////////////////////
-						//玩家登陆网关服信息
-						//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-						//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-						//网关服ID格式：session|ip:port:port:pid
-						//第一个ip:port是网关服监听客户端的标识
-						//第二个ip:port是网关服监听订单服的标识
-						//pid标识网关服进程id
-						//////////////////////////////////////////////////////////////////////////
-						//网关服servid session|ip:port:port:pid
-						std::string const& servId = nodeValue_;
+					Context& entryContext = boost::any_cast<Context&>(conn->getContext());
+					int64_t userId = entryContext.getUserId();
+					uint32_t clientIp = entryContext.getFromIp();
+					std::string const& session = entryContext.getSession();
+					std::string const& aesKey = entryContext.getAesKey();
+					ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
+					muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
+					assert(header->len == len);
+					assert(header->len >= packet::kHeaderLen);
+					if (userId == 0) {
+						_LOG_ERROR("user Must Login Hall Server First!");
+						break;
+					}
+					BufferPtr buffer = packet::packMessage(
+						userId,
+						session,
+						aesKey,
+						clientIp,
+						0,
+#if 1
+						nodeValue_,
 #endif
-						if (userId == 0) {
-							_LOG_ERROR("user Must Login Hall Server First!");
-							break;
-						}
-						BufferPtr buffer = packet::packMessage(
-							userId,
-							session,
-							aesKey,
-							clientIp,
-							0,
-#if 0
-							servId,
-#endif
-							buf->peek(),
-							header->len);
-						if (buffer) {
-						}
+						buf->peek(),
+						header->len);
+					if (buffer) {
 					}
 					break;
 				}

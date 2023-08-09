@@ -1040,3 +1040,4 @@
 /Games/proj_linux/game_login/obj/x64/Debug/*.txt
 /Games/proj_linux/game_serv_rc/obj/x64/Debug/*.tlog
 /Games/proj_linux/game_serv_rc/obj/x64/Debug/game_serv_rc.tlog/*.lastbuildstate
+/Games/proj_linux/.vs/proj_linux/v17/ipch/AutoPCH/fc1fe2a5fdb4e659/*.ipch
