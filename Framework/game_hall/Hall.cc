@@ -552,14 +552,15 @@ void HallServ::cmd_on_user_login(
 			ipFinder_.GetAddressByIp(ntohl(ipaddr), location, country);
 			std::string loginIp = utils::inetToIp(ipaddr);
 			//不能频繁登陆操作(间隔5s)
-			std::string key = REDIS_LOGIN_3S_CHECK + token;
-			if (REDISCLIENT.exists(key)) {
-				_LOG_ERROR("%s IP:%s 频繁登陆", location.c_str(), loginIp.c_str());
-				return;
-			}
-			else {
-				REDISCLIENT.set(key, key, 5);
-			}
+// 			std::string key = REDIS_LOGIN_3S_CHECK + token;
+// 			if (REDISCLIENT.exists(key)) {
+// 				_LOG_ERROR("%s IP:%s 频繁登陆", location.c_str(), loginIp.c_str());
+// 				rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
+// 				rspdata.set_errormsg("登陆太频繁了");
+// 			}
+// 			else {
+// 				REDISCLIENT.set(key, key, 5);
+// 			}
 			//系统当前时间
 			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 			//redis查询token，判断是否过期

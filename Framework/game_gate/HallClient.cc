@@ -275,7 +275,7 @@ void GateServ::sendHallMessage(
 			}
 		}
 		else {
-			_LOG_ERROR("用户大厅服维护，重新分配");
+			_LOG_WARN("用户大厅服维护，重新分配");
 			//用户大厅服维护，重新分配
 			ClientConnList clients;
 			//异步获取全部有效大厅连接
@@ -302,12 +302,38 @@ void GateServ::sendHallMessage(
 							repairs[clientConn.first] = true;
 						}
 					}
+					else {
+						packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
+						packet::header_t const* header = packet::get_header(buf);
+						_LOG_ERROR("%s error", fmtMessageID(header->mainId, header->subId).c_str());
+						EntryPtr entry(entryContext.getWeakEntryPtr().lock());
+						if (entry) {
+							muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());
+							if (peer) {
+								BufferPtr buffer = GateServ::packNotifyFailedMsg(header->mainId, header->subId);
+								muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
+							}
+						}
+					}
 				} while (!bok && repairs.size() != clients.size());
+			}
+			else {
+				packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
+				packet::header_t const* header = packet::get_header(buf);
+				_LOG_ERROR("%s error", fmtMessageID(header->mainId, header->subId).c_str());
+				EntryPtr entry(entryContext.getWeakEntryPtr().lock());
+				if (entry) {
+					muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());
+					if (peer) {
+						BufferPtr buffer = GateServ::packNotifyFailedMsg(header->mainId, header->subId);
+						muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
+					}
+				}
 			}
 		}
 	}
 	else {
-		_LOG_ERROR("用户大厅服失效，重新分配");
+		_LOG_WARN("用户大厅服失效，重新分配");
 		//用户大厅服失效，重新分配
 		ClientConnList clients;
 		//异步获取全部有效大厅连接
@@ -337,7 +363,33 @@ void GateServ::sendHallMessage(
 						repairs[clientConn.first] = true;
 					}
 				}
+				else {
+					packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
+					packet::header_t const* header = packet::get_header(buf);
+					_LOG_ERROR("%s error", fmtMessageID(header->mainId, header->subId).c_str());
+					EntryPtr entry(entryContext.getWeakEntryPtr().lock());
+					if (entry) {
+						muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());
+						if (peer) {
+							BufferPtr buffer = GateServ::packNotifyFailedMsg(header->mainId, header->subId);
+							muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
+						}
+					}
+				}
 			} while (!bok && repairs.size() != clients.size());
+		}
+		else {
+			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
+			packet::header_t const* header = packet::get_header(buf);
+			_LOG_ERROR("%s error", fmtMessageID(header->mainId, header->subId).c_str());
+			EntryPtr entry(entryContext.getWeakEntryPtr().lock());
+			if (entry) {
+				muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());
+				if (peer) {
+					BufferPtr buffer = GateServ::packNotifyFailedMsg(header->mainId, header->subId);
+					muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
+				}
+			}
 		}
 	}
 }
