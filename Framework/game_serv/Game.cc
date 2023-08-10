@@ -515,7 +515,7 @@ void GameServ::cmd_keep_alive_ping(
 		::Game::Common::KeepAliveMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		rspdata.set_retcode(1);
-		rspdata.set_errormsg("User LoginInfo TimeOut, Restart Login.");
+		rspdata.set_errormsg("[Game]User LoginInfo TimeOut, Restart Login.");
 		//用户登陆token
 		std::string const& token = reqdata.session();
 		int64_t userid = 0;
@@ -525,7 +525,7 @@ void GameServ::cmd_keep_alive_ping(
 			//std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 			//if (player && player->isOffline()) {
 			//	rspdata.set_retcode(3);
-			//	rspdata.set_errormsg("KEEP ALIVE PING Error User Offline!");
+			//	rspdata.set_errormsg("[Game]KEEP ALIVE PING Error User Offline!");
 			//}
 			/*else */if (REDISCLIENT.ResetExpiredUserOnlineInfo(userid)) {
 				rspdata.set_retcode(0);
@@ -533,12 +533,12 @@ void GameServ::cmd_keep_alive_ping(
 			}
 			else {
 				rspdata.set_retcode(2);
-				rspdata.set_errormsg("KEEP ALIVE PING Error UserId Not Find!");
+				rspdata.set_errormsg("[Game]KEEP ALIVE PING Error UserId Not Find!");
 			}
 		}
 		else {
 			rspdata.set_retcode(1);
-			rspdata.set_errormsg("KEEP ALIVE PING Error Session Not Find!");
+			rspdata.set_errormsg("[Game]KEEP ALIVE PING Error Session Not Find!");
 		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_SERVER_SUBID::KEEP_ALIVE_RES,
