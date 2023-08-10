@@ -23,7 +23,7 @@ bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	}
 #if 0
 	//节点维护中
-	if (server_state_ == ServiceStateE::kRepairing) {
+	if (server_state_ == kRepairing) {
 		return false;
 	}
 #endif
@@ -541,10 +541,10 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 	};
 	do {
 		//请求挂维护
-		if (status == ServiceStateE::kRepairing) {
+		if (status == kRepairing) {
 			/* 如果之前服务中, 尝试挂维护中, 并返回之前状态
 			* 如果返回服务中, 说明刚好挂维护成功, 否则说明之前已被挂维护 */
-			//if (ServiceStateE::kRunning == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRunning, ServiceStateE::kRepairing)) {
+			//if (kRunning == __sync_val_compare_and_swap(&server_state_, kRunning, kRepairing)) {
 			//
 			//在指定类型服务中，并且不在维护节点中
 			//
@@ -579,10 +579,10 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 			return true;
 		}
 		//请求恢复服务
-		else if (status == ServiceStateE::kRunning) {
+		else if (status == kRunning) {
 			/* 如果之前挂维护中, 尝试恢复服务, 并返回之前状态
 			* 如果返回挂维护中, 说明刚好恢复服务成功, 否则说明之前已在服务中 */
-			//if (ServiceStateE::kRepairing == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRepairing, ServiceStateE::kRunning)) {
+			//if (kRepairing == __sync_val_compare_and_swap(&server_state_, kRepairing, kRunning)) {
 			//
 			//在指定类型服务中，并且在维护节点中
 			//

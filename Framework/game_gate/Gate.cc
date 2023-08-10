@@ -21,7 +21,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	, gameClients_(loop)
 	, idleTimeout_(3)
 	, maxConnections_(15000)
-	, server_state_(ServiceStateE::kRunning)
+	, server_state_(kRunning)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
