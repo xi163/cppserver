@@ -211,6 +211,7 @@ message ProxyNotifyShutDownUserClientMessage
      Game.Common.Header     header = 1;  // ID
      int32		            userId = 2;
      int32                  status = 3 ; //1后台踢下线 0或者没有重复登入
+	 string                 msg = 4;
 }
 
 message ProxyNotifyOrderScoreMessage

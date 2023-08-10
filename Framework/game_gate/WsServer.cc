@@ -353,7 +353,8 @@ BufferPtr GateServ::packClientShutdownMsg(int64_t userid, int status) {
 	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
 	msg.set_userid(userid);
 	msg.set_status(status);
-
+	msg.set_msg("异地登陆被强制踢下线");
+	
 	BufferPtr buffer = packet::packMessage(
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY, &msg);

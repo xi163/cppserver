@@ -249,8 +249,8 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			muduo::Timestamp st_agent_u = et_redislock_q;
 #endif
 			if (!mgo::UpdateAgent(
-				document{} << "agentid" << req.p_agent_info->agentId << finalize,
-				document{} << "$inc" << open_document << "score" << b_int64{ req.scoreI64 } << close_document << finalize)) {
+				document{} << "$inc" << open_document << "score" << b_int64{ req.scoreI64 } << close_document << finalize,
+				document{} << "agentid" << req.p_agent_info->agentId << finalize)) {
 				session.abort_transaction();
 #ifdef _STAT_ORDER_QPS_DETAIL_
 				muduo::Timestamp et_agent_u = muduo::Timestamp::now();
