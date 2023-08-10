@@ -677,6 +677,8 @@ void GameServ::cmd_on_user_enter_room(
 				"ERROR_ENTERROOM_NOSESSION", pre_header_, header_);
 			return;
 		}
+		_LOG_WARN("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfo_.roomId,
+			roomInfo_.enterMinScore, roomInfo_.enterMaxScore, pre_header_->userId, userInfo.userScore);
 		//最小进入条件
 		if (roomInfo_.enterMinScore > 0 &&
 			userInfo.userScore < roomInfo_.enterMinScore) {

@@ -827,7 +827,7 @@ namespace mgo {
 	bool GetUserBaseInfo(int64_t userid, UserBaseInfo& info) {
 		return GetUserBaseInfo(
 			{},
-			builder::stream::document{} << "userid" << userid << finalize,
+			builder::stream::document{} << "userid" << b_int64{ userid } << finalize,
 			info);
 	}
 	

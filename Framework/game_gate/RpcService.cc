@@ -26,6 +26,10 @@ namespace rpc {
 			if (peer) {
 				BufferPtr buffer = GateServ::packOrderScoreMsg(req->userid(), req->score());
 				muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
+				_LOG_WARN("succ %lld.score: %lld", req->userid(), req->score());
+			}
+			else {
+				_LOG_ERROR("failed %lld.score: %lld", req->userid(), req->score());
 			}
 			done(&rsp);
 		}
