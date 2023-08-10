@@ -265,9 +265,8 @@ void GateServ::sendGameMessage(
 	}
 }
 
-void GateServ::onUserOfflineGame(
-	Context& entryContext, bool leave) {
-	//MY_TRY()
+void GateServ::onUserOfflineGame(Context& entryContext) {
+	MY_TRY()
 	int64_t userId = entryContext.getUserId();
 	uint32_t clientIp = entryContext.getFromIp();
 	std::string const& session = entryContext.getSession();
@@ -278,7 +277,7 @@ void GateServ::onUserOfflineGame(
 			session,
 			aeskey,
 			clientIp,
-			KICK_LEAVEGS,
+			entryContext.getKicking(),
 			nodeValue_,
 			::Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
 			::Game::Common::MESSAGE_PROXY_TO_GAME_SERVER_SUBID::GAME_SERVER_ON_USER_OFFLINE,
@@ -291,5 +290,5 @@ void GateServ::onUserOfflineGame(
 			sendGameMessage(entryContext, buffer, userId);
 		}
 	}
-	//MY_CATCH()
+	MY_CATCH()
 }

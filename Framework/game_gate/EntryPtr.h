@@ -2,14 +2,9 @@
 #define INCLUDE_ENTRYPTR_H
 
 #include "public/Inc.h"
+#include "public/gameConst.h"
 
 #include "Clients.h"
-
-enum servTyE {
-	kHallTy = 0,//大厅服
-	kGameTy = 1,//游戏服
-	kMaxServTy,
-};
 
 //处理空闲连接，避免恶意连接占用sockfd不请求处理也不关闭，耗费系统资源，空闲超时将其强行关闭!
 struct Entry : public muduo::noncopyable {
@@ -131,6 +126,7 @@ struct Context /*: public muduo::noncopyable*/ {
 		reset();
 	}
 	inline void reset() {
+		kicking_ = KICK_NULL;
 		ipaddr_ = 0;
 		userid_ = 0;
 		session_.clear();
@@ -183,6 +179,8 @@ struct Context /*: public muduo::noncopyable*/ {
 	inline WeakEntryPtr const& getWeakEntryPtr() {
 		return weakEntry_;
 	}
+	inline void setkicking(int kicking) { kicking_ = kicking; }
+	inline int getKicking() { return kicking_; }
 	inline void setFromIp(in_addr_t inaddr) { ipaddr_ = inaddr; }
 	inline in_addr_t getFromIp() { return ipaddr_; }
 	inline void setSession(std::string const& session) { session_ = session; }
@@ -215,6 +213,7 @@ struct Context /*: public muduo::noncopyable*/ {
 	}
 	inline ClientConn const& getClientConn(servTyE ty) { return client_[ty]; }
 public:
+	int kicking_;
 	uint32_t ipaddr_;
 	int64_t userid_;
 	std::string session_;

@@ -12,37 +12,9 @@
 
 #include "RpcService.h"
 
+#include "public/gameConst.h"
+
 //#define NDEBUG
-#define KICK_GS                 (0x01)
-#define KICK_HALL               (0x02)
-#define KICK_CLOSEONLY          (0x100)
-#define KICK_LEAVEGS            (0x200)
-
-enum ServiceStateE {
-	kRepairing = 0,//维护中
-	kRunning = 1,//服务中
-};
-
-enum eApiCtrl {
-	kClose = 0,
-	kOpen = 1,//应用层IP截断
-	kOpenAccept = 2,//网络底层IP截断
-};
-
-enum eApiVisit {
-	kEnable = 0,//IP允许访问
-	kDisable = 1,//IP禁止访问
-};
-
-/*
-	HTTP/1.1 400 Bad Request\r\n\r\n
-	HTTP/1.1 404 Not Found\r\n\r\n
-	HTTP/1.1 405 服务维护中\r\n\r\n
-	HTTP/1.1 500 IP访问限制\r\n\r\n
-	HTTP/1.1 504 权限不够\r\n\r\n
-	HTTP/1.1 505 timeout\r\n\r\n
-	HTTP/1.1 600 访问量限制(1500)\r\n\r\n
-*/
 
 static void setFailedResponse(muduo::net::HttpResponse& rsp,
 	muduo::net::HttpResponse::HttpStatusCode code = muduo::net::HttpResponse::k200Ok,
@@ -61,9 +33,6 @@ static void setFailedResponse(muduo::net::HttpResponse& rsp,
 	rsp.setBody(msg);
 #endif
 }
-
-typedef std::shared_ptr<muduo::net::Buffer> BufferPtr;
-typedef std::map<std::string, std::string> HttpParams;
 
 class GateServ : public muduo::noncopyable {
 public:
@@ -158,7 +127,7 @@ private:
 	void sendGameMessage(
 		Context& entryContext,
 		BufferPtr const& buf, int64_t userId);
-	void onUserOfflineGame(Context& entryContext, bool leave = 0);
+	void onUserOfflineGame(Context& entryContext);
 private:
 	bool onHttpCondition(const muduo::net::InetAddress& peerAddr);
 	void onHttpConnection(const muduo::net::TcpConnectionPtr& conn);

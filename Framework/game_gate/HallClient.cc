@@ -112,21 +112,23 @@ void GateServ::asyncHallHandler(
 			entryContext.setClientConn(servTyE::kHallTy, clientConn);
 			//顶号处理 userid -> conn -> entryContext -> session
 			muduo::net::TcpConnectionPtr old(sessions_.add(userId, peer).lock());
-			if (old) {
-				assert(old != peer);
+			if (old && old != peer && old.get() != peer.get()) {
 				Context& entryContext_ = boost::any_cast<Context&>(old->getContext());
 				std::string const& session_ = entryContext_.getSession();
 				assert(session_.size() == packet::kSessionSZ);
-				assert(session_ != session);
-				BufferPtr buffer = packClientShutdownMsg(userId, 0); assert(buffer);
-				muduo::net::websocket::send(old, buffer->peek(), buffer->readableBytes());
+				if (session_ != session) {
+					BufferPtr buffer = packClientShutdownMsg(userId, 0); assert(buffer);
+					muduo::net::websocket::send(old, buffer->peek(), buffer->readableBytes());
+					entryContext_.setkicking(KICK_REPLACE);
 #if 0
-				old->getLoop()->runAfter(0.2f, [&]() {
-					entry_.reset();
-					});
+					old->getLoop()->runAfter(0.2f, [&]() {
+						entry_.reset();
+						});
 #else
-				old->forceCloseWithDelay(0.2f);
+					old->forceCloseWithDelay(0.2f);
 #endif
+					_LOG_ERROR("KICK_REPLACE %s => %s", session_.c_str(), session.c_str());
+				}
 			}
 		}
 		else if (
@@ -224,21 +226,25 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 		muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 		if (!peer) {
 			//顶号处理 userid -> conn -> entryContext -> session
-			muduo::net::TcpConnectionPtr peer_(sessions_.get(userid).lock());
-			if (peer_) {
-				Context& entryContext_ = boost::any_cast<Context&>(peer_->getContext());
+			muduo::net::TcpConnectionPtr old(sessions_.get(userid).lock());
+			if (old) {
+				Context& entryContext_ = boost::any_cast<Context&>(old->getContext());
 				assert(entryContext_.getUserId() == userid);
+				std::string const& session_ = entryContext_.getSession();
+				assert(session_.size() == packet::kSessionSZ);
 				//相同userid，不同session，非当前最新，则关闭之
-				if (entryContext_.getSession() != session) {
+				if (session_ != session) {
 					BufferPtr buffer = packClientShutdownMsg(userid, 0); assert(buffer);
-					muduo::net::websocket::send(peer_, buffer->peek(), buffer->readableBytes());
+					muduo::net::websocket::send(old, buffer->peek(), buffer->readableBytes());
+					entryContext_.setkicking(KICK_REPLACE);
 #if 0
-					peer_->getLoop()->runAfter(0.2f, [&]() {
+					old->getLoop()->runAfter(0.2f, [&]() {
 						entry_.reset();
 						});
 #else
-					peer_->forceCloseWithDelay(0.2);
+					old->forceCloseWithDelay(0.2f);
 #endif
+					_LOG_ERROR("KICK_REPLACE %s => %s", session_.c_str(), session.c_str());
 				}
 			}
 		}
@@ -406,7 +412,7 @@ void GateServ::onUserOfflineHall(Context& entryContext) {
 			session,
 			aeskey,
 			clientip,
-			0,
+			entryContext.getKicking(),
 			nodeValue_,
 			::Game::Common::MAIN_MESSAGE_PROXY_TO_HALL,
 			::Game::Common::MESSAGE_PROXY_TO_HALL_SUBID::HALL_ON_USER_OFFLINE,

@@ -30,6 +30,17 @@ void testcircular() {
 
 int main() {
 	
+	_LOG_ERROR("shutdown1................................................");
+	char* c = "shutdown2................................................";
+	_LOG_ERROR(c);
+	c = "shutdown3................................................";
+	_LOG_S_ERROR(c);
+	std::string s("mongodb://root:Lcw%4012345678#!@192.168.0.113:27017");
+	_LOG_ERROR(s.c_str());
+	_LOG_S_ERROR(s);
+	_LOG_ERROR("%s", s.c_str());
+	c = "mongodb://root:Lcw%4012345678#!@192.168.0.113:27017";
+	_LOG_ERROR(c);
 // 	STD::any v;
 // 	v = false;
 // 	_LOG_INFO("bool:%d", v.as_bool());

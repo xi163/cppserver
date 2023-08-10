@@ -3,9 +3,22 @@
 
 #include "Logger/src/Macro.h"
 
+#define KICK_NULL         0x0
+#define KICK_GS           0x01
+#define KICK_HALL         0x02
+#define KICK_CLOSEONLY    0x04
+#define KICK_LEAVEGS      0x08
+#define KICK_REPLACE      0x10
+
 #ifndef NotScore
 #define NotScore(a) ((a)<0.01f)
 #endif
+
+enum servTyE {
+	kHallTy = 0,//大厅服
+	kGameTy = 1,//游戏服
+	kMaxServTy,
+};
 
 enum eCooType {
 	buyScore = 1, //代理买分
