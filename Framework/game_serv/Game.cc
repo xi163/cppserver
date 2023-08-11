@@ -527,7 +527,7 @@ void GameServ::cmd_keep_alive_ping(
 			//	rspdata.set_retcode(3);
 			//	rspdata.set_errormsg("[Game]KEEP ALIVE PING Error User Offline!");
 			//}
-			/*else */if (REDISCLIENT.ResetExpiredUserOnlineInfo(userid)) {
+			/*else */if (REDISCLIENT.ResetExpiredOnlineInfo(userid)) {
 				rspdata.set_retcode(0);
 				rspdata.set_errormsg("[Game]KEEP ALIVE PING OK.");
 			}
@@ -568,7 +568,7 @@ void GameServ::cmd_on_user_enter_room(
 		//需要先加锁禁止玩家上分操作，然后继续
 
 		//redis已标记玩家游戏中
-		if (REDISCLIENT.ExistsUserOnlineInfo(pre_header_->userId)) {
+		if (REDISCLIENT.ExistOnlineInfo(pre_header_->userId)) {
 			std::string redisPasswd;
 			if (REDISCLIENT.GetUserLoginInfo(pre_header_->userId, "dynamicPassword", redisPasswd)) {
 				std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
@@ -578,7 +578,7 @@ void GameServ::cmd_on_user_enter_room(
 				else {
 					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 					//DelContext(pre_header_->userId);
-					//REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+					//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 					//桌子密码错误
 					SendGameErrorCode(conn,
 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -590,7 +590,7 @@ void GameServ::cmd_on_user_enter_room(
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				//DelContext(pre_header_->userId);
-				//REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				//会话不存在
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -602,7 +602,7 @@ void GameServ::cmd_on_user_enter_room(
 		else {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			//DelContext(pre_header_->userId);
-			//REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 			//游戏已结束
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -625,7 +625,7 @@ void GameServ::cmd_on_user_enter_room(
 				else {
 					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 					DelContext(pre_header_->userId);
-					REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+					REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 					SendGameErrorCode(conn,
 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 						::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -635,7 +635,7 @@ void GameServ::cmd_on_user_enter_room(
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				DelContext(pre_header_->userId);
-				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -645,7 +645,7 @@ void GameServ::cmd_on_user_enter_room(
 		}
 		//判断在其他游戏中
 		uint32_t gameid = 0, roomid = 0;
-		if (REDISCLIENT.GetUserOnlineInfo(pre_header_->userId, gameid, roomid)) {
+		if (REDISCLIENT.GetOnlineInfo(pre_header_->userId, gameid, roomid)) {
 			if (gameid != 0 && roomid != 0 &&
 				gameInfo_.gameId != gameid || roomInfo_.roomId != roomid) {
 				::GameServer::MSG_S2C_PlayInOtherRoom rspdata;
@@ -669,7 +669,7 @@ void GameServ::cmd_on_user_enter_room(
 			if (!mgo::GetUserBaseInfo(pre_header_->userId, userInfo)) {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				DelContext(pre_header_->userId);
-				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_USERNOTEXIST,
@@ -680,7 +680,7 @@ void GameServ::cmd_on_user_enter_room(
 		else {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
-			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_NOSESSION,
@@ -694,7 +694,7 @@ void GameServ::cmd_on_user_enter_room(
 			userInfo.userScore < roomInfo_.enterMinScore) {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
-			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -707,7 +707,7 @@ void GameServ::cmd_on_user_enter_room(
 			userInfo.userScore > roomInfo_.enterMaxScore) {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
-			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -718,7 +718,7 @@ void GameServ::cmd_on_user_enter_room(
 		{
 			std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().New(pre_header_->userId);
 			if (!player) {
-				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				return;
 			}
 			userInfo.ip = pre_header_->clientIp;
@@ -731,7 +731,7 @@ void GameServ::cmd_on_user_enter_room(
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				DelContext(pre_header_->userId);
-				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -831,7 +831,6 @@ void GameServ::cmd_on_user_offline(
 	packet::header_t const* header_ = packet::get_header(buf);
 	uint8_t const* msg = packet::get_msg(buf);
 	size_t msgLen = packet::get_msglen(buf);
-	
 	switch (pre_header_->kicking) {
 	case KICK_REPLACE:
 		_LOG_ERROR("KICK_REPLACE %d", pre_header_->userId);

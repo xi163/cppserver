@@ -518,6 +518,12 @@ void HallServ::cmd_keep_alive_ping(
 		//用户登陆token
 		std::string const& token = reqdata.session();
 		REDISCLIENT.ResetExpiredToken(token);
+		int64_t userid = 0;
+		uint32_t agentid = 0;
+		std::string account;
+		if (REDISCLIENT.GetTokenInfo(token, userid, account, agentid)) {
+			REDISCLIENT.ResetExpiredUserToken(userid);
+		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_SERVER_SUBID::KEEP_ALIVE_RES,
 			pre_header_, header_);
@@ -638,7 +644,8 @@ void HallServ::cmd_on_user_login(
 						REDISCLIENT.ResetExpiredToken(token);
 #else
 						REDISCLIENT.SetTokenInfoIP(token, servid);
-#endif					
+#endif
+						REDISCLIENT.ResetExpiredUserToken(userid);
 						_LOG_DEBUG("%d LOGIN SERVER OK!", userid);
 					}
 					else {
@@ -733,7 +740,7 @@ void HallServ::cmd_get_playing_game_info(
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		int64_t userid = pre_header_->userId;
 		uint32_t gameid = 0, roomid = 0;
-		if (REDISCLIENT.GetUserOnlineInfo(userid, gameid, roomid)) {
+		if (REDISCLIENT.GetOnlineInfo(userid, gameid, roomid)) {
 			rspdata.set_gameid(gameid);
 			rspdata.set_roomid(roomid);
 			rspdata.set_retcode(0);
@@ -771,7 +778,7 @@ void HallServ::cmd_get_game_server_message(
 		uint32_t roomid = reqdata.roomid();
 		int64_t userid = pre_header_->userId;
 		uint32_t gameid_ = 0, roomid_ = 0;
-		if (REDISCLIENT.GetUserOnlineInfo(userid, gameid_, roomid_)) {
+		if (REDISCLIENT.GetOnlineInfo(userid, gameid_, roomid_)) {
 			if (gameid != gameid_ || roomid != roomid_) {
 				rspdata.set_retcode(ERROR_ENTERROOM_USERINGAME);
 				rspdata.set_errormsg("user in other game.");
@@ -789,9 +796,9 @@ void HallServ::cmd_get_game_server_message(
 			//可能ipport节点不可用，要求zk实时监控
 			if (!ipport.empty()) {
 				//redis更新玩家游戏节点
-				REDISCLIENT.SetUserOnlineInfoIP(userid, ipport);
+				REDISCLIENT.SetOnlineInfoIP(userid, ipport);
 				//redis更新玩家游戏中
-				REDISCLIENT.SetUserOnlineInfo(userid, gameid, roomid);
+				REDISCLIENT.SetOnlineInfo(userid, gameid, roomid);
 				rspdata.set_retcode(0);
 				rspdata.set_errormsg("Get Game Server IP OK.");
 				//通知网关服成功
@@ -799,7 +806,7 @@ void HallServ::cmd_get_game_server_message(
 			}
 			else {
 				//分配失败，清除游戏中状态
-				REDISCLIENT.DelUserOnlineInfo(userid);
+				REDISCLIENT.DelOnlineInfo(userid);
 				rspdata.set_retcode(ERROR_ENTERROOM_GAMENOTEXIST);
 				rspdata.set_errormsg("Game Server Not found!!!");
 			}

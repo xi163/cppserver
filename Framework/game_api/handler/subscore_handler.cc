@@ -114,7 +114,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		muduo::Timestamp st_suborder_i = et_suborder_q;
 #endif
 		// 玩家游戏中不能下分
-		if (REDISCLIENT.ExistsUserOnlineInfo(userId)) {
+		if (REDISCLIENT.ExistOnlineInfo(userId)) {
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " " << req.Account << " is playing"/* << redisGameId << "." << redisRoomId*/;
 			_LOG_ERROR(ss.str().c_str());

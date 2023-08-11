@@ -85,6 +85,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			REDISCLIENT.SetAccountUid(model.Account, userId);
 			//缓存token
 			REDISCLIENT.SetTokenInfo(token, userId, model.Account);
+			REDISCLIENT.SetUserToken(userId, token);
 			json.clear();
 			json.put("token", token);
 			return response::json::OkMsg("登陆成功", rsp, json);
@@ -157,6 +158,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				REDISCLIENT.SetAccountUid(model.Account, userId);
 				//缓存token
 				REDISCLIENT.SetTokenInfo(token, userId, model.Account);
+				REDISCLIENT.SetUserToken(userId, token);
 				json.clear();
 				json.put("token", token);
 				return response::json::OkMsg("登陆成功", rsp, json);
@@ -179,6 +181,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				REDISCLIENT.SetAccountUid(req.Account, userId);
 				//缓存token
 				REDISCLIENT.SetTokenInfo(token, userId, req.Account);
+				REDISCLIENT.SetUserToken(userId, token);
 				json.clear();
 				json.put("token", token);
 				return response::json::OkMsg("登陆成功", rsp, json);
@@ -202,6 +205,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			REDISCLIENT.ResetExpiredAccountUid(req.Account);
 			//缓存token
 			REDISCLIENT.SetTokenInfo(token, userId, req.Account);
+			REDISCLIENT.SetUserToken(userId, token);
 			json.clear();
 			json.put("token", token);
 			return response::json::OkMsg("登陆成功", rsp, json);

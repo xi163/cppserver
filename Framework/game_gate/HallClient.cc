@@ -146,7 +146,7 @@ void GateServ::asyncHallHandler(
 			if (gameConn) {
 				//用户当前游戏节点正常，判断是否一致
 				std::string serverIp;//roomid:ip:port:mode
-				if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
+				if (REDISCLIENT.GetOnlineInfoIP(userId, serverIp)) {
 					//与目标游戏节点不一致，重新指定
 					if (clientConn.first != serverIp) {
 						_LOG_WARN("%d 游戏节点[%s] [%s]不一致，重新指定", userId, clientConn.first.c_str(), serverIp.c_str());
@@ -178,7 +178,7 @@ void GateServ::asyncHallHandler(
 					_LOG_ERROR("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
 				}
 				std::string serverIp;//roomid:ip:port:mode
-				if (REDISCLIENT.GetUserOnlineInfoIP(userId, serverIp)) {
+				if (REDISCLIENT.GetOnlineInfoIP(userId, serverIp)) {
 					//获取目标游戏节点
 					ClientConn clientConn;
 					clients_[servTyE::kGameTy].clients_->get(serverIp, clientConn);

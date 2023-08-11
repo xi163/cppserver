@@ -17,11 +17,6 @@ extern "C" {
 
 //#include "json/json.h"
 
-#define REDIS_ACCOUNT_PREFIX        "h.uid."
-#define REDIS_ONLINE_PREFIX         "h.online.uid.gameinfo."
-//#define prefix_account_uid         "k.account.uid."
-//#define prefix_token               "k.token."
-#define MAX_USER_ONLINE_INFO_IDLE_TIME   (60*3)
 //#include <muduo/base/Logging.h>
 //#include <boost/algorithm/std::string.hpp>
 //#include <algorithm>
@@ -1322,67 +1317,99 @@ bool RedisClient::GetTokenInfoIP(std::string const& token, std::string& gateip)
 	return hget(key, "gateip", gateip);
 }
 
+bool RedisClient::ExistTokenInfo(std::string const& token) {
+	std::string key = redisKeys::prefix_token + token;
+	return exists(key);
+}
+
+bool RedisClient::DelTokenInfo(std::string const& token) {
+    std::string key = redisKeys::prefix_token + token;
+	return del(key);
+}
+
+bool RedisClient::ResetExpiredUserToken(int64_t userId) {
+	std::string key = redisKeys::prefix_uid_token + std::to_string(userId);
+	return resetExpired(key, redisKeys::Expire_UidToken);
+}
+
+bool RedisClient::SetUserToken(int64_t userId, std::string const& token) {
+    std::string key = redisKeys::prefix_uid_token + std::to_string(userId);
+    return set(key, token, redisKeys::Expire_UidToken);
+}
+
+bool RedisClient::GetUserToken(int64_t userId, std::string& token) {
+    std::string key = redisKeys::prefix_uid_token + std::to_string(userId);
+    return get(key, token);
+}
+
+bool RedisClient::ExistUserToken(int64_t userId) {
+    std::string key = redisKeys::prefix_uid_token + std::to_string(userId);
+    return exists(key);
+}
+
+bool RedisClient::DelUserToken(int64_t userId) {
+    std::string key = redisKeys::prefix_uid_token + std::to_string(userId);
+    return del(key);
+}
+
 //=================================================
-bool RedisClient::SetUserOnlineInfo(int64_t userId, uint32_t nGameId, uint32_t nRoomId)
+bool RedisClient::SetOnlineInfo(int64_t userId, uint32_t gameId, uint32_t roomId)
 {
-   std::string strKeyName = REDIS_ONLINE_PREFIX+ to_string(userId);
-
-   STD::generic_map values;
-    values["gameid"] = nGameId;
-    values["roomid"] = nRoomId;
-    return hmset(strKeyName, values, MAX_USER_ONLINE_INFO_IDLE_TIME);
+   std::string key = redisKeys::prefix_uid_online+ to_string(userId);
+   STD::generic_map m;
+   m["gameid"] = gameId;
+   m["roomid"] = roomId;
+    return hmset(key, m, redisKeys::Expire_UidOnline);
 }
 
-bool RedisClient::GetUserOnlineInfo(int64_t userId, uint32_t &nGameId, uint32_t &nRoomId)
+bool RedisClient::GetOnlineInfo(int64_t userId, uint32_t &gameId, uint32_t &roomId)
 {
-    bool ok = false;
-    STD::generic_map redisValue;
-    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
+    STD::generic_map m;
+    std::string key = redisKeys::prefix_uid_online + to_string(userId);
     std::string fields[]   = {"gameid", "roomid"};
-    bool bExist = hmget(strKeyName, fields, CountArray(fields), redisValue);
-    if  ((bExist) && (!redisValue.empty()))
-    {
-        nGameId     = redisValue["gameid"].as_uint();
-        nRoomId     = redisValue["roomid"].as_uint();
-        ok = true;
+    bool bExist = hmget(key, fields, CountArray(fields), m);
+    if  (bExist && !m.empty()) {
+        gameId     = m["gameid"].as_uint();
+        roomId     = m["roomid"].as_uint();
+        return true;
     }
-    return ok;
+    return false;
 }
 
-bool RedisClient::SetUserOnlineInfoIP(int64_t userId, std::string const& gameip)
+bool RedisClient::SetOnlineInfoIP(int64_t userId, std::string const& gameip)
 {
-    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    return hset(strKeyName, "gameip", gameip, MAX_USER_ONLINE_INFO_IDLE_TIME);
+    std::string key = redisKeys::prefix_uid_online + to_string(userId);
+    return hset(key, "gameip", gameip, redisKeys::Expire_UidOnline);
 }
 
-bool RedisClient::GetUserOnlineInfoIP(int64_t userId, std::string & gameip)
+bool RedisClient::GetOnlineInfoIP(int64_t userId, std::string & gameip)
 {
-    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    return hget(strKeyName, "gameip", gameip);
+    std::string key = redisKeys::prefix_uid_online + to_string(userId);
+    return hget(key, "gameip", gameip);
 }
 
-bool RedisClient::ResetExpiredUserOnlineInfo(int64_t userId,int timeout)
+bool RedisClient::ResetExpiredOnlineInfo(int64_t userId)
 {
-    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    return resetExpired(strKeyName,timeout);
+    std::string key = redisKeys::prefix_uid_online + to_string(userId);
+    return resetExpired(key, redisKeys::Expire_UidOnline);
 }
 
-bool RedisClient::ExistsUserOnlineInfo(int64_t userId)
+bool RedisClient::ExistOnlineInfo(int64_t userId)
 {
-    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    return exists(strKeyName);
+    std::string key = redisKeys::prefix_uid_online + to_string(userId);
+    return exists(key);
 }
 
-bool RedisClient::DelUserOnlineInfo(int64_t userId)
+bool RedisClient::DelOnlineInfo(int64_t userId)
 {
-    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    return del(strKeyName);
+    std::string key = redisKeys::prefix_uid_online + to_string(userId);
+    return del(key);
 }
 
-int RedisClient::TTLUserOnlineInfo(int64_t userId)
+int RedisClient::TTLOnlineInfo(int64_t userId)
 {
-    std::string strKeyName = REDIS_ONLINE_PREFIX + to_string(userId);
-    return TTL(strKeyName);
+    std::string key = redisKeys::prefix_uid_online + to_string(userId);
+    return TTL(key);
 }
 
 bool RedisClient::GetGameServerplayerNum(std::vector<std::string> &serverValues,uint64_t &nTotalCount)
@@ -1485,7 +1512,7 @@ bool RedisClient::GetUserLoginInfo(int64_t userId, std::string field, std::strin
 {
     bool ret = false;
     value = "";
-    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = redisKeys::prefix_uid + to_string(userId);
     if (hget(key, field, value))
     {
         ret = true;
@@ -1495,25 +1522,25 @@ bool RedisClient::GetUserLoginInfo(int64_t userId, std::string field, std::strin
 
 bool RedisClient::SetUserLoginInfo(int64_t userId, std::string field, const std::string &value)
 {
-    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = redisKeys::prefix_uid + to_string(userId);
     return hset(key, field, value);
 }
 
 bool RedisClient::ResetExpiredUserLoginInfo(int64_t userId)
 {
-    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = redisKeys::prefix_uid + to_string(userId);
     return resetExpired(key);
 }
 
 bool RedisClient::ExistsUserLoginInfo(int64_t userId)
 {
-    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = redisKeys::prefix_uid + to_string(userId);
     return exists(key);
 }
 
 bool RedisClient::DeleteUserLoginInfo(int64_t userId)
 {
-    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+    std::string key = redisKeys::prefix_uid + to_string(userId);
     return del(key);
 }
 
@@ -1588,7 +1615,7 @@ bool RedisClient::RemoveQuarantine(int64_t userId)
 
 //int RedisClient::TTLUserLoginInfo(int64_t userId)
 //{
-//    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+//    std::string key = redisKeys::prefix_uid + to_string(userId);
 //    return TTL(key);
 //}
 
@@ -1948,7 +1975,7 @@ bool RedisClient::POPSQL(std::string &sql, int timeOut)
 //bool RedisClient::setUserLoginInfo(int64_t userId, Global_UserBaseInfo& baseinfo)
 //{
 //    redis::RedisValue redisValue;
-//    std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+//    std::string key = redisKeys::prefix_uid + to_string(userId);
 
 //    redisValue["userId"]             = to_string((int)baseinfo.nUserId);
 //    redisValue["proxyId"]            = to_string((int)baseinfo.nPromoterId);
@@ -2009,7 +2036,7 @@ bool RedisClient::POPSQL(std::string &sql, int timeOut)
 //    do
 //    {
 //        redis::RedisValue redisValue;
-//        std::string key = REDIS_ACCOUNT_PREFIX + to_string(userId);
+//        std::string key = redisKeys::prefix_uid + to_string(userId);
 //        std::string fields[] = {
 //            "userId","proxyId","bindProxyId","gem","platformId","channelId", "ostype", "gender","headId",
 //            "headboxId","vip","temp","manager","superAccount","totalRecharge","score","bankScore","chargeAmount", "loginTime", "gameStartTime",

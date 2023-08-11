@@ -442,7 +442,7 @@ void GameServ::asyncOfflineHandler(std::string const& ipPort) {
 			for (std::vector<int64_t>::iterator ir = v.begin(); ir != v.end(); ++ir) {
 				std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(*ir);
 				if (player) {
-					std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+					std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 					if (table) {
 						table->assertThisThread();
 						//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
@@ -515,7 +515,7 @@ void GameServ::cmd_keep_alive_ping(
 		::Game::Common::KeepAliveMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		rspdata.set_retcode(1);
-		rspdata.set_errormsg("User LoginInfo TimeOut, Restart Login.");
+		rspdata.set_errormsg("[GameClub]User LoginInfo TimeOut, Restart Login.");
 		//用户登陆token
 		std::string const& token = reqdata.session();
 		int64_t userid = 0;
@@ -525,20 +525,20 @@ void GameServ::cmd_keep_alive_ping(
 			//std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 			//if (player && player->isOffline()) {
 			//	rspdata.set_retcode(3);
-			//	rspdata.set_errormsg("KEEP ALIVE PING Error User Offline!");
+			//	rspdata.set_errormsg("[GameClub]KEEP ALIVE PING Error User Offline!");
 			//}
-			/*else */if (REDISCLIENT.ResetExpiredUserOnlineInfo(userid)) {
+			/*else */if (REDISCLIENT.ResetExpiredOnlineInfo(userid)) {
 				rspdata.set_retcode(0);
-				rspdata.set_errormsg("[Game]KEEP ALIVE PING OK.");
+				rspdata.set_errormsg("[GameClub]KEEP ALIVE PING OK.");
 			}
 			else {
 				rspdata.set_retcode(2);
-				rspdata.set_errormsg("KEEP ALIVE PING Error UserId Not Find!");
+				rspdata.set_errormsg("[GameClub]KEEP ALIVE PING Error UserId Not Find!");
 			}
 		}
 		else {
 			rspdata.set_retcode(1);
-			rspdata.set_errormsg("KEEP ALIVE PING Error Session Not Find!");
+			rspdata.set_errormsg("[GameClub]KEEP ALIVE PING Error Session Not Find!");
 		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_SERVER_SUBID::KEEP_ALIVE_RES,
@@ -568,7 +568,7 @@ void GameServ::cmd_on_user_enter_room(
 		//需要先加锁禁止玩家上分操作，然后继续
 
 		//redis已标记玩家游戏中
-		if (REDISCLIENT.ExistsUserOnlineInfo(pre_header_->userId)) {
+		if (REDISCLIENT.ExistOnlineInfo(pre_header_->userId)) {
 			std::string redisPasswd;
 			if (REDISCLIENT.GetUserLoginInfo(pre_header_->userId, "dynamicPassword", redisPasswd)) {
 				std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
@@ -577,6 +577,8 @@ void GameServ::cmd_on_user_enter_room(
 				}
 				else {
 					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+					//DelContext(pre_header_->userId);
+					//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 					//桌子密码错误
 					SendGameErrorCode(conn,
 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -587,6 +589,8 @@ void GameServ::cmd_on_user_enter_room(
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+				//DelContext(pre_header_->userId);
+				//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				//会话不存在
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -597,6 +601,8 @@ void GameServ::cmd_on_user_enter_room(
 		}
 		else {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+			//DelContext(pre_header_->userId);
+			//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 			//游戏已结束
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
@@ -607,7 +613,7 @@ void GameServ::cmd_on_user_enter_room(
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player && player->Valid()) {
 			player->setTrustee(false);
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
 				_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
@@ -618,7 +624,8 @@ void GameServ::cmd_on_user_enter_room(
 				}
 				else {
 					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-					REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+					DelContext(pre_header_->userId);
+					REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 					SendGameErrorCode(conn,
 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 						::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -627,7 +634,8 @@ void GameServ::cmd_on_user_enter_room(
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				DelContext(pre_header_->userId);
+				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -637,7 +645,7 @@ void GameServ::cmd_on_user_enter_room(
 		}
 		//判断在其他游戏中
 		uint32_t gameid = 0, roomid = 0;
-		if (REDISCLIENT.GetUserOnlineInfo(pre_header_->userId, gameid, roomid)) {
+		if (REDISCLIENT.GetOnlineInfo(pre_header_->userId, gameid, roomid)) {
 			if (gameid != 0 && roomid != 0 &&
 				gameInfo_.gameId != gameid || roomInfo_.roomId != roomid) {
 				::GameServer::MSG_S2C_PlayInOtherRoom rspdata;
@@ -659,8 +667,9 @@ void GameServ::cmd_on_user_enter_room(
 		UserBaseInfo userInfo;
 		if (conn) {
 			if (!mgo::GetUserBaseInfo(pre_header_->userId, userInfo)) {
-				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+				DelContext(pre_header_->userId);
+				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_USERNOTEXIST,
@@ -669,19 +678,23 @@ void GameServ::cmd_on_user_enter_room(
 			}
 		}
 		else {
-			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+			DelContext(pre_header_->userId);
+			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_NOSESSION,
 				"ERROR_ENTERROOM_NOSESSION", pre_header_, header_);
 			return;
 		}
+		_LOG_WARN("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfo_.roomId,
+			roomInfo_.enterMinScore, roomInfo_.enterMaxScore, pre_header_->userId, userInfo.userScore);
 		//最小进入条件
 		if (roomInfo_.enterMinScore > 0 &&
 			userInfo.userScore < roomInfo_.enterMinScore) {
-			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+			DelContext(pre_header_->userId);
+			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -692,8 +705,9 @@ void GameServ::cmd_on_user_enter_room(
 		//最大进入条件
 		if (roomInfo_.enterMaxScore > 0 &&
 			userInfo.userScore > roomInfo_.enterMaxScore) {
-			REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+			DelContext(pre_header_->userId);
+			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -704,19 +718,20 @@ void GameServ::cmd_on_user_enter_room(
 		{
 			std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().New(pre_header_->userId);
 			if (!player) {
-				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
+				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				return;
 			}
 			userInfo.ip = pre_header_->clientIp;
 			player->SetUserBaseInfo(userInfo);
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
+			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
 			if (table) {
 				table->assertThisThread();
 				table->RoomSitChair(std::dynamic_pointer_cast<IPlayer>(player), pre_header_, header_);
 			}
 			else {
-				REDISCLIENT.DelUserOnlineInfo(pre_header_->userId);
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+				DelContext(pre_header_->userId);
+				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -740,7 +755,7 @@ void GameServ::cmd_on_user_ready(
 
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player) {
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
 				table->SetUserReady(player->GetChairId());
@@ -776,7 +791,7 @@ void GameServ::cmd_on_user_left_room(
 		rspdata.set_type(reqdata.type());
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player) {
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
 				//KickOffLine(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
@@ -816,17 +831,24 @@ void GameServ::cmd_on_user_offline(
 	packet::header_t const* header_ = packet::get_header(buf);
 	uint8_t const* msg = packet::get_msg(buf);
 	size_t msgLen = packet::get_msglen(buf);
-	//KickOffLine(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
-	std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
-	if (!player) {
-		return;
-	}
-	std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
-	if (table) {
-		table->assertThisThread();
-		table->OnUserOffline(player);
-	}
-	else {
+	switch (pre_header_->kicking) {
+	case KICK_REPLACE:
+		_LOG_ERROR("KICK_REPLACE %d", pre_header_->userId);
+		break;
+	default:
+		_LOG_ERROR("KICK_LEAVEGS %d", pre_header_->userId);
+		//KickOffLine(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
+		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
+		if (!player) {
+			return;
+		}
+		std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+		if (table) {
+			table->assertThisThread();
+			table->OnUserOffline(player);
+		}
+		else {
+		}
 	}
 }
 
@@ -842,7 +864,7 @@ void GameServ::cmd_on_game_message(
 		uint32_t len = reqdata.passdata().size();
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player) {
-			std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
 				table->OnGameEvent(player->GetChairId(), header_->subId, data, len);

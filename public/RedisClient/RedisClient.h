@@ -233,20 +233,31 @@ public:
     bool ResetExpiredAccountUid(std::string const& account);
     bool GetAccountUid(std::string const& account, int64_t& userId);
     bool SetAccountUid(std::string const& account, int64_t userid);
+    
     bool ResetExpiredToken(std::string const& token);
     bool SetTokenInfo(std::string const& token, int64_t userid, std::string const& account);
     bool GetTokenInfo(std::string const& token,
         int64_t& userid, std::string& account, uint32_t& agentid);
     bool SetTokenInfoIP(std::string const& token, std::string const& gateip);
     bool GetTokenInfoIP(std::string const& token, std::string& gateip);
-    bool SetUserOnlineInfo(int64_t userId, uint32_t nGameId, uint32_t nRoomId);
-    bool GetUserOnlineInfo(int64_t userId, uint32_t &nGameId, uint32_t &nRoomId);
-    bool SetUserOnlineInfoIP(int64_t userId, std::string const& gameip);
-    bool GetUserOnlineInfoIP(int64_t userId, std::string &gameip);
-    bool ResetExpiredUserOnlineInfo(int64_t userId,int timeout = MAX_USER_ONLINE_INFO_IDLE_TIME);
-    bool ExistsUserOnlineInfo(int64_t userId);
-    bool DelUserOnlineInfo(int64_t userId);
-    int TTLUserOnlineInfo(int64_t userId);
+    bool ExistTokenInfo(std::string const& token);
+    bool DelTokenInfo(std::string const& token);
+
+    bool ResetExpiredUserToken(int64_t userId);
+    bool SetUserToken(int64_t userId, std::string const& token);
+    bool GetUserToken(int64_t userId, std::string& token);
+    bool ExistUserToken(int64_t userId);
+    bool DelUserToken(int64_t userId);
+
+    bool ResetExpiredOnlineInfo(int64_t userId);
+    bool SetOnlineInfo(int64_t userId, uint32_t gameId, uint32_t roomId);
+    bool GetOnlineInfo(int64_t userId, uint32_t& gameId, uint32_t& roomId);
+    bool SetOnlineInfoIP(int64_t userId, std::string const& gameip);
+    bool GetOnlineInfoIP(int64_t userId, std::string &gameip);
+    bool ExistOnlineInfo(int64_t userId);
+    bool DelOnlineInfo(int64_t userId);
+    int TTLOnlineInfo(int64_t userId);
+
     bool GetGameServerplayerNum(std::vector<std::string> &serverValues,uint64_t &nTotalCount);
     bool GetGameRoomplayerNum(std::vector<std::string> &serverValues,std::map<std::string,uint64_t>& mapPlayerNum);
     bool GetGameAgentPlayerNum(std::vector<std::string> &keys,std::vector<std::string> &values);

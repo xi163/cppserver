@@ -748,7 +748,7 @@ bool CTable::OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendStat
             _LOG_WARN("<real> %d %d", chairId, userId);
             //清理真人数据
             tableContext_->DelContext(userId);
-            DelUserOnlineInfo(userId);
+            DelOnlineInfo(userId);
             CPlayerMgr::get_mutable_instance().Delete(userId);
         }
         //清空重置座位
@@ -2025,22 +2025,22 @@ void CTable::KickOffLine(std::shared_ptr<IPlayer> const& player, int32_t kickTyp
     }
 }
 
-bool CTable::DelUserOnlineInfo(int64_t userId) {
+bool CTable::DelOnlineInfo(int64_t userId) {
     _LOG_ERROR("%d", userId);
     if (false) {
-        REDISCLIENT.ResetExpiredUserOnlineInfo(userId);
+        REDISCLIENT.ResetExpiredOnlineInfo(userId);
     }
     else {
         //if(REDISCLIENT.ExistsUserLoginInfo(userId)){
         //}
-        REDISCLIENT.DelUserOnlineInfo(userId);
+        REDISCLIENT.DelOnlineInfo(userId);
     }
     return true;
 }
 
-bool CTable::SetUserOnlineInfo(int64_t userId) {
+bool CTable::SetOnlineInfo(int64_t userId) {
     _LOG_ERROR("%d %d %d", userId, gameInfo_->gameId, roomInfo_->roomId);
-    REDISCLIENT.SetUserOnlineInfo(userId, gameInfo_->gameId, roomInfo_->roomId);
+    REDISCLIENT.SetOnlineInfo(userId, gameInfo_->gameId, roomInfo_->roomId);
     return true;
 }
 
@@ -2065,7 +2065,7 @@ bool CTable::RoomSitChair(std::shared_ptr<IPlayer> const& player, packet::intern
         player->SetUserStatus(sSit);
         OnUserEnterAction(player, pre_header, header);
         if (!player->IsRobot()) {
-            SetUserOnlineInfo(player->GetUserId());
+            SetOnlineInfo(player->GetUserId());
         }
         return true;
     }
