@@ -22,9 +22,6 @@
     <Filter Include="protorpc">
       <UniqueIdentifier>{662143ac-f96f-4848-992f-1a3f3c33f586}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Logger">
-      <UniqueIdentifier>{771e27ea-4e36-4325-8f48-83e22fe50cb0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="protobuf">
       <UniqueIdentifier>{1d2eff8d-3411-4bb5-bbb3-dad0305a32bc}</UniqueIdentifier>
     </Filter>
@@ -364,15 +361,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpc.pb.h">
       <Filter>protorpc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h">
-      <Filter>Logger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h">
-      <Filter>Logger</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\websocket\context.h">
       <Filter>websocket</Filter>

@@ -85,9 +85,6 @@
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\rpcservice.pb.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Logger.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\Macro.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\AsyncLogging.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\Atomic.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\base\BlockingQueue.h" />
