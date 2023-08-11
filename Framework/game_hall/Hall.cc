@@ -549,8 +549,8 @@ void HallServ::cmd_on_user_login(
 		std::string const& token = reqdata.session();
 		try {
 			//来自网关IP
-			std::string gateIp((char const*)pre_header_->servId, packet::kServIdSZ);
-			assert(!gateIp.empty() && gateIp.size() == packet::kServIdSZ);
+			std::string gateIp((char const*)pre_header_->servId);
+			assert(!gateIp.empty());
 			//登陆IP
 			uint32_t ipaddr = pre_header_->clientIp;
 			//查询IP所在国家/地区
@@ -606,7 +606,8 @@ void HallServ::cmd_on_user_login(
 							goto end;
 						}
 						//全服通知到各网关服顶号处理
-						std::string session((char const*)pre_header_->session, packet::kSessionSZ);
+						std::string session((char const*)pre_header_->session);
+						assert(!session.empty());
 						boost::property_tree::ptree root;
 						std::stringstream s;
 						root.put("userid", userId);
@@ -628,7 +629,12 @@ void HallServ::cmd_on_user_login(
 						rspdata.set_gamepass(uuid);
 						rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_OK);
 						rspdata.set_errormsg("User Login OK.");
-
+						
+						_LOG_WARN("%d ip: %s gateIp: %s session: %s",
+							userId,
+							utils::inetToIp(pre_header_->clientIp).c_str(),
+							gateIp.c_str(), session.c_str());
+						
 						//通知网关服登陆成功
 						const_cast<packet::internal_prev_header_t*>(pre_header_)->userId = userId;
 						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = 1;

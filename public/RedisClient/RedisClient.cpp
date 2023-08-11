@@ -529,10 +529,12 @@ bool RedisClient::hmget(std::string key, std::string* fields, int count, redis::
     return OK;
 }
 
-bool RedisClient::hmset(std::string key, redis::RedisValue& values, int timeout)
+bool RedisClient::hmset(std::string const& key, redis::RedisValue& values, int timeout)
 {
     bool OK = false;
-    std::string cmd = "HMSET " + key;
+	std::string cmd;
+	cmd.append("HMSET ");
+	cmd.append(key);
     std::map<std::string,redis::RedisValItem> listval = values.get();
     std::map<std::string,redis::RedisValItem>::iterator iter;
     for (iter=listval.begin();iter!=listval.end();++iter)
@@ -543,7 +545,10 @@ bool RedisClient::hmset(std::string key, redis::RedisValue& values, int timeout)
         if (value.length())
         {
             value = string_replace(value," ","_");
-            cmd += " " + field + " " + value;
+			cmd.append(" ");
+			cmd.append(field);
+			cmd.append(" ");
+			cmd.append(value);
         }
     }
 
@@ -616,20 +621,22 @@ bool RedisClient::hmget(std::string key, std::string* fields, int count, STD::ge
 	return OK;
 }
 
-bool RedisClient::hmset(std::string key, STD::generic_map& m, int timeout) {
-	bool OK = false;
-	std::string cmd = "HMSET " + key;
-    for(STD::generic_map::iterator it = m.begin(); it != m.end(); ++it)
+bool RedisClient::hmset(std::string const& key, STD::generic_map& m, int timeout) {
+    bool OK = false;
+    std::string cmd;
+    cmd.append("HMSET ");
+    cmd.append(key);
+    for (STD::generic_map::iterator it = m.begin(); it != m.end(); ++it)
 	{
-		std::string field = it->first;
-		std::string value = it->second.as_string();
-		if (value.length())
+		if (it->second.as_string().length())
 		{
-			value = string_replace(value, " ", "_");
-			cmd += " " + field + " " + value;
+			//value = string_replace(value, " ", "_");
+			cmd.append(" ");
+			cmd.append(it->first);
+			cmd.append(" ");
+			cmd.append(it->second.as_string());
 		}
 	}
-
 	while (true)
 	{
 		// try to build the special command to read redis map value the the reply content.
@@ -732,21 +739,22 @@ bool RedisClient::hmset(std::string key, std::vector<std::string>fields, std::ve
     return OK;
 }
 
-bool RedisClient::hmset(std::string key, std::map<std::string,std::string> fields,int timeout)
+bool RedisClient::hmset(std::string const& key, std::map<std::string, std::string>& m,int timeout)
 {
     bool OK = false;
-    std::string cmd = "HMSET " + key;
-    std::map<std::string,std::string>::iterator iter;
-    for (iter=fields.begin();iter!=fields.end();++iter)
+    std::string cmd;
+    cmd.append("HMSET ");
+    cmd.append(key);
+    for (std::map<std::string, std::string>::iterator it = m.begin(); it != m.end(); ++it)
     {
-        std::string field = iter->first;
-        std::string value = iter->second;
-        if (value.length())
+        if (it->second.length())
         {
-            cmd += " " + field + " " + value;
+            cmd.append(" ");
+            cmd.append(it->first);
+            cmd.append(" ");
+            cmd.append(it->second);
         }
     }
-
     while(true)
     {
         // try to build the special command to read redis map value the the reply content.
@@ -1254,17 +1262,11 @@ bool RedisClient::ResetExpiredToken(std::string const& token) {
 }
 
 bool RedisClient::SetTokenInfo(std::string const& token, int64_t userid, std::string const& account) {
-    std::string key = redisKeys::prefix_token + token;
-    //BOOST::Json json;
-    //json.put("account", account);
-    //json.put("uid", userid);
-    //json.put("gateip", gateip);
-    //return set(key, json.to_string(), redisKeys::Expire_Token);
-    STD::generic_map m;
-    m["account"] = account;
-    m["uid"] = userid;
-    //m["gateip"] = gateip;
-    return hmset(key, m, redisKeys::Expire_Token);
+	std::string key = redisKeys::prefix_token + token;
+	STD::generic_map m;
+	m["account"] = account;
+	m["uid"] = userid;
+	return hmset(key, m, redisKeys::Expire_Token);
 }
 
 bool RedisClient::GetTokenInfo(std::string const& token,
@@ -1281,29 +1283,11 @@ bool RedisClient::GetTokenInfo(std::string const& token,
         if (m.has("account")) {
             account = m["account"].as_string();
         }
-        //agentid = m["agentid"].as_uint();
-        //gateip = m["gateip"].as_string();
+		//if (m.has("agentid")) {
+        //    agentid = m["agentid"].as_uint();
+		//}
 	}
-    else {
-        _LOG_ERROR("");
-    }
 	return userid > 0 && !account.empty();
-// 	try {
-// 		std::string value;
-// 		if (get(key, value)) {
-// 			boost::property_tree::ptree pt;
-// 			std::stringstream ss(value);
-// 			boost::property_tree::read_json(ss, pt);
-// 			userid = pt.get<int64_t>("uid");
-// 			account = pt.get<std::string>("account");
-// 			//agentid = pt.get<uint32_t>("agentid");
-// 			return userid > 0;
-// 		}
-// 	}
-// 	catch (std::exception& e) {
-// 		_LOG_ERROR(e.what());
-// 	}
-//	return false;
 }
 
 bool RedisClient::SetTokenInfoIP(std::string const& token, std::string const& gateip) {

@@ -178,14 +178,14 @@ public:
     bool hset(std::string key, std::string field, std::string value, int timeout=0);
 
     bool hmget(std::string key, std::string* fields, int count, redis::RedisValue& redisValue);
-    bool hmset(std::string key, redis::RedisValue& redisValue, int timeout=0);
+    bool hmset(std::string const& key, redis::RedisValue& redisValue, int timeout=0);
 
 	bool hmget(std::string key, std::string* fields, int count, STD::generic_map& m);
-	bool hmset(std::string key, STD::generic_map& m, int timeout = 0);
+	bool hmset(std::string const& key, STD::generic_map& m, int timeout = 0);
 
     bool hmget(std::string key, std::vector<std::string>fields, std::vector<std::string> &values);
     bool hmset(std::string key, std::vector<std::string>fields, std::vector<std::string>values, int timeout=0);
-    bool hmset(std::string key, std::map<std::string,std::string> fields,int timeout=0);
+    bool hmset(std::string const& key, std::map<std::string,std::string>& fields,int timeout=0);
     bool hdel(std::string key, std::string field);
     bool exists(std::string key, std::string field);
 

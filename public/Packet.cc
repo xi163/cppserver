@@ -115,13 +115,16 @@ namespace packet {
 			//clientip
 			pre_header->clientIp = clientip;
 			//session
+			memset(pre_header->session, 0, packet::kSessionSZ);
 			assert(session.length() <= packet::kSessionSZ);
 			memcpy(pre_header->session, session.c_str(), std::min(packet::kSessionSZ, session.length()));
 			//aeskey
+			memset(pre_header->aeskey, 0, packet::kAesKeySZ);
 			assert(aeskey.length() <= packet::kAesKeySZ);
 			memcpy(pre_header->aeskey, aeskey.c_str(), std::min(packet::kAesKeySZ, aeskey.length()));
 #if 1
 			//servid
+			memset(pre_header->servId, 0, packet::kServIdSZ);
 			assert(servid.length() <= packet::kServIdSZ);
 			memcpy(pre_header->servId, servid.c_str(), std::min(packet::kServIdSZ, servid.length()));
 #endif
@@ -182,13 +185,16 @@ namespace packet {
 			//clientip
 			pre_header->clientIp = clientip;
 			//session
+			memset(pre_header->session, 0, packet::kSessionSZ);
 			assert(session.length() <= packet::kSessionSZ);
 			memcpy(pre_header->session, session.c_str(), std::min(packet::kSessionSZ, session.length()));
 			//aeskey
+			memset(pre_header->aeskey, 0, packet::kAesKeySZ);
 			assert(aeskey.length() <= packet::kAesKeySZ);
 			memcpy(pre_header->aeskey, aeskey.c_str(), std::min(packet::kAesKeySZ, aeskey.length()));
 #if 1
 			//servid
+			memset(pre_header->servId, 0, packet::kServIdSZ);
 			assert(servid.length() <= packet::kServIdSZ);
 			memcpy(pre_header->servId, servid.c_str(), std::min(packet::kServIdSZ, servid.length()));
 #endif
@@ -272,13 +278,16 @@ namespace packet {
 			//clientip
 			pre_header->clientIp = clientip;
 			//session
+			memset(pre_header->session, 0, packet::kSessionSZ);
 			assert(session.length() <= packet::kSessionSZ);
 			memcpy(pre_header->session, session.c_str(), std::min(packet::kSessionSZ, session.length()));
 			//aeskey
+			memset(pre_header->aeskey, 0, packet::kAesKeySZ);
 			assert(aeskey.length() <= packet::kAesKeySZ);
 			memcpy(pre_header->aeskey, aeskey.c_str(), std::min(packet::kAesKeySZ, aeskey.length()));
 #if 1
 			//servid
+			memset(pre_header->servId, 0, packet::kServIdSZ);
 			assert(servid.length() <= packet::kServIdSZ);
 			memcpy(pre_header->servId, servid.c_str(), std::min(packet::kServIdSZ, servid.length()));
 #endif

@@ -28,19 +28,54 @@ void testcircular() {
 	}
 }
 
+void hmset(std::string key, STD::generic_map& m) {
+	std::string cmd = "HMSET " + key;
+	for (STD::generic_map::iterator it = m.begin(); it != m.end(); ++it)
+	{
+		std::string field = it->first;
+		std::string value = it->second.as_string();
+		if (value.length())
+		{
+			_LOG_ERROR("[%s]=%s", field.c_str(), value.c_str());
+			//value = string_replace(value, " ", "_");
+			_LOG_ERROR("[%s]=%s", field.c_str(), value.c_str());
+			cmd += " ";
+			cmd += field;
+			cmd += " ";
+			cmd += value;
+		}
+	}
+	_LOG_ERROR("cmd = %s", cmd.c_str());
+}
 int main() {
 	
-	_LOG_ERROR("shutdown1................................................");
-	char* c = "shutdown2................................................";
-	_LOG_ERROR(c);
-	c = "shutdown3................................................";
-	_LOG_S_ERROR(c);
-	std::string s("mongodb://root:Lcw%4012345678#!@192.168.0.113:27017");
-	_LOG_ERROR(s.c_str());
-	_LOG_S_ERROR(s);
-	_LOG_ERROR("%s", s.c_str());
-	c = "mongodb://root:Lcw%4012345678#!@192.168.0.113:27017";
-	_LOG_ERROR(c);
+
+	STD::generic_map m;
+	m["gameid"] = 630;
+	m["roomid"] = 6301;
+
+	for (STD::generic_map::iterator it = m.begin(); it != m.end(); ++it) {
+		_LOG_ERROR("[%s] = %s length:%d", it->first.c_str(), it->second.as_string().c_str(), it->second.as_string().length());
+	}
+
+
+	m["gateip"] = "192.168.0.113:10003:9049:9013";
+	m["session"] = "3CE12F81CA064718AF35B42A64DB6381";
+	std::string key = std::string("h.token.")+ "Bm6DR59tdca-RjGtdRBjwQs2vT1xkn2NoiyVc1cEKkQ1OPxe6VfyJ9q5qovmtbkrO4vLL8XNJOWS_p-VuF38mpQIvkW5G8XfMEDom1F13WLsCcwKbk2Nk_Nx8ydnSJec8je6tUBmbkXAYsqEu__HvMwzWpXC-PmSBWR2kWU5NDJ91jdYa4OnuOP5vvnvQYy2j6BK1xh0XIzHbPXh8MOmgcWiUNHMWRB96UXArw57lLJTyG7rdCTKdCFByqLXyDHx0HuHfhYEDksWGloT-wl2cRSw7cAfb5EWkGxpYCnNlpGaZtOiQqT4S471LZ2Uqph2whlLt8Anik5hmZg0NztznT2WTzk2imxxwEq1fbu7E9lIte2x_7oN5h-jyHoHLNglmYufEfS7uXzolrdFag8ItXqUGrIrS960OPYXvZgECO5jaJ8hVcwPSROQl_Nqr39NV6jimeLmPEUD2-D4s7H96Q==";
+	hmset(key, m);
+	
+
+// 	_LOG_ERROR("shutdown1................................................");
+// 	char* c = "shutdown2................................................";
+// 	_LOG_ERROR(c);
+// 	c = "shutdown3................................................";
+// 	_LOG_S_ERROR(c);
+// 	std::string s("mongodb://root:Lcw%4012345678#!@192.168.0.113:27017");
+// 	_LOG_ERROR(s.c_str());
+// 	_LOG_S_ERROR(s);
+// 	_LOG_ERROR("%s", s.c_str());
+// 	c = "mongodb://root:Lcw%4012345678#!@192.168.0.113:27017";
+// 	_LOG_ERROR(c);
 // 	STD::any v;
 // 	v = false;
 // 	_LOG_INFO("bool:%d", v.as_bool());
