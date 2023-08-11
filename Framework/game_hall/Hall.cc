@@ -689,7 +689,6 @@ void HallServ::cmd_on_user_login(
 	}
 }
 
-
 void HallServ::cmd_on_user_offline(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
 	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
