@@ -25,6 +25,9 @@
     <Filter Include="Logger">
       <UniqueIdentifier>{771e27ea-4e36-4325-8f48-83e22fe50cb0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="protobuf">
+      <UniqueIdentifier>{1d2eff8d-3411-4bb5-bbb3-dad0305a32bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\BoilerPlate.cc">
@@ -167,6 +170,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\websocket\server.cc">
       <Filter>websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\ProtobufCodecLite.cc">
+      <Filter>protobuf</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -373,6 +379,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\websocket\server.h">
       <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\ProtobufCodecLite.h">
+      <Filter>protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\BufferStream.h">
+      <Filter>protobuf</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

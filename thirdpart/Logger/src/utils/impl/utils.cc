@@ -3,7 +3,7 @@
 #include "backtrace.h"
 #include "Privilege.h"
 #include "regedt32.h"
-#include "../../crypt/mymd5.h"
+#include "../../crypt/md5.h"
 #include "../../auth/auth.h"
 
 #ifdef _windows_
