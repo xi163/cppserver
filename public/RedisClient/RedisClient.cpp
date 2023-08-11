@@ -1317,6 +1317,30 @@ bool RedisClient::GetTokenInfoIP(std::string const& token, std::string& gateip)
 	return hget(key, "gateip", gateip);
 }
 
+bool RedisClient::SetTokenInfoIP(std::string const& token, std::string const& gateip, std::string const& session) {
+	std::string key = redisKeys::prefix_token + token;
+	STD::generic_map m;
+	m["gateip"] = gateip;
+	m["session"] = session;
+	return hmset(key, m, redisKeys::Expire_Token);
+}
+
+bool RedisClient::GetTokenInfoIP(std::string const& token, std::string& gateip, std::string& session) {
+	std::string key = redisKeys::prefix_token + token;
+    STD::generic_map m;
+    std::string fields[] = { "gateip", "session" };
+	bool bExist = hmget(key, fields, CountArray(fields), m);
+    if (/*(bExist) &&*/ !m.empty()) {
+		if (m.has("gateip")) {
+            gateip = m["gateip"].as_string();
+		}
+		if (m.has("session")) {
+            session = m["session"].as_string();
+		}
+    }
+    return !gateip.empty() && !session.empty();
+}
+
 bool RedisClient::ExistTokenInfo(std::string const& token) {
 	std::string key = redisKeys::prefix_token + token;
 	return exists(key);

@@ -240,6 +240,8 @@ public:
         int64_t& userid, std::string& account, uint32_t& agentid);
     bool SetTokenInfoIP(std::string const& token, std::string const& gateip);
     bool GetTokenInfoIP(std::string const& token, std::string& gateip);
+	bool SetTokenInfoIP(std::string const& token, std::string const& gateip, std::string const& session);
+	bool GetTokenInfoIP(std::string const& token, std::string& gateip, std::string& session);
     bool ExistTokenInfo(std::string const& token);
     bool DelTokenInfo(std::string const& token);
 
