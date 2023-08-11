@@ -3,12 +3,14 @@
 
 #include "Logger/src/Macro.h"
 
-namespace STD {
+#define _variant_union
 
+namespace STD {
+	
 	//////////////////////////////////////
 	//STD::variant
 	class variant {
-#ifdef _union
+#ifdef _variant_union
 		enum v_type {
 			v_null,
 			v_bool,
@@ -83,7 +85,7 @@ namespace STD {
 		long double as_ldouble();
 		std::string as_string();
 	private:
-#ifdef _union
+#ifdef _variant_union
 		v_type type;
 		union {
 			bool b8;

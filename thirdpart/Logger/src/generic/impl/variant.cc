@@ -8,11 +8,11 @@ namespace STD {
 	//STD::variant
 
 	variant::variant()
-#ifdef _union
+#ifdef _variant_union
 		: type(v_null)
 #endif
 	{
-#ifdef _union
+#ifdef _variant_union
 		memset(&u, 0, sizeof u);
 #endif
 	}
@@ -71,14 +71,14 @@ namespace STD {
 // 		return copy(ref);
 // 	}
 // 	variant& variant::copy(variant const& ref) {
-// #ifdef _union
+// #ifdef _variant_union
 // 		memcpy(&u, &ref.u, sizeof u);
 // #endif
 // 		s = ref.s;
 // 		return *this;
 // 	}
 	variant& variant::operator=(bool val) {
-#ifdef _union
+#ifdef _variant_union
 		u.b8 = val;
 		type = v_bool;
 #else
@@ -87,7 +87,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(char val) {
-#ifdef _union
+#ifdef _variant_union
 		u.i8 = val;
 		type = v_char;
 #else
@@ -96,7 +96,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(unsigned char val) {
-#ifdef _union
+#ifdef _variant_union
 		u.u8 = val;
 		type = v_uchar;
 #else
@@ -105,7 +105,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(short val) {
-#ifdef _union
+#ifdef _variant_union
 		u.i16 = val;
 		type = v_short;
 #else
@@ -114,7 +114,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(unsigned short val) {
-#ifdef _union
+#ifdef _variant_union
 		u.u16 = val;
 		type = v_ushort;
 #else
@@ -123,7 +123,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(int val) {
-#ifdef _union
+#ifdef _variant_union
 		u.i32 = val;
 		type = v_int;
 #else
@@ -132,7 +132,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(unsigned int val) {
-#ifdef _union
+#ifdef _variant_union
 		u.u32 = val;
 		type = v_uint;
 #else
@@ -141,7 +141,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(long val) {
-#ifdef _union
+#ifdef _variant_union
 		u.l32 = val;
 		type = v_long;
 #else
@@ -150,7 +150,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(unsigned long val) {
-#ifdef _union
+#ifdef _variant_union
 		u.ul32 = val;
 		type = v_ulong;
 #else
@@ -159,7 +159,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(long long val) {
-#ifdef _union
+#ifdef _variant_union
 		u.i64 = val;
 		type = v_int64;
 #else
@@ -168,7 +168,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(unsigned long long val) {
-#ifdef _union
+#ifdef _variant_union
 		u.u64 = val;
 		type = v_uint64;
 #else
@@ -177,7 +177,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(float val) {
-#ifdef _union
+#ifdef _variant_union
 		u.f32 = val;
 		type = v_float;
 #else
@@ -186,7 +186,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(double val) {
-#ifdef _union
+#ifdef _variant_union
 		u.f64 = val;
 		type = v_double;
 #else
@@ -195,7 +195,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(long double val) {
-#ifdef _union
+#ifdef _variant_union
 		u.lf64 = val;
 		type = v_ldouble;
 #else
@@ -204,7 +204,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(char const* val) {
-#ifdef _union
+#ifdef _variant_union
 		s = val;
 		type = v_string;
 #else
@@ -213,7 +213,7 @@ namespace STD {
 		return *this;
 	}
 	variant& variant::operator=(std::string const& val) {
-#ifdef _union
+#ifdef _variant_union
 		s = val;
 		type = v_string;
 #else
@@ -222,7 +222,7 @@ namespace STD {
 		return *this;
 	}
 	bool variant::variant::as_bool() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -246,7 +246,7 @@ namespace STD {
 #endif
 	}
 	char variant::as_char() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -270,7 +270,7 @@ namespace STD {
 #endif
 	}
 	unsigned char variant::as_uchar() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -294,7 +294,7 @@ namespace STD {
 #endif
 	}
 	short variant::as_short() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -318,7 +318,7 @@ namespace STD {
 #endif
 	}
 	unsigned short variant::as_ushort() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -342,7 +342,7 @@ namespace STD {
 #endif
 	}
 	int variant::as_int() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -366,7 +366,7 @@ namespace STD {
 #endif
 	}
 	unsigned int variant::as_uint() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -390,7 +390,7 @@ namespace STD {
 #endif
 	}
 	long variant::as_long() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -414,7 +414,7 @@ namespace STD {
 #endif
 	}
 	unsigned long variant::as_ulong() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -438,7 +438,7 @@ namespace STD {
 #endif
 	}
 	long long variant::as_int64() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -462,7 +462,7 @@ namespace STD {
 #endif
 	}
 	unsigned long long variant::as_uint64() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -486,7 +486,7 @@ namespace STD {
 #endif
 	}
 	float variant::as_float() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -510,7 +510,7 @@ namespace STD {
 #endif
 	}
 	double variant::as_double() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -534,7 +534,7 @@ namespace STD {
 #endif
 	}
 	long double variant::as_ldouble() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return u.b8;
 		case v_char: return u.i8;
@@ -558,7 +558,7 @@ namespace STD {
 #endif
 	}
 	std::string variant::as_string() {
-#ifdef _union
+#ifdef _variant_union
 		switch (type) {
 		case v_bool: return std::to_string(u.b8);
 		case v_char: return std::to_string(u.i8);

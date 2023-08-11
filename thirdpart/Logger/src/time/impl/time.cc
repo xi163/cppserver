@@ -26,6 +26,9 @@ namespace STD {
 	::time_point& time_point::get() {
 		return t_;
 	}
+	::time_point& time_point::operator*() {
+		return t_;
+	}
 	time_point time_point::duration(int64_t millsec) {
 		return time_point(t_ + std::chrono::milliseconds(millsec));
 	}

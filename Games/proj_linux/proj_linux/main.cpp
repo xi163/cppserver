@@ -49,7 +49,8 @@ void hmset(std::string key, STD::generic_map& m) {
 }
 int main() {
 	
-
+	STD::time_point t(NOW());
+	*STD_NOW();
 	STD::generic_map m;
 	m["gameid"] = 630;
 	m["roomid"] = 6301;

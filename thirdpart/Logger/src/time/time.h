@@ -19,6 +19,7 @@ namespace STD {
 		time_t to_time_t();
 		::time_point const& get() const;
 		::time_point& get();
+		::time_point& operator*();
 		time_point duration(int64_t millsec);
 		time_point& add(int64_t millsec);
 		int64_t to_sec();
