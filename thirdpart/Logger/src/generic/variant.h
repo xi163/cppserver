@@ -8,6 +8,7 @@ namespace STD {
 	//////////////////////////////////////
 	//STD::variant
 	class variant {
+#ifdef _union
 		enum v_type {
 			v_null,
 			v_bool,
@@ -26,6 +27,7 @@ namespace STD {
 			v_ldouble,
 			v_string,
 		};
+#endif
 	public:
 		variant();
 		explicit variant(bool val);
@@ -44,6 +46,9 @@ namespace STD {
 		explicit variant(long double val);
 		explicit variant(char const* val);
 		explicit variant(std::string const& val);
+// 		explicit variant(variant const& ref);
+// 		variant& operator=(variant const& ref);
+// 		variant& copy(variant const& ref);
 	public:
 		variant& operator=(bool val);
 		variant& operator=(char val);
@@ -78,6 +83,7 @@ namespace STD {
 		long double as_ldouble();
 		std::string as_string();
 	private:
+#ifdef _union
 		v_type type;
 		union {
 			bool b8;
@@ -95,6 +101,7 @@ namespace STD {
 			long long i64;
 			unsigned long long u64;
 		}u;
+#endif
 		std::string s;
 	};
 
