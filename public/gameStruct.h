@@ -1,7 +1,7 @@
 #ifndef INCLUDE_GAMESTRUCT_H
 #define INCLUDE_GAMESTRUCT_H
 
-#include "Logger/src/Macro.h"
+#include "Logger/src/time/time.h"
 
 //#pragma pack(1)
 struct tagGameInfo
@@ -143,6 +143,19 @@ struct UserBaseInfo {
 	int64_t allsubscore;
 	int64_t winlostscore;
 	int64_t allbetscore;
+
+	STD::time_point registertime;
+	std::string registerip;
+	STD::time_point lastlogintime;
+	std::string lastloginip;
+	int activedays;
+	int keeplogindays;
+	int addscoretimes;
+	int subscoretimes;
+	int32_t onlinestatus;
+	int64_t gamerevenue;
+	int gender;
+	int64_t integralvalue;
 };
 
 #endif

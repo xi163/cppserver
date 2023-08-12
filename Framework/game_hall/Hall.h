@@ -3,6 +3,8 @@
 
 #include "public/Inc.h"
 #include "GameDefine.h"
+#include "public/gameConst.h"
+#include "public/gameStruct.h"
 #include "Packet.h"
 #include "proto/Game.Common.pb.h"
 #include "proto/HallServer.Message.pb.h"
@@ -294,24 +296,6 @@ private:
 
 public:
 	void random_game_server_ipport(uint32_t roomid, std::string& ipport);
-	//db更新用户登陆信息(登陆IP，时间)
-	bool db_update_login_info(
-		int64_t userid,
-		std::string const& loginIp,
-		std::chrono::system_clock::time_point& lastLoginTime,
-		std::chrono::system_clock::time_point& now);
-	//db添加用户登陆日志
-	bool db_add_login_logger(
-		int64_t userid,
-		std::string const& loginIp,
-		std::string const& location,
-		std::chrono::system_clock::time_point& now,
-		uint32_t status, uint32_t agentid);
-	//db添加用户登出日志
-	bool db_add_logout_logger(
-		int64_t userid,
-		std::chrono::system_clock::time_point& loginTime,
-		std::chrono::system_clock::time_point& now);
 	//db刷新所有游戏房间信息
 	void db_refresh_game_room_info();
 	void db_update_game_room_info();

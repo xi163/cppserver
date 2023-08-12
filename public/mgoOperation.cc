@@ -160,7 +160,258 @@ namespace mgo {
 		}
 		return 0;
 	}
+	
+	bool UpdateLogin(
+		int64_t userId,
+		std::string const& loginIp,
+		STD::time_point const& lastLoginTime,
+		STD::time_point const& now) {
+		int64_t days = lastLoginTime.to_sec() / 3600 / 24;
+		int64_t nowDays = now.to_sec() / 3600 / 24;
+		try {
+			if (nowDays == days) {
+				auto result = opt::UpdateOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAMEUSER,
+					builder::stream::document{}
+					<< "$set" << open_document
+					<< "lastlogintime" << bsoncxx::types::b_date(*now)
+					<< "lastloginip" << loginIp
+					<< "onlinestatus" << bsoncxx::types::b_int32{ 1 }
+					<< close_document << finalize,
+					builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+				if (!result || result->modified_count() == 0) {
+					return false;
+				}
+				return true;
+			}
+			else if (nowDays == days + 1) {
+				auto result = opt::UpdateOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAMEUSER,
+					builder::stream::document{}
+					<< "$set" << open_document
+					<< "lastlogintime" << bsoncxx::types::b_date(*now)
+					<< "lastloginip" << loginIp
+					<< "onlinestatus" << bsoncxx::types::b_int32{ 1 }
+					<< close_document
+					<< "$inc" << open_document
+					<< "activedays" << 1								//活跃天数+1
+					<< "keeplogindays" << 1			//连续登陆天数+1
+					<< close_document << finalize,
+					builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+				if (!result || result->modified_count() == 0) {
+					return false;
+				}
+				return true;
+			}
+			else {
+				auto result = opt::UpdateOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAMEUSER,
+					builder::stream::document{}
+					<< "$set" << open_document
+					<< "lastlogintime" << bsoncxx::types::b_date(*now)
+					<< "lastloginip" << loginIp
+					<< "keeplogindays" << bsoncxx::types::b_int32{ 1 }	//连续登陆天数1
+					<< "onlinestatus" << bsoncxx::types::b_int32{ 1 }
+					<< close_document
+					<< "$inc" << open_document
+					<< "activedays" << 1	//活跃天数+1
+					<< close_document << finalize,
+					builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+				if (!result || result->modified_count() == 0) {
+					return false;
+				}
+				return true;
+			}
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+	
+	bool UpdateLogout(
+		int64_t userId) {
+		try {
+			auto result = opt::UpdateOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAMEUSER,
+				builder::stream::document{}
+				<< "$set" << open_document
+				<< "onlinestatus" << b_int32{ 0 }
+				<< close_document << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+			if (!result || result->modified_count() == 0) {
+				return false;
+			}
+			return true;
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
 
+	bool AddLoginLog(
+		int64_t userId,
+		std::string const& loginIp,
+		std::string const& location,
+		STD::time_point const& now,
+		uint32_t status) {
+		try {
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAMEUSER,
+				builder::stream::document{} << "agentid" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+			if (!result) {
+			}
+			else {
+				int32_t agentId = 0;
+				document::view view = result->view();
+				if (view["agentid"]) {
+					switch (view["agentid"].type()) {
+					case bsoncxx::type::k_int64:
+						agentId = view["agentid"].get_int64();
+					case bsoncxx::type::k_int32:
+						agentId = view["agentid"].get_int32();
+					}
+				}
+				if (agentId > 0) {
+					auto result = opt::InsertOne(
+						mgoKeys::db::GAMEMAIN,
+						mgoKeys::tbl::LOG_LOGIN,
+						builder::stream::document{}
+						<< "userid" << b_int64{ userId }
+						<< "loginip" << loginIp
+						<< "address" << location
+						<< "status" << b_int32{ status }
+						<< "agentid" << b_int32{ agentId }
+						<< "logintime" << b_date(*now) << finalize);
+					if (!result) {
+					}
+					else {
+						auto docid = result->inserted_id();
+						switch (docid.type()) {
+						case bsoncxx::type::k_oid:
+							bsoncxx::oid oid = docid.get_oid().value;
+							std::string insert_id = oid.to_string();
+							_LOG_DEBUG(insert_id.c_str());
+							return !insert_id.empty();
+
+						}
+					}
+				}
+			}
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+
+	bool AddLogoutLog(
+		int64_t userId,
+		STD::time_point const& loginTime,
+		STD::time_point const& now) {
+		try {
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAMEUSER,
+				builder::stream::document{} << "agentid" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+			if (!result) {
+			}
+			else {
+				int32_t agentId = 0;
+				document::view view = result->view();
+				if (view["agentid"]) {
+					switch (view["agentid"].type()) {
+					case bsoncxx::type::k_int64:
+						agentId = view["agentid"].get_int64();
+					case bsoncxx::type::k_int32:
+						agentId = view["agentid"].get_int32();
+					}
+				}
+				if (agentId > 0) {
+					auto result = opt::InsertOne(
+						mgoKeys::db::GAMEMAIN,
+						mgoKeys::tbl::LOG_LOGOUT,
+						builder::stream::document{}
+						<< "userid" << b_int64{ userId }
+						<< "logintime" << bsoncxx::types::b_date(*loginTime)
+						<< "logouttime" << bsoncxx::types::b_date(*now)
+						<< "agentid" << b_int32{ agentId }
+						<< "playseconds" << bsoncxx::types::b_int64{ (now - loginTime).to_sec() }
+						<< finalize);
+					if (!result) {
+					}
+					else {
+						auto docid = result->inserted_id();
+						switch (docid.type()) {
+						case bsoncxx::type::k_oid:
+							bsoncxx::oid oid = docid.get_oid().value;
+							std::string insert_id = oid.to_string();
+							_LOG_DEBUG(insert_id.c_str());
+							return !insert_id.empty();
+
+						}
+					}
+				}
+			}
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+	
 	bool GetUserByAgent(
 		document::view_or_value const& select,
 		document::view_or_value const& where,
@@ -247,7 +498,7 @@ namespace mgo {
 				mgoKeys::tbl::GAME_KIND,
 				{}, {});
 			for (auto& view : cursor) {
-				//_LOG_DEBUG("%s", to_json(view).c_str());
+				//_LOG_WARN(to_json(view).c_str());
 				::HallServer::GameMessage* gameinfo_ = gameinfos.add_gamemessage();
 				gameinfo_->set_gameid(view["gameid"].get_int32());
 				gameinfo_->set_gamename(view["gamename"].get_utf8().value.to_string());
@@ -695,6 +946,7 @@ namespace mgo {
 				return false;
 			}
 			document::view view = result->view();
+			//_LOG_WARN(to_json(view).c_str());
 			if (view["userid"]) {
 				switch (view["userid"].type()) {
 				case bsoncxx::type::k_int64:
@@ -722,13 +974,10 @@ namespace mgo {
 					break;
 				}
 			}
-			if (view["headindex"]) {
-				switch (view["headindex"].type()) {
-				case bsoncxx::type::k_int64:
-					info.headId = view["headindex"].get_int64();
-					break;
-				case bsoncxx::type::k_int32:
-					info.headId = view["headindex"].get_int32();
+			if (view["linecode"]) {
+				switch (view["linecode"].type()) {
+				case bsoncxx::type::k_utf8:
+					info.lineCode = view["linecode"].get_utf8().value.to_string();
 					break;
 				}
 			}
@@ -739,13 +988,61 @@ namespace mgo {
 					break;
 				}
 			}
-			if (view["score"]) {
-				switch (view["score"].type()) {
+			if (view["headindex"]) {
+				switch (view["headindex"].type()) {
 				case bsoncxx::type::k_int64:
-					info.userScore = view["score"].get_int64();
+					info.headId = view["headindex"].get_int64();
 					break;
 				case bsoncxx::type::k_int32:
-					info.userScore = view["score"].get_int32();
+					info.headId = view["headindex"].get_int32();
+					break;
+				}
+			}
+			if (view["registertime"]) {
+				switch (view["registertime"].type()) {
+				case bsoncxx::type::k_date:
+					info.registertime = ::time_point(view["registertime"].get_date());
+					break;
+				}
+			}
+			if (view["regip"]) {
+				switch (view["regip"].type()) {
+				case bsoncxx::type::k_utf8:
+					info.registerip = view["regip"].get_utf8().value.to_string();
+					break;
+				}
+			}
+			if (view["lastlogintime"]) {
+				switch (view["lastlogintime"].type()) {
+				case bsoncxx::type::k_date:
+					info.lastlogintime = ::time_point(view["lastlogintime"].get_date());
+					break;
+				}
+			}
+			if (view["lastloginip"]) {
+				switch (view["lastloginip"].type()) {
+				case bsoncxx::type::k_utf8:
+					info.lastloginip = view["lastloginip"].get_utf8().value.to_string();
+					break;
+				}
+			}
+			if (view["activedays"]) {
+				switch (view["activedays"].type()) {
+				case bsoncxx::type::k_int64:
+					info.activedays = view["activedays"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.activedays = view["activedays"].get_int32();
+					break;
+				}
+			}
+			if (view["keeplogindays"]) {
+				switch (view["keeplogindays"].type()) {
+				case bsoncxx::type::k_int64:
+					info.keeplogindays = view["keeplogindays"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.keeplogindays = view["keeplogindays"].get_int32();
 					break;
 				}
 			}
@@ -769,6 +1066,37 @@ namespace mgo {
 					break;
 				}
 			}
+			info.allbetscore = info.alladdscore - info.allsubscore;
+			if (view["addscoretimes"]) {
+				switch (view["addscoretimes"].type()) {
+				case bsoncxx::type::k_int64:
+					info.addscoretimes = view["addscoretimes"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.addscoretimes = view["addscoretimes"].get_int32();
+					break;
+				}
+			}
+			if (view["subscoretimes"]) {
+				switch (view["subscoretimes"].type()) {
+				case bsoncxx::type::k_int64:
+					info.subscoretimes = view["subscoretimes"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.subscoretimes = view["subscoretimes"].get_int32();
+					break;
+				}
+			}
+			if (view["gamerevenue"]) {
+				switch (view["gamerevenue"].type()) {
+				case bsoncxx::type::k_int64:
+					info.gamerevenue = view["gamerevenue"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.gamerevenue = view["gamerevenue"].get_int32();
+					break;
+				}
+			}
 			if (view["winorlosescore"]) {
 				switch (view["winorlosescore"].type()) {
 				case bsoncxx::type::k_int64:
@@ -779,7 +1107,16 @@ namespace mgo {
 					break;
 				}
 			}
-			info.allbetscore = info.alladdscore - info.allsubscore;
+			if (view["score"]) {
+				switch (view["score"].type()) {
+				case bsoncxx::type::k_int64:
+					info.userScore = view["score"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.userScore = view["score"].get_int32();
+					break;
+				}
+			}
 			if (view["status"]) {
 				switch (view["status"].type()) {
 				case bsoncxx::type::k_int32:
@@ -789,6 +1126,7 @@ namespace mgo {
 					info.status = view["status"].get_int64();
 					break;
 				case  bsoncxx::type::k_null:
+					info.status = 0;
 					break;
 				case bsoncxx::type::k_bool:
 					info.status = view["status"].get_bool();
@@ -798,10 +1136,42 @@ namespace mgo {
 					break;
 				}
 			}
-			if (view["linecode"]) {
-				switch (view["linecode"].type()) {
+			if (view["onlinestatus"]) {
+				switch (view["onlinestatus"].type()) {
+				case bsoncxx::type::k_int32:
+					info.onlinestatus = view["onlinestatus"].get_int32();
+					break;
+				case bsoncxx::type::k_int64:
+					info.onlinestatus = view["onlinestatus"].get_int64();
+					break;
+				case  bsoncxx::type::k_null:
+					info.onlinestatus = 0;
+					break;
+				case bsoncxx::type::k_bool:
+					info.onlinestatus = view["onlinestatus"].get_bool();
+					break;
 				case bsoncxx::type::k_utf8:
-					info.lineCode = view["linecode"].get_utf8().value.to_string();
+					info.onlinestatus = atol(view["onlinestatus"].get_utf8().value.to_string().c_str());
+					break;
+				}
+			}
+			if (view["gender"]) {
+				switch (view["gender"].type()) {
+				case bsoncxx::type::k_int64:
+					info.gender = view["gender"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.gender = view["gender"].get_int32();
+					break;
+				}
+			}
+			if (view["integralvalue"]) {
+				switch (view["integralvalue"].type()) {
+				case bsoncxx::type::k_int64:
+					info.integralvalue = view["integralvalue"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.integralvalue = view["integralvalue"].get_int32();
 					break;
 				}
 			}
@@ -897,13 +1267,13 @@ namespace mgo {
 		return true;
 	}
 	
-	bool updateUserOnline(int64_t userid, int32_t status) {
+	bool UpdateUserOnline(int64_t userid, int32_t status) {
 		return UpdateUser(
-			builder::stream::document{} << "$set"
-			<< open_document <<
-			"onlinestatus" << b_int32{ status }
+			builder::stream::document{}
+			<< "$set" << open_document
+			<< "onlinestatus" << b_int32{ status }
 			<< close_document << finalize,
-			builder::stream::document{} << "userid" << userid << finalize);
+			builder::stream::document{} << "userid" << b_int64{ userid } << finalize);
 	}
 	
 	bool UpdateAgent(
@@ -1192,7 +1562,7 @@ namespace mgo {
 				mgoKeys::tbl::IP_WHITE_LIST,
 				select, where);
 			for (auto& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				//_LOG_WARN(to_json(view).c_str());
 				std::string ipaddr;
 				eApiVisit ipstatus = eApiVisit::kDisable;
 				if (view["ipaddress"]) {

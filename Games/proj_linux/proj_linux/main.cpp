@@ -1,5 +1,5 @@
 #include "Logger/src/log/Logger.h"
-//#include "public/Inc.h"
+#include "public/Inc.h"
 #include "Logger/src/Macro.h"
 
 void testcircular() {
@@ -50,28 +50,29 @@ void hmset(std::string key, STD::generic_map& m) {
 void AddLogoutLog(
 	STD::time_point const& loginTime,
 	STD::time_point const& now) {
-	STD::time_point t(now - loginTime);
-	_LOG_ERROR("delta: %d", t.to_sec());
+	_LOG_ERROR("delta1: %d", (now - loginTime).to_sec());
 }
+
 int main() {
-	std::chrono::nanoseconds sec;
-	std::chrono::system_clock::time_point t1, t2(sec);
-	//t1 + t2;
-	//t1 += t2;
-	 auto x = t1 - t2;
-	 //t2 = x;
-	 t2 + sec;
-	 t2 += sec;
-	 t2 - sec;
-	 t2 -= sec;
+// 	std::chrono::nanoseconds sec;
+// 	std::chrono::system_clock::time_point t1, t2(sec);
+// 	//t1 + t2;
+// 	//t1 += t2;
+// 	 auto x = t1 - t2;
+// 	 //t2 = x;
+// 	 t2 + sec;
+// 	 t2 += sec;
+// 	 t2 - sec;
+// 	 t2 -= sec;
 	//t1 -= t2;
 	 //STD::time_point t3(t1 - t2);
-
-	 
-	STD::time_point now(NOW());
-
-	STD::time_point loginTime = now - 5000;
-	AddLogoutLog(loginTime, now);
+	STD::time_point x = b_date{ NOW() };
+	 int64_t tt;
+	 STD::time_point st(tt);
+// 	STD::time_point now(NOW());
+// 	
+// 	STD::time_point loginTime = now - 5000;
+// 	AddLogoutLog(loginTime, now);
 // 	*STD_NOW();
 // 	STD::generic_map m;
 // 	m["gameid"] = 630;

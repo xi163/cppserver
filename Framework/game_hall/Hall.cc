@@ -545,144 +545,135 @@ void HallServ::cmd_on_user_login(
 		int64_t userId = 0;
 		uint32_t agentId = 0;
 		std::string account;
-		//用户登陆token
-		std::string const& token = reqdata.session();
 		try {
-			//来自网关IP
-			std::string gateIp((char const*)pre_header_->servId);
-			assert(!gateIp.empty());
-			//登陆IP
-			uint32_t ipaddr = pre_header_->clientIp;
-			//查询IP所在国家/地区
-			std::string country, location;
-			ipFinder_.GetAddressByIp(ntohl(ipaddr), location, country);
-			std::string loginIp = utils::inetToIp(ipaddr);
-			//不能频繁登陆操作(间隔5s)
-// 			std::string key = REDIS_LOGIN_3S_CHECK + token;
-// 			if (REDISCLIENT.exists(key)) {
-// 				_LOG_ERROR("%s IP:%s 频繁登陆", location.c_str(), loginIp.c_str());
-// 				rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
-// 				rspdata.set_errormsg("登陆太频繁了");
-// 			}
-// 			else {
-// 				REDISCLIENT.set(key, key, 5);
-// 			}
-			//系统当前时间
-			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-			//redis查询token，判断是否过期
-			if (REDISCLIENT.GetTokenInfo(token, userId, account, agentId)) {
-				mongocxx::collection coll = MONGODBCLIENT["gamemain"]["game_user"];
-				bsoncxx::document::value query_value = document{} << "userid" << userId << finalize;
-				bsoncxx::stdx::optional<bsoncxx::document::value> result = coll.find_one(query_value.view());
-				if (result) {
-					//查询用户数据
-					//_LOG_DEBUG("Query result:\n%s", bsoncxx::to_json(*result).c_str());
-					bsoncxx::document::view view = result->view();
-					std::string account_ = view["account"].get_utf8().value.to_string();
-					int32_t agentid_ = view["agentid"].get_int32();
-					int32_t headid = view["headindex"].get_int32();
-					std::string nickname = view["nickname"].get_utf8().value.to_string();
-					int64_t score = view["score"].get_int64();
-					int32_t status_ = view["status"].get_int32();
-					std::string lastLoginIp = view["lastloginip"].get_utf8().value.to_string();//lastLoginIp
-					std::chrono::system_clock::time_point lastLoginTime = view["lastlogintime"].get_date();//lastLoginTime
-					//userId(account,agentId)必须一致
-					//if (account == account_ && agentId == agentid_) {
-					if (account == account_) {
-						//////////////////////////////////////////////////////////////////////////
-						//玩家登陆网关服信息
-						//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-						//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-						//网关服ID格式：session|ip:port:port:pid
-						//第一个ip:port是网关服监听客户端的标识
-						//第二个ip:port是网关服监听订单服的标识
-						//pid标识网关服进程id
-						//std::string proxyinfo = string(internal_header->session) + "|" + string(internal_header->servid);
-						//REDISCLIENT.set("s.uid:" + to_string(userId) + ":proxy", proxyinfo);
-						if (status_ == 2) {
-							rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_SEAL_ACCOUNTS);
-							rspdata.set_errormsg("对不起，您的账号已冻结，请联系客服。");
-							db_add_login_logger(userId, loginIp, location, now, 1, agentId);
-							goto end;
-						}
-						//全服通知到各网关服顶号处理
-						std::string session((char const*)pre_header_->session);
-						assert(!session.empty());
-						boost::property_tree::ptree root;
-						std::stringstream s;
-						root.put("userid", userId);
-						root.put("session", session);
-						boost::property_tree::write_json(s, root, false);
-						std::string msg = s.str();
-						REDISCLIENT.publishUserLoginMessage(msg);
+			do {
+				std::string country, location;
+				ipFinder_.GetAddressByIp(ntohl(pre_header_->clientIp), location, country);
+				std::string loginIp = utils::inetToIp(pre_header_->clientIp);
+				//不能频繁登陆操作(间隔5s)
+	// 			std::string key = REDIS_LOGIN_3S_CHECK + reqdata.session();
+	// 			if (REDISCLIENT.exists(key)) {
+	// 				_LOG_ERROR("%s IP:%s 频繁登陆", location.c_str(), loginIp.c_str());
+	// 				rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
+	// 				rspdata.set_errormsg("登陆太频繁了");
+	// 			}
+	// 			else {
+	// 				REDISCLIENT.set(key, key, 5);
+	// 			}
+				STD::time_point now = STD_NOW();
+				if (REDISCLIENT.GetTokenInfo(reqdata.session(), userId, account, agentId)) {
+					UserBaseInfo info;
+					if (mgo::GetUserBaseInfo(
+						document{}
+						<< "account" << 1
+						<< "agentid" << 1
+						<< "nickname" << 1
+						<< "headindex" << 1
+						<< "lastlogintime" << 1
+						<< "lastloginip" << 1
+						<< "score" << 1
+						<< "status" << 1 << finalize,
+						document{} << "userid" << b_int64{ userId } << finalize,
+						info)) {
+						//if (account == info.account && agentId == info.agentId) {
+						if (account == info.account) {
+							//////////////////////////////////////////////////////////////////////////
+							//玩家登陆网关服信息
+							//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
+							//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
+							//网关服ID格式：session|ip:port:port:pid
+							//第一个ip:port是网关服监听客户端的标识
+							//第二个ip:port是网关服监听订单服的标识
+							//pid标识网关服进程id
+							//std::string proxyinfo = string(internal_header->session) + "|" + string(internal_header->servid);
+							//REDISCLIENT.set("s.uid:" + to_string(userId) + ":proxy", proxyinfo);
+							if (info.status == 2) {
+								rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_SEAL_ACCOUNTS);
+								rspdata.set_errormsg("对不起，您的账号已冻结，请联系客服。");
+								mgo::AddLoginLog(userId, loginIp, location, now, 1);
+								break;
+							}
+							//全服通知到各网关服顶号处理
+							std::string session((char const*)pre_header_->session);
+							assert(!session.empty());
+							boost::property_tree::ptree root;
+							std::stringstream s;
+							root.put("userid", userId);
+							root.put("session", session);
+							boost::property_tree::write_json(s, root, false);
+							std::string msg = s.str();
+							REDISCLIENT.publishUserLoginMessage(msg);
 
-						std::string uuid = utils::uuid::createUUID();
-						std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
-						REDISCLIENT.SetUserLoginInfo(userId, "dynamicPassword", passwd);
+							std::string uuid = utils::uuid::createUUID();
+							std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
+							REDISCLIENT.SetUserLoginInfo(userId, "dynamicPassword", passwd);
 
-						rspdata.set_userid(userId);
-						rspdata.set_account(account);
-						rspdata.set_agentid(agentId);
-						rspdata.set_nickname(nickname);
-						rspdata.set_headid(headid);
-						rspdata.set_score(score);
-						rspdata.set_gamepass(uuid);
-						rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_OK);
-						rspdata.set_errormsg("User Login OK.");
-						
-						_LOG_WARN("%d ip: %s gateIp: %s session: %s",
-							userId,
-							utils::inetToIp(pre_header_->clientIp).c_str(),
-							gateIp.c_str(), session.c_str());
-						
-						//通知网关服登陆成功
-						const_cast<packet::internal_prev_header_t*>(pre_header_)->userId = userId;
-						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = 1;
+							rspdata.set_userid(userId);
+							rspdata.set_account(account);
+							rspdata.set_agentid(agentId);
+							rspdata.set_nickname(info.nickName);
+							rspdata.set_headid(info.headId);
+							rspdata.set_score(info.userScore);
+							rspdata.set_gamepass(uuid);
+							rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_OK);
+							rspdata.set_errormsg("User Login OK.");
 
-						//db更新用户登陆信息
-						db_update_login_info(userId, loginIp, lastLoginTime, now);
-						//db添加用户登陆日志
-						db_add_login_logger(userId, loginIp, location, now, 0, agentId);
-						//redis更新登陆时间
-						REDISCLIENT.SetUserLoginInfo(userId, "lastlogintime", std::to_string(chrono::system_clock::to_time_t(now)));
-						//redis更新token过期时间
+							std::string gateIp((char const*)pre_header_->servId);
+							assert(!gateIp.empty());
+
+							_LOG_WARN("%d ip: %s %s gateIp: %s session: %s",
+								userId,
+								loginIp.c_str(),
+								location.c_str(),
+								gateIp.c_str(), session.c_str());
+
+							const_cast<packet::internal_prev_header_t*>(pre_header_)->userId = userId;
+							const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = 1;
+
+							//db更新用户登陆信息
+							mgo::UpdateLogin(userId, loginIp, info.lastlogintime, now);
+							//db添加用户登陆日志
+							mgo::AddLoginLog(userId, loginIp, location, now, 0);
+							//redis更新登陆时间
+							REDISCLIENT.SetUserLoginInfo(userId, "lastlogintime", std::to_string(now.to_time_t()));
+							//redis更新token过期时间
 #if 0
-						REDISCLIENT.ResetExpiredToken(token);
+							REDISCLIENT.ResetExpiredToken(reqdata.session());
 #else
-						REDISCLIENT.SetTokenInfoIP(token, gateIp, session);
+							REDISCLIENT.SetTokenInfoIP(reqdata.session(), gateIp, session);
 #endif
-						REDISCLIENT.ResetExpiredUserToken(userId);
-						_LOG_DEBUG("%d LOGIN SERVER OK!", userId);
+							REDISCLIENT.ResetExpiredUserToken(userId);
+							_LOG_DEBUG("%d LOGIN SERVER OK!", userId);
+						}
+						else {
+							//账号不一致
+							rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
+							rspdata.set_errormsg("account/agentId Not Exist Error.");
+							mgo::AddLoginLog(userId, loginIp, location, now, 2);
+						}
 					}
 					else {
-						//账号不一致
+						//账号不存在
+						_LOG_ERROR("%d Not Exist Error", userId);
 						rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
-						rspdata.set_errormsg("account/agentId Not Exist Error.");
-						db_add_login_logger(userId, loginIp, location, now, 2, agentId);
+						rspdata.set_errormsg("userId Not Exist Error.");
+						mgo::AddLoginLog(userId, loginIp, location, now, 3);
 					}
 				}
 				else {
-					//账号不存在
-					_LOG_ERROR("%d Not Exist Error", userId);
+					//token不存在或已过期
+					_LOG_ERROR("%s Not Exist Error", token.c_str());
 					rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
-					rspdata.set_errormsg("userId Not Exist Error.");
-					db_add_login_logger(userId, loginIp, location, now, 3, agentId);
+					rspdata.set_errormsg("Session Not Exist Error.");
+					mgo::AddLoginLog(userId, loginIp, location, now, 4);
 				}
-			}
-			else {
-				//token不存在或已过期
-				_LOG_ERROR("%s Not Exist Error", token.c_str());
-				rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
-				rspdata.set_errormsg("Session Not Exist Error.");
-				db_add_login_logger(userId, loginIp, location, now, 4, agentId);
-			}
+			}while (0);
 		}
 		catch (std::exception& e) {
 			_LOG_ERROR(e.what());
 			rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_NETBREAK);
 			rspdata.set_errormsg("Database/redis Update Error.");
 		}
-	end:
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_RES,
 			pre_header_, header_);
@@ -695,13 +686,18 @@ void HallServ::cmd_on_user_offline(
 	packet::header_t const* header_ = packet::get_header(buf);
 	uint8_t const* msg = packet::get_msg(buf);
 	size_t msgLen = packet::get_msglen(buf);
-	int64_t userId = pre_header_->userId;
-	mgo::updateUserOnline(userId, 0);
-	std::string lastLoginTime;
-	if (REDISCLIENT.GetUserLoginInfo(userId, "lastlogintime", lastLoginTime)) {
-		std::chrono::system_clock::time_point loginTime = std::chrono::system_clock::from_time_t(stoull(lastLoginTime));
-		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-		db_add_logout_logger(userId, loginTime, now);
+	switch (pre_header_->kicking) {
+	case KICK_REPLACE:
+		_LOG_ERROR("KICK_REPLACE %d", pre_header_->userId);
+		break;
+	default:
+		mgo::UpdateLogout(pre_header_->userId);
+		std::string lastLoginTime;
+		if (REDISCLIENT.GetUserLoginInfo(pre_header_->userId, "lastlogintime", lastLoginTime)) {
+			mgo::AddLogoutLog(
+				pre_header_->userId,
+				STD::time_point(STD::variant(lastLoginTime).as_uint64()), STD_NOW());
+		}
 	}
 }
 
@@ -1132,125 +1128,6 @@ void HallServ::random_game_server_ipport(uint32_t roomid, std::string& ipport) {
 		}
 	}
 }
-
-//db更新用户登陆信息(登陆IP，时间)
-bool HallServ::db_update_login_info(
-	int64_t userId,
-	std::string const& loginIp,
-	std::chrono::system_clock::time_point& lastLoginTime,
-	std::chrono::system_clock::time_point& now) {
-	bool bok = false;
-	int64_t days = (std::chrono::duration_cast<std::chrono::seconds>(lastLoginTime.time_since_epoch())).count() / 3600 / 24;
-	int64_t nowDays = (std::chrono::duration_cast<chrono::seconds>(now.time_since_epoch())).count() / 3600 / 24;
-	try {
-		bsoncxx::document::value query_value = document{} << "userid" << userId << finalize;
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		if (days + 1 == nowDays) {
-			bsoncxx::document::value update_value = document{}
-				<< "$set" << open_document
-				<< "lastlogintime" << bsoncxx::types::b_date(now)
-				<< "lastloginip" << loginIp
-				<< "onlinestatus" << bsoncxx::types::b_int32{ 1 }
-				<< close_document
-				<< "$inc" << open_document
-				<< "activedays" << 1								//活跃天数+1
-				<< "keeplogindays" << 1 << close_document			//连续登陆天数+1
-				<< finalize;
-			userCollection.update_one(query_value.view(), update_value.view());
-		}
-		else if (days == nowDays) {
-			bsoncxx::document::value update_value = document{}
-				<< "$set" << open_document
-				<< "lastlogintime" << bsoncxx::types::b_date(now)
-				<< "lastloginip" << loginIp
-				<< "onlinestatus" << bsoncxx::types::b_int32{ 1 }
-				<< close_document
-				<< finalize;
-			userCollection.update_one(query_value.view(), update_value.view());
-		}
-		else {
-			bsoncxx::document::value update_value = document{}
-				<< "$set" << open_document
-				<< "lastlogintime" << bsoncxx::types::b_date(now)
-				<< "lastloginip" << loginIp
-				<< "keeplogindays" << bsoncxx::types::b_int32{ 1 }	//连续登陆天数1
-				<< "onlinestatus" << bsoncxx::types::b_int32{ 1 }
-				<< close_document
-				<< "$inc" << open_document
-				<< "activedays" << 1 << close_document				//活跃天数+1
-				<< finalize;
-			userCollection.update_one(query_value.view(), update_value.view());
-		}
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
-}
-
-//db添加用户登陆日志
-bool HallServ::db_add_login_logger(
-	int64_t userId,
-	std::string const& loginIp,
-	std::string const& location,
-	std::chrono::system_clock::time_point& now,
-	uint32_t status, uint32_t agentId) {
-	bool bok = false;
-	try {
-		mongocxx::collection loginLogCollection = MONGODBCLIENT["gamemain"]["login_log"];
-		bsoncxx::document::value insert_value = bsoncxx::builder::stream::document{}
-			<< "userid" << userId
-			<< "loginip" << loginIp
-			<< "address" << location
-			<< "status" << (int32_t)status //错误码
-			<< "agentid" << (int32_t)agentId
-			<< "logintime" << bsoncxx::types::b_date(now)
-			<< bsoncxx::builder::stream::finalize;
-		//_LOG_DEBUG("Insert Document: %s", bsoncxx::to_json(insert_value).c_str());
-		bsoncxx::stdx::optional<mongocxx::result::insert_one> result = loginLogCollection.insert_one(insert_value.view());
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
-}
-
-bool HallServ::db_add_logout_logger(
-	int64_t userId,
-	std::chrono::system_clock::time_point& loginTime,
-	std::chrono::system_clock::time_point& now) {
-	bool bok = false;
-	try {
-
-		int32_t agentId = 0;
-		mongocxx::options::find opts = mongocxx::options::find{};
-		opts.projection(document{} << "agentid" << 1 << finalize);
-		bsoncxx::document::value query_value = document{} << "userid" << userId << finalize;
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		bsoncxx::stdx::optional<bsoncxx::document::value> result = userCollection.find_one(query_value.view(), opts);
-		bsoncxx::document::view view = result->view();
-		agentId = view["agentid"].get_int32();
-		//在线时长
-		chrono::seconds durationTime = chrono::duration_cast<chrono::seconds>(now - loginTime);
-		mongocxx::collection logoutLogCollection = MONGODBCLIENT["gamemain"]["logout_log"];
-		bsoncxx::document::value insert_value = document{}
-			<< "userid" << userId
-			<< "logintime" << bsoncxx::types::b_date(loginTime)					//登陆时间
-			<< "logouttime" << bsoncxx::types::b_date(now)						//离线时间
-			<< "agentid" << agentId
-			<< "playseconds" << bsoncxx::types::b_int64{ durationTime.count() } //在线时长
-		<< finalize;
-		/*bsoncxx::stdx::optional<mongocxx::result::insert_one> result = */logoutLogCollection.insert_one(insert_value.view());
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
-}
-
 
 //===================俱乐部==================
 

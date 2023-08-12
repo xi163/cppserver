@@ -6,6 +6,8 @@ namespace STD {
 
 	//////////////////////////////////////
 	//STD::time_point
+	time_point::time_point() {
+	}
 	time_point::time_point(::time_point const& t) :t_(t) {
 	}
 	time_point::time_point(std::chrono::seconds const& t) :t_(t) {
@@ -99,6 +101,13 @@ namespace STD {
 	*/
 	::time_point& time_point::operator*() {
 		return t_;
+	}
+	::time_point const& time_point::operator*() const {
+		return t_;
+	}
+	time_point& time_point::operator=(::time_point const& t) {
+		t_ = t;
+		return *this;
 	}
 	time_point time_point::operator+(std::chrono::seconds const& t) {
 		return time_point(t_ + t);

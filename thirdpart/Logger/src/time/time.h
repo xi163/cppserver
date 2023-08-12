@@ -12,6 +12,7 @@ namespace STD {
 	//STD::time_point
 	class time_point {
 	public:
+		explicit time_point();
 		explicit time_point(::time_point const& t);
 		explicit time_point(std::chrono::seconds const& t);
 		explicit time_point(std::chrono::milliseconds const& t);
@@ -37,7 +38,8 @@ namespace STD {
 		int64_t to_nanosec() const;
 	public:
 		::time_point& operator*();
-
+		::time_point const& operator*() const;
+		time_point& operator=(::time_point const& t);
 		time_point operator+(std::chrono::seconds const& t);
 		time_point const operator+(std::chrono::seconds const& t) const;
 		time_point operator-(std::chrono::seconds const& t);

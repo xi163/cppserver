@@ -56,7 +56,28 @@ namespace mgo {
 	int64_t GetUserId(
 		document::view_or_value const& select,
 		document::view_or_value const& where);
+	
+	bool UpdateLogin(
+		int64_t userId,
+		std::string const& loginIp,
+		STD::time_point const& lastLoginTime,
+		STD::time_point const& now);
 
+	bool UpdateLogout(
+		int64_t userId);
+
+	bool AddLoginLog(
+		int64_t userId,
+		std::string const& loginIp,
+		std::string const& location,
+		STD::time_point const& now,
+		uint32_t status);
+
+	bool AddLogoutLog(
+		int64_t userId,
+		STD::time_point const& loginTime,
+		STD::time_point const& now);
+	
 	bool GetUserByAgent(
 		document::view_or_value const& select,
 		document::view_or_value const& where,
@@ -86,7 +107,7 @@ namespace mgo {
 		document::view_or_value const& update,
 		document::view_or_value const& where);
 	
-	bool updateUserOnline(int64_t userid, int32_t status);
+	bool UpdateUserOnline(int64_t userid, int32_t status);
 	
 	bool UpdateAgent(
 		document::view_or_value const& update,
