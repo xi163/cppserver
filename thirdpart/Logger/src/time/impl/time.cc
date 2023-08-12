@@ -28,6 +28,9 @@ namespace STD {
 	time_t time_point::to_time_t() {
 		return std::chrono::system_clock::to_time_t(t_);
 	}
+	time_t time_point::to_time_t() const {
+		return std::chrono::system_clock::to_time_t(t_);
+	}
 	::time_point const& time_point::get() const {
 		return t_;
 	}
@@ -37,6 +40,9 @@ namespace STD {
 	time_point time_point::duration(int64_t millsec) {
 		return time_point(t_ + std::chrono::milliseconds(millsec));
 	}
+	time_point const time_point::duration(int64_t millsec) const {
+		return time_point(t_ + std::chrono::milliseconds(millsec));
+	}
 	time_point& time_point::add(int64_t millsec) {
 		t_ += std::chrono::milliseconds(millsec);
 		return *this;
@@ -44,13 +50,25 @@ namespace STD {
 	int64_t time_point::to_sec() {
 		return std::chrono::duration_cast<std::chrono::seconds>(t_.time_since_epoch()).count();
 	}
+	int64_t time_point::to_sec() const {
+		return std::chrono::duration_cast<std::chrono::seconds>(t_.time_since_epoch()).count();
+	}
 	int64_t time_point::to_millisec() {
+		return std::chrono::duration_cast<std::chrono::milliseconds>(t_.time_since_epoch()).count();
+	}
+	int64_t time_point::to_millisec() const {
 		return std::chrono::duration_cast<std::chrono::milliseconds>(t_.time_since_epoch()).count();
 	}
 	int64_t time_point::to_microsec() {
 		return std::chrono::duration_cast<std::chrono::microseconds>(t_.time_since_epoch()).count();
 	}
+	int64_t time_point::to_microsec() const {
+		return std::chrono::duration_cast<std::chrono::microseconds>(t_.time_since_epoch()).count();
+	}
 	int64_t time_point::to_nanosec() {
+		return std::chrono::duration_cast<std::chrono::nanoseconds>(t_.time_since_epoch()).count();//t.time_since_epoch().count()
+	}
+	int64_t time_point::to_nanosec() const {
 		return std::chrono::duration_cast<std::chrono::nanoseconds>(t_.time_since_epoch()).count();//t.time_since_epoch().count()
 	}
 	/*
@@ -85,7 +103,13 @@ namespace STD {
 	time_point time_point::operator+(std::chrono::seconds const& t) {
 		return time_point(t_ + t);
 	}
+	time_point const time_point::operator+(std::chrono::seconds const& t) const {
+		return time_point(t_ + t);
+	}
 	time_point time_point::operator-(std::chrono::seconds const& t) {
+		return time_point(t_ - t);
+	}
+	time_point const time_point::operator-(std::chrono::seconds const& t) const {
 		return time_point(t_ - t);
 	}
 	time_point& time_point::operator+=(std::chrono::seconds const& t) {
@@ -99,7 +123,13 @@ namespace STD {
 	time_point time_point::operator+(std::chrono::milliseconds const& t) {
 		return time_point(t_ + t);
 	}
+	time_point const time_point::operator+(std::chrono::milliseconds const& t) const {
+		return time_point(t_ + t);
+	}
 	time_point time_point::operator-(std::chrono::milliseconds const& t) {
+		return time_point(t_ + t);
+	}
+	time_point const time_point::operator-(std::chrono::milliseconds const& t) const {
 		return time_point(t_ + t);
 	}
 	time_point& time_point::operator+=(std::chrono::milliseconds const& t) {
@@ -113,7 +143,13 @@ namespace STD {
 	time_point time_point::operator+(std::chrono::microseconds const& t) {
 		return time_point(t_ + t);
 	}
+	time_point const time_point::operator+(std::chrono::microseconds const& t) const {
+		return time_point(t_ + t);
+	}
 	time_point time_point::operator-(std::chrono::microseconds const& t) {
+		return time_point(t_ + t);
+	}
+	time_point const time_point::operator-(std::chrono::microseconds const& t) const {
 		return time_point(t_ + t);
 	}
 	time_point& time_point::operator+=(std::chrono::microseconds const& t) {
@@ -127,7 +163,13 @@ namespace STD {
 	time_point time_point::operator+(std::chrono::nanoseconds const& t) {
 		return time_point(t_ + t);
 	}
+	time_point const time_point::operator+(std::chrono::nanoseconds const& t) const {
+		return time_point(t_ + t);
+	}
 	time_point time_point::operator-(std::chrono::nanoseconds const& t) {
+		return time_point(t_ + t);
+	}
+	time_point const time_point::operator-(std::chrono::nanoseconds const& t) const {
 		return time_point(t_ + t);
 	}
 	time_point& time_point::operator+=(std::chrono::nanoseconds const& t) {
@@ -141,7 +183,13 @@ namespace STD {
 	time_point time_point::operator+(int64_t millsec) {
 		return duration(millsec);
 	}
+	time_point const time_point::operator+(int64_t millsec) const {
+		return duration(millsec);
+	}
 	time_point time_point::operator-(int64_t millsec) {
+		return duration(-millsec);
+	}
+	time_point const time_point::operator-(int64_t millsec) const {
 		return duration(-millsec);
 	}
 	time_point& time_point::operator+=(int64_t millsec) {
@@ -154,7 +202,15 @@ namespace STD {
 		//time_point(std::chrono::nanoseconds)
 		return time_point(t_ - t);
 	}
+	time_point const time_point::operator-(::time_point const& t) const {
+		//time_point(std::chrono::nanoseconds)
+		return time_point(t_ - t);
+	}
 	time_point time_point::operator-(time_point const& t) {
+		//time_point(std::chrono::nanoseconds)
+		return time_point(t_ - t.t_);
+	}
+	time_point const time_point::operator-(time_point const& t) const {
 		//time_point(std::chrono::nanoseconds)
 		return time_point(t_ - t.t_);
 	}

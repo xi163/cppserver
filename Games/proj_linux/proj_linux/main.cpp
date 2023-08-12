@@ -47,23 +47,45 @@ void hmset(std::string key, STD::generic_map& m) {
 	}
 	_LOG_ERROR("cmd = %s", cmd.c_str());
 }
+void AddLogoutLog(
+	STD::time_point const& loginTime,
+	STD::time_point const& now) {
+	STD::time_point t(now - loginTime);
+	_LOG_ERROR("delta: %d", t.to_sec());
+}
 int main() {
-	
-	STD::time_point t(NOW());
-	*STD_NOW();
-	STD::generic_map m;
-	m["gameid"] = 630;
-	m["roomid"] = 6301;
+	std::chrono::nanoseconds sec;
+	std::chrono::system_clock::time_point t1, t2(sec);
+	//t1 + t2;
+	//t1 += t2;
+	 auto x = t1 - t2;
+	 //t2 = x;
+	 t2 + sec;
+	 t2 += sec;
+	 t2 - sec;
+	 t2 -= sec;
+	//t1 -= t2;
+	 //STD::time_point t3(t1 - t2);
 
-	for (STD::generic_map::iterator it = m.begin(); it != m.end(); ++it) {
-		_LOG_ERROR("[%s] = %s length:%d", it->first.c_str(), it->second.as_string().c_str(), it->second.as_string().length());
-	}
+	 
+	STD::time_point now(NOW());
 
+	STD::time_point loginTime = now - 5000;
+	AddLogoutLog(loginTime, now);
+// 	*STD_NOW();
+// 	STD::generic_map m;
+// 	m["gameid"] = 630;
+// 	m["roomid"] = 6301;
 
-	m["gateip"] = "192.168.0.113:10003:9049:9013";
-	m["session"] = "3CE12F81CA064718AF35B42A64DB6381";
-	std::string key = std::string("h.token.")+ "Bm6DR59tdca-RjGtdRBjwQs2vT1xkn2NoiyVc1cEKkQ1OPxe6VfyJ9q5qovmtbkrO4vLL8XNJOWS_p-VuF38mpQIvkW5G8XfMEDom1F13WLsCcwKbk2Nk_Nx8ydnSJec8je6tUBmbkXAYsqEu__HvMwzWpXC-PmSBWR2kWU5NDJ91jdYa4OnuOP5vvnvQYy2j6BK1xh0XIzHbPXh8MOmgcWiUNHMWRB96UXArw57lLJTyG7rdCTKdCFByqLXyDHx0HuHfhYEDksWGloT-wl2cRSw7cAfb5EWkGxpYCnNlpGaZtOiQqT4S471LZ2Uqph2whlLt8Anik5hmZg0NztznT2WTzk2imxxwEq1fbu7E9lIte2x_7oN5h-jyHoHLNglmYufEfS7uXzolrdFag8ItXqUGrIrS960OPYXvZgECO5jaJ8hVcwPSROQl_Nqr39NV6jimeLmPEUD2-D4s7H96Q==";
-	hmset(key, m);
+// 	for (STD::generic_map::iterator it = m.begin(); it != m.end(); ++it) {
+// 		_LOG_ERROR("[%s] = %s length:%d", it->first.c_str(), it->second.as_string().c_str(), it->second.as_string().length());
+// 	}
+// 
+// 
+// 	m["gateip"] = "192.168.0.113:10003:9049:9013";
+// 	m["session"] = "3CE12F81CA064718AF35B42A64DB6381";
+// 	std::string key = std::string("h.token.")+ "Bm6DR59tdca-RjGtdRBjwQs2vT1xkn2NoiyVc1cEKkQ1OPxe6VfyJ9q5qovmtbkrO4vLL8XNJOWS_p-VuF38mpQIvkW5G8XfMEDom1F13WLsCcwKbk2Nk_Nx8ydnSJec8je6tUBmbkXAYsqEu__HvMwzWpXC-PmSBWR2kWU5NDJ91jdYa4OnuOP5vvnvQYy2j6BK1xh0XIzHbPXh8MOmgcWiUNHMWRB96UXArw57lLJTyG7rdCTKdCFByqLXyDHx0HuHfhYEDksWGloT-wl2cRSw7cAfb5EWkGxpYCnNlpGaZtOiQqT4S471LZ2Uqph2whlLt8Anik5hmZg0NztznT2WTzk2imxxwEq1fbu7E9lIte2x_7oN5h-jyHoHLNglmYufEfS7uXzolrdFag8ItXqUGrIrS960OPYXvZgECO5jaJ8hVcwPSROQl_Nqr39NV6jimeLmPEUD2-D4s7H96Q==";
+// 	hmset(key, m);
 	
 
 // 	_LOG_ERROR("shutdown1................................................");
