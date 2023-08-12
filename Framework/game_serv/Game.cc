@@ -938,21 +938,53 @@ void GameServ::AddContext(
 	packet::internal_prev_header_t const* pre_header_,
 	packet::header_t const* header_) {
 	_LOG_ERROR("%d", pre_header_->userId);
-	std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
-	std::shared_ptr<packet::header_t> header(new packet::header_t());
-	memcpy(pre_header.get(), pre_header_, packet::kPrevHeaderLen);
-	memcpy(header.get(), header_, packet::kHeaderLen);
-	std::shared_ptr<gate_t>  gate(new gate_t());
-	gate->IpPort = conn->peerAddress().toIpPort();
-	gate->pre_header = pre_header;
-	gate->header = header;
 	{
 		//WRITE_LOCK(mutexUserGates_);
-		mapUserGates_[pre_header_->userId] = gate;
+		std::map<int64_t, std::shared_ptr<gate_t>>::iterator it = mapUserGates_.find(pre_header_->userId);
+		//已存在 map[userid]gate
+		if (it != mapUserGates_.end()) {
+			std::string& ipPort = it->second->IpPort;
+			//和之前是同一个gate
+			if (ipPort == conn->peerAddress().toIpPort()) {
+				memcpy(it->second->pre_header.get(), pre_header_, packet::kPrevHeaderLen);
+				memcpy(it->second->header.get(), header_, packet::kHeaderLen);
+				return;
+			}
+			//换了gate
+			it->second->IpPort = conn->peerAddress().toIpPort();
+			memcpy(it->second->pre_header.get(), pre_header_, packet::kPrevHeaderLen);
+			memcpy(it->second->header.get(), header_, packet::kHeaderLen);
+			//删除旧的记录 map[gate]users
+			{
+				//WRITE_LOCK(mutexGateUsers_);
+				std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
+				if (it != mapGateUsers_.end()) {
+					std::set<int64_t>::iterator ir = it->second.find(pre_header_->userId);
+					if (ir != it->second.end()) {
+						it->second.erase(ir);
+						if (it->second.empty()) {
+							mapGateUsers_.erase(it);
+						}
+					}
+				}
+			}
+		}
+		//不存在 map[userid]gate
+		else {
+			std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
+			std::shared_ptr<packet::header_t> header(new packet::header_t());
+			memcpy(pre_header.get(), pre_header_, packet::kPrevHeaderLen);
+			memcpy(header.get(), header_, packet::kHeaderLen);
+			std::shared_ptr<gate_t>  gate(new gate_t());
+			gate->IpPort = conn->peerAddress().toIpPort();
+			gate->pre_header = pre_header;
+			gate->header = header;
+			mapUserGates_[pre_header_->userId] = gate;
+		}
 	}
 	{
 		//WRITE_LOCK(mutexGateUsers_);
-		std::set<int64_t>& ref = mapGateUsers_[gate->IpPort];
+		std::set<int64_t>& ref = mapGateUsers_[conn->peerAddress().toIpPort()];
 		ref.insert(pre_header_->userId);
 	}
 }
