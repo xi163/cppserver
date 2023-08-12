@@ -662,7 +662,7 @@ void HallServ::cmd_on_user_login(
 				}
 				else {
 					//token不存在或已过期
-					_LOG_ERROR("%s Not Exist Error", token.c_str());
+					_LOG_ERROR("%s Not Exist Error", reqdata.session().c_str());
 					rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
 					rspdata.set_errormsg("Session Not Exist Error.");
 					mgo::AddLoginLog(userId, loginIp, location, now, 4);

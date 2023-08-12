@@ -66,7 +66,8 @@ int main() {
 // 	 t2 -= sec;
 	//t1 -= t2;
 	 //STD::time_point t3(t1 - t2);
-	STD::time_point x = b_date{ NOW() };
+	bsoncxx::document::view view;
+	STD::time_point x(::time_point(view["registertime"].get_date()));
 	 int64_t tt;
 	 STD::time_point st(tt);
 // 	STD::time_point now(NOW());
