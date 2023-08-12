@@ -107,7 +107,7 @@ namespace mgo {
 		document::view_or_value const& update,
 		document::view_or_value const& where);
 	
-	bool UpdateUserOnline(int64_t userid, int32_t status);
+	bool UpdateOnline(int64_t userid, int32_t status);
 	
 	bool UpdateAgent(
 		document::view_or_value const& update,

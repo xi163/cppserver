@@ -1047,32 +1047,3 @@ void GameServ::redis_update_room_player_nums() {
 void GameServ::on_refresh_game_config(std::string msg) {
 	db_refresh_game_room_info();
 }
-
-bool GameServ::db_update_online_status(int64_t userid, int32_t status) {
-	bool bok = false;
-	try {
-		//////////////////////////////////////////////////////////////////////////
-		//玩家登陆网关服信息
-		//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-		//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-		//网关服ID格式：session|ip:port:port:pid
-		//第一个ip:port是网关服监听客户端的标识
-		//第二个ip:port是网关服监听订单服的标识
-		//pid标识网关服进程id
-		//////////////////////////////////////////////////////////////////////////
-		REDISCLIENT.del("s.uid:" + to_string(userid) + ":proxy");
-		bsoncxx::document::value query_value = document{} << "userid" << userid << finalize;
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		bsoncxx::document::value update_value = document{}
-			<< "$set" << open_document
-			<< "onlinestatus" << bsoncxx::types::b_int32{ status }
-			<< close_document
-			<< finalize;
-		userCollection.update_one(query_value.view(), update_value.view());
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
-}

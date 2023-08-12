@@ -110,7 +110,6 @@ public:
 		packet::internal_prev_header_t const* pre_header_,
 		packet::header_t const* header_);
 public:
-	bool db_update_online_status(int64_t userid, int32_t status);
 	void db_refresh_game_room_info();
 	//void db_update_game_room_info();
 	void redis_refresh_room_player_nums();

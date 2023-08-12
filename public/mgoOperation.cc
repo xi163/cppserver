@@ -1267,7 +1267,7 @@ namespace mgo {
 		return true;
 	}
 	
-	bool UpdateUserOnline(int64_t userid, int32_t status) {
+	bool UpdateOnline(int64_t userid, int32_t status) {
 		return UpdateUser(
 			builder::stream::document{}
 			<< "$set" << open_document
