@@ -616,9 +616,16 @@ void GameServ::cmd_on_user_enter_room(
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
-				_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
-					table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
-					player->GetChairId(), player->GetUserId());
+				if (player->isOffline()) {
+					_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
+						table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
+						player->GetChairId(), player->GetUserId());
+				}
+				else {
+					_LOG_WARN("[%s][%d][%s] %d %d 异地登陆进房间",
+						table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
+						player->GetChairId(), player->GetUserId());
+				}
 				if (table->CanJoinTable(player)) {
 					table->OnUserEnterAction(player, pre_header_, header_);
 				}

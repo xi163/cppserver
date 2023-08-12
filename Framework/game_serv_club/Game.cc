@@ -616,9 +616,16 @@ void GameServ::cmd_on_user_enter_room(
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
-				_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
-					table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
-					player->GetChairId(), player->GetUserId());
+				if (player->isOffline()) {
+					_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
+						table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
+						player->GetChairId(), player->GetUserId());
+				}
+				else {
+					_LOG_WARN("[%s][%d][%s] %d %d 异地登陆进房间",
+						table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
+						player->GetChairId(), player->GetUserId());
+				}
 				if (table->CanJoinTable(player)) {
 					table->OnUserEnterAction(player, pre_header_, header_);
 				}
@@ -938,21 +945,53 @@ void GameServ::AddContext(
 	packet::internal_prev_header_t const* pre_header_,
 	packet::header_t const* header_) {
 	_LOG_ERROR("%d", pre_header_->userId);
-	std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
-	std::shared_ptr<packet::header_t> header(new packet::header_t());
-	memcpy(pre_header.get(), pre_header_, packet::kPrevHeaderLen);
-	memcpy(header.get(), header_, packet::kHeaderLen);
-	std::shared_ptr<gate_t>  gate(new gate_t());
-	gate->IpPort = conn->peerAddress().toIpPort();
-	gate->pre_header = pre_header;
-	gate->header = header;
 	{
 		//WRITE_LOCK(mutexUserGates_);
-		mapUserGates_[pre_header_->userId] = gate;
+		std::map<int64_t, std::shared_ptr<gate_t>>::iterator it = mapUserGates_.find(pre_header_->userId);
+		//已存在 map[userid]gate
+		if (it != mapUserGates_.end()) {
+			std::string& ipPort = it->second->IpPort;
+			//和之前是同一个gate
+			if (ipPort == conn->peerAddress().toIpPort()) {
+				memcpy(it->second->pre_header.get(), pre_header_, packet::kPrevHeaderLen);
+				memcpy(it->second->header.get(), header_, packet::kHeaderLen);
+				return;
+			}
+			//换了gate
+			it->second->IpPort = conn->peerAddress().toIpPort();
+			memcpy(it->second->pre_header.get(), pre_header_, packet::kPrevHeaderLen);
+			memcpy(it->second->header.get(), header_, packet::kHeaderLen);
+			//删除旧的记录 map[gate]users
+			{
+				//WRITE_LOCK(mutexGateUsers_);
+				std::map<std::string, std::set<int64_t>>::iterator it = mapGateUsers_.find(ipPort);
+				if (it != mapGateUsers_.end()) {
+					std::set<int64_t>::iterator ir = it->second.find(pre_header_->userId);
+					if (ir != it->second.end()) {
+						it->second.erase(ir);
+						if (it->second.empty()) {
+							mapGateUsers_.erase(it);
+						}
+					}
+				}
+			}
+		}
+		//不存在 map[userid]gate
+		else {
+			std::shared_ptr<packet::internal_prev_header_t> pre_header(new packet::internal_prev_header_t());
+			std::shared_ptr<packet::header_t> header(new packet::header_t());
+			memcpy(pre_header.get(), pre_header_, packet::kPrevHeaderLen);
+			memcpy(header.get(), header_, packet::kHeaderLen);
+			std::shared_ptr<gate_t>  gate(new gate_t());
+			gate->IpPort = conn->peerAddress().toIpPort();
+			gate->pre_header = pre_header;
+			gate->header = header;
+			mapUserGates_[pre_header_->userId] = gate;
+		}
 	}
 	{
 		//WRITE_LOCK(mutexGateUsers_);
-		std::set<int64_t>& ref = mapGateUsers_[gate->IpPort];
+		std::set<int64_t>& ref = mapGateUsers_[conn->peerAddress().toIpPort()];
 		ref.insert(pre_header_->userId);
 	}
 }
@@ -1014,33 +1053,4 @@ void GameServ::redis_update_room_player_nums() {
 
 void GameServ::on_refresh_game_config(std::string msg) {
 	db_refresh_game_room_info();
-}
-
-bool GameServ::db_update_online_status(int64_t userid, int32_t status) {
-	bool bok = false;
-	try {
-		//////////////////////////////////////////////////////////////////////////
-		//玩家登陆网关服信息
-		//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-		//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-		//网关服ID格式：session|ip:port:port:pid
-		//第一个ip:port是网关服监听客户端的标识
-		//第二个ip:port是网关服监听订单服的标识
-		//pid标识网关服进程id
-		//////////////////////////////////////////////////////////////////////////
-		REDISCLIENT.del("s.uid:" + to_string(userid) + ":proxy");
-		bsoncxx::document::value query_value = document{} << "userid" << userid << finalize;
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		bsoncxx::document::value update_value = document{}
-			<< "$set" << open_document
-			<< "onlinestatus" << bsoncxx::types::b_int32{ status }
-			<< close_document
-			<< finalize;
-		userCollection.update_one(query_value.view(), update_value.view());
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
 }
