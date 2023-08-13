@@ -208,21 +208,16 @@ void GateServ::asyncHallHandler(
 //跨网关顶号处理(异地登陆)
 void GateServ::onUserLoginNotify(std::string const& msg) {
 	//_LOG_WARN(msg.c_str());
-	std::stringstream ss(msg);
-	boost::property_tree::ptree root;
-	boost::property_tree::read_json(ss, root);
 	try {
-		int64_t userid = root.get<int>("userid");
-		//用户最新session(网关生成，标识与客户端conn连接，非登陆token)
+		std::stringstream ss(msg);
+		boost::property_tree::ptree root;
+		boost::property_tree::read_json(ss, root);
+		int64_t userid = root.get<int64_t>("userid");
+		std::string const gateip = root.get<std::string>("gateip");
 		std::string const session = root.get<std::string>("session");
-#if 0
-		std::string const servid_ = root.get<std::string>("proxyip");
-		//排除自己
-		std::string const& servid = nodeValue_;
-		if (servid == servid_) {
+		if (gateip == nodeValue_) {
 			return;
 		}
-#endif
 		muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 		if (!peer) {
 			//顶号处理 userid -> conn -> entryContext -> session
@@ -250,7 +245,7 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 		}
 	}
 	catch (boost::property_tree::ptree_error& e) {
-		//_LOG_ERROR(e.what());
+		_LOG_ERROR(e.what());
 	}
 }
 

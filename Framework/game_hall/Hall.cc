@@ -594,11 +594,14 @@ void HallServ::cmd_on_user_login(
 								break;
 							}
 							//全服通知到各网关服顶号处理
+							std::string gateIp((char const*)pre_header_->servId);
+							assert(!gateIp.empty());
 							std::string session((char const*)pre_header_->session);
 							assert(!session.empty());
 							boost::property_tree::ptree root;
 							std::stringstream s;
 							root.put("userid", userId);
+							root.put("gateip", gateIp);
 							root.put("session", session);
 							boost::property_tree::write_json(s, root, false);
 							std::string msg = s.str();
@@ -618,15 +621,6 @@ void HallServ::cmd_on_user_login(
 							rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_OK);
 							rspdata.set_errormsg("User Login OK.");
 
-							std::string gateIp((char const*)pre_header_->servId);
-							assert(!gateIp.empty());
-
-							_LOG_WARN("%d ip: %s %s gateIp: %s session: %s",
-								userId,
-								loginIp.c_str(),
-								location.c_str(),
-								gateIp.c_str(), session.c_str());
-
 							const_cast<packet::internal_prev_header_t*>(pre_header_)->userId = userId;
 							const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = 1;
 
@@ -643,7 +637,11 @@ void HallServ::cmd_on_user_login(
 							REDISCLIENT.SetTokenInfoIP(reqdata.session(), gateIp, session);
 #endif
 							REDISCLIENT.ResetExpiredUserToken(userId);
-							_LOG_DEBUG("%d LOGIN SERVER OK!", userId);
+							_LOG_DEBUG("%d LOGIN SERVER OK! ip: %s %s gateIp: %s session: %s",
+								userId,
+								loginIp.c_str(),
+								location.c_str(),
+								gateIp.c_str(), session.c_str());
 						}
 						else {
 							//账号不一致
