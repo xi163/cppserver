@@ -204,9 +204,9 @@ void CRobotMgr::OnTimerCheckIn() {
 	if (!roomInfo_->bEnableAndroid) {
 		return;
 	}
-	if (roomInfo_->serverStatus == SERVER_STOPPED) {
-		return;
-	}
+// 	if (roomInfo_->serverStatus == kStopped) {
+// 		return;
+// 	}
 	if (freeItems_.empty()) {
 		_LOG_ERROR("机器人没有库存了");
 		return;
