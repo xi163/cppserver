@@ -39,7 +39,6 @@
     <ClCompile Include="AndroidUserItemSink.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Framework\game_serv\gameDefine.h" />
     <ClInclude Include="..\..\Framework\game_serv\interface\IPlayer.h" />
     <ClInclude Include="..\..\Framework\game_serv\interface\IReplayRecord.h" />
     <ClInclude Include="..\..\Framework\game_serv\interface\IRobotDelegate.h" />

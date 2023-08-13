@@ -65,6 +65,5 @@
     <ClInclude Include="..\..\proto\s13s.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Framework\game_serv\gameDefine.h" />
   </ItemGroup>
 </Project>

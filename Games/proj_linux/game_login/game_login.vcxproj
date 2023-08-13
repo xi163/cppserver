@@ -39,7 +39,6 @@
     <ClInclude Include="..\..\..\Framework\game_gate\Container.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
-    <ClInclude Include="..\..\..\Framework\game_login\GameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_login\Login.h" />
     <ClInclude Include="..\..\..\Framework\game_login\register\GateServList.h" />
     <ClInclude Include="..\..\..\Framework\game_login\register\Login_handler.h" />

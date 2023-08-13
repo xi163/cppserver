@@ -43,7 +43,6 @@
       <Filter>pb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_serv_club\Game.h" />
-    <ClInclude Include="..\..\..\Framework\game_serv_club\gameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_serv_club\interface\IPlayer.h">
       <Filter>interface</Filter>
     </ClInclude>

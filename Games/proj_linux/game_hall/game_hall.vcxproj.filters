@@ -36,7 +36,6 @@
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_hall\GameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_hall\Hall.h" />
     <ClInclude Include="..\..\..\public\errorCode.h">
       <Filter>public</Filter>

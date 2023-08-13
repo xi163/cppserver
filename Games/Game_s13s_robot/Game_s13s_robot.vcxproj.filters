@@ -41,6 +41,5 @@
     <ClInclude Include="..\..\Framework\game_serv\interface\ITableDelegate.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Framework\game_serv\gameDefine.h" />
   </ItemGroup>
 </Project>

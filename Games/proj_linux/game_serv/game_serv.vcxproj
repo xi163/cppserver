@@ -36,7 +36,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Framework\game_serv\Game.h" />
-    <ClInclude Include="..\..\..\Framework\game_serv\gameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\Player.h" />
     <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\PlayerMgr.h" />
     <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\Robot.h" />

@@ -73,7 +73,6 @@
       <Filter>interface\impl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_serv\Game.h" />
-    <ClInclude Include="..\..\..\Framework\game_serv\gameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_serv\interface\ITableContext.h">
       <Filter>interface</Filter>
     </ClInclude>

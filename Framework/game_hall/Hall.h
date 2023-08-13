@@ -2,7 +2,7 @@
 #define INCLUDE_GAME_HALL_H
 
 #include "public/Inc.h"
-#include "pbulic/gameConst.h"
+#include "public/gameConst.h"
 #include "public/gameStruct.h"
 #include "Packet.h"
 #include "proto/Game.Common.pb.h"

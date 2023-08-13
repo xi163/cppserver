@@ -39,7 +39,6 @@
     <ClInclude Include="..\..\..\Framework\game_serv_rc\DeskMgr.h" />
     <ClInclude Include="..\..\..\Framework\game_serv_rc\Entities.h" />
     <ClInclude Include="..\..\..\Framework\game_serv_rc\Game.h" />
-    <ClInclude Include="..\..\..\Framework\game_serv_rc\GameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_serv_rc\IDesk.h" />
     <ClInclude Include="..\..\..\Framework\game_serv_rc\IDeskDelegate.h" />
     <ClInclude Include="..\..\..\Framework\game_serv_rc\IPlayer.h" />

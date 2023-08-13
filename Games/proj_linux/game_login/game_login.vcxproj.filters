@@ -45,7 +45,6 @@
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_login\GameDefine.h" />
     <ClInclude Include="..\..\..\Framework\game_login\Login.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
