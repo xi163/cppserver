@@ -31,9 +31,10 @@ enum eApiType {
 	OpSubScore = 3,//下分
 };
 
-enum {
+enum ServerState {
 	kRunning = 0,//服务中
 	kRepairing = 1,//维护中
+	kStopped = 2,//终止服务
 };
 
 enum eApiCtrl {
@@ -67,6 +68,17 @@ enum eApiVisit {
 	\
 	YY(GAME_STATUS_END, 200, "游戏结束") \
 
+#define USERSTATUS_MAP(XX, YY) \
+	YY(sGetout, 0, "离开") \
+	XX(sFree, "空闲") \
+	XX(sSit, "坐下") \
+	XX(sReady, "准备") \
+	XX(sPlaying, "正在玩") \
+	XX(sOffline, "离线") \
+	XX(sLookon, "观战") \
+	XX(sBreakline, "断线") \
+	XX(sStop, "冻结")
+
 enum GameType {
 	GAMETYPE_MAP(ENUM_X, ENUM_Y)
 };
@@ -77,6 +89,10 @@ enum GameStatus {
 
 enum GameMode {
 	GAMEMODE_MAP(K_ENUM_X, K_ENUM_Y)
+};
+
+enum UserStatus {
+	USERSTATUS_MAP(ENUM_X, ENUM_Y)
 };
 
 STATIC_FUNCTION_IMPLEMENT(GAMETYPE_MAP, DETAIL_X, DETAIL_Y, NAME, TypeName)

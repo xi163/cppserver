@@ -39,39 +39,6 @@
 
 #include "gameStruct.h"
 
-// struct UserBaseInfo
-// {
-// 	UserBaseInfo()
-// 	{
-// 		userId = -1;
-// 		account = "";
-// 		headId = 0;
-// 		nickName = "";
-// 		userScore = 0;
-// 		agentId = 0;
-// 		lineCode = "";
-// 		status = 0;
-// 		location = "";
-// 
-// 		takeMaxScore = 0;
-// 		takeMinScore = 0;
-// 		ip = 0;
-// 	}
-// 
-// 	int64_t    userId;                // set the user id.
-// 	std::string     account;
-// 	uint8_t    headId;                // set the header id.
-// 	std::string     nickName;
-// 	int64_t    userScore;             // set the score info.
-// 	uint32_t   agentId;
-// 	std::string     lineCode;
-// 	uint32_t   status;
-// 	uint32_t   ip;
-// 	std::string     location;
-// 
-// 	int64_t    takeMaxScore;
-// 	int64_t    takeMinScore;
-// };
 
 //    int64_t    allChargeAmount;       // charge mount all
 //    int64_t    allWinScore;           // gain score all
@@ -122,11 +89,6 @@
 
 
 
-// enum GameType
-// {
-//     GameType_BaiRen = 0,
-//     GameType_Confrontation = 1,
-// };
 
 enum MongoDBOptType
 {
@@ -138,29 +100,6 @@ enum MongoDBOptType
     DEELTE_MANY
 };
 
-
-// enum GameStatus
-// {
-//     GAME_STATUS_INIT    = 0,
-//     GAME_STATUS_FREE	= 1,			// 游戏Free
-//     GAME_STATUS_START	= 100,			// 游戏进行
-//     GAME_STATUS_END		= 200,			// 游戏End
-// };
-
-enum eServerState
-{
-    SERVER_STOPPED = 0,
-    SERVER_RUNNING = 1,
-    SERVER_REPAIRING  = 2,
-};
-
-
-// struct TableState
-// {
-//     uint32_t    tableId;
-//     uint8_t		locked;
-//     uint8_t		lookon;
-// };
 
 struct tagScoreInfo
 {
@@ -496,40 +435,6 @@ struct tagBlacklistInfo
     tagBlacklistInfo() {}
 };
 
-enum eEnterRoomErrCode
-{
-    ERROR_ENTERROOM_NOSESSION = 1,      // 对不起,连接会话丢失,请稍后重试.
-    ERROR_ENTERROOM_GAMENOTEXIST,       // 对不起,当前游戏服务不存在,请稍后重试.
-    ERROR_ENTERROOM_TABLE_FULL,         // 对不起,当前房间已满,请稍后重试.
-    ERROR_ENTERROOM_SEAT_FULL,          // 对不起,当前桌台已满,请稍后重试.
-    ERROR_ENTERROOM_USERNOTEXIST,       // 对不起,查询玩家信息失败,请稍后重试.
-    ERROR_ENTERROOM_SCORENOENOUGH,      // 对不起,您的金币不足,请充值后重试.
-    ERROR_ENTERROOM_ALREAY_START,       // 对不起,当前游戏已经开始,请耐心等待下一局.
-    ERROR_ENTERROOM_SCORELIMIT,         // 对不起,您的金币过多,无法进入当前房间.
-    ERROR_ENTERROOM_USERINGAME,         // 对不起,您当前正在别的游戏中,无法进入当前房间.
-    ERROR_ENTERROOM_SERVERSTOP,         // 对不起,当前游戏服务器正在维护,请稍后重试.
-    ERROR_ENTERROOM_LONGTIME_NOOP,      // 对不起,您长时间没有操作,已被请出当前房间.
-    ERROR_ENTERROOM_SWITCHTABLEFAIL,    // 对不起,当前游戏已经开始,请在游戏结束后换桌.
-    ERROR_ENTERROOM_GAME_IS_END,        // 对不起,断线重连，游戏已结束
-    ERROR_ENTERROOM_PASSWORD_ERROR,
-    ERROR_ENTERROOM_STOP_CUR_USER,
-    ERROR_ENTERROOM_USER_ORDER_SCORE,    //您正在下分，请稍后进入房间
-    ERROR_ENTERROOM_MATCH_WAIT_JION,     //加入过于频繁，加入等待
-    ERROR_ENTERROOM_MATCH_WAIT_OPEN,     //比赛等待开放
-};
-
-enum eUserStatus
-{
-    sGetout     = 0,        // player get out.
-    sFree,                  // player is free.
-    sSit,                   // player is sitdown.
-    sReady,                 // player is ready.
-    sPlaying,               // player is playing.
-    sOffline,               // player is offline.
-    sLookon,                // player is lookon.
-    sBreakline,        // player is get out at playing.
-    sStop,
-};
 //战绩详情的操作类型
 enum eReplayOperType
 {                       //  炸金花  | 抢庄牛牛,三公  | 21点
