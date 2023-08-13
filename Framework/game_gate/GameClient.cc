@@ -8,14 +8,14 @@
 void GateServ::onGameConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
-		int32_t num = numConnected_.incrementAndGet();
+		int32_t num = numConnected_[kGameClientTy].incrementAndGet();
 		_LOG_INFO("网关服[%s] -> 游戏服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
-		int32_t num = numConnected_.decrementAndGet();
+		int32_t num = numConnected_[kGameClientTy].decrementAndGet();
 		_LOG_INFO("网关服[%s] -> 游戏服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
@@ -105,7 +105,7 @@ void GateServ::asyncGameHandler(
 			header->mainId == Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) {
 			if (header->subId == ::GameServer::SUB_S2C_ENTER_ROOM_RES) {
 				if (pre_header->ok == -1) {
-					entryContext.resetClientConn(servTyE::kGameTy);
+					entryContext.resetClientConn(containTy::kGameTy);
 					{
 						WRITE_LOCK(mutexGameUsers_);
 						std::map<std::string, std::set<int64_t>>::iterator it = mapGameUsers_.find(conn->peerAddress().toIpPort());
@@ -129,7 +129,7 @@ void GateServ::asyncGameHandler(
 				}
 			}
 			else if (header->subId == ::GameServer::SUB_S2C_USER_LEFT_RES && pre_header->ok == 0) {
-				entryContext.resetClientConn(servTyE::kGameTy);
+				entryContext.resetClientConn(containTy::kGameTy);
 				{
 					WRITE_LOCK(mutexGameUsers_);
 					std::map<std::string, std::set<int64_t>>::iterator it = mapGameUsers_.find(conn->peerAddress().toIpPort());
@@ -183,7 +183,7 @@ void GateServ::sendGameMessage(
 	Context& entryContext,
 	BufferPtr const& buf, int64_t userId) {
 	//_LOG_INFO("...");
-	ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
+	ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 	muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 	if (gameConn) {
 		assert(gameConn->connected());
@@ -191,11 +191,11 @@ void GateServ::sendGameMessage(
 #if 0
 		assert(
 			std::find(
-				std::begin(clients_[servTyE::kGameTy].names_),
-				std::end(clients_[servTyE::kGameTy].names_),
-				clientConn.first) != clients_[servTyE::kGameTy].names_.end());
+				std::begin(clients_[containTy::kGameTy].names_),
+				std::end(clients_[containTy::kGameTy].names_),
+				clientConn.first) != clients_[containTy::kGameTy].names_.end());
 #endif
-		clients_[servTyE::kGameTy].clients_->check(clientConn.first, true);
+		clients_[containTy::kGameTy].clients_->check(clientConn.first, true);
 #endif
 		if (buf) {
 			//_LOG_DEBUG("len = %d", buf->readableBytes());
@@ -215,11 +215,11 @@ void GateServ::sendGameMessage(
 			if (REDISCLIENT.GetOnlineInfoIP(userId, serverIp)) {
 				//获取目标游戏节点
 				ClientConn clientConn;
-				clients_[servTyE::kGameTy].clients_->get(serverIp, clientConn);
+				clients_[containTy::kGameTy].clients_->get(serverIp, clientConn);
 				muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 				if (gameConn) {
 					//指定用户游戏节点
-					entryContext.setClientConn(servTyE::kGameTy, clientConn);
+					entryContext.setClientConn(containTy::kGameTy, clientConn);
 					_LOG_INFO("%d 游戏节点[%s]，指定成功!", userId, serverIp.c_str());
 				}
 				else {
@@ -231,7 +231,7 @@ void GateServ::sendGameMessage(
 				_LOG_ERROR("%d 游戏节点IP不存在!", userId);
 			}
 		}
-		ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
+		ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 		muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 		if (gameConn) {
 			assert(gameConn->connected());
@@ -239,11 +239,11 @@ void GateServ::sendGameMessage(
 #if 0
 			assert(
 				std::find(
-					std::begin(clients_[servTyE::kGameTy].names_),
-					std::end(clients_[servTyE::kGameTy].names_),
-					clientConn.first) != clients_[servTyE::kGameTy].names_.end());
+					std::begin(clients_[containTy::kGameTy].names_),
+					std::end(clients_[containTy::kGameTy].names_),
+					clientConn.first) != clients_[containTy::kGameTy].names_.end());
 #endif
-			clients_[servTyE::kGameTy].clients_->check(clientConn.first, true);
+			clients_[containTy::kGameTy].clients_->check(clientConn.first, true);
 #endif
 			if (buf) {
 				gameConn->send(buf.get());

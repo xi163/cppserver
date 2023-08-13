@@ -35,10 +35,19 @@ enum GameEndTag
 	GER_FLOW_BUREAU,
 };
 
-enum servTyE {
+enum containTy {
 	kHallTy = 0,//大厅服
 	kGameTy = 1,//游戏服
-	kMaxServTy,
+    kMaxContainTy,
+};
+
+enum {
+	kHallClientTy = 0,
+	kGameClientTy = 1,
+    KWebsocketTy,
+    KHttpTy,
+    KTcpTy,
+    kMaxNodeTy,
 };
 
 enum eCooType {

@@ -81,7 +81,7 @@ private:
 	void remove(std::string const& name);
 public:
 	Repair repair_;
-	servTyE ty_;
+	containTy ty_;
 	Connector* clients_;
 	std::vector<std::string> names_;
 	mutable boost::shared_mutex mutex_;

@@ -2,6 +2,7 @@
 #define INCLUDE_GAME_GATE_H
 
 #include "public/Inc.h"
+#include "public/gameConst.h"
 
 #include "Packet.h"
 
@@ -11,8 +12,6 @@
 #include "EntryPtr.h"
 
 #include "RpcService.h"
-
-#include "public/gameConst.h"
 
 //#define NDEBUG
 
@@ -141,7 +140,7 @@ private:
 	void refreshWhiteList();
 	bool refreshWhiteListSync();
 	bool refreshWhiteListInLoop();
-	bool repairServer(servTyE servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata);
+	bool repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata);
 	bool repairServer(std::string const& queryStr, std::string& rspdata);
 	void repairServerNotify(std::string const& msg, std::string& rspdata);
 public:
@@ -164,10 +163,9 @@ public:
 	std::vector<std::string> redlockVec_;
 	std::string mongoDBUrl_;
 public:
-	muduo::AtomicInt32 numConnected_;
+	muduo::AtomicInt32 numConnected_[kMaxNodeTy];
 	muduo::AtomicInt64 numTotalReq_;
 	muduo::AtomicInt64 numTotalBadReq_;
-	muduo::AtomicInt32 numConnectedC_;
 	//map[session] = weakConn
 	STR::Entities entities_;
 	//map[userid] = weakConn
@@ -189,7 +187,7 @@ public:
 	STD::Random randomHall_;
 	Connector hallClients_;
 	Connector gameClients_;
-	Container clients_[kMaxServTy];
+	Container clients_[kMaxContainTy];
 	muduo::AtomicInt32 nextPool_;
 	std::hash<std::string> hash_session_;
 	std::vector<Buckets> bucketsPool_;

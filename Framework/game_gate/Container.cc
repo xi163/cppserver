@@ -58,7 +58,7 @@ void Container::process(std::vector<std::string> const& names) {
 
 void Container::add(std::string const& name) {
 	switch (ty_) {
-	case servTyE::kHallTy: {
+	case containTy::kHallTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
 		//name：ip:port
@@ -70,7 +70,7 @@ void Container::add(std::string const& name) {
 		repair_.remove(name);
 		break;
 	}
-	case servTyE::kGameTy: {
+	case containTy::kGameTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
 		//name：roomid:ip:port:mode
@@ -87,7 +87,7 @@ void Container::add(std::string const& name) {
 
 void Container::remove(std::string const& name) {
 	switch (ty_) {
-	case servTyE::kHallTy: {
+	case containTy::kHallTy: {
 		_LOG_WARN(">>> 大厅服[%s]", name.c_str());
 		//try remove
 		clients_->remove(name, true);
@@ -95,7 +95,7 @@ void Container::remove(std::string const& name) {
 		repair_.remove(name);
 		break;
 	}
-	case servTyE::kGameTy: {
+	case containTy::kGameTy: {
 		_LOG_WARN(">>> 游戏服[%s]", name.c_str());
 		//try remove
 		clients_->remove(name, true);

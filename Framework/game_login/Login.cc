@@ -27,8 +27,8 @@ LoginServ::LoginServ(muduo::net::EventLoop* loop,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	httpServer_.setWriteCompleteCallback(
 		std::bind(&LoginServ::onHttpWriteComplete, this, std::placeholders::_1));
-	rpcClients_[rpc::servTyE::kRpcGateTy].clients_ = &gateRpcClients_;
-	rpcClients_[rpc::servTyE::kRpcGateTy].ty_ = rpc::servTyE::kRpcGateTy;
+	rpcClients_[rpc::containTy::kRpcGateTy].clients_ = &gateRpcClients_;
+	rpcClients_[rpc::containTy::kRpcGateTy].ty_ = rpc::containTy::kRpcGateTy;
 	//添加OpenSSL认证支持 httpServer_&server_ 共享证书
 	muduo::net::ssl::SSL_CTX_Init(
 		cert_path,
@@ -102,7 +102,7 @@ void LoginServ::onZookeeperConnected() {
 			s += "\n" + name;
 		}
 		_LOG_WARN("可用网关服[RPC]列表%s", s.c_str());
-		rpcClients_[rpc::servTyE::kRpcGateTy].add(names);
+		rpcClients_[rpc::containTy::kRpcGateTy].add(names);
 	}
 }
 
@@ -124,7 +124,7 @@ void LoginServ::onGateRpcWatcher(int type, int state,
 			s += "\n" + name;
 		}
 		_LOG_WARN("可用网关服[RPC]列表%s", s.c_str());
-		rpcClients_[rpc::servTyE::kRpcGateTy].process(names);
+		rpcClients_[rpc::containTy::kRpcGateTy].process(names);
 	}
 }
 

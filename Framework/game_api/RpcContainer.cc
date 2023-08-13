@@ -58,7 +58,7 @@ namespace rpc {
 
 	void Container::add(std::string const& name) {
 		switch (ty_) {
-		case servTyE::kRpcGateTy: {
+		case containTy::kRpcGateTy: {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 			//name：ip:port
@@ -70,7 +70,7 @@ namespace rpc {
 			repair_.remove(name);
 			break;
 		}
-// 		case servTyE::kGameTy: {
+// 		case containTy::kGameTy: {
 // 			std::vector<std::string> vec;
 // 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 // 			//name：roomid:ip:port
@@ -87,7 +87,7 @@ namespace rpc {
 
 	void Container::remove(std::string const& name) {
 		switch (ty_) {
-		case servTyE::kRpcGateTy: {
+		case containTy::kRpcGateTy: {
 			_LOG_WARN(">>> 网关服[RPC][%s]", name.c_str());
 			//try remove
 			clients_->remove(name, true);
@@ -95,7 +95,7 @@ namespace rpc {
 			repair_.remove(name);
 			break;
 		}
-// 		case servTyE::kGameTy: {
+// 		case containTy::kGameTy: {
 // 			_LOG_WARN(">>> 游戏服[%s]", name.c_str());
 // 			//try remove
 // 			clients_->remove(name, true);

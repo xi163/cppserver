@@ -8,14 +8,14 @@
 void GateServ::onHallConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
-		int32_t num = numConnected_.incrementAndGet();
+		int32_t num = numConnected_[kHallClientTy].incrementAndGet();
 		_LOG_INFO("网关服[%s] -> 大厅服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
-		int32_t num = numConnected_.decrementAndGet();
+		int32_t num = numConnected_[kHallClientTy].decrementAndGet();
 		_LOG_INFO("网关服[%s] -> 大厅服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
@@ -109,7 +109,7 @@ void GateServ::asyncHallHandler(
 			std::string const& name = vec[0] + ":" + vec[1];
 			ClientConn clientConn(name, conn);
 			_LOG_WARN("%d 登陆成功，大厅节点 >>> %s", userId, name.c_str());
-			entryContext.setClientConn(servTyE::kHallTy, clientConn);
+			entryContext.setClientConn(containTy::kHallTy, clientConn);
 			//顶号处理 userid -> conn -> entryContext -> session
 			muduo::net::TcpConnectionPtr old(sessions_.add(userId, peer).lock());
 			if (old && old != peer && old.get() != peer.get()) {
@@ -141,7 +141,7 @@ void GateServ::asyncHallHandler(
 			pre_header->ok == 1) {
 			assert(userId > 0 && userId == entryContext.getUserId());
 			//判断用户当前游戏节点
-			ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
+			ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 			muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 			if (gameConn) {
 				//用户当前游戏节点正常，判断是否一致
@@ -152,11 +152,11 @@ void GateServ::asyncHallHandler(
 						_LOG_WARN("%d 游戏节点[%s] [%s]不一致，重新指定", userId, clientConn.first.c_str(), serverIp.c_str());
 						//获取目标游戏节点
 						ClientConn clientConn;
-						clients_[servTyE::kGameTy].clients_->get(serverIp, clientConn);
+						clients_[containTy::kGameTy].clients_->get(serverIp, clientConn);
 						muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 						if (gameConn) {
 							//更新用户游戏节点
-							entryContext.setClientConn(servTyE::kGameTy, clientConn);
+							entryContext.setClientConn(containTy::kGameTy, clientConn);
 							_LOG_INFO("%d 游戏节点[%s] 更新成功", userId, serverIp.c_str());
 						}
 						else {
@@ -181,11 +181,11 @@ void GateServ::asyncHallHandler(
 				if (REDISCLIENT.GetOnlineInfoIP(userId, serverIp)) {
 					//获取目标游戏节点
 					ClientConn clientConn;
-					clients_[servTyE::kGameTy].clients_->get(serverIp, clientConn);
+					clients_[containTy::kGameTy].clients_->get(serverIp, clientConn);
 					muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 					if (gameConn) {
 						//指定用户游戏节点
-						entryContext.setClientConn(servTyE::kGameTy, clientConn);
+						entryContext.setClientConn(containTy::kGameTy, clientConn);
 						_LOG_INFO("%d 游戏节点[%s]，指定成功!", userId, serverIp.c_str());
 					}
 					else {
@@ -256,22 +256,22 @@ void GateServ::sendHallMessage(
 	Context& entryContext,
 	BufferPtr const& buf, int64_t userId) {
 	//_LOG_INFO("...");
-	ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
+	ClientConn const& clientConn = entryContext.getClientConn(containTy::kHallTy);
 	muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 	if (hallConn) {
 		assert(hallConn->connected());
 		assert(entryContext.getUserId() > 0);
 		//判断节点是否维护中
-		if (!clients_[servTyE::kHallTy].isRepairing(clientConn.first)) {
+		if (!clients_[containTy::kHallTy].isRepairing(clientConn.first)) {
 #if !defined(NDEBUG)
 #if 0
 			assert(
 				std::find(
-					std::begin(clients_[servTyE::kHallTy].clients_),
-					std::end(clients_[servTyE::kHallTy].clients_),
-					clientConn.first) != clients_[servTyE::kHallTy].clients_.end());
+					std::begin(clients_[containTy::kHallTy].clients_),
+					std::end(clients_[containTy::kHallTy].clients_),
+					clientConn.first) != clients_[containTy::kHallTy].clients_.end());
 #endif
-			clients_[servTyE::kHallTy].clients_->check(clientConn.first, true);
+			clients_[containTy::kHallTy].clients_->check(clientConn.first, true);
 #endif
 			if (buf) {
 				//_LOG_DEBUG("len = %d\n", buf->readableBytes());
@@ -283,7 +283,7 @@ void GateServ::sendHallMessage(
 			//用户大厅服维护，重新分配
 			ClientConnList clients;
 			//异步获取全部有效大厅连接
-			clients_[servTyE::kHallTy].clients_->getAll(clients);
+			clients_[containTy::kHallTy].clients_->getAll(clients);
 			if (clients.size() > 0) {
 				bool bok = false;
 				std::map<std::string, bool> repairs;
@@ -294,9 +294,9 @@ void GateServ::sendHallMessage(
 					muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 					if (hallConn) {
 						//判断节点是否维护中
-						if (bok = !clients_[servTyE::kHallTy].isRepairing(clientConn.first)) {
+						if (bok = !clients_[containTy::kHallTy].isRepairing(clientConn.first)) {
 							//账号已经登陆，但登陆大厅维护中，重新指定账号登陆大厅
-							entryContext.setClientConn(servTyE::kHallTy, clientConn);
+							entryContext.setClientConn(containTy::kHallTy, clientConn);
 							if (buf) {
 								//_LOG_DEBUG("len = %d\n", buf->readableBytes());
 								hallConn->send(buf.get());
@@ -341,7 +341,7 @@ void GateServ::sendHallMessage(
 		//用户大厅服失效，重新分配
 		ClientConnList clients;
 		//异步获取全部有效大厅连接
-		clients_[servTyE::kHallTy].clients_->getAll(clients);
+		clients_[containTy::kHallTy].clients_->getAll(clients);
 		if (clients.size() > 0) {
 			bool bok = false;
 			std::map<std::string, bool> repairs;
@@ -353,10 +353,10 @@ void GateServ::sendHallMessage(
 				if (hallConn) {
 					assert(hallConn->connected());
 					//判断节点是否维护中
-					if (bok = !clients_[servTyE::kHallTy].isRepairing(clientConn.first)) {
+					if (bok = !clients_[containTy::kHallTy].isRepairing(clientConn.first)) {
 						if (entryContext.getUserId() > 0) {
 							//账号已经登陆，但登陆大厅失效了，重新指定账号登陆大厅
-							entryContext.setClientConn(servTyE::kHallTy, clientConn);
+							entryContext.setClientConn(containTy::kHallTy, clientConn);
 						}
 						if (buf) {
 							//_LOG_DEBUG("len = %d\n", buf->readableBytes());

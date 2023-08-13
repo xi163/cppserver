@@ -891,13 +891,13 @@ bool ApiServ::refreshWhiteListInLoop() {
 }
 
 //请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
-bool ApiServ::repairServer(servTyE servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
+bool ApiServ::repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
 	_LOG_WARN("name[%s] status[%d]", name.c_str(), status);
-	static std::string path[kMaxServTy] = {
+	static std::string path[kMaxContainTy] = {
 		"/GAME/HallServers/",
 		"/GAME/GameServers/",
 	};
-	static std::string pathrepair[kMaxServTy] = {
+	static std::string pathrepair[kMaxContainTy] = {
 		"/GAME/HallServersInvalid/",
 		"/GAME/GameServersInvalid/",
 	};
@@ -979,7 +979,7 @@ bool ApiServ::repairServer(servTyE servTy, std::string const& servname, std::str
 
 bool ApiServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 	std::string errmsg;
-	servTyE servTy;
+	containTy servTy;
 	std::string name;
 	int status;
 	do {
@@ -1001,10 +1001,10 @@ bool ApiServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 		}
 		else {
 			if (typeKey->second == "HallServer") {
-				servTy = servTyE::kHallTy;
+				servTy = containTy::kHallTy;
 			}
 			else if (typeKey->second == "GameServer") {
-				servTy = servTyE::kGameTy;
+				servTy = containTy::kGameTy;
 			}
 			else {
 				rspdata = createResponse2(status, typeKey->second, name, 1, "参数无效，无任何操作");
@@ -1035,7 +1035,7 @@ bool ApiServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 
 void ApiServ::repairServerNotify(std::string const& msg, std::string& rspdata) {
 	std::string errmsg;
-	servTyE servTy;
+	containTy servTy;
 	std::string name;
 	int status;
 	std::stringstream ss(msg);
@@ -1046,10 +1046,10 @@ void ApiServ::repairServerNotify(std::string const& msg, std::string& rspdata) {
 			//type
 			std::string servname = root.get<std::string>("type");
 			if (servname == "HallServer") {
-				servTy = servTyE::kHallTy;
+				servTy = containTy::kHallTy;
 			}
 			else if (servname == "GameServer") {
-				servTy = servTyE::kGameTy;
+				servTy = containTy::kGameTy;
 			}
 			else {
 				rspdata = createResponse2(status, servname, name, 1, "参数无效，无任何操作");

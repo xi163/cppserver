@@ -213,7 +213,7 @@ void LoginServ::asyncClientHandler(
 					uint32_t clientIp = entryContext.getFromIp();
 					std::string const& session = entryContext.getSession();
 					std::string const& aesKey = entryContext.getAesKey();
-					ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
+					ClientConn const& clientConn = entryContext.getClientConn(containTy::kHallTy);
 					muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 					assert(header->len == len);
 					assert(header->len >= packet::kHeaderLen);
@@ -246,7 +246,7 @@ void LoginServ::asyncClientHandler(
 					uint32_t clientIp = entryContext.getFromIp();
 					std::string const& session = entryContext.getSession();
 					std::string const& aesKey = entryContext.getAesKey();
-					ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
+					ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 					muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 					assert(header->len == len);
 					assert(header->len >= packet::kHeaderLen);

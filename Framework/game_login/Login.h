@@ -233,7 +233,7 @@ private:
 	void refreshWhiteList();
 	bool refreshWhiteListSync();
 	bool refreshWhiteListInLoop();
-	bool repairServer(servTyE servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata);
+	bool repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata);
 	bool repairServer(std::string const& queryStr, std::string& rspdata);
 	void repairServerNotify(std::string const& msg, std::string& rspdata);
 private:

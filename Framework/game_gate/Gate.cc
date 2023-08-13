@@ -49,15 +49,15 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	hallClients_.setMessageCallback(
 		std::bind(&GateServ::onHallMessage, this,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	clients_[servTyE::kHallTy].clients_ = &hallClients_;
-	clients_[servTyE::kHallTy].ty_ = servTyE::kHallTy;
+	clients_[containTy::kHallTy].clients_ = &hallClients_;
+	clients_[containTy::kHallTy].ty_ = containTy::kHallTy;
 	gameClients_.setConnectionCallback(
 		std::bind(&GateServ::onGameConnection, this, std::placeholders::_1));
 	gameClients_.setMessageCallback(
 		std::bind(&GateServ::onGameMessage, this,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	clients_[servTyE::kGameTy].clients_ = &gameClients_;
-	clients_[servTyE::kGameTy].ty_ = servTyE::kGameTy;
+	clients_[containTy::kGameTy].clients_ = &gameClients_;
+	clients_[containTy::kGameTy].ty_ = containTy::kGameTy;
 	//添加OpenSSL认证支持 httpServer_&server_ 共享证书
 	muduo::net::ssl::SSL_CTX_Init(
 		cert_path,
@@ -162,7 +162,7 @@ void GateServ::onZookeeperConnected() {
 				s += "\n" + name;
 			}
 			_LOG_WARN("可用大厅服列表%s", s.c_str());
-			clients_[servTyE::kHallTy].add(names);
+			clients_[containTy::kHallTy].add(names);
 		}
 	}
 	{
@@ -182,7 +182,7 @@ void GateServ::onZookeeperConnected() {
 				s += "\n" + name;
 			}
 			_LOG_WARN("可用游戏服列表%s", s.c_str());
-			clients_[servTyE::kGameTy].add(names);
+			clients_[containTy::kGameTy].add(names);
 		}
 	}
 }
@@ -206,7 +206,7 @@ void GateServ::onHallWatcher(
 			s += "\n" + name;
 		}
 		_LOG_WARN("可用大厅服列表%s", s.c_str());
-		clients_[servTyE::kHallTy].process(names);
+		clients_[containTy::kHallTy].process(names);
 	}
 }
 
@@ -229,7 +229,7 @@ void GateServ::onGameWatcher(
 			s += "\n" + name;
 		}
 		_LOG_WARN("可用游戏服列表%s", s.c_str());
-		clients_[servTyE::kGameTy].process(names);
+		clients_[containTy::kGameTy].process(names);
 	}
 }
 

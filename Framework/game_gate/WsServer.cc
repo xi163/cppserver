@@ -12,7 +12,7 @@ bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
-		int32_t num = numConnectedC_.incrementAndGet();
+		int32_t num = numConnected_[KWebsocketTy].incrementAndGet();
 		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
@@ -50,7 +50,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		conn->setTcpNoDelay(true);
 	}
 	else {
-		int32_t num = numConnectedC_.decrementAndGet();
+		int32_t num = numConnected_[KWebsocketTy].decrementAndGet();
 		_LOG_INFO("客户端[%s] -> 网关服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
@@ -212,7 +212,7 @@ void GateServ::asyncClientHandler(
 				uint32_t clientIp = entryContext.getFromIp();
 				std::string const& session = entryContext.getSession();
 				std::string const& aesKey = entryContext.getAesKey();
-				ClientConn const& clientConn = entryContext.getClientConn(servTyE::kHallTy);
+				ClientConn const& clientConn = entryContext.getClientConn(containTy::kHallTy);
 				muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 				assert(header->len == len);
 				assert(header->len >= packet::kHeaderLen);
@@ -246,7 +246,7 @@ void GateServ::asyncClientHandler(
 				uint32_t clientIp = entryContext.getFromIp();
 				std::string const& session = entryContext.getSession();
 				std::string const& aesKey = entryContext.getAesKey();
-				ClientConn const& clientConn = entryContext.getClientConn(servTyE::kGameTy);
+				ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 				muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 				assert(header->len == len);
 				assert(header->len >= packet::kHeaderLen);

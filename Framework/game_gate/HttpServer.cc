@@ -33,7 +33,7 @@ bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
-		int32_t num = numConnected_.incrementAndGet();
+		int32_t num = numConnected_[KHttpTy].incrementAndGet();
 		_LOG_INFO("WEB端[%s] -> 网关服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
@@ -68,7 +68,7 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 		boost::any_cast<Context&>(conn->getContext()).setWorker(nextPool_, threadPool_);
 	}
 	else {
-		int32_t num = numConnected_.decrementAndGet();
+		int32_t num = numConnected_[KHttpTy].decrementAndGet();
 		_LOG_INFO("WEB端[%s] -> 网关服[%s] %s %d",
 			conn->peerAddress().toIpPort().c_str(),
 			conn->localAddress().toIpPort().c_str(),
@@ -529,13 +529,13 @@ static std::string createResponse(
 }
 
 //请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
-bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
+bool GateServ::repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
 	_LOG_WARN("name[%s] status[%d]", name.c_str(), status);
-	static std::string path[kMaxServTy] = {
+	static std::string path[kMaxContainTy] = {
 		"/GAME/HallServers/",
 		"/GAME/GameServers/",
 	};
-	static std::string pathrepair[kMaxServTy] = {
+	static std::string pathrepair[kMaxContainTy] = {
 		"/GAME/HallServersInvalid/",
 		"/GAME/GameServersInvalid/",
 	};
@@ -617,7 +617,7 @@ bool GateServ::repairServer(servTyE servTy, std::string const& servname, std::st
 
 bool GateServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 	std::string errmsg;
-	servTyE servTy;
+	containTy servTy;
 	std::string name;
 	int status;
 	do {
@@ -635,10 +635,10 @@ bool GateServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 		}
 		else {
 			if (typeKey->second == "HallServer") {
-				servTy = servTyE::kHallTy;
+				servTy = containTy::kHallTy;
 			}
 			else if (typeKey->second == "GameServer") {
-				servTy = servTyE::kGameTy;
+				servTy = containTy::kGameTy;
 			}
 			else {
 				rspdata = createResponse(status, typeKey->second, name, 1, "参数无效，无任何操作");
@@ -669,7 +669,7 @@ bool GateServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 
 void GateServ::repairServerNotify(std::string const& msg, std::string& rspdata) {
 	std::string errmsg;
-	servTyE servTy;
+	containTy servTy;
 	std::string name;
 	int status;
 	std::stringstream ss(msg);
@@ -680,10 +680,10 @@ void GateServ::repairServerNotify(std::string const& msg, std::string& rspdata) 
 			//type
 			std::string servname = root.get<std::string>("type");
 			if (servname == "HallServer") {
-				servTy = servTyE::kHallTy;
+				servTy = containTy::kHallTy;
 			}
 			else if (servname == "GameServer") {
-				servTy = servTyE::kGameTy;
+				servTy = containTy::kGameTy;
 			}
 			else {
 				rspdata = createResponse(status, servname, name, 1, "参数无效，无任何操作");

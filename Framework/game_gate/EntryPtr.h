@@ -189,17 +189,17 @@ struct Context /*: public muduo::noncopyable*/ {
 	inline int64_t getUserId() const { return userid_; }
 	inline void setAesKey(std::string key) { aeskey_ = key; }
 	inline std::string const& getAesKey() const { return aeskey_; }
-	inline void setClientConn(servTyE ty,
+	inline void setClientConn(containTy ty,
 		std::string const& name,
 		muduo::net::WeakTcpConnectionPtr const& weakConn) {
 		assert(!name.empty());
 		client_[ty].first = name;
 		client_[ty].second = weakConn;
 	}
-	inline void setClientConn(servTyE ty, ClientConn const& client) {
+	inline void setClientConn(containTy ty, ClientConn const& client) {
 		client_[ty] = client;
 	}
-	inline void resetClientConn(servTyE ty) {
+	inline void resetClientConn(containTy ty) {
 		muduo::net::WeakTcpConnectionPtr weakConn;
 		client_[ty].second = weakConn;
 		switch (ty) {
@@ -211,14 +211,14 @@ struct Context /*: public muduo::noncopyable*/ {
 			break;
 		}
 	}
-	inline ClientConn const& getClientConn(servTyE ty) { return client_[ty]; }
+	inline ClientConn const& getClientConn(containTy ty) { return client_[ty]; }
 public:
 	int kicking_;
 	uint32_t ipaddr_;
 	int64_t userid_;
 	std::string session_;
 	std::string aeskey_;
-	ClientConn client_[kMaxServTy];
+	ClientConn client_[kMaxContainTy];
 	WeakEntryPtr weakEntry_;
 	boost::any context_;
 	std::shared_ptr<muduo::ThreadPool> thread_;

@@ -248,7 +248,7 @@ private:
 	bool refreshWhiteListInLoop();
 	
 	//请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
-	bool repairServer(servTyE servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata);
+	bool repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata);
 	bool repairServer(std::string const& queryStr, std::string& rspdata);
 	void repairServerNotify(std::string const& msg, std::string& rspdata);
 private:

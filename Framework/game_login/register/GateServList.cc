@@ -10,7 +10,7 @@ extern LoginServ* gServer;
 
 void GetGateServList(GateServList& servList) {
 	rpc::ClientConnList clients;
-	gServer->rpcClients_[rpc::servTyE::kRpcGateTy].clients_->getAll(clients);
+	gServer->rpcClients_[rpc::containTy::kRpcGateTy].clients_->getAll(clients);
 	for (rpc::ClientConnList::iterator it = clients.begin();
 		it != clients.end(); ++it) {
 		rpc::client::GameGate client(*it, 3);
