@@ -239,7 +239,10 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 #else
 					old->forceCloseWithDelay(0.2f);
 #endif
-					_LOG_ERROR("KICK_REPLACE %s => %s", session_.c_str(), session.c_str());
+					_LOG_ERROR("KICK_REPLACE %lld\ngateip %s => %s\nsession %s => %s",
+						userid,
+						nodeValue_.c_str(), gateip.c_str(),
+						session_.c_str(), session.c_str());
 				}
 			}
 		}
