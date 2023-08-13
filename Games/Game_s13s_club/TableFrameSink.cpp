@@ -176,7 +176,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 //			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 2";
 //
 //			return false;
-		}
+//		}
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " " << table_->GetRobotPlayerCount() << "<" << maxAndroid_ << " true 1";
 		//根据房间机器人配置来决定补充多少机器人
 		return table_->GetRobotPlayerCount() < maxAndroid_;
