@@ -53,14 +53,9 @@ enum eApiType {
 };
 
 enum ServerState {
-	kRunning = 0,//服务中
-	kRepairing = 1,//维护中
-	kStopped = 2,//终止服务
-};
-
-enum eServerStatus {
-	SERVER_STAT_DISABLE = 0,
-	SERVER_STAT_ENABLE = 1,
+    kStopped = 0,//终止服务
+    kRunning = 1,//服务中
+	kRepairing = 2,//维护中
 };
 
 enum eApiCtrl {
