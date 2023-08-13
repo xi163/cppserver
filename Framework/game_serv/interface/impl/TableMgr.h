@@ -2,7 +2,8 @@
 #define INCLUDE_TABLEMGR_H
 
 #include "public/Inc.h"
-#include "gameDefine.h"
+#include "public/gameConst.h"
+#include "public/gameStruct.h"
 #include "Packet.h"
 
 #include "Table.h"
