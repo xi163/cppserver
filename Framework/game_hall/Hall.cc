@@ -553,6 +553,7 @@ void HallServ::cmd_on_user_login(
 					_LOG_ERROR("%s ip:%s %s 频繁登陆操作",
 						reqdata.session().c_str(),
 						loginIp.c_str(), location.c_str());
+					break;
 				}
 				else {
 					REDISCLIENT.set(key, key, redisKeys::Expire_TokenLimit);
@@ -572,17 +573,12 @@ void HallServ::cmd_on_user_login(
 						<< "status" << 1 << finalize,
 						document{} << "userid" << b_int64{ userId } << finalize,
 						info)) {
-						if (info.status <= 0) {
-							rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_SEAL_ACCOUNTS);
-							rspdata.set_errormsg("对不起，您的账号已冻结，请联系客服。");
-							_LOG_ERROR("账号 %lld %s 已冻结!", userId, info.account.c_str());
-							break;
-						}
 						if (account == info.account/* && agentId == info.agentId*/) {
-							if (info.status == 2) {
+							if (info.status <= 0) {
 								rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_SEAL_ACCOUNTS);
 								rspdata.set_errormsg("对不起，您的账号已冻结，请联系客服。");
 								mgo::AddLoginLog(userId, loginIp, location, now, 1);
+								_LOG_ERROR("账号 %lld %s 已冻结!", userId, info.account.c_str());
 								break;
 							}
 							//全服通知到各网关服顶号处理
