@@ -584,7 +584,7 @@ void HallServ::cmd_on_user_login(
 						if (info.status <= 0) {
 							rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_SEAL_ACCOUNTS);
 							rspdata.set_errormsg("对不起，您的账号已冻结，请联系客服。");
-							_LOG_ERROR("账号 %lld %s 已冻结!", userId, info.account);
+							_LOG_ERROR("账号 %lld %s 已冻结!", userId, info.account.c_str());
 							break;
 						}
 						//if (account == info.account && agentId == info.agentId) {
