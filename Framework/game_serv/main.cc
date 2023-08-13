@@ -92,8 +92,10 @@ int main(int argc, char* argv[]) {
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
 	std::string ip = pt.get<std::string>(config + ".ip", "192.168.0.113");
-	uint16_t port = pt.get<int>(config + ".port", 8120);
-	port = 30000 + roomId;
+	uint16_t port = pt.get<int>(config + ".port", 0);
+	if (0 == port) {
+		port = RANDOM().betweenInt(25000, 30000).randInt_mt() + roomId;
+	}
 	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
 	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
 	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);

@@ -188,15 +188,11 @@ void HallServ::onZookeeperConnected() {
 				placeholders::_3, std::placeholders::_4,
 				placeholders::_5), this)) {
 			std::string s;
-			WRITE_LOCK(room_servers_mutex_);
 			for (std::string const& name : names) {
 				s += "\n" + name;
-				std::vector<string> vec;
-				boost::algorithm::split(vec, name, boost::is_any_of(":"));
-				std::vector<std::string>& room = room_servers_[stoi(vec[0])];
-				room.emplace_back(name);
 			}
 			_LOG_WARN("可用游戏服列表%s", s.c_str());
+			roomContainer_.add(names);
 		}
 	}
 }
@@ -236,15 +232,11 @@ void HallServ::onGameWatcher(int type, int state,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
 		std::string s;
-		WRITE_LOCK(room_servers_mutex_);
 		for (std::string const& name : names) {
 			s += "\n" + name;
-			std::vector<string> vec;
-			boost::algorithm::split(vec, name, boost::is_any_of(":"));
-			std::vector<std::string>& room = room_servers_[stoi(vec[0])];
-			room.emplace_back(name);
 		}
 		_LOG_WARN("可用游戏服列表%s", s.c_str());
+		roomContainer_.process(names);
 	}
 }
 
@@ -259,7 +251,6 @@ void HallServ::registerZookeeper() {
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&HallServ::registerZookeeper, this));
 }
-
 
 bool HallServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
@@ -792,7 +783,7 @@ void HallServ::cmd_get_game_server_message(
 		else {
 			//随机一个指定类型游戏节点
 			std::string ipport;
-			random_game_server_ipport(roomid, ipport);
+			roomContainer_.random_game_server_ipport(roomid, ipport);
 			//可能ipport节点不可用，要求zk实时监控
 			if (!ipport.empty()) {
 				//redis更新玩家游戏节点
@@ -1095,9 +1086,9 @@ void HallServ::redis_update_room_player_nums() {
 				uint32_t roomid = roominfo.roomid();
 				//redis获取房间人数
 				uint64_t playerNums = 0;
-				if (room_servers_.find(roomid) != room_servers_.end()) {
-					REDISCLIENT.GetGameServerplayerNum(room_servers_[roomid], playerNums);
-				}
+				//if (room_servers_.find(roomid) != room_servers_.end()) {
+				//	REDISCLIENT.GetGameServerplayerNum(room_servers_[roomid], playerNums);
+				//}
 				//更新房间游戏人数
 				roomPlayerNum->set_roomid(roomid);
 				roomPlayerNum->set_playernum(playerNums);
@@ -1113,19 +1104,6 @@ void HallServ::redis_update_room_player_nums() {
 
 void HallServ::on_refresh_game_config(std::string msg) {
 	db_refresh_game_room_info();
-}
-
-void HallServ::random_game_server_ipport(uint32_t roomid, std::string& ipport) {
-	ipport.clear();
-	READ_LOCK(room_servers_mutex_);
-	std::map<int, std::vector<std::string>>::iterator it = room_servers_.find(roomid);
-	if (it != room_servers_.end()) {
-		std::vector<std::string>& rooms = it->second;
-		if (rooms.size() > 0) {
-			int index = RANDOM().betweenInt(0, rooms.size() - 1).randInt_mt();
-			ipport = rooms[index];//roomid:ip:port:mode
-		}
-	}
 }
 
 //===================俱乐部==================

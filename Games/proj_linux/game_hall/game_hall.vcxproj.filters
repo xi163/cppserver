@@ -97,6 +97,7 @@
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
       <Filter>public\RedisLock</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_hall\RoomContainer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -152,5 +153,6 @@
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
       <Filter>public\RedisClient</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_hall\RoomContainer.cc" />
   </ItemGroup>
 </Project>

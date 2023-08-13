@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Framework\game_hall\RoomContainer.h" />
     <ClInclude Include="..\..\..\Framework\game_hall\Hall.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
@@ -60,6 +61,7 @@
     <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Framework\game_hall\RoomContainer.cc" />
     <ClCompile Include="..\..\..\Framework\game_hall\Hall.cc" />
     <ClCompile Include="..\..\..\Framework\game_hall\main.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />

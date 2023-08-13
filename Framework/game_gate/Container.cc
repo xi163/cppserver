@@ -26,7 +26,7 @@ void Container::process(std::vector<std::string> const& names) {
 	//失效节点：names_中有，而names中没有
 	std::vector<std::string> diff(oldset.size());
 	std::vector<std::string>::iterator it;
-	it = set_difference(oldset.begin(), oldset.end(), newset.begin(), newset.end(), diff.begin());
+	it = std::set_difference(oldset.begin(), oldset.end(), newset.begin(), newset.end(), diff.begin());
 	diff.resize(it - diff.begin());
 	for (std::string const& name : diff) {
 		//names_中有
@@ -39,7 +39,7 @@ void Container::process(std::vector<std::string> const& names) {
 	//活动节点：names中有，而names_中没有
 	diff.clear();
 	diff.resize(newset.size());
-	it = set_difference(newset.begin(), newset.end(), oldset.begin(), oldset.end(), diff.begin());
+	it = std::set_difference(newset.begin(), newset.end(), oldset.begin(), oldset.end(), diff.begin());
 	diff.resize(it - diff.begin());
 	for (std::string const& name : diff) {
 		//names_中没有
@@ -59,24 +59,24 @@ void Container::process(std::vector<std::string> const& names) {
 void Container::add(std::string const& name) {
 	switch (ty_) {
 	case containTy::kHallTy: {
+		//name：ip:port
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		//name：ip:port
-		muduo::net::InetAddress serverAddr(vec[0], atoi(vec[1].c_str()));
 		_LOG_WARN(">>> 大厅服[%s:%s]", vec[0].c_str(), vec[1].c_str());
 		//try add & connect
+		muduo::net::InetAddress serverAddr(vec[0], atoi(vec[1].c_str()));
 		clients_->add(name, serverAddr);
 		//try remove from repair
 		repair_.remove(name);
 		break;
 	}
 	case containTy::kGameTy: {
+		//name：roomid:ip:port:mode
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		//name：roomid:ip:port:mode
-		muduo::net::InetAddress serverAddr(vec[1], atoi(vec[2].c_str()));
 		_LOG_WARN(">>> 游戏服[%s:%s] 房间号[%s] %s", vec[1].c_str(), vec[2].c_str(), vec[0].c_str(), getModeStr(atoi(vec[3].c_str())).c_str());
 		//try add & connect
+		muduo::net::InetAddress serverAddr(vec[1], atoi(vec[2].c_str()));
 		clients_->add(name, serverAddr);
 		//try remove from repair
 		repair_.remove(name);
@@ -96,7 +96,10 @@ void Container::remove(std::string const& name) {
 		break;
 	}
 	case containTy::kGameTy: {
-		_LOG_WARN(">>> 游戏服[%s]", name.c_str());
+		//name：roomid:ip:port:mode
+		std::vector<std::string> vec;
+		boost::algorithm::split(vec, name, boost::is_any_of(":"));
+		_LOG_WARN(">>> 游戏服[%s:%s] 房间号[%s] %s", vec[1].c_str(), vec[2].c_str(), vec[0].c_str(), getModeStr(atoi(vec[3].c_str())).c_str());
 		//try remove
 		clients_->remove(name, true);
 		//try remove from repair

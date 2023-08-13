@@ -5,6 +5,9 @@
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 #include "Packet.h"
+
+#include "RoomContainer.h"
+
 #include "proto/Game.Common.pb.h"
 #include "proto/HallServer.Message.pb.h"
 
@@ -294,7 +297,6 @@ private:
 	*/
 
 public:
-	void random_game_server_ipport(uint32_t roomid, std::string& ipport);
 	//db刷新所有游戏房间信息
 	void db_refresh_game_room_info();
 	void db_update_game_room_info();
@@ -326,8 +328,8 @@ public:
 	std::hash<std::string> hash_session_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
-	std::map<int, std::vector<std::string>> room_servers_;
-	mutable boost::shared_mutex room_servers_mutex_;
+	RoomContainer roomContainer_;
+
 	CIpFinder ipFinder_;
 	bool tracemsg_ = 0;
 };
