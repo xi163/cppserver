@@ -587,18 +587,7 @@ void HallServ::cmd_on_user_login(
 							_LOG_ERROR("账号 %lld %s 已冻结!", userId, info.account.c_str());
 							break;
 						}
-						//if (account == info.account && agentId == info.agentId) {
-						if (account == info.account) {
-							//////////////////////////////////////////////////////////////////////////
-							//玩家登陆网关服信息
-							//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-							//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-							//网关服ID格式：session|ip:port:port:pid
-							//第一个ip:port是网关服监听客户端的标识
-							//第二个ip:port是网关服监听订单服的标识
-							//pid标识网关服进程id
-							//std::string proxyinfo = string(internal_header->session) + "|" + string(internal_header->servid);
-							//REDISCLIENT.set("s.uid:" + to_string(userId) + ":proxy", proxyinfo);
+						if (account == info.account/* && agentId == info.agentId*/) {
 							if (info.status == 2) {
 								rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_SEAL_ACCOUNTS);
 								rspdata.set_errormsg("对不起，您的账号已冻结，请联系客服。");
