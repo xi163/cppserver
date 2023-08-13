@@ -13,15 +13,20 @@ int main(int argc, char* argv[]) {
 		_LOG_ERROR("./conf/game.conf not exists");
 		return -1;
 	}
+	std::string config = "game_hall";
+	if (argc == 2) {
+		int id = stoi(argv[1]);
+		config = config + "_" + std::to_string(id);
+	}
 	utils::setrlimit();
 	utils::setenv();
 	//读取配置文件
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
 	//日志目录/文件 logdir/logname
-	std::string logdir = pt.get<std::string>("game_hall.logdir", "./log/game_hall/");
-	std::string logname = pt.get<std::string>("game_hall.logname", "game_hall");
-	int loglevel = pt.get<int>("game_hall.loglevel", 1);
+	std::string logdir = pt.get<std::string>(config + ".logdir", "./log/game_hall/");
+	std::string logname = pt.get<std::string>(config + ".logname", "game_hall");
+	int loglevel = pt.get<int>(config + ".loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
@@ -79,11 +84,11 @@ int main(int argc, char* argv[]) {
 	}
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-	std::string ip = pt.get<std::string>("game_hall.ip", "");
-	int16_t port = pt.get<int>("game_hall.port", 8120);
-	int16_t numThreads = pt.get<int>("game_hall.numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>("game_hall.numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>("game_hall.kMaxQueueSize", 1000);
+	std::string ip = pt.get<std::string>(config + ".ip", "");
+	int16_t port = pt.get<int>(config + ".port", 8120);
+	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
+	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
+	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \
@@ -102,6 +107,7 @@ int main(int argc, char* argv[]) {
 	muduo::net::EventLoop loop;
 	muduo::net::InetAddress listenAddr(ip, port);//tcp
 	HallServ server(&loop, listenAddr);
+	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
 	boost::algorithm::split(server.redlockVec_, strRedisLockIps, boost::is_any_of(","));
 	if (
 		server.InitZookeeper(strZookeeperIps) &&

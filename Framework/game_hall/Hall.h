@@ -330,6 +330,7 @@ public:
 	std::map<int, std::vector<std::string>> room_servers_;
 	mutable boost::shared_mutex room_servers_mutex_;
 	CIpFinder ipFinder_;
+	bool tracemsg_ = 0;
 };
 
 #endif

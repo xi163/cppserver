@@ -311,6 +311,7 @@ public:
 	std::map<in_addr_t, eApiVisit> black_list_;
 	mutable boost::shared_mutex black_list_mutex_;
 	CIpFinder ipFinder_;
+	bool tracemsg_ = 0;
 };
 
 #endif

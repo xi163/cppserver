@@ -13,6 +13,11 @@ int main(int argc, char* argv[]) {
 		_LOG_ERROR("argc < 2, error gameid & roomid");
 		exit(1);
 	}
+	std::string config = "game_serv_club";
+	if (argc == 4) {
+		int id = stoi(argv[3]);
+		config = config + "_" + std::to_string(id);
+	}
 	utils::setrlimit();
 	utils::setenv();
 	uint32_t gameId = strtol(argv[1], NULL, 10);
@@ -26,9 +31,9 @@ int main(int argc, char* argv[]) {
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
 	//日志目录/文件 logdir/logname
-	std::string logdir = pt.get<std::string>("game_serv.logdir", "./log/game_serv/");
-	std::string logname = pt.get<std::string>("game_serv.logname", "game_serv");
-	int loglevel = pt.get<int>("game_serv.loglevel", 1);
+	std::string logdir = pt.get<std::string>(config + ".logdir", "./log/game_serv_club/");
+	std::string logname = pt.get<std::string>(config + ".logname", "game_serv_club");
+	int loglevel = pt.get<int>(config + ".loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
@@ -86,12 +91,12 @@ int main(int argc, char* argv[]) {
 	}
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-	std::string ip = pt.get<std::string>("game_serv.ip", "192.168.0.113");
-	uint16_t port = pt.get<int>("game_serv.port", 8120);
+	std::string ip = pt.get<std::string>(config + ".ip", "192.168.0.113");
+	uint16_t port = pt.get<int>(config + ".port", 8120);
 	port = 30000 + roomId;
-	int16_t numThreads = pt.get<int>("game_serv.numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>("game_serv.numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>("game_serv.kMaxQueueSize", 1000);
+	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
+	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
+	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \
@@ -102,7 +107,7 @@ int main(int argc, char* argv[]) {
 	else {
 		std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
 		if (utils::getNetCardIp(netcardName, ip) < 0) {
-			LOG_FATAL << __FUNCTION__ << " --- *** 获取网卡IP失败";
+			_LOG_FATAL("获取网卡 %s IP失败", netcardName.c_str());
 			return -1;
 		}
 		_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), ip.c_str());
@@ -110,6 +115,7 @@ int main(int argc, char* argv[]) {
 	muduo::net::EventLoop loop;
 	muduo::net::InetAddress listenAddr(ip, port);//tcp
 	GameServ server(&loop, listenAddr, gameId, roomId);
+	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
 	boost::algorithm::split(server.redlockVec_, strRedisLockIps, boost::is_any_of(","));
 	if (
 		server.InitZookeeper(strZookeeperIps) &&

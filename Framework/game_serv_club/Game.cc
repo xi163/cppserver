@@ -259,7 +259,11 @@ void GameServ::threadInit() {
 }
 
 bool GameServ::InitServer() {
-	initTraceMessageID();
+	switch (tracemsg_) {
+	case true:
+		initTraceMessageID();
+		break;
+	}
 	if (mgo::LoadClubGameRoomInfo(gameId_,roomId_, gameInfo_, roomInfo_)) {
 		CPlayerMgr::get_mutable_instance().Init(&roomInfo_);
 		CTableMgr::get_mutable_instance().Init(&gameInfo_, &roomInfo_, logicThread_, this);

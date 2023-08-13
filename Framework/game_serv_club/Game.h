@@ -149,6 +149,7 @@ public:
 	//mutable boost::shared_mutex mutexGateUsers_;
 	
 	CIpFinder ipFinder_;
+	bool tracemsg_ = 0;
 };
 
 #endif

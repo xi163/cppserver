@@ -306,7 +306,11 @@ void HallServ::threadInit() {
 }
 
 bool HallServ::InitServer() {
-	initTraceMessageID();
+	switch (tracemsg_) {
+	case true:
+		initTraceMessageID();
+		break;
+	}
 	return true;
 }
 

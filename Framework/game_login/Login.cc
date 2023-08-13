@@ -176,7 +176,11 @@ void LoginServ::threadInit() {
 }
 
 bool LoginServ::InitServer() {
-	initTraceMessageID();
+	switch (tracemsg_) {
+	case true:
+		initTraceMessageID();
+		break;
+	}
 	return true;
 }
 

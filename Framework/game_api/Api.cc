@@ -186,7 +186,11 @@ void ApiServ::threadInit() {
 }
 
 bool ApiServ::InitServer() {
-	initTraceMessageID();
+	switch (tracemsg_) {
+	case true:
+		initTraceMessageID();
+		break;
+	}
 	return true;
 }
 

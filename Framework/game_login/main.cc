@@ -13,15 +13,20 @@ int main(int argc, char* argv[]) {
 		_LOG_ERROR("./conf/game.conf not exists");
 		return -1;
 	}
+	std::string config = "game_login";
+	if (argc == 2) {
+		int id = stoi(argv[1]);
+		config = config + "_" + std::to_string(id);
+	}
 	utils::setrlimit();
 	utils::setenv();
 	//读取配置文件
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
 	//日志目录/文件 logdir/logname
-	std::string logdir = pt.get<std::string>("game_login.logdir", "./log/game_login/");
-	std::string logname = pt.get<std::string>("game_login.logname", "game_login");
-	int loglevel = pt.get<int>("game_login.loglevel", 1);
+	std::string logdir = pt.get<std::string>(config + ".logdir", "./log/game_login/");
+	std::string logname = pt.get<std::string>(config + ".logname", "game_login");
+	int loglevel = pt.get<int>(config + ".loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
@@ -79,20 +84,20 @@ int main(int argc, char* argv[]) {
 	}
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-	std::string ip = pt.get<std::string>("game_login.ip", "");
-	int16_t port = pt.get<int>("game_login.port", 9888);
-	int16_t httpPort = pt.get<int>("game_login.httpPort", 9788);
-	int16_t numThreads = pt.get<int>("game_login.numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>("game_login.numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>("game_login.kMaxQueueSize", 1000);
-	int kMaxConnections = pt.get<int>("game_login.kMaxConnections", 15000);
-	int kTimeoutSeconds = pt.get<int>("game_login.kTimeoutSeconds", 3);
+	std::string ip = pt.get<std::string>(config + ".ip", "");
+	int16_t port = pt.get<int>(config + ".port", 9888);
+	int16_t httpPort = pt.get<int>(config + ".httpPort", 9788);
+	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
+	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
+	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);
+	int kMaxConnections = pt.get<int>(config + ".kMaxConnections", 15000);
+	int kTimeoutSeconds = pt.get<int>(config + ".kTimeoutSeconds", 3);
 	//管理员挂维护/恢复服务
-	std::string strAdminList = pt.get<std::string>("game_login.adminList", "192.168.2.93,");
+	std::string strAdminList = pt.get<std::string>(config + ".adminList", "192.168.2.93,");
 	//证书路径
-	std::string cert_path = pt.get<std::string>("game_login.cert_path", "");
+	std::string cert_path = pt.get<std::string>(config + ".cert_path", "");
 	//证书私钥
-	std::string private_key = pt.get<std::string>("game_login.private_key", "");
+	std::string private_key = pt.get<std::string>(config + ".private_key", "");
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \
@@ -114,6 +119,7 @@ int main(int argc, char* argv[]) {
 	LoginServ server(&loop, listenAddr, listenAddrHttp, cert_path, private_key);
 	server.maxConnections_ = kMaxConnections;
 	server.idleTimeout_ = kTimeoutSeconds;
+	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
 	//管理员ip地址列表
 	{
 		std::vector<std::string> vec;

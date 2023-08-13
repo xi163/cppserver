@@ -14,9 +14,8 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 	std::string config = "game_gate";
-	int id = 0;
 	if (argc == 2) {
-		id = stoi(argv[1]);
+		int id = stoi(argv[1]);
 		config = config + "_" + std::to_string(id);
 	}
 	utils::setrlimit();
@@ -127,6 +126,7 @@ int main(int argc, char* argv[]) {
 		cert_path, private_key);
 	server.maxConnections_ = kMaxConnections;
 	server.idleTimeout_ = kTimeoutSeconds;
+	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
 	//管理员ip地址列表
 	{
 		std::vector<std::string> vec;
