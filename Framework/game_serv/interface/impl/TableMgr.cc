@@ -208,7 +208,7 @@ bool CTableMgr::SetTableStockInfo(tagStockInfo& stockInfo) {
 }
 
 void CTableMgr::KickAllTableUsers() {
-	roomInfo_->serverStatus = SERVER_STOPPED;
+	roomInfo_->serverStatus = kStopped;
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
 		READ_LOCK(mutex_);
@@ -219,8 +219,8 @@ void CTableMgr::KickAllTableUsers() {
 	for (auto it : usedItems) {
 		std::shared_ptr<CTable> table = std::dynamic_pointer_cast<CTable>(it);
 		if (table) {
-			table->GetRoomInfo()->serverStatus = SERVER_STOPPED;
-			table->SetGameStatus(SERVER_STOPPED);
+			table->GetRoomInfo()->serverStatus = kStopped;
+			table->SetGameStatus(kStopped);
 			table->DismissGame();
 			for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
 				std::shared_ptr<IPlayer> player = table->items_[i];

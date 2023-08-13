@@ -1,3 +1,4 @@
+#include "public/errorCode.h"
 
 #include "Table.h"
 
@@ -499,7 +500,7 @@ std::string CTable::StrGameStatus() {
 }
 
 bool CTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
-    if (roomInfo_->serverStatus == SERVER_STOPPED || roomInfo_->serverStatus == SERVER_REPAIRING) {
+    if (roomInfo_->serverStatus == kStopped || roomInfo_->serverStatus == kRepairing) {
         return false;
     }
     return tableDelegate_->CanJoinTable(player);
@@ -732,7 +733,7 @@ bool CTable::OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendStat
             CRobotMgr::get_mutable_instance().Delete(userId);
         }
         else {
-            if (roomInfo_->serverStatus != SERVER_RUNNING && gameInfo_->gameType == GameType_BaiRen) {
+            if (roomInfo_->serverStatus != kRunning && gameInfo_->gameType == GameType_BaiRen) {
                 uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
                 uint8_t subId = GameServer::SUB_S2C_USER_LEFT_RES;
                 ::GameServer::MSG_C2S_UserLeftMessageResponse response;
