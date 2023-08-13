@@ -2,7 +2,8 @@
 #define INCLUDE_GAME_SERV_H
 
 #include "public/Inc.h"
-#include "gameDefine.h"
+#include "pbulic/gameConst.h"
+#include "public/gameStruct.h"
 #include "Packet.h"
 #include "ITableContext.h"
 

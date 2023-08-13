@@ -9,8 +9,6 @@
 #include <random>
 #include <thread>
 
-//#include "gameDefine.h"
-
 #define REDIS_POP_TIMEOUT    (1)
 
 #define USE_REDIS_CLUSTER    (0)

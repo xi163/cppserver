@@ -1,8 +1,9 @@
 #pragma once
 
 #include "public/Inc.h"
-#include "gameDefine.h"
-#include "public/gameConst.h"
+#include "pbulic/gameConst.h"
+#include "public/gameStruct.h"
+
 #include "ITableDelegate.h"
 #include "ITable.h"
 #include "IPlayer.h"

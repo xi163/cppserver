@@ -1,6 +1,7 @@
 
 #include "Hall.h"
 #include "public/mgoOperation.h"
+#include "public/redisKeys.h"
 
 HallServ::HallServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr) :
@@ -554,16 +555,17 @@ void HallServ::cmd_on_user_login(
 				std::string country, location;
 				ipFinder_.GetAddressByIp(ntohl(pre_header_->clientIp), location, country);
 				std::string loginIp = utils::inetToIp(pre_header_->clientIp);
-				//不能频繁登陆操作(间隔5s)
-	// 			std::string key = REDIS_LOGIN_3S_CHECK + reqdata.session();
-	// 			if (REDISCLIENT.exists(key)) {
-	// 				_LOG_ERROR("%s IP:%s 频繁登陆", location.c_str(), loginIp.c_str());
-	// 				rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
-	// 				rspdata.set_errormsg("登陆太频繁了");
-	// 			}
-	// 			else {
-	// 				REDISCLIENT.set(key, key, 5);
-	// 			}
+				std::string key = redisKeys::prefix_token_limit + reqdata.session();
+				if (REDISCLIENT.exists(key)) {
+					rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
+					rspdata.set_errormsg("频繁登陆操作");
+					_LOG_ERROR("%s ip:%s %s 频繁登陆操作",
+						reqdata.session().c_str(),
+						loginIp.c_str(), location.c_str());
+				}
+				else {
+					REDISCLIENT.set(key, key, redisKeys::Expire_TokenLimit);
+				}
 				STD::time_point now = STD_NOW();
 				if (REDISCLIENT.GetTokenInfo(reqdata.session(), userId, account, agentId)) {
 					UserBaseInfo info;

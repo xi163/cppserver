@@ -11,6 +11,7 @@ namespace redisKeys {
 	// "zs." - zset
 	static char const* prefix_uid = "h.uid.";
 	static char const* prefix_token = "h.token.";
+	static char const* prefix_token_limit = "k.token.limit.";
 	static char const* prefix_uid_token = "k.uid.token.";
 	static char const* prefix_account_uid = "k.account.uid.";
 	static char const* prefix_phone_uid = "k.phone.uid.";
@@ -32,6 +33,7 @@ namespace redisKeys {
 
 	static uint32_t const Expire_Uid = Expire_30Days;
 	static uint32_t const Expire_Token = 1 * 20;
+	static uint32_t const Expire_TokenLimit = 5;
 	static uint32_t const Expire_UidToken = 1 * 20;
 	static uint32_t const Expire_AccountUid = Expire_1Week;
 	static uint32_t const Expire_PhoneUid = Expire_1Week;

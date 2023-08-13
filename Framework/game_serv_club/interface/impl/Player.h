@@ -1,8 +1,9 @@
 #ifndef INCLUDE_PLAYER_H
 #define INCLUDE_PLAYER_H
 
-#include "public/Inc.h"
-#include "gameDefine.h"
+#include "public/Inc.h" 
+#include "public/gameConst.h"
+#include "public/gameStruct.h"
 
 #include "IPlayer.h"
 #include "IRobotDelegate.h"
