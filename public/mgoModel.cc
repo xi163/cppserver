@@ -25,7 +25,7 @@ namespace mgo {
 		model.Gamerevenue = 0;
 		model.WinLosescore = 0;
 		model.Score = 0;
-		model.Status = 0;
+		model.Status = 1;//¶³½á <= 0
 		model.Onlinestatus = 0;
 		model.Gender = 0;
 		model.Integralvalue = 0;
