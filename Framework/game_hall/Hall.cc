@@ -328,7 +328,7 @@ void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	}
 
 	std::vector<std::string> vec;
-	boost::algorithm::split(vec, rpcserver_, boost::is_any_of(":"));
+	boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
 
 	_LOG_WARN("HallServ = %s rpc:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), numThreads, numWorkerThreads);
 

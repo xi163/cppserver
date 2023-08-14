@@ -199,7 +199,7 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	}
 
 	std::vector<std::string> vec;
-	boost::algorithm::split(vec, httpserver_, boost::is_any_of(":"));
+	boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
 
 	_LOG_WARN("LoginServ = %s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), numThreads, numWorkerThreads);
 
