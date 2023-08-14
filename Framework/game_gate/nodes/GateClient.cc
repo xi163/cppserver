@@ -8,14 +8,14 @@
 void GateServ::onGateConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
-		int32_t num = numConnected_[kHallClientTy].incrementAndGet();
+		int32_t num = numConnected_[kGateClientTy].incrementAndGet();
 		_LOG_INFO("网关服[%s] -> 网关服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
-		int32_t num = numConnected_[kHallClientTy].decrementAndGet();
+		int32_t num = numConnected_[kGateClientTy].decrementAndGet();
 		_LOG_INFO("网关服[%s] -> 网关服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),

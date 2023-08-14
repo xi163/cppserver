@@ -36,8 +36,9 @@ enum GameEndTag
 };
 
 enum {
-	kHallClientTy = 0,
-	kGameClientTy = 1,
+    kGateClientTy = 0,
+	kHallClientTy = 1,
+	kGameClientTy = 2,
     KWebsocketTy,
     KHttpTy,
     KTcpTy,
