@@ -320,7 +320,7 @@ namespace mgo {
 						case bsoncxx::type::k_oid:
 							bsoncxx::oid oid = docid.get_oid().value;
 							std::string insert_id = oid.to_string();
-							_LOG_DEBUG(insert_id.c_str());
+							//_LOG_DEBUG(insert_id.c_str());
 							return !insert_id.empty();
 
 						}
@@ -387,7 +387,7 @@ namespace mgo {
 						case bsoncxx::type::k_oid:
 							bsoncxx::oid oid = docid.get_oid().value;
 							std::string insert_id = oid.to_string();
-							_LOG_DEBUG(insert_id.c_str());
+							//_LOG_DEBUG(insert_id.c_str());
 							return !insert_id.empty();
 
 						}
@@ -1215,7 +1215,7 @@ namespace mgo {
 				case bsoncxx::type::k_oid:
 					bsoncxx::oid oid = docid.get_oid().value;
 					std::string insert_id = oid.to_string();
-					_LOG_DEBUG(insert_id.c_str());
+					//_LOG_DEBUG(insert_id.c_str());
 					return insert_id;
 					
 				}
@@ -1319,7 +1319,7 @@ namespace mgo {
 				case bsoncxx::type::k_oid:
 					bsoncxx::oid oid = docid.get_oid().value;
 					std::string insert_id = oid.to_string();
-					_LOG_DEBUG(insert_id.c_str());
+					//_LOG_DEBUG(insert_id.c_str());
 					return insert_id;
 				}
 			}
@@ -1355,7 +1355,7 @@ namespace mgo {
 				case bsoncxx::type::k_oid:
 					bsoncxx::oid oid = docid.get_oid().value;
 					std::string insert_id = oid.to_string();
-					_LOG_DEBUG(insert_id.c_str());
+					//_LOG_DEBUG(insert_id.c_str());
 					return insert_id;
 				}
 			}
@@ -1445,7 +1445,7 @@ namespace mgo {
 				case bsoncxx::type::k_oid:
 					bsoncxx::oid oid = docid.get_oid().value;
 					std::string insert_id = oid.to_string();
-					_LOG_DEBUG(insert_id.c_str());
+					//_LOG_DEBUG(insert_id.c_str());
 					return insert_id;
 				}
 			}

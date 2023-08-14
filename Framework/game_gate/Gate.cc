@@ -372,7 +372,10 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 
-	_LOG_INFO("GateSrv = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, numWorkerThreads);
+	std::vector<std::string> vec;
+	boost::algorithm::split(vec, nodeValue_, boost::is_any_of(":"));
+
+	_LOG_TRACE("GateSrv = %s tcp:%s rpc:%s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str() vec[2].c_str(), vec[3].c_str(), vec[4].c_str(), numThreads, numWorkerThreads);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {

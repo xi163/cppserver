@@ -93,10 +93,14 @@ bool ApiServ::InitZookeeper(std::string const& ipaddr) {
 }
 
 void ApiServ::onZookeeperConnected() {
+	//websocket
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 	nodeValue_ = vec[0] + ":" + vec[1];
 	path_handshake_ = "/ws_" + vec[1];
+	//http
+	boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
+	nodeValue_ += ":" + vec[1];
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/ProxyServers",
@@ -204,7 +208,10 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 
-	_LOG_INFO("ApiServ = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, numWorkerThreads);
+	std::vector<std::string> vec;
+	boost::algorithm::split(vec, nodeValue_, boost::is_any_of(":"));
+
+	_LOG_TRACE("ApiServ = %s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[2].c_str(), numThreads, numWorkerThreads);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {

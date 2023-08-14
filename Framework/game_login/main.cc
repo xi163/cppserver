@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
 	}
-	_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
+	//_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
 	//zookeeper服务器集群IP
 	std::string strZookeeperIps = "";
 	{
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 				strZookeeperIps += child.second.get_value<std::string>();
 			}
 		}
-		_LOG_INFO("ZookeeperIP = %s", strZookeeperIps.c_str());
+		//_LOG_INFO("ZookeeperIP = %s", strZookeeperIps.c_str());
 	}
 	//RedisCluster服务器集群IP
 	std::map<std::string, std::string> mapRedisIps;
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 				mapRedisIps[vec[0]] = vec[1];
 			}
 		}
-		_LOG_INFO("RedisClusterIP = %s", strRedisIps.c_str());
+		//_LOG_INFO("RedisClusterIP = %s", strRedisIps.c_str());
 	}
 	//redisLock分布式锁
 	std::string strRedisLockIps = "";
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 				strRedisLockIps += child.second.get_value<std::string>();
 			}
 		}
-		_LOG_INFO("RedisLockIP = %s", strRedisLockIps.c_str());
+		//_LOG_INFO("RedisLockIP = %s", strRedisLockIps.c_str());
 	}
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
 						"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$"))) {
 				muduo::net::InetAddress addr(muduo::StringArg(ipaddr), 0, false);
 				server.admin_list_[addr.ipv4NetEndian()] = eApiVisit::kEnable;
-				_LOG_INFO("管理员IP[%s]", ipaddr.c_str());
+				//_LOG_INFO("管理员IP[%s]", ipaddr.c_str());
 			}
 		}
 	}

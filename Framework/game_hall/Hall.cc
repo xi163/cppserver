@@ -327,7 +327,10 @@ void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 
-	_LOG_INFO("HallServ = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, numWorkerThreads);
+	std::vector<std::string> vec;
+	boost::algorithm::split(vec, nodeValue_, boost::is_any_of(":"));
+
+	_LOG_TRACE("HallServ = %s rpc:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[2].c_str(), numThreads, numWorkerThreads);
 
 	server_.start(true);
 
