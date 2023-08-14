@@ -14,7 +14,7 @@ namespace rpc {
 			rsp.set_numofloads(gServer->numConnected_[KWebsocketTy].get());
 			rsp.set_host(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
 			rsp.set_domain(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
-			_LOG_WARN("\nreq:%s\nrsp:%s", req->DebugString().c_str(), rsp.DebugString().c_str());
+			//_LOG_WARN("\nreq:%s\nrsp:%s", req->DebugString().c_str(), rsp.DebugString().c_str());
 			done(&rsp);
 		}
 

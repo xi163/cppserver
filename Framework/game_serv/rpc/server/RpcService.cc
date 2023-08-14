@@ -13,7 +13,7 @@ namespace rpc {
 			::GameServer::GameServRsp rsp;
 			rsp.set_numofloads(gServer->numUsers_.get());
 			rsp.set_nodevalue(gServer->nodeValue_);
-			_LOG_WARN("\nreq:%s\nrsp:%s", req->DebugString().c_str(), rsp.DebugString().c_str());
+			//_LOG_WARN("\nreq:%s\nrsp:%s", req->DebugString().c_str(), rsp.DebugString().c_str());
 			done(&rsp);
 		}
 	}
