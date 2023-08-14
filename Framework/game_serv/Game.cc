@@ -984,9 +984,9 @@ void GameServ::AddContext(
 					std::set<int64_t>::iterator ir = it->second.find(pre_header_->userId);
 					if (ir != it->second.end()) {
 						it->second.erase(ir);
+						numUsers_.decrement();
 						if (it->second.empty()) {
 							mapGateUsers_.erase(it);
-							numUsers_.decrement();
 						}
 					}
 				}
@@ -1030,9 +1030,9 @@ void GameServ::DelContext(int64_t userId) {
 			std::set<int64_t>::iterator ir = it->second.find(userId);
 			if (ir != it->second.end()) {
 				it->second.erase(ir);
+				numUsers_.decrement();
 				if (it->second.empty()) {
 					mapGateUsers_.erase(it);
-					numUsers_.decrement();
 				}
 			}
 		}
