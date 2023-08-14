@@ -38,7 +38,7 @@ namespace redisKeys {
 	static uint32_t const Expire_AccountUid = Expire_1Week;
 	static uint32_t const Expire_PhoneUid = Expire_1Week;
 	static uint32_t const Expire_EmailUid = Expire_1Week;
-	static uint32_t const Expire_UidOnline = 1 * 60;
+	static uint32_t const Expire_UidOnline = 1 * 30;
 	//static uint32_t const Expire_Ecs_UserCoin   = 60 * 60 * 24 * 30; //用户金币
 	//static uint32_t const Expire_Ecs_Lock       = 60 * 60 * 12;      //房间锁
 	//static uint32_t const Expire_Ecs_Server     = 60 * 3;            //ecs服务
