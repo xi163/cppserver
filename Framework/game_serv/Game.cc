@@ -985,6 +985,7 @@ void GameServ::AddContext(
 					if (ir != it->second.end()) {
 						it->second.erase(ir);
 						numUsers_.decrement();
+						_LOG_ERROR("numUsers_ .................%d", numUsers_.get());
 						if (it->second.empty()) {
 							mapGateUsers_.erase(it);
 						}
@@ -1010,6 +1011,7 @@ void GameServ::AddContext(
 		std::set<int64_t>& ref = mapGateUsers_[conn->peerAddress().toIpPort()];
 		ref.insert(pre_header_->userId);
 		numUsers_.increment();
+		_LOG_ERROR("numUsers_ .................%d", numUsers_.get());
 	}
 }
 
@@ -1031,6 +1033,7 @@ void GameServ::DelContext(int64_t userId) {
 			if (ir != it->second.end()) {
 				it->second.erase(ir);
 				numUsers_.decrement();
+				_LOG_ERROR("numUsers_ .................%d", numUsers_.get());
 				if (it->second.empty()) {
 					mapGateUsers_.erase(it);
 				}
