@@ -13,14 +13,18 @@
 //#include "TaskService.h"
 
 GameServ::GameServ(muduo::net::EventLoop* loop,
-	const muduo::net::InetAddress& listenAddr, uint32_t gameId, uint32_t roomId) :
-	server_(loop, listenAddr, "GameServ")
+	const muduo::net::InetAddress& listenAddr,
+	const muduo::net::InetAddress& listenAddrRpc,
+	uint32_t gameId, uint32_t roomId)
+	: server_(loop, listenAddr, "tcpServer")
+	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, logicThread_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "GameLogicEventLoopThread"))
 	, ipFinder_("qqwry.dat")
 	, gameId_(gameId)
 	, roomId_(roomId) {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
+	rpcserver_.registerService(&rpcservice_);
 	server_.setConnectionCallback(
 		std::bind(&GameServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
@@ -112,16 +116,22 @@ void GameServ::onZookeeperConnected() {
 	//if (ZNONODE == zkclient_->existsNode("/GAME/GameServersInvalid"))
 	//	zkclient_->createNode("/GAME/GameServersInvalid", "GameServersInvalid", true);
 	{
+		nodeValue_ = std::to_string(roomId_) + ":" + std::to_string(kClub);
+		//tcp
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
-		//roomid:ip:port:mode
-		nodeValue_ = std::to_string(roomId_) + ":" + vec[0] + ":" + vec[1] + ":" + std::to_string(kClub);
+		nodeValue_ += ":" + vec[0] + ":" + vec[1];
+		//rpc
+		boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
+		nodeValue_ += ":" + vec[1];
+		//http
+		//boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
+		//nodeValue_ += ":" + vec[1];
 		nodePath_ = "/GAME/GameServers/" + nodeValue_;
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 		invalidNodePath_ = "/GAME/GameServersInvalid/" + nodeValue_;
 	}
 	{
-		//网关服 ip:port:port:pid
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
 			"/GAME/ProxyServers",
@@ -139,7 +149,6 @@ void GameServ::onZookeeperConnected() {
 		}
 	}
 	{
-		//大厅服 ip:port
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
 			"/GAME/HallServers",
@@ -162,7 +171,6 @@ void GameServ::onGateWatcher(
 	int type, int state,
 	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//网关服 ip:port:port:pid
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/ProxyServers",
@@ -183,7 +191,6 @@ void GameServ::onGateWatcher(
 void GameServ::onHallWatcher(int type, int state,
 	const shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//大厅服 ip:port
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/HallServers",
@@ -289,6 +296,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	_LOG_INFO("GameServ = %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), numThreads, 1);
 
 	server_.start(true);
+	rpcserver_.start(true);
 
 	server_.getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
 	//server_.getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
@@ -975,6 +983,7 @@ void GameServ::AddContext(
 						it->second.erase(ir);
 						if (it->second.empty()) {
 							mapGateUsers_.erase(it);
+							numUsers_.decrement();
 						}
 					}
 				}
@@ -997,6 +1006,7 @@ void GameServ::AddContext(
 		//WRITE_LOCK(mutexGateUsers_);
 		std::set<int64_t>& ref = mapGateUsers_[conn->peerAddress().toIpPort()];
 		ref.insert(pre_header_->userId);
+		numUsers_.increment();
 	}
 }
 
@@ -1019,6 +1029,7 @@ void GameServ::DelContext(int64_t userId) {
 				it->second.erase(ir);
 				if (it->second.empty()) {
 					mapGateUsers_.erase(it);
+					numUsers_.decrement();
 				}
 			}
 		}

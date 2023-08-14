@@ -1,10 +1,10 @@
 #ifndef INCLUDE_ENTRYPTR_H
 #define INCLUDE_ENTRYPTR_H
 
-#include "public/Inc.h"
 #include "public/gameConst.h"
-
-#include "Clients.h"
+#include "Logger/src/log/Logger.h"
+#include "clients/Clients.h"
+#include "clients/Container.h"
 
 //处理空闲连接，避免恶意连接占用sockfd不请求处理也不关闭，耗费系统资源，空闲超时将其强行关闭!
 struct Entry : public muduo::noncopyable {
@@ -82,7 +82,10 @@ struct Buckets /*: public muduo::noncopyable*/ {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				_LOG_WARN("timeout = %ds 客户端[%s] -> 网关服[%s]", buckets_.size(), conn->peerAddress().toIpPort().c_str(), conn->localAddress().toIpPort().c_str());
+				_LOG_WARN("timeout = %ds %s[%s] -> %s[%s]",
+					buckets_.size(),
+					entry->peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
+					entry->localName_.c_str(), conn->localAddress().toIpPort().c_str());
 #endif
 			}
 		}
@@ -99,7 +102,10 @@ struct Buckets /*: public muduo::noncopyable*/ {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				_LOG_WARN("timeout = %ds 客户端[%s] -> 网关服[%s]", buckets_.size(), conn->peerAddress().toIpPort().c_str(), conn->localAddress().toIpPort().c_str());
+				_LOG_WARN("timeout = %ds %s[%s] -> %s[%s]",
+					buckets_.size(),
+					entry->peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
+					entry->localName_.c_str(), conn->localAddress().toIpPort().c_str());
 #endif
 			}
 		}

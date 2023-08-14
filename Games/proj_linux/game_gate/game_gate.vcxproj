@@ -35,12 +35,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Framework\game_gate\Clients.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate\Container.h" />
+    <ClInclude Include="..\..\..\Framework\game_gate\clients\Clients.h" />
+    <ClInclude Include="..\..\..\Framework\game_gate\clients\Container.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\Gate.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate\RpcService.h" />
+    <ClInclude Include="..\..\..\Framework\game_gate\rpc\client\RpcClients.h" />
+    <ClInclude Include="..\..\..\Framework\game_gate\rpc\client\RpcContainer.h" />
+    <ClInclude Include="..\..\..\Framework\game_gate\rpc\client\RpcService_c.h" />
+    <ClInclude Include="..\..\..\Framework\game_gate\rpc\server\RpcService.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
@@ -67,17 +70,21 @@
     <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Framework\game_gate\Clients.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\Container.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\clients\Clients.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\clients\Container.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\GameClient.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\Gate.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\HallClient.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\HttpServer.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\InnServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\main.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\RpcService.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate\WsServer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\nodes\GameClient.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\nodes\GateClient.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\nodes\HallClient.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\nodes\HttpServer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\nodes\TcpServer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\nodes\WsServer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\rpc\client\RpcClients.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\rpc\client\RpcContainer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\rpc\client\RpcService_c.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\rpc\server\RpcService.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
     <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />

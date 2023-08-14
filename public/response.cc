@@ -1,4 +1,5 @@
 #include "response.h"
+#include "Logger/src/log/Logger.h"
 
 namespace response {
 	namespace text {

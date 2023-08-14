@@ -85,10 +85,22 @@ int main(int argc, char* argv[]) {
 	//MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
 	std::string ip = pt.get<std::string>(config + ".ip", "");
-	int16_t port = pt.get<int>(config + ".port", 8010);
-	int16_t innPort = pt.get<int>(config + ".innPort", 9010);
-	int16_t rpcPort = pt.get<int>(config + ".rpcPort", 7850);
-	uint16_t httpPort = pt.get<int>(config + ".httpPort", 8120);
+	int16_t port = pt.get<int>(config + ".port", 0);
+	if (0 == port) {
+		port = RANDOM().betweenInt(5000, 10000).randInt_mt();
+	}
+	int16_t tcpPort = pt.get<int>(config + ".tcpPort", 0);
+	if (0 == tcpPort) {
+		tcpPort = RANDOM().betweenInt(5000, 10000).randInt_mt();
+	}
+	int16_t rpcPort = pt.get<int>(config + ".rpcPort", 0);
+	if (0 == rpcPort) {
+		rpcPort = RANDOM().betweenInt(5000, 10000).randInt_mt();
+	}
+	uint16_t httpPort = pt.get<int>(config + ".httpPort", 0);
+	if (0 == httpPort) {
+		httpPort = RANDOM().betweenInt(5000, 10000).randInt_mt();
+	}
 	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
 	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
 	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);
@@ -117,13 +129,12 @@ int main(int argc, char* argv[]) {
 	}
 	muduo::net::EventLoop loop;
 	muduo::net::InetAddress listenAddr(ip, port);//websocket
+	muduo::net::InetAddress listenAddrTcp(ip, tcpPort);//tcp
 	muduo::net::InetAddress listenAddrRpc(ip, rpcPort);//rpc
-	muduo::net::InetAddress listenAddrInn(ip, innPort);//tcp
 	muduo::net::InetAddress listenAddrHttp(ip, httpPort);//http
 	GateServ server(
 		&loop,
-		listenAddr, listenAddrRpc, listenAddrInn, listenAddrHttp,
-		cert_path, private_key);
+		listenAddr, listenAddrTcp, listenAddrRpc, listenAddrHttp, cert_path, private_key);
 	server.maxConnections_ = kMaxConnections;
 	server.idleTimeout_ = kTimeoutSeconds;
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);

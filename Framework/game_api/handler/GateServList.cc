@@ -1,9 +1,9 @@
 #include "GateServList.h"
 
-#include "RpcClients.h"
-#include "RpcContainer.h"
+#include "../rpc/client/RpcClients.h"
+#include "../rpc/client/RpcContainer.h"
+#include "../rpc/client/RpcService_c.h"
 
-#include "RpcService.h"
 #include "../Api.h"
 
 extern ApiServ* gServer;

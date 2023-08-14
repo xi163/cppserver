@@ -4,9 +4,6 @@
     <Filter Include="pb">
       <UniqueIdentifier>{dbe7505c-c190-438a-a9be-cbedb94f7eb8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="nodes">
-      <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="public">
       <UniqueIdentifier>{ef020937-760c-4238-ac1b-a6b96e9be911}</UniqueIdentifier>
     </Filter>
@@ -27,6 +24,24 @@
     </Filter>
     <Filter Include="public\RedisLock">
       <UniqueIdentifier>{983cf9bf-294d-4494-9fd1-19a7ca0ba743}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal">
+      <UniqueIdentifier>{fd091365-9d18-4732-a68b-70c33485afdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\clients">
+      <UniqueIdentifier>{fe08905e-5a65-4efe-a644-d6cd7994adec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rpc">
+      <UniqueIdentifier>{7358bcc8-36cb-4362-84e0-af6931dcd619}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rpc\client">
+      <UniqueIdentifier>{2112fc3a-a80c-4dc6-b349-b384009458e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rpc\server">
+      <UniqueIdentifier>{10dfa835-e3f1-47ce-a338-984750af2a66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\nodes">
+      <UniqueIdentifier>{bda5abba-371a-4a89-a7e9-5818559f02ec}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -97,7 +112,24 @@
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
       <Filter>public\RedisLock</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_hall\RoomContainer.h" />
+    <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcClients.h">
+      <Filter>internal\rpc\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcContainer.h">
+      <Filter>internal\rpc\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.h">
+      <Filter>internal\rpc\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RoomNodes.h">
+      <Filter>internal\rpc\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -153,6 +185,23 @@
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
       <Filter>public\RedisClient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_hall\RoomContainer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcClients.cc">
+      <Filter>internal\rpc\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcContainer.cc">
+      <Filter>internal\rpc\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.cc">
+      <Filter>internal\rpc\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RoomNodes.cc">
+      <Filter>internal\rpc\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

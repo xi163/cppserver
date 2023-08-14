@@ -10,12 +10,9 @@
 #include "proto/HallServer.Message.pb.h"
 
 #include "Entities.h"
-#include "Container.h"
-#include "Clients.h"
-#include "EntryPtr.h"
 
-#include "RpcClients.h"
-#include "RpcContainer.h"
+#include "rpc/client/RpcClients.h"
+#include "rpc/client/RpcContainer.h"
 
 #include "public/errorCode.h"
 #include "public/gameConst.h"
@@ -185,7 +182,7 @@ public:
 	void registerHandlers();
 	bool InitZookeeper(std::string const& ipaddr);
 	void onZookeeperConnected();
-	void onGateRpcWatcher(
+	void onGateWatcher(
 		int type, int state,
 		const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 		const std::string& path, void* context);
@@ -290,9 +287,10 @@ public:
 	CmdCallbacks handlers_;
 	std::string path_handshake_;
 	muduo::net::TcpServer server_;
-	muduo::net::TcpServer httpServer_;
+	//muduo::net::TcpServer tcpserver_;
+	//muduo::net::RpcServer rpcserver_;
+	muduo::net::TcpServer httpserver_;
 	
-	STD::Random randomGate_;
 	rpc::Connector gateRpcClients_;
 	rpc::Container rpcClients_[rpc::kMaxRpcTy];
 	

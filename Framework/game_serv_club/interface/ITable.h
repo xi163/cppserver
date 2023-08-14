@@ -37,6 +37,7 @@ public:
 	virtual void GetTableInfo(TableState& TableInfo) = 0;
 	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread() = 0;
 	virtual void assertThisThread() = 0;
+	virtual std::string const& ServId() = 0;
 	virtual std::string NewRoundId() = 0;
 	virtual std::string GetRoundId() = 0;
 	virtual bool DismissGame() = 0;

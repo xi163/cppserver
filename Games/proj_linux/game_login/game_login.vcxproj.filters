@@ -19,17 +19,8 @@
     <Filter Include="internal">
       <UniqueIdentifier>{01b551a3-569e-494c-91a2-493d80b5668b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\gate">
-      <UniqueIdentifier>{5b35f191-fdca-4309-8932-f9d999af879a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\nodes">
       <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\rpc">
-      <UniqueIdentifier>{1d4a5954-1387-432b-99c6-1beb9e4a57c4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="register">
-      <UniqueIdentifier>{94a44213-2fdc-4977-9e85-c11b159a60bb}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\Database">
       <UniqueIdentifier>{a6d66faf-e957-4f4e-aabd-881a54f75680}</UniqueIdentifier>
@@ -40,6 +31,21 @@
     <Filter Include="public\RedisLock">
       <UniqueIdentifier>{f8dd37b4-ab3e-401c-ba5f-4fa1e98f4534}</UniqueIdentifier>
     </Filter>
+    <Filter Include="handler">
+      <UniqueIdentifier>{94a44213-2fdc-4977-9e85-c11b159a60bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\clients">
+      <UniqueIdentifier>{3a12c30d-7f43-4c1a-881c-0740be4670b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rpc">
+      <UniqueIdentifier>{0e53adf3-b28f-4b5c-b631-e5caa8bfe059}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rpc\client">
+      <UniqueIdentifier>{5124e56c-333b-4c9a-91f3-3447c6fb6260}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rpc\server">
+      <UniqueIdentifier>{079d3f19-9baf-47e1-afdb-c0192239bba3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
@@ -48,15 +54,6 @@
     <ClInclude Include="..\..\..\Framework\game_login\Login.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_login\RpcContainer.h">
-      <Filter>internal\rpc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_login\RpcClients.h">
-      <Filter>internal\rpc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_login\RpcService.h">
-      <Filter>internal\rpc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
@@ -87,27 +84,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate\Entities.h">
-      <Filter>internal\gate</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate\Container.h">
-      <Filter>internal\gate</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate\Clients.h">
-      <Filter>internal\gate</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h">
-      <Filter>internal\gate</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_login\register\Login_handler.h">
-      <Filter>register</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_login\register\Register_handler.h">
-      <Filter>register</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_login\register\GateServList.h">
-      <Filter>register</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\redisKeys.h">
       <Filter>public\Database</Filter>
@@ -142,6 +118,32 @@
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\handler\GateServList.h">
+      <Filter>handler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\handler\Login_handler.h">
+      <Filter>handler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\handler\Register_handler.h">
+      <Filter>handler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\clients\Clients.h">
+      <Filter>internal\clients</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\clients\Container.h">
+      <Filter>internal\clients</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\rpc\client\RpcClients.h">
+      <Filter>internal\rpc\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\rpc\client\RpcContainer.h">
+      <Filter>internal\rpc\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\rpc\client\RpcService_c.h">
+      <Filter>internal\rpc\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
+    <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
@@ -151,15 +153,6 @@
     <ClCompile Include="..\..\..\Framework\game_login\main.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
       <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\RpcContainer.cc">
-      <Filter>internal\rpc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\RpcClients.cc">
-      <Filter>internal\rpc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\RpcService.cc">
-      <Filter>internal\rpc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\IPFinder.cpp">
       <Filter>public</Filter>
@@ -185,30 +178,6 @@
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
       <Filter>public\RedisClient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate\Container.cc">
-      <Filter>internal\gate</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate\Clients.cc">
-      <Filter>internal\gate</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc">
-      <Filter>internal\gate</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\HttpServer.cc">
-      <Filter>internal\nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\WsServer.cc">
-      <Filter>internal\nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\register\Login_handler.cc">
-      <Filter>register</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\register\Register_handler.cc">
-      <Filter>register</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\register\GateServList.cc">
-      <Filter>register</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\public\redisKeys.cc">
       <Filter>public\Database</Filter>
     </ClCompile>
@@ -233,5 +202,36 @@
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\handler\GateServList.cc">
+      <Filter>handler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\handler\Login_handler.cc">
+      <Filter>handler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\handler\Register_handler.cc">
+      <Filter>handler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\nodes\HttpServer.cc">
+      <Filter>internal\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\nodes\WsServer.cc">
+      <Filter>internal\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\clients\Clients.cc">
+      <Filter>internal\clients</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\clients\Container.cc">
+      <Filter>internal\clients</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\rpc\client\RpcClients.cc">
+      <Filter>internal\rpc\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\rpc\client\RpcContainer.cc">
+      <Filter>internal\rpc\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\rpc\client\RpcService_c.cc">
+      <Filter>internal\rpc\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
   </ItemGroup>
 </Project>

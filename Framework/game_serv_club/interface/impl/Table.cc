@@ -62,6 +62,10 @@ void CTable::Init(std::shared_ptr<ITableDelegate>& tableDelegate,
     tableDelegate_->SetTable(shared_from_this());
 }
 
+std::string const& CTable::ServId() {
+    return tableContext_->ServId();
+}
+
 std::string CTable::NewRoundId() {
     //roomid-timestamp-pid-tableid-rand
     std::string strRoundId = std::to_string(roomInfo_->roomId) + "-";

@@ -92,9 +92,13 @@ int main(int argc, char* argv[]) {
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
 	std::string ip = pt.get<std::string>(config + ".ip", "192.168.0.113");
-	uint16_t port = pt.get<int>(config + ".port", 8120);
+	uint16_t port = pt.get<int>(config + ".port", 0);
 	if (0 == port) {
-		port = RANDOM().betweenInt(25000, 30000).randInt_mt() + roomId;
+		port = RANDOM().betweenInt(15000, 30000).randInt_mt();
+	}
+	int16_t rpcPort = pt.get<int>(config + ".rpcPort", 0);
+	if (0 == rpcPort) {
+		rpcPort = RANDOM().betweenInt(5000, 10000).randInt_mt();
 	}
 	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
 	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
@@ -116,7 +120,8 @@ int main(int argc, char* argv[]) {
 	}
 	muduo::net::EventLoop loop;
 	muduo::net::InetAddress listenAddr(ip, port);//tcp
-	GameServ server(&loop, listenAddr, gameId, roomId);
+	muduo::net::InetAddress listenAddrRpc(ip, rpcPort);//rpc
+	GameServ server(&loop, listenAddr, listenAddrRpc, gameId, roomId);
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
 	boost::algorithm::split(server.redlockVec_, strRedisLockIps, boost::is_any_of(","));
 	if (

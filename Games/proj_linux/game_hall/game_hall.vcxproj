@@ -35,10 +35,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Framework\game_hall\RoomContainer.h" />
     <ClInclude Include="..\..\..\Framework\game_hall\Hall.h" />
+    <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RoomNodes.h" />
+    <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcClients.h" />
+    <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcContainer.h" />
+    <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
+    <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
+    <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h" />
     <ClInclude Include="..\..\..\public\errorCode.h" />
     <ClInclude Include="..\..\..\public\gameConst.h" />
     <ClInclude Include="..\..\..\public\gameStruct.h" />
@@ -61,11 +66,16 @@
     <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Framework\game_hall\RoomContainer.cc" />
     <ClCompile Include="..\..\..\Framework\game_hall\Hall.cc" />
     <ClCompile Include="..\..\..\Framework\game_hall\main.cc" />
+    <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RoomNodes.cc" />
+    <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcClients.cc" />
+    <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcContainer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
+    <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />
+    <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\public\IPFinder.cpp" />
     <ClCompile Include="..\..\..\public\mgoKeys.cc" />
     <ClCompile Include="..\..\..\public\mgoModel.cc" />

@@ -8,7 +8,7 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	std::string const& client_ca_cert_file_path,
 	std::string const& client_ca_cert_dir_path)
 	: server_(loop, listenAddr, "ApiServ")
-	, httpServer_(loop, listenAddrHttp, "httpServer")
+	, httpserver_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
 	, idleTimeout_(3)
@@ -30,23 +30,23 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	server_.setMessageCallback(
 		std::bind(&muduo::net::websocket::onMessage,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	httpServer_.setConnectionCallback(
+	httpserver_.setConnectionCallback(
 		std::bind(&ApiServ::onHttpConnection, this, std::placeholders::_1));
-	httpServer_.setMessageCallback(
+	httpserver_.setMessageCallback(
 		std::bind(&ApiServ::onHttpMessage, this,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	httpServer_.setWriteCompleteCallback(
+	httpserver_.setWriteCompleteCallback(
 		std::bind(&ApiServ::onHttpWriteComplete, this, std::placeholders::_1));
 	rpcClients_[rpc::containTy::kRpcGateTy].clients_ = &gateRpcClients_;
 	rpcClients_[rpc::containTy::kRpcGateTy].ty_ = rpc::containTy::kRpcGateTy;
-	//添加OpenSSL认证支持 httpServer_&server_ 共享证书
+	//添加OpenSSL认证支持 httpserver_&server_ 共享证书
 	muduo::net::ssl::SSL_CTX_Init(
 		cert_path,
 		private_key_path,
 		client_ca_cert_file_path, client_ca_cert_dir_path);
 	//指定SSL_CTX
 	server_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
-	httpServer_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
+	httpserver_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
 	threadTimer_->startLoop();
 }
 
@@ -55,8 +55,8 @@ ApiServ::~ApiServ() {
 }
 
 void ApiServ::Quit() {
-	threadTimer_->getLoop()->quit();
 	gateRpcClients_.closeAll();
+	threadTimer_->getLoop()->quit();
 	for (size_t i = 0; i < threadPool_.size(); ++i) {
 		threadPool_[i]->stop();
 	}
@@ -97,13 +97,12 @@ void ApiServ::onZookeeperConnected() {
 	boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 	nodeValue_ = vec[0] + ":" + vec[1];
 	path_handshake_ = "/ws_" + vec[1];
-	//网关服RPC ip:port
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/RPCProxyServers",
+		"/GAME/ProxyServers",
 		names,
 		std::bind(
-			&ApiServ::onGateRpcWatcher, this,
+			&ApiServ::onGateWatcher, this,
 			placeholders::_1, std::placeholders::_2,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
@@ -111,21 +110,20 @@ void ApiServ::onZookeeperConnected() {
 		for (std::string const& name : names) {
 			s += "\n" + name;
 		}
-		_LOG_WARN("可用网关服[RPC]列表%s", s.c_str());
+		_LOG_WARN("可用网关服列表%s", s.c_str());
 		rpcClients_[rpc::containTy::kRpcGateTy].add(names);
 	}
 }
 
-void ApiServ::onGateRpcWatcher(int type, int state,
+void ApiServ::onGateWatcher(int type, int state,
 	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//网关服RPC ip:port
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/RPCProxyServers",
+		"/GAME/ProxyServers",
 		names,
 		std::bind(
-			&ApiServ::onGateRpcWatcher, this,
+			&ApiServ::onGateWatcher, this,
 			placeholders::_1, std::placeholders::_2,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
@@ -133,7 +131,7 @@ void ApiServ::onGateRpcWatcher(int type, int state,
 		for (std::string const& name : names) {
 			s += "\n" + name;
 		}
-		_LOG_WARN("可用网关服[RPC]列表%s", s.c_str());
+		_LOG_WARN("可用网关服列表%s", s.c_str());
 		rpcClients_[rpc::containTy::kRpcGateTy].process(names);
 	}
 }
@@ -215,11 +213,11 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
-		httpServer_.setConditionCallback(std::bind(&ApiServ::onHttpCondition, this, std::placeholders::_1));
+		httpserver_.setConditionCallback(std::bind(&ApiServ::onHttpCondition, this, std::placeholders::_1));
 	}
 
 	server_.start(true);
-	httpServer_.start(true);
+	httpserver_.start(true);
 
 	//sleep(2);
 

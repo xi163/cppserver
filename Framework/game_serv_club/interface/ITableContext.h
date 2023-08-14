@@ -10,6 +10,7 @@ namespace packet {
 
 class ITableContext {
 public:
+	virtual std::string const& ServId() = 0;
 	virtual void KickOffLine(int64_t userId, int32_t kickType) = 0;
 	virtual boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> GetContext(int64_t userId) = 0;
 	virtual void DelContext(int64_t userId) = 0;

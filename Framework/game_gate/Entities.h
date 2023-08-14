@@ -1,9 +1,6 @@
 #ifndef INCLUDE_ENTITIES_H
 #define INCLUDE_ENTITIES_H
 
-#include "public/Inc.h"
-
-#include "Clients.h"
 #include "EntryPtr.h"
 
 typedef std::shared_ptr<muduo::net::Buffer> BufferPtr;

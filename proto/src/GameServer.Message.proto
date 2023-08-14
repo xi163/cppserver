@@ -345,6 +345,17 @@ enum GameEndTag
 
 
 
+message GameServReq {
+}
+
+message GameServRsp {
+   int32 NumOfLoads = 1;
+   string NodeValue = 2;
+}
+
+service RpcService {
+  rpc GetGameServ(GameServReq) returns(GameServRsp);
+}
 
 
 

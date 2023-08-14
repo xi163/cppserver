@@ -38,9 +38,9 @@ void RpcServer::registerService(muduo::net::Service* service)
   services_[desc->full_name()] = service;
 }
 
-void RpcServer::start()
+void RpcServer::start(bool et)
 {
-  server_.start();
+  server_.start(et);
 }
 
 void RpcServer::onConnection(const TcpConnectionPtr& conn)

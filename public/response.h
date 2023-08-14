@@ -1,7 +1,8 @@
 #ifndef INCLUDE_RESPONSE_H
 #define INCLUDE_RESPONSE_H
 
-#include "public/Inc.h"
+#include "Logger/src/Macro.h"
+#include "public/IncMuduo.h"
 
 namespace response {
 	/*

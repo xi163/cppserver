@@ -7,11 +7,11 @@
 #include "Packet.h"
 
 #include "Entities.h"
-#include "Container.h"
-#include "Clients.h"
-#include "EntryPtr.h"
 
-#include "RpcService.h"
+#include "rpc/client/RpcClients.h"
+#include "rpc/client/RpcContainer.h"
+
+#include "rpc/server/RpcService.h"
 
 //#define NDEBUG
 
@@ -40,8 +40,8 @@ public:
 	typedef std::map<uint32_t, CmdCallback> CmdCallbacks;
 	GateServ(muduo::net::EventLoop* loop,
 		const muduo::net::InetAddress& listenAddr,
-		const muduo::net::InetAddress& listAddrRpc,
-		const muduo::net::InetAddress& listenAddrInn,
+		const muduo::net::InetAddress& listenAddrTcp,
+		const muduo::net::InetAddress& listenAddrRpc,
 		const muduo::net::InetAddress& listenAddrHttp,
 		std::string const& cert_path, std::string const& private_key_path,
 		std::string const& client_ca_cert_file_path = "",
@@ -51,6 +51,10 @@ public:
 	void registerHandlers();
 	bool InitZookeeper(std::string const& ipaddr);
 	void onZookeeperConnected();
+	void onGateWatcher(
+		int type, int state,
+		const std::shared_ptr<ZookeeperClient>& zkClientPtr,
+		const std::string& path, void* context);
 	void onHallWatcher(
 		int type, int state,
 		const std::shared_ptr<ZookeeperClient>& zkClientPtr,
@@ -98,6 +102,19 @@ public:
 private:
 	void cmd_getAesKey(const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 private:
+	void onGateConnection(const muduo::net::TcpConnectionPtr& conn);
+	void onGateMessage(
+		const muduo::net::TcpConnectionPtr& conn,
+		muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
+	void asyncGateHandler(
+		muduo::net::WeakTcpConnectionPtr const& weakGateConn,
+		muduo::net::WeakTcpConnectionPtr const& weakConn,
+		BufferPtr const& buf,
+		muduo::Timestamp receiveTime);
+	void sendGateMessage(
+		Context& entryContext,
+		BufferPtr const& buf, int64_t userId);
+private:
 	void onHallConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onHallMessage(
 		const muduo::net::TcpConnectionPtr& conn,
@@ -144,18 +161,18 @@ private:
 	bool repairServer(std::string const& queryStr, std::string& rspdata);
 	void repairServerNotify(std::string const& msg, std::string& rspdata);
 public:
-	void onInnConnection(const muduo::net::TcpConnectionPtr& conn);
-	void onInnMessage(
+	void onTcpConnection(const muduo::net::TcpConnectionPtr& conn);
+	void onTcpMessage(
 		const muduo::net::TcpConnectionPtr& conn,
 		muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
-	void asyncInnHandler(
-		muduo::net::WeakTcpConnectionPtr const& weakInnConn,
+	void asyncTcpHandler(
+		muduo::net::WeakTcpConnectionPtr const& weakTcpConn,
 		muduo::net::WeakTcpConnectionPtr const& weakConn,
 		BufferPtr& buf, muduo::Timestamp receiveTime);
 	void onMarqueeNotify(std::string const& msg);
 public:
 	std::shared_ptr<ZookeeperClient> zkclient_;
-	std::string nodePath_, rpcNodePath_, rpcNodeValue_, nodeValue_, invalidNodePath_;
+	std::string nodePath_, nodeValue_, invalidNodePath_;
 	//redis订阅/发布
 	std::shared_ptr<RedisClient>  redisClient_;
 	std::string redisIpaddr_;
@@ -179,12 +196,16 @@ public:
 	std::string proto_ = "ws://";
 	std::string path_handshake_;
 	rpc::server::GameGate rpcservice_;
-	muduo::net::RpcServer rpcserver_;
 	muduo::net::TcpServer server_;
-	muduo::net::TcpServer innServer_;
-	muduo::net::TcpServer httpServer_;
+	muduo::net::TcpServer tcpserver_;
+	muduo::net::RpcServer rpcserver_;
+	muduo::net::TcpServer httpserver_;
+
+	rpc::Connector gateRpcClients_;
+	rpc::Container rpcClients_[rpc::kMaxRpcTy];
 
 	STD::Random randomHall_;
+	Connector gateClients_;
 	Connector hallClients_;
 	Connector gameClients_;
 	Container clients_[kMaxContainTy];

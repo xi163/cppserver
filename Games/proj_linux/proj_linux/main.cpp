@@ -54,6 +54,29 @@ void AddLogoutLog(
 }
 
 int main() {
+
+	boost::tuple<std::string,
+		std::shared_ptr<int>,
+		muduo::net::WeakTcpConnectionPtr> tup;
+	std::string s = tup.get<0>();
+	if (!s.empty()) {
+		_LOG_INFO("tup.get<0>() ok");
+	}
+	else {
+		_LOG_INFO("tup.get<0>() fail");
+	}
+	if (tup.get<1>()) {
+		_LOG_INFO("tup.get<1>() ok");
+	}
+	else {
+		_LOG_INFO("tup.get<1>() fail");
+	}
+	if (tup.get<2>()) {
+		_LOG_INFO("tup.get<2>() ok");
+	}
+	else {
+		_LOG_INFO("tup.get<2>() fail");
+	}
 // 	std::chrono::nanoseconds sec;
 // 	std::chrono::system_clock::time_point t1, t2(sec);
 // 	//t1 + t2;
@@ -66,10 +89,10 @@ int main() {
 // 	 t2 -= sec;
 	//t1 -= t2;
 	 //STD::time_point t3(t1 - t2);
-	bsoncxx::document::view view;
-	STD::time_point x(::time_point(view["registertime"].get_date()));
-	 int64_t tt;
-	 STD::time_point st(tt);
+// 	bsoncxx::document::view view;
+// 	STD::time_point x(::time_point(view["registertime"].get_date()));
+// 	 int64_t tt;
+// 	 STD::time_point st(tt);
 // 	STD::time_point now(NOW());
 // 	
 // 	STD::time_point loginTime = now - 5000;

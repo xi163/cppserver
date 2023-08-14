@@ -10,6 +10,8 @@
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 
+#include "rpc/server/RpcService.h"
+
 struct gate_t {
 	std::string IpPort;
 	std::shared_ptr<packet::internal_prev_header_t> pre_header;
@@ -21,7 +23,10 @@ public:
 	typedef std::function<
 		void(const muduo::net::TcpConnectionPtr&, BufferPtr const&)> CmdCallback;
 	typedef std::map<uint32_t, CmdCallback> CmdCallbacks;
-	GameServ(muduo::net::EventLoop* loop, const muduo::net::InetAddress& listenAddr, uint32_t gameId, uint32_t roomId);
+	GameServ(muduo::net::EventLoop* loop,
+		const muduo::net::InetAddress& listenAddr,
+		const muduo::net::InetAddress& listenAddrRpc,
+		uint32_t gameId, uint32_t roomId);
 	~GameServ();
 	void Quit();
 	void registerHandlers();
@@ -95,6 +100,7 @@ private:
 	void cmd_notifyRepairServerResp(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 public:
+	std::string const& ServId() { return nodeValue_; }
 	void KickOffLine(int64_t userId, int32_t kickType);
 	boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> GetContext(int64_t userId);
 	void AddContext(
@@ -133,9 +139,13 @@ public:
 	tagGameReplay gameReplay_;
 	int maxConnections_;
 	CmdCallbacks handlers_;
+	rpc::server::GameServ rpcservice_;
 	muduo::net::TcpServer server_;
+	muduo::net::RpcServer rpcserver_;
+	//muduo::net::TcpServer httpserver_;
 	muduo::AtomicInt32 numConnected_;
-	
+	muduo::AtomicInt32 numUsers_;
+
 	//桌子逻辑线程/定时器
 	std::shared_ptr<muduo::net::EventLoopThread> logicThread_;
 	//std::shared_ptr<muduo::net::EventLoopThreadPool> logicThread_;

@@ -85,7 +85,14 @@ int main(int argc, char* argv[]) {
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
 	std::string ip = pt.get<std::string>(config + ".ip", "");
-	int16_t port = pt.get<int>(config + ".port", 8120);
+	int16_t port = pt.get<int>(config + ".port", 0);
+	if (0 == port) {
+		port = RANDOM().betweenInt(5000, 10000).randInt_mt();
+	}
+	int16_t rpcPort = pt.get<int>(config + ".rpcPort", 0);
+	if (0 == rpcPort) {
+		rpcPort = RANDOM().betweenInt(5000, 10000).randInt_mt();
+	}
 	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
 	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
 	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);
@@ -106,7 +113,8 @@ int main(int argc, char* argv[]) {
 	}
 	muduo::net::EventLoop loop;
 	muduo::net::InetAddress listenAddr(ip, port);//tcp
-	HallServ server(&loop, listenAddr);
+	muduo::net::InetAddress listenAddrRpc(ip, rpcPort);//rpc
+	HallServ server(&loop, listenAddr, listenAddrRpc);
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
 	boost::algorithm::split(server.redlockVec_, strRedisLockIps, boost::is_any_of(","));
 	if (

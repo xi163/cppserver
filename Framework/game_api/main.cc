@@ -85,8 +85,14 @@ int main(int argc, char* argv[]) {
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
 	std::string ip = pt.get<std::string>(config + ".ip", "");
-	int16_t port = pt.get<int>(config + ".port", 9888);
-	int16_t httpPort = pt.get<int>(config + ".httpPort", 9788);
+	int16_t port = pt.get<int>(config + ".port", 0);
+	if (0 == port) {
+		port = RANDOM().betweenInt(5000, 10000).randInt_mt();
+	}
+	int16_t httpPort = pt.get<int>(config + ".httpPort", 0);
+	if (0 == httpPort) {
+		httpPort = RANDOM().betweenInt(5000, 10000).randInt_mt();
+	}
 	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
 	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
 	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);

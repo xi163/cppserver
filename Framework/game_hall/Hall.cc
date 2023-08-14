@@ -2,10 +2,14 @@
 #include "Hall.h"
 #include "public/mgoOperation.h"
 #include "public/redisKeys.h"
+#include "rpc/client/RoomNodes.h"
 
 HallServ::HallServ(muduo::net::EventLoop* loop,
-	const muduo::net::InetAddress& listenAddr) :
-	server_(loop, listenAddr, "HallServ")
+	const muduo::net::InetAddress& listenAddr,
+	const muduo::net::InetAddress& listenAddrRpc)
+	: server_(loop, listenAddr, "tcpServer")
+	, rpcserver_(loop, listenAddrRpc, "rpcServer")
+	, gameRpcClients_(loop)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
@@ -14,6 +18,8 @@ HallServ::HallServ(muduo::net::EventLoop* loop,
 		std::bind(&HallServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
 		std::bind(&HallServ::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	rpcClients_[rpc::containTy::kRpcGameTy].clients_ = &gameRpcClients_;
+	rpcClients_[rpc::containTy::kRpcGameTy].ty_ = rpc::containTy::kRpcGameTy;
 	threadTimer_->startLoop();
 }
 
@@ -22,6 +28,7 @@ HallServ::~HallServ() {
 }
 
 void HallServ::Quit() {
+	gameRpcClients_.closeAll();
 	threadTimer_->getLoop()->quit();
 	for (size_t i = 0; i < threadPool_.size(); ++i) {
 		threadPool_[i]->stop();
@@ -150,16 +157,21 @@ void HallServ::onZookeeperConnected() {
 	//if (ZNONODE == zkclient_->existsNode("/GAME/GameServersInvalid"))
 	//	zkclient_->createNode("/GAME/GameServersInvalid", "GameServersInvalid", true);
 	{
+		//tcp
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
-		//ip:port
 		nodeValue_ = vec[0] + ":" + vec[1];
+		//rpc
+		boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
+		nodeValue_ += ":" + vec[1];
+		//http
+		//boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
+		//nodeValue_ += ":" + vec[1];
 		nodePath_ = "/GAME/HallServers/" + nodeValue_;
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 		invalidNodePath_ = "/GAME/HallServersInvalid/" + nodeValue_;
 	}
 	{
-		//网关服 ip:port:port:pid
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
 			"/GAME/ProxyServers",
@@ -177,7 +189,6 @@ void HallServ::onZookeeperConnected() {
 		}
 	}
 	{
-		//游戏服 roomid:ip:port:mode
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
 			"/GAME/GameServers",
@@ -192,7 +203,7 @@ void HallServ::onZookeeperConnected() {
 				s += "\n" + name;
 			}
 			_LOG_WARN("可用游戏服列表%s", s.c_str());
-			roomContainer_.add(names);
+			rpcClients_[rpc::containTy::kRpcGameTy].add(names);
 		}
 	}
 }
@@ -200,7 +211,6 @@ void HallServ::onZookeeperConnected() {
 void HallServ::onGateWatcher(int type, int state,
 	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//网关服 ip:port:port:pid
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/ProxyServers",
@@ -221,7 +231,6 @@ void HallServ::onGateWatcher(int type, int state,
 void HallServ::onGameWatcher(int type, int state,
 	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//游戏服 roomid:ip:port:mode
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/GameServers",
@@ -236,7 +245,7 @@ void HallServ::onGameWatcher(int type, int state,
 			s += "\n" + name;
 		}
 		_LOG_WARN("可用游戏服列表%s", s.c_str());
-		roomContainer_.process(names);
+		rpcClients_[rpc::containTy::kRpcGameTy].process(names);
 	}
 }
 
@@ -779,7 +788,7 @@ void HallServ::cmd_get_game_server_message(
 		else {
 			//随机一个指定类型游戏节点
 			std::string ipport;
-			roomContainer_.random_game_server_ipport(roomid, ipport);
+			room::nodes::balance_server(roomid, ipport);
 			//可能ipport节点不可用，要求zk实时监控
 			if (!ipport.empty()) {
 				//redis更新玩家游戏节点

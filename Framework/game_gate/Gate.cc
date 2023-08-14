@@ -7,16 +7,18 @@
 
 GateServ::GateServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr,
-	const muduo::net::InetAddress& listAddrRpc,
-	const muduo::net::InetAddress& listenAddrInn,
+	const muduo::net::InetAddress& listenAddrTcp,
+	const muduo::net::InetAddress& listenAddrRpc,
 	const muduo::net::InetAddress& listenAddrHttp,
 	std::string const& cert_path, std::string const& private_key_path,
 	std::string const& client_ca_cert_file_path,
 	std::string const& client_ca_cert_dir_path)
 	: server_(loop, listenAddr, "wsServer")
-	, rpcserver_(loop, listAddrRpc, "RpcServer")
-	, innServer_(loop, listenAddrInn, "innServer")
-	, httpServer_(loop, listenAddrHttp, "httpServer")
+	, tcpserver_(loop, listenAddrTcp, "tcpServer")
+	, rpcserver_(loop, listenAddrRpc, "rpcServer")
+	, httpserver_(loop, listenAddrHttp, "httpServer")
+	, gateRpcClients_(loop)
+	, gateClients_(loop)
 	, hallClients_(loop)
 	, gameClients_(loop)
 	, idleTimeout_(3)
@@ -32,18 +34,25 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	server_.setMessageCallback(
 		std::bind(&muduo::net::websocket::onMessage,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	innServer_.setConnectionCallback(
-		std::bind(&GateServ::onInnConnection, this, std::placeholders::_1));
-	innServer_.setMessageCallback(
-		std::bind(&GateServ::onInnMessage, this,
+	tcpserver_.setConnectionCallback(
+		std::bind(&GateServ::onTcpConnection, this, std::placeholders::_1));
+	tcpserver_.setMessageCallback(
+		std::bind(&GateServ::onTcpMessage, this,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	httpServer_.setConnectionCallback(
+	httpserver_.setConnectionCallback(
 		std::bind(&GateServ::onHttpConnection, this, std::placeholders::_1));
-	httpServer_.setMessageCallback(
+	httpserver_.setMessageCallback(
 		std::bind(&GateServ::onHttpMessage, this,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	httpServer_.setWriteCompleteCallback(
+	httpserver_.setWriteCompleteCallback(
 		std::bind(&GateServ::onHttpWriteComplete, this, std::placeholders::_1));
+	gateClients_.setConnectionCallback(
+		std::bind(&GateServ::onGateConnection, this, std::placeholders::_1));
+	gateClients_.setMessageCallback(
+		std::bind(&GateServ::onGateMessage, this,
+			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	clients_[containTy::kGateTy].clients_ = &gateClients_;
+	clients_[containTy::kGateTy].ty_ = containTy::kGateTy;
 	hallClients_.setConnectionCallback(
 		std::bind(&GateServ::onHallConnection, this, std::placeholders::_1));
 	hallClients_.setMessageCallback(
@@ -58,14 +67,16 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	clients_[containTy::kGameTy].clients_ = &gameClients_;
 	clients_[containTy::kGameTy].ty_ = containTy::kGameTy;
-	//添加OpenSSL认证支持 httpServer_&server_ 共享证书
+	rpcClients_[rpc::containTy::kRpcGateTy].clients_ = &gateRpcClients_;
+	rpcClients_[rpc::containTy::kRpcGateTy].ty_ = rpc::containTy::kRpcGateTy;
+	//添加OpenSSL认证支持 httpserver_&server_ 共享证书
 	muduo::net::ssl::SSL_CTX_Init(
 		cert_path,
 		private_key_path,
 		client_ca_cert_file_path, client_ca_cert_dir_path);
 	//指定SSL_CTX
 	server_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
-	httpServer_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
+	httpserver_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
 	threadTimer_->startLoop();
 }
 
@@ -74,9 +85,10 @@ GateServ::~GateServ() {
 }
 
 void GateServ::Quit() {
-	threadTimer_->getLoop()->quit();
 	hallClients_.closeAll();
 	gameClients_.closeAll();
+	gateRpcClients_.closeAll();
+	threadTimer_->getLoop()->quit();
 	for (size_t i = 0; i < threadPool_.size(); ++i) {
 		threadPool_[i]->stop();
 	}
@@ -114,8 +126,6 @@ void GateServ::onZookeeperConnected() {
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
 		zkclient_->createNode("/GAME/ProxyServers", "ProxyServers"/*, true*/);
-	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
-		zkclient_->createNode("/GAME/RPCProxyServers", "RPCProxyServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode("/GAME/HallServers"))
 		zkclient_->createNode("/GAME/HallServers", "HallServers"/*, true*/);
 	//if (ZNONODE == zkclient_->existsNode("/GAME/HallServersInvalid"))
@@ -125,28 +135,45 @@ void GateServ::onZookeeperConnected() {
 	//if (ZNONODE == zkclient_->existsNode("/GAME/GameServersInvalid"))
 	//	zkclient_->createNode("/GAME/GameServersInvalid", "GameServersInvalid", true);
 	{
+		//websocket
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 		nodeValue_ = vec[0] + ":" + vec[1];
 		path_handshake_ = "/ws_" + vec[1];
-		
-		boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
-		rpcNodeValue_ = vec[0] + ":" + vec[1];
+		//tcp
+		boost::algorithm::split(vec, tcpserver_.ipPort(), boost::is_any_of(":"));
 		nodeValue_ += ":" + vec[1];
-		
-		boost::algorithm::split(vec, innServer_.ipPort(), boost::is_any_of(":"));
-		nodeValue_ += ":" + vec[1] /*+ ":" + std::to_string(getpid())*/;
-		
+		//rpc
+		boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
+		nodeValue_ += ":" + vec[1];
+		//http
+		boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
+		nodeValue_ += ":" + vec[1];
 		nodePath_ = "/GAME/ProxyServers/" + nodeValue_;
 		zkclient_->createNode(nodePath_, nodeValue_, true);
-
-		rpcNodePath_ = "/GAME/RPCProxyServers/" + rpcNodeValue_;
-		zkclient_->createNode(rpcNodePath_, rpcNodeValue_, true);
-
 		invalidNodePath_ = "/GAME/ProxyServersInvalid/" + nodeValue_;
 	}
 	{
-		//大厅服 ip:port
+		std::vector<std::string> names;
+		if (ZOK == zkclient_->getClildren(
+			"/GAME/ProxyServers",
+			names,
+			std::bind(
+				&GateServ::onGateWatcher, this,
+				std::placeholders::_1, std::placeholders::_2,
+				std::placeholders::_3, std::placeholders::_4,
+				std::placeholders::_5),
+			this)) {
+			std::string s;
+			for (std::string const& name : names) {
+				s += "\n" + name;
+			}
+			_LOG_WARN("可用网关服列表%s", s.c_str());
+			clients_[containTy::kGateTy].add(names, nodeValue_);
+			rpcClients_[rpc::containTy::kRpcGateTy].add(names, nodeValue_);
+		}
+	}
+	{
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
 			"/GAME/HallServers",
@@ -166,7 +193,6 @@ void GateServ::onZookeeperConnected() {
 		}
 	}
 	{
-		//游戏服 roomid:ip:port:mode
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
 			"/GAME/GameServers",
@@ -187,10 +213,33 @@ void GateServ::onZookeeperConnected() {
 	}
 }
 
+void GateServ::onGateWatcher(
+	int type, int state,
+	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
+	const std::string& path, void* context) {
+	std::vector<std::string> names;
+	if (ZOK == zkclient_->getClildren(
+		"/GAME/ProxyServers",
+		names,
+		std::bind(
+			&GateServ::onHallWatcher, this,
+			std::placeholders::_1, std::placeholders::_2,
+			std::placeholders::_3, std::placeholders::_4,
+			std::placeholders::_5),
+		this)) {
+		std::string s;
+		for (std::string const& name : names) {
+			s += "\n" + name;
+		}
+		_LOG_WARN("可用网关服列表%s", s.c_str());
+		clients_[containTy::kGateTy].process(names, nodeValue_);
+		rpcClients_[rpc::containTy::kRpcGateTy].process(names, nodeValue_);
+	}
+}
+
 void GateServ::onHallWatcher(
 	int type, int state, const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//大厅服 ip:port
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/HallServers",
@@ -213,7 +262,6 @@ void GateServ::onHallWatcher(
 void GateServ::onGameWatcher(
 	int type, int state, const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
-	//游戏服 roomid:ip:port:mode
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/GameServers",
@@ -238,15 +286,9 @@ void GateServ::registerZookeeper() {
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
 		zkclient_->createNode("/GAME/ProxyServers", "ProxyServers"/*, true*/);
-	if (ZNONODE == zkclient_->existsNode("/GAME/RPCProxyServers"))
-		zkclient_->createNode("/GAME/RPCProxyServers", "RPCProxyServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		_LOG_INFO(nodePath_.c_str());
 		zkclient_->createNode(nodePath_, nodeValue_, true);
-	}
-	if (ZNONODE == zkclient_->existsNode(rpcNodePath_)) {
-		_LOG_INFO(rpcNodePath_.c_str());
-		zkclient_->createNode(rpcNodePath_, rpcNodeValue_, true);
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
 }
@@ -339,13 +381,13 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
-		httpServer_.setConditionCallback(std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1));
+		httpserver_.setConditionCallback(std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1));
 	}
 
-	rpcserver_.start();
 	server_.start(true);
-	innServer_.start(true);
-	httpServer_.start(true);
+	tcpserver_.start(true);
+	rpcserver_.start(true);
+	httpserver_.start(true);
 
 	//sleep(2);
 

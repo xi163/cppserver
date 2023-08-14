@@ -36,7 +36,7 @@ class RpcServer
   EventLoop* getLoop() const { return server_.getLoop(); }
   // NOT thread safe, must call before start().
   void registerService(Service*);
-  void start();
+  void start(bool et = false);
 
  private:
   void onConnection(const TcpConnectionPtr& conn);

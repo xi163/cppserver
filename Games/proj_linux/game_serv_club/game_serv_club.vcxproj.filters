@@ -31,6 +31,15 @@
     <Filter Include="public\RedisLock">
       <UniqueIdentifier>{d4892109-c799-4029-8228-f01b89668b1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rpc">
+      <UniqueIdentifier>{9b21110b-3480-46c7-bab4-ef34e8e58ebb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rpc\client">
+      <UniqueIdentifier>{157b541f-c299-4b75-860b-a501c32af6f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rpc\server">
+      <UniqueIdentifier>{67ad1d06-a148-4bf8-9da7-10d4e4f2c72a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
@@ -139,6 +148,9 @@
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
       <Filter>public\RedisLock</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\rpc\server\RpcService.h">
+      <Filter>rpc\server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -214,6 +226,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
       <Filter>public\RedisLock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv_club\rpc\server\RpcService.cc">
+      <Filter>rpc\server</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

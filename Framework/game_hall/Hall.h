@@ -6,7 +6,8 @@
 #include "public/gameStruct.h"
 #include "Packet.h"
 
-#include "RoomContainer.h"
+#include "rpc/client/RpcClients.h"
+#include "rpc/client/RpcContainer.h"
 
 #include "proto/Game.Common.pb.h"
 #include "proto/HallServer.Message.pb.h"
@@ -16,7 +17,9 @@ public:
 	typedef std::function<
 		void(const muduo::net::TcpConnectionPtr&, BufferPtr const&)> CmdCallback;
 	typedef std::map<uint32_t, CmdCallback> CmdCallbacks;
-	HallServ(muduo::net::EventLoop* loop, const muduo::net::InetAddress& listenAddr);
+	HallServ(muduo::net::EventLoop* loop,
+		const muduo::net::InetAddress& listenAddr,
+		const muduo::net::InetAddress& listenAddrRpc);
 	~HallServ();
 	void Quit();
 	void registerHandlers();
@@ -324,12 +327,14 @@ public:
 	int maxConnections_;
 	CmdCallbacks handlers_;
 	muduo::net::TcpServer server_;
+	muduo::net::RpcServer rpcserver_;
+	//muduo::net::TcpServer httpserver_;
 	muduo::AtomicInt32 numConnected_;
 	std::hash<std::string> hash_session_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
-	RoomContainer roomContainer_;
-
+	rpc::Connector gameRpcClients_;
+	rpc::Container rpcClients_[rpc::kMaxRpcTy];
 	CIpFinder ipFinder_;
 	bool tracemsg_ = 0;
 };

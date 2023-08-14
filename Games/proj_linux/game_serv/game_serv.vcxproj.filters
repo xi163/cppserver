@@ -31,6 +31,15 @@
     <Filter Include="public\Database">
       <UniqueIdentifier>{624ddd02-e1ec-41c9-bf74-d2296af94548}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rpc">
+      <UniqueIdentifier>{a7c18f6a-9b0e-4122-ac73-1f12fd640dbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rpc\client">
+      <UniqueIdentifier>{b7065f12-17c6-4647-a830-2d78591819d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rpc\server">
+      <UniqueIdentifier>{11db2f76-6ada-4db7-b00b-485b416bac60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
@@ -139,6 +148,9 @@
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\rpc\server\RpcService.h">
+      <Filter>rpc\server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
@@ -214,6 +226,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
       <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv\rpc\server\RpcService.cc">
+      <Filter>rpc\server</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
