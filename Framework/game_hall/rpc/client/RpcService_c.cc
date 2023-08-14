@@ -83,7 +83,7 @@ namespace rpc {
 
 		::GameServer::GameServRspPtr GameServ::GetGameServ(
 			const ::GameServer::GameServReq& req) {
-			_LOG_WARN(req.DebugString().c_str());
+			//_LOG_WARN(req.DebugString().c_str());
 			if (!conn_.get<1>().expired()) {
 				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
 				if (c) {
