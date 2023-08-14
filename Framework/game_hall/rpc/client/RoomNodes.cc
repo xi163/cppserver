@@ -64,7 +64,8 @@ namespace room {
 						::GameServer::GameServReq req;
 						::GameServer::GameServRspPtr rsp = client.GetGameServ(req);
 						if (rsp) {
-							_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
+							//_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
+							_LOG_WARN("%s numOfLoads:%d", rsp->nodevalue().c_str(), rsp->numofloads());
 							rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));
 						}
 					}

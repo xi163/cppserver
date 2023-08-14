@@ -64,17 +64,17 @@ namespace rpc {
 			//ptrUserScoreRsp_ = rsp;//引发崩溃BUG???
 			//lock_.notify();
 			//_LOG_WARN(rsp->DebugString().c_str());
-			if (!conn_.get<1>().expired()) {
-				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
-				if (c) {
-					if (conn_.get<2>()) {
-						conn_.get<2>()->setConnection(c);
-						::ProxyServer::Message::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
-						//stub.channel()->connection()->conn->shutdown();
-						//stub.channel()->connection()->conn->forceClose();
-					}
-				}
-			}
+// 			if (!conn_.get<1>().expired()) {
+// 				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+// 				if (c) {
+// 					if (conn_.get<2>()) {
+// 						conn_.get<2>()->setConnection(c);
+// 						::ProxyServer::Message::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
+// 						//stub.channel()->connection()->conn->shutdown();
+// 						//stub.channel()->connection()->conn->forceClose();
+// 					}
+// 				}
+// 			}
 		}
 	}
 }

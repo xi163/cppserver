@@ -23,6 +23,7 @@ void GetGateServList(GateServList& servList) {
 }
 
 void BroadcastGateUserScore(int64_t userId, int64_t score) {
+#if 0
 	rpc::ClientConnList clients;
 	gServer->rpcClients_[rpc::containTy::kRpcGateTy].clients_->getAll(clients);
 	for (rpc::ClientConnList::iterator it = clients.begin();
@@ -33,4 +34,19 @@ void BroadcastGateUserScore(int64_t userId, int64_t score) {
 		req.set_score(score);
 		client.NotifyUserScore(req);
 	}
+#else
+	std::string token;
+	if (REDISCLIENT.GetUserToken(userId, token) && !token.empty()) {
+		std::string gateIp;
+		if (REDISCLIENT.GetTokenInfoIP(token, gateIp) && !gateIp.empty()) {
+			rpc::ClientConn conn;
+			gServer->rpcClients_[rpc::containTy::kRpcGateTy].clients_->get(gateIp, conn);
+			rpc::client::GameGate client(conn, 3);
+			::ProxyServer::Message::UserScoreReq req;
+			req.set_userid(userId);
+			req.set_score(score);
+			client.NotifyUserScore(req);
+		}
+	}
+#endif
 }
