@@ -965,14 +965,14 @@ void GameServ::AddContext(
 		std::map<int64_t, std::shared_ptr<gate_t>>::iterator it = mapUserGates_.find(pre_header_->userId);
 		//已存在 map[userid]gate
 		if (it != mapUserGates_.end()) {
-			std::string& ipPort = it->second->IpPort;
 			//和之前是同一个gate
-			if (ipPort == conn->peerAddress().toIpPort()) {
+			if (it->second->IpPort == conn->peerAddress().toIpPort()) {
 				memcpy(it->second->pre_header.get(), pre_header_, packet::kPrevHeaderLen);
 				memcpy(it->second->header.get(), header_, packet::kHeaderLen);
 				return;
 			}
 			//换了gate
+			std::string ipPort = it->second->IpPort;
 			it->second->IpPort = conn->peerAddress().toIpPort();
 			memcpy(it->second->pre_header.get(), pre_header_, packet::kPrevHeaderLen);
 			memcpy(it->second->header.get(), header_, packet::kHeaderLen);
@@ -985,7 +985,6 @@ void GameServ::AddContext(
 					if (ir != it->second.end()) {
 						it->second.erase(ir);
 						numUsers_.decrement();
-						_LOG_ERROR("numUsers_ .................%d", numUsers_.get());
 						if (it->second.empty()) {
 							mapGateUsers_.erase(it);
 						}
@@ -1011,7 +1010,6 @@ void GameServ::AddContext(
 		std::set<int64_t>& ref = mapGateUsers_[conn->peerAddress().toIpPort()];
 		ref.insert(pre_header_->userId);
 		numUsers_.increment();
-		_LOG_ERROR("numUsers_ .................%d", numUsers_.get());
 	}
 }
 
@@ -1033,7 +1031,6 @@ void GameServ::DelContext(int64_t userId) {
 			if (ir != it->second.end()) {
 				it->second.erase(ir);
 				numUsers_.decrement();
-				_LOG_ERROR("numUsers_ .................%d", numUsers_.get());
 				if (it->second.empty()) {
 					mapGateUsers_.erase(it);
 				}

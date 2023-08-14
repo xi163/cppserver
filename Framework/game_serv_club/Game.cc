@@ -965,14 +965,14 @@ void GameServ::AddContext(
 		std::map<int64_t, std::shared_ptr<gate_t>>::iterator it = mapUserGates_.find(pre_header_->userId);
 		//已存在 map[userid]gate
 		if (it != mapUserGates_.end()) {
-			std::string& ipPort = it->second->IpPort;
 			//和之前是同一个gate
-			if (ipPort == conn->peerAddress().toIpPort()) {
+			if (it->second->IpPort == conn->peerAddress().toIpPort()) {
 				memcpy(it->second->pre_header.get(), pre_header_, packet::kPrevHeaderLen);
 				memcpy(it->second->header.get(), header_, packet::kHeaderLen);
 				return;
 			}
 			//换了gate
+			std::string ipPort = it->second->IpPort;
 			it->second->IpPort = conn->peerAddress().toIpPort();
 			memcpy(it->second->pre_header.get(), pre_header_, packet::kPrevHeaderLen);
 			memcpy(it->second->header.get(), header_, packet::kHeaderLen);
