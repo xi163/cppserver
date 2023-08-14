@@ -209,9 +209,9 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	}
 
 	std::vector<std::string> vec;
-	boost::algorithm::split(vec, nodeValue_, boost::is_any_of(":"));
+	boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
 
-	_LOG_TRACE("ApiServ = %s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[2].c_str(), numThreads, numWorkerThreads);
+	_LOG_WARN("ApiServ = %s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), numThreads, numWorkerThreads);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {

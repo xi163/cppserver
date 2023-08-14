@@ -294,9 +294,9 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	logicThread_->startLoop();
 
 	std::vector<std::string> vec;
-	boost::algorithm::split(vec, nodeValue_, boost::is_any_of(":"));
+	boost::algorithm::split(vec, rpcserver_, boost::is_any_of(":"));
 
-	_LOG_TRACE("GameServ = %s rpc:%s 房间号[%s] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[4].c_str(), vec[0].c_str(), getModeStr(atoi(vec[1].c_str())).c_str(), numThreads, 1);
+	_LOG_WARN("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), roomId_, getModeStr(kGoldCoin).c_str(), numThreads, 1);
 
 	server_.start(true);
 	rpcserver_.start(true);
