@@ -34,9 +34,9 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_[KHttpTy].incrementAndGet();
-		_LOG_INFO("WEB端[%s] -> 网关服[%s] %s %d",
-			conn->peerAddress().toIpPort().c_str(),
+		_LOG_INFO("网关服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 		numTotalReq_.incrementAndGet();
 		if (num > maxConnections_) {
@@ -69,9 +69,9 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 	else {
 		int32_t num = numConnected_[KHttpTy].decrementAndGet();
-		_LOG_INFO("WEB端[%s] -> 网关服[%s] %s %d",
-			conn->peerAddress().toIpPort().c_str(),
+		_LOG_INFO("网关服[%s] <- WEB端[%s] %s %d %s %d",
 			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 }

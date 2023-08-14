@@ -37,9 +37,9 @@ void ApiServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		_LOG_INFO("WEB端[%s] -> 登陆服[%s] %s %d",
-			conn->peerAddress().toIpPort().c_str(),
+		_LOG_INFO("API服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 		numTotalReq_.incrementAndGet();
 		if (num > maxConnections_) {
@@ -73,9 +73,9 @@ void ApiServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		_LOG_INFO("WEB端[%s] -> 登陆服[%s] %s %d",
-			conn->peerAddress().toIpPort().c_str(),
+		_LOG_INFO("API服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
+			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 }
