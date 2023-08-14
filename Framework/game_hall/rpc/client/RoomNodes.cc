@@ -65,13 +65,13 @@ namespace room {
 						::GameServer::GameServRspPtr rsp = client.GetGameServ(req);
 						if (rsp) {
 							//_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
-							_LOG_WARN("%s numOfLoads:%d", rsp->nodevalue().c_str(), rsp->numofloads());
 							rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));
 						}
 					}
 					int i = 0;
 					int minLoads = 0;
 					for (int k = 0; k < rooms.size(); k++) {
+						_LOG_WARN("[%d] %s numOfLoads:%d", k, rooms[k].first.c_str(), rooms[k].second);
 						switch (k) {
 						case 0:
 							i = k;
@@ -86,6 +86,7 @@ namespace room {
 						}
 					}
 					if (rooms.size() > 0) {
+						_LOG_DEBUG(">>> [%d] %s numOfLoads:%d", i, rooms[i].first.c_str(), rooms[i].second);
 						ipport = rooms[i].first;
 					}
 				}
