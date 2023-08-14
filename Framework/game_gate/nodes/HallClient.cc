@@ -64,8 +64,8 @@ void GateServ::onHallMessage(const muduo::net::TcpConnectionPtr& conn,
 						conn, peer, buffer, receiveTime));
 			}
 			else {
-				_LOG_ERROR("error");
-				break;
+				//_LOG_ERROR("error");
+				//break;
 			}
 		}
 		//数据包不足够解析，等待下次接收再解析
