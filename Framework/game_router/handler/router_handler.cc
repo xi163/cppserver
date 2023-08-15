@@ -114,7 +114,7 @@ int Router(
 					boost::property_tree::read_json(ss, pt);
 				}
 				int lType = pt.get<int>("type"); //0-websocket 1-http
-				std::string node = pt.get<std::string>("node");//game_login， game_api
+				std::string node = pt.get<std::string>("node");//game_login game_api
 				int timestamp = pt.get<int64_t>("timestamp");
 				std::string src = node + std::to_string(lType) + std::to_string(timestamp) + md5code;
 				char md5[32 + 1] = { 0 };
