@@ -39,12 +39,12 @@
     <ClInclude Include="..\..\..\Framework\game_gate\clients\Container.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate_http\handler\GateServList.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate_http\handler\router_handler.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate_http\Gate.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate_http\rpc\client\RpcClients.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate_http\rpc\client\RpcContainer.h" />
-    <ClInclude Include="..\..\..\Framework\game_gate_http\rpc\client\RpcService_c.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\handler\GateServList.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\handler\router_handler.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\Gate.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\rpc\client\RpcClients.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\rpc\client\RpcContainer.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\rpc\client\RpcService_c.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
@@ -74,15 +74,15 @@
     <ClCompile Include="..\..\..\Framework\game_gate\clients\Clients.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\clients\Container.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\handler\GateServList.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\handler\router_handler.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\Gate.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\main.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\nodes\HttpServer.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\nodes\WsServer.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\rpc\client\RpcClients.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\rpc\client\RpcContainer.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\rpc\client\RpcService_c.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\handler\GateServList.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\handler\router_handler.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\Gate.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\main.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\nodes\HttpServer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\nodes\WsServer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\rpc\client\RpcClients.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\rpc\client\RpcContainer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\rpc\client\RpcService_c.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
     <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc" />
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />
@@ -106,7 +106,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EF64777B-0AEF-4B0E-9911-30B4EA64D096}</ProjectGuid>
     <Keyword>Linux</Keyword>
-    <RootNamespace>game_gate_http</RootNamespace>
+    <RootNamespace>game_router</RootNamespace>
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
     <ApplicationType>Linux</ApplicationType>
     <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
@@ -148,7 +148,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>Y:\include;Y:\local\include;Y:\local\include\bsoncxx\v_noabi;Y:\local\include\mongocxx\v_noabi;Y:\local\include\google\protobuf;Y:\local\include\hiredis-vip;Y:\local\include\zookeeper;X:\andy\cppserver;X:\andy\cppserver\public;X:\andy\cppserver\proto;X:\andy\cppserver\thirdpart\muduo-vip;X:\andy\cppserver\public\TraceMsg;X:\andy\cppserver\public\MongoDB;X:\andy\cppserver\public\RedisClient;X:\andy\cppserver\public\RedisLock;X:\andy\cppserver\public\zookeeperclient;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include.linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\asm-generic;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++\5;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\x86_64-linux-gnu;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.34.31933\include;X:\andy\cppserver\thirdpart;X:\andy\cppserver\thirdpart\Logger\src;X:\andy\cppserver\thirdpart\Logger\src\log;X:\andy\cppserver\thirdpart\Logger\src\utils;$(IncludePath)</IncludePath>
-    <TargetName>game_gate_http</TargetName>
+    <TargetName>game_router</TargetName>
     <TargetExt />
     <OutDir>/home/andy/cppserver/bin</OutDir>
   </PropertyGroup>
@@ -161,7 +161,7 @@
       <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver/;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/public/TraceMsg;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/Framework/game_gate_http;/home/andy/cppserver/Framework/game_gate;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver/;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/public/TraceMsg;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/Framework/game_router;/home/andy/cppserver/Framework/game_gate;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUDUO_STD_STRING</PreprocessorDefinitions>
       <AdditionalOptions>-pthread</AdditionalOptions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>

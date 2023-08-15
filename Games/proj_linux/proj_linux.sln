@@ -65,7 +65,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game_s13s_club", "..\Game_s
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game_s13s_club_robot", "..\Game_s13s_club_robot\Game_s13s_club_robot.vcxproj", "{55676B93-A169-45C0-8959-DA7170765831}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game_gate_http", "game_gate_http\game_gate_http.vcxproj", "{EF64777B-0AEF-4B0E-9911-30B4EA64D096}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game_router", "game_router\game_router.vcxproj", "{EF64777B-0AEF-4B0E-9911-30B4EA64D096}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

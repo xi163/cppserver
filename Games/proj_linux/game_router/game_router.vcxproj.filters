@@ -51,7 +51,7 @@
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate_http\Gate.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\Gate.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
@@ -118,10 +118,10 @@
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate_http\handler\GateServList.h">
+    <ClInclude Include="..\..\..\Framework\game_router\handler\GateServList.h">
       <Filter>handler</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate_http\handler\router_handler.h">
+    <ClInclude Include="..\..\..\Framework\game_router\handler\router_handler.h">
       <Filter>handler</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_gate\clients\Clients.h">
@@ -130,13 +130,13 @@
     <ClInclude Include="..\..\..\Framework\game_gate\clients\Container.h">
       <Filter>internal\clients</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate_http\rpc\client\RpcClients.h">
+    <ClInclude Include="..\..\..\Framework\game_router\rpc\client\RpcClients.h">
       <Filter>internal\rpc\client</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate_http\rpc\client\RpcContainer.h">
+    <ClInclude Include="..\..\..\Framework\game_router\rpc\client\RpcContainer.h">
       <Filter>internal\rpc\client</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_gate_http\rpc\client\RpcService_c.h">
+    <ClInclude Include="..\..\..\Framework\game_router\rpc\client\RpcService_c.h">
       <Filter>internal\rpc\client</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
@@ -149,8 +149,8 @@
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate_http\Gate.cc" />
-    <ClCompile Include="..\..\..\Framework\game_gate_http\main.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\Gate.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\main.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
@@ -202,16 +202,16 @@
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate_http\handler\GateServList.cc">
+    <ClCompile Include="..\..\..\Framework\game_router\handler\GateServList.cc">
       <Filter>handler</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate_http\handler\router_handler.cc">
+    <ClCompile Include="..\..\..\Framework\game_router\handler\router_handler.cc">
       <Filter>handler</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate_http\nodes\HttpServer.cc">
+    <ClCompile Include="..\..\..\Framework\game_router\nodes\HttpServer.cc">
       <Filter>internal\nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate_http\nodes\WsServer.cc">
+    <ClCompile Include="..\..\..\Framework\game_router\nodes\WsServer.cc">
       <Filter>internal\nodes</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\clients\Clients.cc">
@@ -220,13 +220,13 @@
     <ClCompile Include="..\..\..\Framework\game_gate\clients\Container.cc">
       <Filter>internal\clients</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate_http\rpc\client\RpcClients.cc">
+    <ClCompile Include="..\..\..\Framework\game_router\rpc\client\RpcClients.cc">
       <Filter>internal\rpc\client</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate_http\rpc\client\RpcContainer.cc">
+    <ClCompile Include="..\..\..\Framework\game_router\rpc\client\RpcContainer.cc">
       <Filter>internal\rpc\client</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_gate_http\rpc\client\RpcService_c.cc">
+    <ClCompile Include="..\..\..\Framework\game_router\rpc\client\RpcService_c.cc">
       <Filter>internal\rpc\client</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
