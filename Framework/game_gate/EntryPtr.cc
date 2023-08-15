@@ -58,9 +58,9 @@ Entry::~Entry() {
 			//////////////////////////////////////////////////////////////////////////
 			//早已空闲超时，业务处理完毕，响应客户端时间(>timeout)
 			//////////////////////////////////////////////////////////////////////////
-			_LOG_WARN("%s[%s] -> %s[%s] Entry::dtor[%s] finished processing",
-				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
+			_LOG_WARN("%s[%s] <- %s[%s] finished processing",
 				localName_.c_str(), conn->localAddress().toIpPort().c_str(),
+				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
 				entryContext.getSession().c_str());
 			break;
 		}
@@ -68,9 +68,9 @@ Entry::~Entry() {
 			//////////////////////////////////////////////////////////////////////////
 			//已经空闲超时，没有业务处理，响应客户端时间(<timeout)
 			//////////////////////////////////////////////////////////////////////////
-			_LOG_WARN("%s[%s] -> %s[%s] Entry::dtor[%s] timeout closing",
-				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
+			_LOG_WARN("%s[%s] <- %s[%s] timeout closing",
 				localName_.c_str(), conn->localAddress().toIpPort().c_str(),
+				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
 				entryContext.getSession().c_str());
 			onIdleTimeout(conn, ty_);
 			break;
