@@ -52,9 +52,6 @@
       <Filter>pb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_login\Login.h" />
-    <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -115,9 +112,6 @@
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
       <Filter>public\RedisLock</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_login\handler\GateServList.h">
       <Filter>handler</Filter>
     </ClInclude>
@@ -144,6 +138,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
+    <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_login\rpc\server\RpcService.h">
+      <Filter>internal\rpc\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
@@ -151,9 +154,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_login\Login.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\main.cc" />
-    <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\public\IPFinder.cpp">
       <Filter>public</Filter>
     </ClCompile>
@@ -199,9 +199,6 @@
     <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
       <Filter>public\RedisLock</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_login\handler\GateServList.cc">
       <Filter>handler</Filter>
     </ClCompile>
@@ -233,5 +230,14 @@
       <Filter>internal\rpc\client</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
+    <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_login\rpc\server\RpcService.cc">
+      <Filter>internal\rpc\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

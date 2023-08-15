@@ -138,6 +138,9 @@
     <ClInclude Include="..\..\..\Framework\game_gate\clients\Container.h">
       <Filter>internal\clients</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
@@ -235,6 +238,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\nodes\GateClient.cc">
       <Filter>internal\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc">
+      <Filter>pb</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

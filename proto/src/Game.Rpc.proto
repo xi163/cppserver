@@ -1,0 +1,29 @@
+syntax = "proto3";
+package Game.Rpc;
+
+// option cc_generic_services = true;
+option java_generic_services = true;
+option py_generic_services = true;
+
+//节点信息
+message NodeInfoReq {
+}
+message NodeInfoRsp {
+	int32 NumOfLoads = 1;
+	string host = 2;
+	string domain = 3;
+	string NodeValue = 4;
+}
+
+//用户积分
+message UserScoreReq {
+	int64 userId = 1;
+	int64 score = 2;
+}
+message UserScoreRsp {
+}
+
+service RpcService {
+  rpc GetNodeInfo(NodeInfoReq) returns(NodeInfoRsp);
+  rpc NotifyUserScore(UserScoreReq) returns(UserScoreRsp);
+}

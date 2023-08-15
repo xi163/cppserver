@@ -139,7 +139,7 @@ public:
 	tagGameReplay gameReplay_;
 	int maxConnections_;
 	CmdCallbacks handlers_;
-	rpc::server::GameServ rpcservice_;
+	rpc::server::Service rpcservice_;
 	muduo::net::TcpServer server_;
 	muduo::net::RpcServer rpcserver_;
 	//muduo::net::TcpServer httpserver_;

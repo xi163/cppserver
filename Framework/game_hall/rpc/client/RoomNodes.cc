@@ -60,9 +60,9 @@ namespace room {
 					for (std::set<std::string>::iterator it = ref.begin(); it != ref.end(); ++it) {
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*it, conn);
-						rpc::client::GameServ client(conn, 3);
-						::GameServer::GameServReq req;
-						::GameServer::GameServRspPtr rsp = client.GetGameServ(req);
+						rpc::client::Service client(conn, 3);
+						::Game::Rpc::NodeInfoReq req;
+						::Game::Rpc::NodeInfoRspPtr rsp = client.GetNodeInfo(req);
 						if (rsp) {
 							//_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
 							rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));

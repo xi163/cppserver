@@ -1,17 +1,20 @@
 #ifndef INCLUDE_RPCSERVICE_SERVER_H
 #define INCLUDE_RPCSERVICE_SERVER_H
 
-#include "proto/GameServer.Message.pb.h"
+#include "proto/Game.Rpc.pb.h"
 
 namespace rpc {
 	namespace server {
-		class GameServ : public ::GameServer::RpcService {
+		class Service : public ::Game::Rpc::RpcService {
 		public:
-			virtual void GetGameServ(
-				const ::GameServer::GameServReqPtr& req,
-				const ::GameServer::GameServRsp* responsePrototype,
+			virtual void GetNodeInfo(
+				const ::Game::Rpc::NodeInfoReqPtr& req,
+				const ::Game::Rpc::NodeInfoRsp* responsePrototype,
 				const muduo::net::RpcDoneCallback& done);
 
+			virtual void NotifyUserScore(const ::Game::Rpc::UserScoreReqPtr& req,
+				const ::Game::Rpc::UserScoreRsp* responsePrototype,
+				const muduo::net::RpcDoneCallback& done);
 		};
 	}
 }

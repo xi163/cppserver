@@ -5,14 +5,13 @@
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 #include "Packet.h"
-#include "proto/ProxyServer.Message.pb.h"
-#include "proto/Game.Common.pb.h"
-#include "proto/HallServer.Message.pb.h"
 
 #include "Entities.h"
 
 #include "rpc/client/RpcClients.h"
 #include "rpc/client/RpcContainer.h"
+
+#include "rpc/server/RpcService.h"
 
 #include "public/errorCode.h"
 #include "public/gameConst.h"
@@ -173,6 +172,7 @@ public:
 	typedef std::map<uint32_t, CmdCallback> CmdCallbacks;
 	ApiServ(muduo::net::EventLoop* loop,
 		const muduo::net::InetAddress& listenAddr,
+		const muduo::net::InetAddress& listenAddrRpc,
 		const muduo::net::InetAddress& listenAddrHttp,
 		std::string const& cert_path, std::string const& private_key_path,
 		std::string const& client_ca_cert_file_path = "",
@@ -271,7 +271,7 @@ public:
 	bool isdecrypt_;
 
 
-	muduo::AtomicInt32 numConnected_;
+	muduo::AtomicInt32 numConnected_[kMaxNodeTy];
 	muduo::AtomicInt64 numTotalReq_;
 	muduo::AtomicInt64 numTotalBadReq_;
 
@@ -285,10 +285,12 @@ public:
 	int maxConnections_;
 
 	CmdCallbacks handlers_;
+	std::string proto_ = "ws://";
 	std::string path_handshake_;
+	rpc::server::Service rpcservice_;
 	muduo::net::TcpServer server_;
 	//muduo::net::TcpServer tcpserver_;
-	//muduo::net::RpcServer rpcserver_;
+	muduo::net::RpcServer rpcserver_;
 	muduo::net::TcpServer httpserver_;
 	
 	rpc::Connector gateRpcClients_;

@@ -1,28 +1,28 @@
 #ifndef INCLUDE_RPCSERVICE_CLIENT_H
 #define INCLUDE_RPCSERVICE_CLIENT_H
 
-#include "proto/ProxyServer.Message.pb.h"
+#include "proto/Game.Rpc.pb.h"
 
 #include "RpcClients.h"
 
 namespace rpc {
 	namespace client {
-		class GameGate {
+		class Service {
 		public:
-			GameGate(const ClientConn& conn, int timeout);
-			virtual ::ProxyServer::Message::GameGateRspPtr GetGameGate(
-				const ::ProxyServer::Message::GameGateReq& req);
-			virtual ::ProxyServer::Message::UserScoreRspPtr NotifyUserScore(
-				const ::ProxyServer::Message::UserScoreReq& req);
+			Service(const ClientConn& conn, int timeout);
+			virtual ::Game::Rpc::NodeInfoRspPtr GetNodeInfo(
+				const ::Game::Rpc::NodeInfoReq& req);
+			virtual ::Game::Rpc::UserScoreRspPtr NotifyUserScore(
+				const ::Game::Rpc::UserScoreReq& req);
 		private:
-			void doneGameGateRsp(const ::ProxyServer::Message::GameGateRspPtr& rsp);
-			void doneUserScoreReq(const ::ProxyServer::Message::UserScoreRspPtr& rsp);
+			void doneNodeInfoRsp(const ::Game::Rpc::NodeInfoRspPtr& rsp);
+			void doneUserScoreReq(const ::Game::Rpc::UserScoreRspPtr& rsp);
 		private:
 			ClientConn const& conn_;
 			utils::SpinLock lock_;
 		private:
-			::ProxyServer::Message::GameGateRspPtr ptrGameGateRsp_;
-			::ProxyServer::Message::UserScoreRspPtr ptrUserScoreRsp_;
+			::Game::Rpc::NodeInfoRspPtr ptrNodeInfoRsp_;
+			::Game::Rpc::UserScoreRspPtr ptrUserScoreRsp_;
 		};
 	}
 }

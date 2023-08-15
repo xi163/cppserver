@@ -287,7 +287,6 @@ void GateServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
 		zkclient_->createNode("/GAME/ProxyServers", "ProxyServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
-		_LOG_INFO(nodePath_.c_str());
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));

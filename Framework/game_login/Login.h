@@ -5,14 +5,13 @@
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 #include "Packet.h"
-#include "proto/ProxyServer.Message.pb.h"
-#include "proto/Game.Common.pb.h"
-#include "proto/HallServer.Message.pb.h"
 
 #include "Entities.h"
 
 #include "rpc/client/RpcClients.h"
 #include "rpc/client/RpcContainer.h"
+
+#include "rpc/server/RpcService.h"
 
 #include "public/errorCode.h"
 #include "public/gameConst.h"
@@ -173,6 +172,7 @@ public:
 	typedef std::map<uint32_t, CmdCallback> CmdCallbacks;
 	LoginServ(muduo::net::EventLoop* loop,
 		const muduo::net::InetAddress& listenAddr,
+		const muduo::net::InetAddress& listenAddrRpc,
 		const muduo::net::InetAddress& listenAddrHttp,
 		std::string const& cert_path, std::string const& private_key_path,
 		std::string const& client_ca_cert_file_path = "",
@@ -237,29 +237,6 @@ private:
 	void cmd_on_user_login(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 public:
-	void random_game_gate_ipport(uint32_t roomid, std::string& ipport);
-	
-	//db更新用户登陆信息(登陆IP，时间)
-	bool db_update_login_info(
-		int64_t userid,
-		std::string const& loginIp,
-		std::chrono::system_clock::time_point& lastLoginTime,
-		std::chrono::system_clock::time_point& now);
-	//db更新用户在线状态
-	bool db_update_online_status(int64_t userid, int32_t status);
-	//db添加用户登陆日志
-	bool db_add_login_logger(
-		int64_t userid,
-		std::string const& loginIp,
-		std::string const& location,
-		std::chrono::system_clock::time_point& now,
-		uint32_t status, uint32_t agentid);
-	//db添加用户登出日志
-	bool db_add_logout_logger(
-		int64_t userid,
-		std::chrono::system_clock::time_point& loginTime,
-		std::chrono::system_clock::time_point& now);
-public:
 	std::shared_ptr<ZookeeperClient> zkclient_;
 	std::string nodePath_, nodeValue_, invalidNodePath_;
 	//redis订阅/发布
@@ -271,7 +248,7 @@ public:
 
 	std::string mongoDBUrl_;
 public:
-	muduo::AtomicInt32 numConnected_;
+	muduo::AtomicInt32 numConnected_[kMaxNodeTy];
 	muduo::AtomicInt64 numTotalReq_;
 	muduo::AtomicInt64 numTotalBadReq_;
 
@@ -285,10 +262,12 @@ public:
 	int maxConnections_;
 
 	CmdCallbacks handlers_;
+	std::string proto_ = "ws://";
 	std::string path_handshake_;
+	rpc::server::Service rpcservice_;
 	muduo::net::TcpServer server_;
 	//muduo::net::TcpServer tcpserver_;
-	//muduo::net::RpcServer rpcserver_;
+	muduo::net::RpcServer rpcserver_;
 	muduo::net::TcpServer httpserver_;
 	
 	STD::Random randomGate_;

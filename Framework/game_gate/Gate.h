@@ -195,7 +195,7 @@ public:
 	CmdCallbacks handlers_;
 	std::string proto_ = "ws://";
 	std::string path_handshake_;
-	rpc::server::GameGate rpcservice_;
+	rpc::server::Service rpcservice_;
 	muduo::net::TcpServer server_;
 	muduo::net::TcpServer tcpserver_;
 	muduo::net::RpcServer rpcserver_;

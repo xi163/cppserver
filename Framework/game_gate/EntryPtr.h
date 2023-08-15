@@ -82,10 +82,10 @@ struct Buckets /*: public muduo::noncopyable*/ {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				_LOG_WARN("timeout = %ds %s[%s] -> %s[%s]",
+				_LOG_WARN("timeout = %ds %s[%s] <- %s[%s]",
 					buckets_.size(),
-					entry->peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
-					entry->localName_.c_str(), conn->localAddress().toIpPort().c_str());
+					entry->localName_.c_str(), conn->localAddress().toIpPort().c_str(),
+					entry->peerName_.c_str(), conn->peerAddress().toIpPort().c_str());
 #endif
 			}
 		}
@@ -102,10 +102,10 @@ struct Buckets /*: public muduo::noncopyable*/ {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				_LOG_WARN("timeout = %ds %s[%s] -> %s[%s]",
+				_LOG_WARN("timeout = %ds %s[%s] <- %s[%s]",
 					buckets_.size(),
-					entry->peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
-					entry->localName_.c_str(), conn->localAddress().toIpPort().c_str());
+					entry->localName_.c_str(), conn->localAddress().toIpPort().c_str(),
+					entry->peerName_.c_str(), conn->peerAddress().toIpPort().c_str());
 #endif
 			}
 		}

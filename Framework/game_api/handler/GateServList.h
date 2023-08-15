@@ -1,7 +1,7 @@
 #ifndef INCLUDE_GATESERVLIST_H
 #define INCLUDE_GATESERVLIST_H
 
-#include "public/Inc.h"
+#include "Logger/src/Macro.h"
 
 struct GateServItem :
 	public BOOST::Any {

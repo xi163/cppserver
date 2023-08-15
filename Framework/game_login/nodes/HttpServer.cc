@@ -1,10 +1,6 @@
-#include "proto/Game.Common.pb.h"
-#include "proto/ProxyServer.Message.pb.h"
-#include "proto/HallServer.Message.pb.h"
-#include "proto/GameServer.Message.pb.h"
-
-#include "Login.h"
+#include "../Login.h"
 #include "public/response.h"
+#include "public/mgoOperation.h"
 #include "handler/Login_handler.h"
 #include "handler/Register_handler.h"
 
@@ -26,7 +22,7 @@ bool LoginServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	}
 #if 0
 	//节点维护中
-	if (server_state_ == ServiceStateE::kRepairing) {
+	if (server_state_ == kRepairing) {
 		return false;
 	}
 #endif
@@ -36,7 +32,7 @@ bool LoginServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 void LoginServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
-		int32_t num = numConnected_.incrementAndGet();
+		int32_t num = numConnected_[KHttpTy].incrementAndGet();
 		_LOG_INFO("登陆服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
@@ -72,7 +68,7 @@ void LoginServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 		boost::any_cast<Context&>(conn->getContext()).setWorker(nextPool_, threadPool_);
 	}
 	else {
-		int32_t num = numConnected_.decrementAndGet();
+		int32_t num = numConnected_[KHttpTy].decrementAndGet();
 		_LOG_INFO("登陆服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
@@ -309,7 +305,7 @@ void LoginServ::processHttpRequest(
 	else if (req.path() == "/test") {
 		response::xml::Test(req, rsp);
 	}
-	else if (req.path() == "/login") {
+	else if (req.path() == "/opt/login") {
 		boost::property_tree::ptree latest;
 		int testTPS = 0;
 #ifdef _STAT_QPS_
@@ -688,94 +684,7 @@ void LoginServ::processHttpRequest(
 // // 			errmsg = "agent.status error";
 // // 			break;
 // // 		}
-// #if 0
-// 		agentId = 10000;
-// 		p_agent_info->md5code = "334270F58E3E9DEC";
-// 		p_agent_info->descode = "111362EE140F157D";
-// 		timestamp = "1579599778583";
-// 		paraValue = "0RJ5GGzw2hLO8AsVvwORE2v16oE%2fXSjaK78A98ct5ajN7reFMf9YnI6vEnpttYHK%2fp04Hq%2fshp28jc4EIN0aAFeo4pni5jxFA9vg%2bLOx%2fek%3d";
-// 		key = "C6656A2145BAEF7ED6D38B9AF2E35442";
-// #elif 0
-// 		agentId = 111169;
-// 		p_agent_info->md5code = "8B56598D6FB32329";
-// 		p_agent_info->descode = "D470FD336AAB17E4";
-// 		timestamp = "1580776071271";
-// 		paraValue = "h2W2jwWIVFQTZxqealorCpSfOwlgezD8nHScU93UQ8g%2FDH1UnoktBusYRXsokDs8NAPFEG8WdpSe%0AY5rtksD0jw%3D%3D";
-// 		key = "a7634b1e9f762cd4b0d256744ace65f0";
-// #elif 0
-// 		agentId = 111190;
-// 		timestamp = "1583446283986";
-// 		p_agent_info->md5code = "728F0884A000FD72";
-// 		p_agent_info->descode = "AAFFF4393E17DB6B";
-// 		paraValue = "KDtKjjnaaxKWNuK%252BBRwv9f2gBxLkSvY%252FqT4HBaZY2IrxqGMK3DYlWOW4dHgiMZV8Uu66h%252BHjH8MfAfpQIE5eIHoRZMplj7dljS7Tfyf3%252BlM%253D";
-// 		key = "4F6F53FDC4D27EC33B3637A656DD7C9F";
-// #elif 0
-// 		agentId = 111149;
-// 		timestamp = "1583448714906";
-// 		p_agent_info->md5code = "7196FD6921347DB1";
-// 		p_agent_info->descode = "A5F8C07B7843C73E";
-// 		paraValue = "nu%252FtdBhN6daQdad3aOVOgzUr6bHVMYNEpWE4yLdHkKRn%252F%252Fn1V3jIFR%252BI7wawXWNyjR3%252FW0M9qzcdzM8rNx8xwe%252BEW9%252BM92ZN4hlpUAhFH74%253D";
-// 		key = "9EEC240FAFAD3E5B6AB6B2DDBCDFE1FF";
-// #elif 0
-// 		agentId = 10033;
-// 		timestamp = "1583543899005";
-// 		p_agent_info->md5code = "5998F124C180A817";
-// 		p_agent_info->descode = "38807549DEA3178D";
-// 		paraValue = "9303qk%2FizHRAszhN33eJxG2aOLA2Wq61s9f96uxDe%2Btczf2qSG8O%2FePyIYhVAaeek9m43u7awgra%0D%0Au8a8b%2FDchcZSosz9SVfPjXdc7h4Vma2dA8FHYZ5dJTcxWY7oDLlSOHKVXYHFMIWeafVwCN%2FU5fzv%0D%0AHWyb1Oa%2FWJ%2Bnfx7QXy8%3D";
-// 		key = "2a6b55cf8df0cd8824c1c7f4308fd2e4";
-// #elif 0
-// 		agentId = 111190;
-// 		timestamp = "1583543899005";
-// 		p_agent_info->md5code = "728F0884A000FD72";
-// 		p_agent_info->descode = "AAFFF4393E17DB6B";
-// 		paraValue = "%252FPxIlQ9UaP6WljAYhfYZpBO6Hz2KTrxGN%252Bmdffv9sZpaii2avwhJn3APpIOozbD7T3%252BGE1rh5q4OdfrRokriWNEhlweRKzC6%252FtABz58Kdzo%253D";
-// 		key = "9F1E44E8B61335CCFE2E17EE3DB7C05A";
-// #elif 1
-// 		//p_agent_info->descode = "mjo3obaHdKXxs5Fqw4Gj6mO7rBc52Vdw";
-// 		paraValue = "7q9Mu4JezLGpXaJcaxBUEmnQgrH%2BO0Wi%2F85z30vF%2FIdphHU13EMp2f%2FE5%2BfHtIXYFLbyNqnwDx8SyGP1cSYssZN6gniqouFeB3kBcwSXYZbFYhNBU6162n6BaFYFVbH6KMc43RRvjBtmbkMgCr5MlRz0Co%2BQEsX9Pt3zFJiXnm12oEdLeFBSSVIcDsqd3ize9do1pbxAm9Bb45KRvPhYvA%3D%3D";
-// #elif 0
-// 		agentId = 111208;
-// 		timestamp = "1585526277991";
-// 		p_agent_info->md5code = "1C2EC8CB023BE339";
-// 		p_agent_info->descode = "03CAF4333EEAA80E";
-// 		paraValue = "zLcIc13jvzFHqywSHCRWX7JpaXddpWpMzaHBu8necMyCU3L9NXaZpcDXqmI4NgXvuOc6FGa80GUj%250AXOI8uoQuyjm1MLYIbrFVz09z68uSREs%253D";
-// 		key = "59063f588d6787eff28d3";
-// #elif 0
-// 		agentId = 111208;
-// 		timestamp = "1585612589828";
-// 		p_agent_info->md5code = "1C2EC8CB023BE339";
-// 		p_agent_info->descode = "03CAF4333EEAA80E";
-// 		paraValue = "KfNY6Jl8k%252BBnBJLE2KQlSefbpNujwXrVcTWvRm2rfOrxie4Sd65DgAsIPIQm0uPpGS2dAQRk1HEE%250AulhnCZ0OteZiMh060xxH%252FzTzPC8DUr0%253D";
-// 		key = "be64cc7589bebf944fcd322f9923eca4";
-// #elif 0
-// 		agentId = 111209;
-// 		timestamp = "1585639941293";
-// 		p_agent_info->md5code = "9074653AA2D0B02F";
-// 		p_agent_info->descode = "A78AC14440288D74";
-// 		paraValue = "YF%252BIk5Dk2nEyNUE1TUErZY1d9RaaVmU46cwE41HRJyiqwgqu%252BOBwJT9TfPTNBtxIFjBkOgoYGljg%250AtPMbgp%252BLZz995NkM3iHrdMYp5dwv6kE%253D";
-// 		key = "06aad6a911a7e6ce2d3b2ad18c068ae6";
-// #elif 0
-// 		agentId = 111208;
-// 		timestamp = "1585681742640";
-// 		p_agent_info->md5code = "1C2EC8CB023BE339";
-// 		p_agent_info->descode = "03CAF4333EEAA80E";
-// 		paraValue = "LLgiWFvdQicKfSEsDA8lTkD2FUOOcQR0LnVwDNiGjdlqgK9i9b058FlOL1DJuEp9%252BPEi37YUyTIX%250AVT7bA2H6gTbhwb4mRLzzmIWd6l3KdBM%253D";
-// 		key = "a890129e6b9e94f29";
-// #elif 0
-// 		agentId = 111208;
-// 		timestamp = "1585743294759";
-// 		p_agent_info->md5code = "1C2EC8CB023BE339";
-// 		p_agent_info->descode = "03CAF4333EEAA80E";
-// 		paraValue = "5dTmQiGn0iJHUIAEMDfjxtbTpuWWIZd0HmdlFKKF4HpqgK9i9b058FlOL1DJuEp9J%252FnZJqtPOv%252F7%250A6ikd4T%252FcwEJkkVFV6TQbCk3yHamOx3s%253D";
-// 		key = "934fa90d6";
-// #elif 0
-// 		agentId = 111208;
-// 		timestamp = "1585766704760";
-// 		p_agent_info->md5code = "1C2EC8CB023BE339";
-// 		p_agent_info->descode = "03CAF4333EEAA80E";
-// 		paraValue = "DmqMRX48r66cW8Oiw0xMhgLcBuKP94YHtoQNGhAvupjxie4Sd65DgAsIPIQm0uPp%252BR6ZDGMf1B3T%250AV4owq2ro6B9Ru1XHueMJMNVLhLTaY0M%253D";
-// 		key = "bd3778912439c03a35de1a3ce3905ef0";
-// #endif
+
 // 		std::string descode;
 // 		std::string md5code;
 // 		std::string decrypt;
@@ -930,13 +839,17 @@ bool LoginServ::refreshWhiteListSync() {
 	{
 		WRITE_LOCK(white_list_mutex_);
 		white_list_.clear();
+		mgo::LoadIpWhiteList(
+			document{} << "ipaddress" << 1 << "ipstatus" << 1 << finalize,
+			document{} << "isapiuse" << b_bool{ 1 } << "ipstatus" << b_int32{ 0 } << finalize, white_list_);
 	}
+	READ_LOCK(white_list_mutex_);
 	std::string s;
 	for (std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.begin();
 		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
+	//_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
 	return false;
 }
 
@@ -945,12 +858,15 @@ bool LoginServ::refreshWhiteListInLoop() {
 	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
 	httpserver_.getLoop()->assertInLoopThread();
 	white_list_.clear();
+	mgo::LoadIpWhiteList(
+		document{} << "ipaddress" << 1 << "ipstatus" << 1 << finalize,
+		/*document{} << "isapiuse" << b_bool{ 1 } << "ipstatus" << b_int32{ 0 } << finalize*/{}, white_list_);
 	std::string s;
 	for (std::map<in_addr_t, eApiVisit>::const_iterator it = white_list_.begin();
 		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
+	//_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
 	return false;
 }
 
@@ -970,7 +886,7 @@ bool LoginServ::repairServer(containTy servTy, std::string const& servname, std:
 		if (status == kRepairing) {
 			/* 如果之前服务中, 尝试挂维护中, 并返回之前状态
 			* 如果返回服务中, 说明刚好挂维护成功, 否则说明之前已被挂维护 */
-			//if (ServiceStateE::kRunning == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRunning, ServiceStateE::kRepairing)) {
+			//if (kRunning == __sync_val_compare_and_swap(&server_state_, kRunning, kRepairing)) {
 			//
 			//在指定类型服务中，并且不在维护节点中
 			//
@@ -1008,7 +924,7 @@ bool LoginServ::repairServer(containTy servTy, std::string const& servname, std:
 		else if (status == kRunning) {
 			/* 如果之前挂维护中, 尝试恢复服务, 并返回之前状态
 			* 如果返回挂维护中, 说明刚好恢复服务成功, 否则说明之前已在服务中 */
-			//if (ServiceStateE::kRepairing == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRepairing, ServiceStateE::kRunning)) {
+			//if (kRepairing == __sync_val_compare_and_swap(&server_state_, kRepairing, kRunning)) {
 			//
 			//在指定类型服务中，并且在维护节点中
 			//

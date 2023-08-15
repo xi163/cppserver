@@ -4,29 +4,29 @@
 
 namespace rpc {
 	namespace client {
-		GameGate::GameGate(const ClientConn& conn, int timeout)
+		Service::Service(const ClientConn& conn, int timeout)
 			: conn_(conn), lock_(timeout) {
 		}
 		
-		::ProxyServer::Message::GameGateRspPtr GameGate::GetGameGate(
-			const ::ProxyServer::Message::GameGateReq& req) {
+		::Game::Rpc::NodeInfoRspPtr Service::GetNodeInfo(
+			const ::Game::Rpc::NodeInfoReq& req) {
 			//_LOG_WARN(req.DebugString().c_str());
 			if (!conn_.get<1>().expired()) {
 				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
 				if (c) {
 					if (conn_.get<2>()) {
 						conn_.get<2>()->setConnection(c);
-						::ProxyServer::Message::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
-						stub.GetGameGate(req, std::bind(&GameGate::doneGameGateRsp, this, std::placeholders::_1));
+						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
+						stub.GetNodeInfo(req, std::bind(&Service::doneNodeInfoRsp, this, std::placeholders::_1));
 						lock_.wait();
 					}
 				}
 			}
-			return ptrGameGateRsp_;
+			return ptrNodeInfoRsp_;
 		}
 
-		void GameGate::doneGameGateRsp(const ::ProxyServer::Message::GameGateRspPtr& rsp) {
-			ptrGameGateRsp_ = rsp;
+		void Service::doneNodeInfoRsp(const ::Game::Rpc::NodeInfoRspPtr& rsp) {
+			ptrNodeInfoRsp_ = rsp;
 			lock_.notify();
 			//_LOG_WARN(rsp->DebugString().c_str());
 			if (!conn_.get<1>().expired()) {
@@ -34,7 +34,7 @@ namespace rpc {
 				if (c) {
 					if (conn_.get<2>()) {
 						conn_.get<2>()->setConnection(c);
-						::ProxyServer::Message::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
+						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
 						//stub.channel()->connection()->conn->shutdown();
 						//stub.channel()->connection()->conn->forceClose();
 					}
@@ -42,8 +42,8 @@ namespace rpc {
 			}
 		}
 
-		::ProxyServer::Message::UserScoreRspPtr GameGate::NotifyUserScore(
-			const ::ProxyServer::Message::UserScoreReq& req) {
+		::Game::Rpc::UserScoreRspPtr Service::NotifyUserScore(
+			const ::Game::Rpc::UserScoreReq& req) {
 			_LOG_WARN("userId: %lld score: %lld", req.userid(), req.score());
 			//_LOG_WARN(req.DebugString().c_str());
 			if (!conn_.get<1>().expired()) {
@@ -51,8 +51,8 @@ namespace rpc {
 				if (c) {
 					if (conn_.get<2>()) {
 						conn_.get<2>()->setConnection(c);
-						::ProxyServer::Message::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
-						stub.NotifyUserScore(req, std::bind(&GameGate::doneUserScoreReq, this, std::placeholders::_1));
+						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
+						stub.NotifyUserScore(req, std::bind(&Service::doneUserScoreReq, this, std::placeholders::_1));
 						//lock_.wait();
 					}
 				}
@@ -60,7 +60,7 @@ namespace rpc {
 			return ptrUserScoreRsp_;
 		}
 		
-		void GameGate::doneUserScoreReq(const ::ProxyServer::Message::UserScoreRspPtr& rsp) {
+		void Service::doneUserScoreReq(const ::Game::Rpc::UserScoreRspPtr& rsp) {
 			//ptrUserScoreRsp_ = rsp;//引发崩溃BUG???
 			//lock_.notify();
 			//_LOG_WARN(rsp->DebugString().c_str());
@@ -69,50 +69,12 @@ namespace rpc {
 // 				if (c) {
 // 					if (conn_.get<2>()) {
 // 						conn_.get<2>()->setConnection(c);
-// 						::ProxyServer::Message::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
+// 						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
 // 						//stub.channel()->connection()->conn->shutdown();
 // 						//stub.channel()->connection()->conn->forceClose();
 // 					}
 // 				}
 // 			}
-		}
-
-		GameServ::GameServ(const ClientConn& conn, int timeout)
-			: conn_(conn), lock_(timeout) {
-		}
-
-		::GameServer::GameServRspPtr GameServ::GetGameServ(
-			const ::GameServer::GameServReq& req) {
-			//_LOG_WARN(req.DebugString().c_str());
-			if (!conn_.get<1>().expired()) {
-				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
-				if (c) {
-					if (conn_.get<2>()) {
-						conn_.get<2>()->setConnection(c);
-						::GameServer::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
-						stub.GetGameServ(req, std::bind(&GameServ::doneGameServRsp, this, std::placeholders::_1));
-						lock_.wait();
-					}
-				}
-			}
-			return ptrGameServRsp_;
-		}
-
-		void GameServ::doneGameServRsp(const ::GameServer::GameServRspPtr& rsp) {
-			ptrGameServRsp_ = rsp;
-			lock_.notify();
-			//_LOG_WARN(rsp->DebugString().c_str());
-			if (!conn_.get<1>().expired()) {
-				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
-				if (c) {
-					if (conn_.get<2>()) {
-						conn_.get<2>()->setConnection(c);
-						::GameServer::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
-						//stub.channel()->connection()->conn->shutdown();
-						//stub.channel()->connection()->conn->forceClose();
-					}
-				}
-			}
 		}
 	}
 }

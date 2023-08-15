@@ -89,6 +89,10 @@ int main(int argc, char* argv[]) {
 	if (0 == port) {
 		port = RANDOM().betweenInt(5000, 10000).randInt_mt();
 	}
+	int16_t rpcPort = pt.get<int>(config + ".rpcPort", 0);
+	if (0 == rpcPort) {
+		rpcPort = RANDOM().betweenInt(5000, 10000).randInt_mt();
+	}
 	int16_t httpPort = pt.get<int>(config + ".httpPort", 0);
 	if (0 == httpPort) {
 		httpPort = RANDOM().betweenInt(5000, 10000).randInt_mt();
@@ -121,8 +125,9 @@ int main(int argc, char* argv[]) {
 	}
 	muduo::net::EventLoop loop;
 	muduo::net::InetAddress listenAddr(ip, port);//websocket
+	muduo::net::InetAddress listenAddrRpc(ip, rpcPort);//rpc
 	muduo::net::InetAddress listenAddrHttp(ip, httpPort);//http
-	ApiServ server(&loop, listenAddr, listenAddrHttp, cert_path, private_key);
+	ApiServ server(&loop, listenAddr, listenAddrRpc, listenAddrHttp, cert_path, private_key);
 	server.maxConnections_ = kMaxConnections;
 	server.idleTimeout_ = kTimeoutSeconds;
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);

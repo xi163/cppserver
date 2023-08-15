@@ -102,6 +102,28 @@ namespace rpc {
 			repair_.remove(name);
 			break;
 		}
+		case containTy::kRpcLoginTy: {
+			std::vector<std::string> vec;
+			boost::algorithm::split(vec, name, boost::is_any_of(":"));
+			_LOG_WARN(">>> 登陆服 %s:%s rpc:%s http:%s", vec[0].c_str(), vec[1].c_str(), vec[2].c_str(), vec[3].c_str());
+			//try add & connect
+			muduo::net::InetAddress serverAddr(vec[0], atoi(vec[3].c_str()));
+			clients_->add(name, serverAddr);
+			//try remove from repair
+			repair_.remove(name);
+			break;
+		}
+		case containTy::kRpcApiTy: {
+			std::vector<std::string> vec;
+			boost::algorithm::split(vec, name, boost::is_any_of(":"));
+			_LOG_WARN(">>> API服 %s:%s rpc:%s http:%s", vec[0].c_str(), vec[1].c_str(), vec[2].c_str(), vec[3].c_str());
+			//try add & connect
+			muduo::net::InetAddress serverAddr(vec[0], atoi(vec[3].c_str()));
+			clients_->add(name, serverAddr);
+			//try remove from repair
+			repair_.remove(name);
+			break;
+		}
 		}
 	}
 
@@ -131,6 +153,26 @@ namespace rpc {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 			_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", vec[2].c_str(), vec[3].c_str(), vec[4].c_str(), vec[0].c_str(), getModeStr(atoi(vec[1].c_str())).c_str());
+			//try remove
+			clients_->remove(name, true);
+			//try remove from repair
+			repair_.remove(name);
+			break;
+		}
+		case containTy::kRpcLoginTy: {
+			std::vector<std::string> vec;
+			boost::algorithm::split(vec, name, boost::is_any_of(":"));
+			_LOG_WARN(">>> 登陆服 %s:%s rpc:%s http:%s", vec[0].c_str(), vec[1].c_str(), vec[2].c_str(), vec[3].c_str());
+			//try remove
+			clients_->remove(name, true);
+			//try remove from repair
+			repair_.remove(name);
+			break;
+		}
+		case containTy::kRpcApiTy: {
+			std::vector<std::string> vec;
+			boost::algorithm::split(vec, name, boost::is_any_of(":"));
+			_LOG_WARN(">>> API服 %s:%s rpc:%s http:%s", vec[0].c_str(), vec[1].c_str(), vec[2].c_str(), vec[3].c_str());
 			//try remove
 			clients_->remove(name, true);
 			//try remove from repair

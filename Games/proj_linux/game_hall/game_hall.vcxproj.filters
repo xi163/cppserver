@@ -130,6 +130,9 @@
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -201,6 +204,9 @@
       <Filter>internal\rpc\client</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
   </ItemGroup>

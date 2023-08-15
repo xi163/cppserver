@@ -48,16 +48,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_api\Api.h" />
-    <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -141,19 +135,22 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
+    <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_api\rpc\server\RpcService.h">
+      <Filter>internal\rpc\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_api\Api.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\main.cc" />
-    <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\public\IPFinder.cpp">
       <Filter>public</Filter>
     </ClCompile>
@@ -233,5 +230,14 @@
       <Filter>internal\rpc\client</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
+    <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_api\rpc\server\RpcService.cc">
+      <Filter>internal\rpc\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

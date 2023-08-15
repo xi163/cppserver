@@ -151,6 +151,9 @@
     <ClInclude Include="..\..\..\Framework\game_serv_club\rpc\server\RpcService.h">
       <Filter>rpc\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -229,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_serv_club\rpc\server\RpcService.cc">
       <Filter>rpc\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc">
+      <Filter>pb</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

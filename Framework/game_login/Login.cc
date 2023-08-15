@@ -3,11 +3,13 @@
 
 LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr,
+	const muduo::net::InetAddress& listenAddrRpc,
 	const muduo::net::InetAddress& listenAddrHttp,
 	std::string const& cert_path, std::string const& private_key_path,
 	std::string const& client_ca_cert_file_path,
 	std::string const& client_ca_cert_dir_path)
-	: server_(loop, listenAddr, "LoginServ")
+	: server_(loop, listenAddr, "wsServer")
+	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, httpserver_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
@@ -15,6 +17,7 @@ LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
+	rpcserver_.registerService(&rpcservice_);
 	server_.setConnectionCallback(
 		std::bind(&LoginServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
@@ -83,14 +86,23 @@ bool LoginServ::InitZookeeper(std::string const& ipaddr) {
 }
 
 void LoginServ::onZookeeperConnected() {
+	if (ZNONODE == zkclient_->existsNode("/GAME"))
+		zkclient_->createNode("/GAME", "GAME"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/LoginServers"))
+		zkclient_->createNode("/GAME/LoginServers", "LoginServers"/*, true*/);
 	//websocket
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 	nodeValue_ = vec[0] + ":" + vec[1];
 	path_handshake_ = "/ws_" + vec[1];
+	//rpc
+	boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
+	nodeValue_ += ":" + vec[1];
 	//http
 	boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
 	nodeValue_ += ":" + vec[1];
+	nodePath_ = "/GAME/LoginServers/" + nodeValue_;
+	zkclient_->createNode(nodePath_, nodeValue_, true);
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/ProxyServers",
@@ -131,7 +143,14 @@ void LoginServ::onGateWatcher(int type, int state,
 }
 
 void LoginServ::registerZookeeper() {
-
+	if (ZNONODE == zkclient_->existsNode("/GAME"))
+		zkclient_->createNode("/GAME", "GAME"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/LoginServers"))
+		zkclient_->createNode("/GAME/LoginServers", "LoginServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
+		zkclient_->createNode(nodePath_, nodeValue_, true);
+	}
+	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&LoginServ::registerZookeeper, this));
 }
 
 bool LoginServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
@@ -198,10 +217,11 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 
-	std::vector<std::string> vec;
-	boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
+	std::vector<std::string> vec[2];
+	boost::algorithm::split(vec[0], rpcserver_.ipPort(), boost::is_any_of(":"));
+	boost::algorithm::split(vec[1], httpserver_.ipPort(), boost::is_any_of(":"));
 
-	_LOG_WARN("LoginServ = %s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), numThreads, numWorkerThreads);
+	_LOG_WARN("LoginServ = %s rpc:%s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[0][1].c_str(), vec[1][1].c_str(), numThreads, numWorkerThreads);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {
@@ -214,6 +234,7 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	}
 
 	server_.start(true);
+	rpcserver_.start(true);
 	httpserver_.start(true);
 
 	//sleep(2);
@@ -231,166 +252,4 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 void LoginServ::cmd_on_user_login(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
 
-}
-
-void LoginServ::random_game_gate_ipport(uint32_t roomid, std::string& ipport) {
-// 	ipport.clear();
-// 	static STD::Random r;
-// 	//READ_LOCK(room_servers_mutex_);
-// 	std::map<int, std::vector<std::string>>::iterator it = room_servers_.find(roomid);
-// 	if (it != room_servers_.end()) {
-// 		std::vector<std::string>& rooms = it->second;
-// 		if (rooms.size() > 0) {
-// 			int index = r.betweenInt(0, rooms.size() - 1).randInt_mt();
-// 			ipport = rooms[index];
-// 		}
-// 	}
-}
-
-//db更新用户登陆信息(登陆IP，时间)
-bool LoginServ::db_update_login_info(
-	int64_t userid,
-	std::string const& loginIp,
-	std::chrono::system_clock::time_point& lastLoginTime,
-	std::chrono::system_clock::time_point& now) {
-	bool bok = false;
-	int64_t days = (std::chrono::duration_cast<std::chrono::seconds>(lastLoginTime.time_since_epoch())).count() / 3600 / 24;
-	int64_t nowDays = (std::chrono::duration_cast<chrono::seconds>(now.time_since_epoch())).count() / 3600 / 24;
-	try {
-		bsoncxx::document::value query_value = document{} << "userid" << userid << finalize;
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		if (days + 1 == nowDays) {
-			bsoncxx::document::value update_value = document{}
-				<< "$set" << open_document
-				<< "lastlogintime" << bsoncxx::types::b_date(now)
-				<< "lastloginip" << loginIp
-				<< "onlinestatus" << bsoncxx::types::b_int32{ 1 }
-				<< close_document
-				<< "$inc" << open_document
-				<< "activedays" << 1								//活跃天数+1
-				<< "keeplogindays" << 1 << close_document			//连续登陆天数+1
-				<< finalize;
-			userCollection.update_one(query_value.view(), update_value.view());
-		}
-		else if (days == nowDays) {
-			bsoncxx::document::value update_value = document{}
-				<< "$set" << open_document
-				<< "lastlogintime" << bsoncxx::types::b_date(now)
-				<< "lastloginip" << loginIp
-				<< "onlinestatus" << bsoncxx::types::b_int32{ 1 }
-				<< close_document
-				<< finalize;
-			userCollection.update_one(query_value.view(), update_value.view());
-		}
-		else {
-			bsoncxx::document::value update_value = document{}
-				<< "$set" << open_document
-				<< "lastlogintime" << bsoncxx::types::b_date(now)
-				<< "lastloginip" << loginIp
-				<< "keeplogindays" << bsoncxx::types::b_int32{ 1 }	//连续登陆天数1
-				<< "onlinestatus" << bsoncxx::types::b_int32{ 1 }
-				<< close_document
-				<< "$inc" << open_document
-				<< "activedays" << 1 << close_document				//活跃天数+1
-				<< finalize;
-			userCollection.update_one(query_value.view(), update_value.view());
-		}
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
-}
-
-//db更新用户在线状态
-bool LoginServ::db_update_online_status(int64_t userid, int32_t status) {
-	bool bok = false;
-	try {
-		//////////////////////////////////////////////////////////////////////////
-		//玩家登陆网关服信息
-		//使用hash	h.usr:proxy[1001] = session|ip:port:port:pid<弃用>
-		//使用set	s.uid:1001:proxy = session|ip:port:port:pid<使用>
-		//网关服ID格式：session|ip:port:port:pid
-		//第一个ip:port是网关服监听客户端的标识
-		//第二个ip:port是网关服监听订单服的标识
-		//pid标识网关服进程id
-		//////////////////////////////////////////////////////////////////////////
-		REDISCLIENT.del("s.uid:" + to_string(userid) + ":proxy");
-		bsoncxx::document::value query_value = document{} << "userid" << userid << finalize;
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		bsoncxx::document::value update_value = document{}
-			<< "$set" << open_document
-			<< "onlinestatus" << bsoncxx::types::b_int32{ status }
-			<< close_document
-			<< finalize;
-		userCollection.update_one(query_value.view(), update_value.view());
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
-}
-
-//db添加用户登陆日志
-bool LoginServ::db_add_login_logger(
-	int64_t userid,
-	std::string const& loginIp,
-	std::string const& location,
-	std::chrono::system_clock::time_point& now,
-	uint32_t status, uint32_t agentid) {
-	bool bok = false;
-	try {
-		mongocxx::collection loginLogCollection = MONGODBCLIENT["gamemain"]["login_log"];
-		bsoncxx::document::value insert_value = bsoncxx::builder::stream::document{}
-			<< "userid" << userid
-			<< "loginip" << loginIp
-			<< "address" << location
-			<< "status" << (int32_t)status //错误码
-			<< "agentid" << (int32_t)agentid
-			<< "logintime" << bsoncxx::types::b_date(now)
-			<< bsoncxx::builder::stream::finalize;
-		//_LOG_DEBUG("Insert Document: %s", bsoncxx::to_json(insert_value).c_str());
-		bsoncxx::stdx::optional<mongocxx::result::insert_one> result = loginLogCollection.insert_one(insert_value.view());
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
-}
-
-bool LoginServ::db_add_logout_logger(
-	int64_t userid,
-	std::chrono::system_clock::time_point& loginTime,
-	std::chrono::system_clock::time_point& now) {
-	bool bok = false;
-	try {
-
-		int32_t agentid = 0;
-		mongocxx::options::find opts = mongocxx::options::find{};
-		opts.projection(document{} << "agentid" << 1 << finalize);
-		bsoncxx::document::value query_value = document{} << "userid" << userid << finalize;
-		mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-		bsoncxx::stdx::optional<bsoncxx::document::value> result = userCollection.find_one(query_value.view(), opts);
-		bsoncxx::document::view view = result->view();
-		agentid = view["agentid"].get_int32();
-		//在线时长
-		chrono::seconds durationTime = chrono::duration_cast<chrono::seconds>(now - loginTime);
-		mongocxx::collection logoutLogCollection = MONGODBCLIENT["gamemain"]["logout_log"];
-		bsoncxx::document::value insert_value = document{}
-			<< "userid" << userid
-			<< "logintime" << bsoncxx::types::b_date(loginTime)					//登陆时间
-			<< "logouttime" << bsoncxx::types::b_date(now)						//离线时间
-			<< "agentid" << agentid
-			<< "playseconds" << bsoncxx::types::b_int64{ durationTime.count() } //在线时长
-		<< finalize;
-		/*bsoncxx::stdx::optional<mongocxx::result::insert_one> result = */logoutLogCollection.insert_one(insert_value.view());
-		bok = true;
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
-	return bok;
 }

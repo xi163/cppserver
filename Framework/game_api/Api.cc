@@ -3,11 +3,13 @@
 
 ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr,
+	const muduo::net::InetAddress& listenAddrRpc,
 	const muduo::net::InetAddress& listenAddrHttp,
 	std::string const& cert_path, std::string const& private_key_path,
 	std::string const& client_ca_cert_file_path,
 	std::string const& client_ca_cert_dir_path)
-	: server_(loop, listenAddr, "ApiServ")
+	: server_(loop, listenAddr, "wsServer")
+	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, httpserver_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
@@ -25,6 +27,7 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
+	rpcserver_.registerService(&rpcservice_);
 	server_.setConnectionCallback(
 		std::bind(&ApiServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
@@ -93,14 +96,23 @@ bool ApiServ::InitZookeeper(std::string const& ipaddr) {
 }
 
 void ApiServ::onZookeeperConnected() {
+	if (ZNONODE == zkclient_->existsNode("/GAME"))
+		zkclient_->createNode("/GAME", "GAME"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/ApiServers"))
+		zkclient_->createNode("/GAME/ApiServers", "ApiServers"/*, true*/);
 	//websocket
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
 	nodeValue_ = vec[0] + ":" + vec[1];
 	path_handshake_ = "/ws_" + vec[1];
+	//rpc
+	boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
+	nodeValue_ += ":" + vec[1];
 	//http
 	boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
 	nodeValue_ += ":" + vec[1];
+	nodePath_ = "/GAME/ApiServers/" + nodeValue_;
+	zkclient_->createNode(nodePath_, nodeValue_, true);
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
 		"/GAME/ProxyServers",
@@ -141,7 +153,14 @@ void ApiServ::onGateWatcher(int type, int state,
 }
 
 void ApiServ::registerZookeeper() {
-
+	if (ZNONODE == zkclient_->existsNode("/GAME"))
+		zkclient_->createNode("/GAME", "GAME"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/ApiServers"))
+		zkclient_->createNode("/GAME/ApiServers", "ApiServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
+		zkclient_->createNode(nodePath_, nodeValue_, true);
+	}
+	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&ApiServ::registerZookeeper, this));
 }
 
 bool ApiServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
@@ -208,10 +227,11 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 
-	std::vector<std::string> vec;
-	boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
+	std::vector<std::string> vec[2];
+	boost::algorithm::split(vec[0], rpcserver_.ipPort(), boost::is_any_of(":"));
+	boost::algorithm::split(vec[1], httpserver_.ipPort(), boost::is_any_of(":"));
 
-	_LOG_WARN("ApiServ = %s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), numThreads, numWorkerThreads);
+	_LOG_WARN("ApiServ = %s rpc:%s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[0][1].c_str(), vec[1][1].c_str(), numThreads, numWorkerThreads);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {
@@ -224,6 +244,7 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	}
 
 	server_.start(true);
+	rpcserver_.start(true);
 	httpserver_.start(true);
 
 	//sleep(2);

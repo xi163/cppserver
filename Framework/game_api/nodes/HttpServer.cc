@@ -1,12 +1,7 @@
-#include "proto/Game.Common.pb.h"
-#include "proto/ProxyServer.Message.pb.h"
-#include "proto/HallServer.Message.pb.h"
-#include "proto/GameServer.Message.pb.h"
-
 #include "../Api.h"
 #include "public/response.h"
-#include "handler/order_handler.h"
 #include "public/mgoOperation.h"
+#include "handler/order_handler.h"
 
 bool ApiServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	//Accept时候判断，socket底层控制，否则开启异步检查
@@ -26,7 +21,7 @@ bool ApiServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	}
 #if 0
 	//节点维护中
-	if (server_state_ == ServiceStateE::kRepairing) {
+	if (server_state_ == kRepairing) {
 		return false;
 	}
 #endif
@@ -36,7 +31,7 @@ bool ApiServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 void ApiServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
-		int32_t num = numConnected_.incrementAndGet();
+		int32_t num = numConnected_[KHttpTy].incrementAndGet();
 		_LOG_INFO("API服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
@@ -64,7 +59,7 @@ void ApiServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 			numTotalBadReq_.incrementAndGet();
 			return;
 		}
-		EntryPtr entry(new Entry(Entry::TypeE::HttpTy, conn, "WEB前端", "登陆服"));
+		EntryPtr entry(new Entry(Entry::TypeE::HttpTy, conn, "WEB前端", "API服"));
 		RunInLoop(conn->getLoop(),
 			std::bind(&Buckets::push, &boost::any_cast<Buckets&>(conn->getLoop()->getContext()), entry));
 		conn->setContext(Context(entry, muduo::net::HttpContext()));
@@ -72,7 +67,7 @@ void ApiServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 		boost::any_cast<Context&>(conn->getContext()).setWorker(nextPool_, threadPool_);
 	}
 	else {
-		int32_t num = numConnected_.decrementAndGet();
+		int32_t num = numConnected_[KHttpTy].decrementAndGet();
 		_LOG_INFO("API服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
@@ -869,7 +864,7 @@ bool ApiServ::refreshWhiteListSync() {
 		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
+	//_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
 	return false;
 }
 
@@ -886,7 +881,7 @@ bool ApiServ::refreshWhiteListInLoop() {
 		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
+	//_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
 	return false;
 }
 
@@ -906,7 +901,7 @@ bool ApiServ::repairServer(containTy servTy, std::string const& servname, std::s
 		if (status == kRepairing) {
 			/* 如果之前服务中, 尝试挂维护中, 并返回之前状态
 			* 如果返回服务中, 说明刚好挂维护成功, 否则说明之前已被挂维护 */
-			//if (ServiceStateE::kRunning == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRunning, ServiceStateE::kRepairing)) {
+			//if (kRunning == __sync_val_compare_and_swap(&server_state_, kRunning, kRepairing)) {
 			//
 			//在指定类型服务中，并且不在维护节点中
 			//
@@ -944,7 +939,7 @@ bool ApiServ::repairServer(containTy servTy, std::string const& servname, std::s
 		else if (status == kRunning) {
 			/* 如果之前挂维护中, 尝试恢复服务, 并返回之前状态
 			* 如果返回挂维护中, 说明刚好恢复服务成功, 否则说明之前已在服务中 */
-			//if (ServiceStateE::kRepairing == __sync_val_compare_and_swap(&server_state_, ServiceStateE::kRepairing, ServiceStateE::kRunning)) {
+			//if (kRepairing == __sync_val_compare_and_swap(&server_state_, kRepairing, kRunning)) {
 			//
 			//在指定类型服务中，并且在维护节点中
 			//

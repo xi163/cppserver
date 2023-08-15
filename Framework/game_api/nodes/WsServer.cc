@@ -1,7 +1,4 @@
 #include "proto/Game.Common.pb.h"
-#include "proto/ProxyServer.Message.pb.h"
-#include "proto/HallServer.Message.pb.h"
-#include "proto/GameServer.Message.pb.h"
 
 #include "../Api.h"
 
@@ -12,7 +9,7 @@ bool ApiServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 void ApiServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
-		int32_t num = numConnected_.incrementAndGet();
+		int32_t num = numConnected_[KWebsocketTy].incrementAndGet();
 		_LOG_INFO("API服[%s] <- 客户端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
@@ -50,7 +47,7 @@ void ApiServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		conn->setTcpNoDelay(true);
 	}
 	else {
-		int32_t num = numConnected_.decrementAndGet();
+		int32_t num = numConnected_[KWebsocketTy].decrementAndGet();
 		_LOG_INFO("API服[%s] <- 客户端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),

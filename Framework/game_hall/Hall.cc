@@ -255,7 +255,6 @@ void HallServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME/HallServers"))
 		zkclient_->createNode("/GAME/HallServers", "HallServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
-		_LOG_INFO(nodePath_.c_str());
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
 	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&HallServ::registerZookeeper, this));

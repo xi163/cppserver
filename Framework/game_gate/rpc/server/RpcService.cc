@@ -6,11 +6,11 @@ extern GateServ* gServer;
 
 namespace rpc {
 	namespace server {
-		void GameGate::GetGameGate(
-			const ::ProxyServer::Message::GameGateReqPtr& req,
-			const ::ProxyServer::Message::GameGateRsp* responsePrototype,
+		void Service::GetNodeInfo(
+			const ::Game::Rpc::NodeInfoReqPtr& req,
+			const ::Game::Rpc::NodeInfoRsp* responsePrototype,
 			const muduo::net::RpcDoneCallback& done) {
-			::ProxyServer::Message::GameGateRsp rsp;
+			::Game::Rpc::NodeInfoRsp rsp;
 			rsp.set_numofloads(gServer->numConnected_[KWebsocketTy].get());
 			rsp.set_host(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
 			rsp.set_domain(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
@@ -18,10 +18,10 @@ namespace rpc {
 			done(&rsp);
 		}
 
-		void GameGate::NotifyUserScore(const ::ProxyServer::Message::UserScoreReqPtr& req,
-			const ::ProxyServer::Message::UserScoreRsp* responsePrototype,
+		void Service::NotifyUserScore(const ::Game::Rpc::UserScoreReqPtr& req,
+			const ::Game::Rpc::UserScoreRsp* responsePrototype,
 			const muduo::net::RpcDoneCallback& done) {
-			::ProxyServer::Message::UserScoreRsp rsp;
+			::Game::Rpc::UserScoreRsp rsp;
 			muduo::net::TcpConnectionPtr peer(gServer->sessions_.get(req->userid()).lock());
 			if (peer) {
 				BufferPtr buffer = GateServ::packOrderScoreMsg(req->userid(), req->score());

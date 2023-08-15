@@ -45,6 +45,7 @@
     <ClInclude Include="..\..\..\Framework\game_gate\rpc\client\RpcService_c.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\rpc\server\RpcService.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
+    <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h" />
     <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h" />
@@ -86,6 +87,7 @@
     <ClCompile Include="..\..\..\Framework\game_gate\rpc\client\RpcService_c.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\rpc\server\RpcService.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
+    <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc" />
     <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc" />

@@ -214,7 +214,6 @@ void GameServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME/GameServers"))
 		zkclient_->createNode("/GAME/GameServers", "GameServers"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
-		_LOG_INFO(nodePath_.c_str());
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
 	server_.getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
