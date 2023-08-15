@@ -630,8 +630,10 @@ void HallServ::cmd_on_user_login(
 							REDISCLIENT.SetTokenInfoIP(reqdata.session(), gateIp, session);
 #endif
 							REDISCLIENT.ResetExpiredUserToken(userId);
-							_LOG_DEBUG("%d LOGIN SERVER OK! ip: %s %s gateIp: %s session: %s",
+							_LOG_DEBUG("%d:%s:%s LOGIN SERVER OK! ip: %s %s gateIp: %s session: %s",
 								userId,
+								info.account.c_str(),
+								info.nickName.c_str(),
 								loginIp.c_str(),
 								location.c_str(),
 								gateIp.c_str(), session.c_str());
