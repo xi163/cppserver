@@ -123,7 +123,7 @@ namespace RedisLock {
 		if (c) {
 			if (!passwd.empty()) {
 				if (auth(c, passwd)) {
-					_LOG_WARN("%.*s:%d succ", strlen(ip), ip, port);
+					//_LOG_WARN("%.*s:%d succ", strlen(ip), ip, port);
 					m_redisServer.push_back(c);
 				}
 				else {

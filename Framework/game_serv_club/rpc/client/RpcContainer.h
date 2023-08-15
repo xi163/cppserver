@@ -6,11 +6,11 @@
 namespace rpc {
 
 	enum containTy {
-		kRpcGateTy = 0,//网关服
-		kRpcHallTy = 1,//大厅服
-		kRpcGameTy = 2,//游戏服
-		kRpcLoginTy,
-		kRpcApiTy,
+		kRpcGateTy  = 0,//网关服
+		kRpcHallTy  = 1,//大厅服
+		kRpcGameTy  = 2,//游戏服
+		kRpcLoginTy = 3,//登陆服
+		kRpcApiTy   = 4,//API服
 		kMaxRpcTy,
 	};
 
