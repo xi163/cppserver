@@ -39,9 +39,9 @@
     <ClInclude Include="..\..\..\Framework\game_gate\clients\Container.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
-    <ClInclude Include="..\..\..\Framework\game_router\handler\GateServList.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\handler\ServList.h" />
     <ClInclude Include="..\..\..\Framework\game_router\handler\router_handler.h" />
-    <ClInclude Include="..\..\..\Framework\game_router\Gate.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\Router.h" />
     <ClInclude Include="..\..\..\Framework\game_router\rpc\client\RpcClients.h" />
     <ClInclude Include="..\..\..\Framework\game_router\rpc\client\RpcContainer.h" />
     <ClInclude Include="..\..\..\Framework\game_router\rpc\client\RpcService_c.h" />
@@ -74,9 +74,9 @@
     <ClCompile Include="..\..\..\Framework\game_gate\clients\Clients.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\clients\Container.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
-    <ClCompile Include="..\..\..\Framework\game_router\handler\GateServList.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\handler\ServList.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\handler\router_handler.cc" />
-    <ClCompile Include="..\..\..\Framework\game_router\Gate.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\Router.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\main.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\nodes\HttpServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\nodes\WsServer.cc" />

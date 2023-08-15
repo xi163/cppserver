@@ -39,7 +39,7 @@
     <ClInclude Include="..\..\..\Framework\game_gate\clients\Container.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\Entities.h" />
     <ClInclude Include="..\..\..\Framework\game_gate\EntryPtr.h" />
-    <ClInclude Include="..\..\..\Framework\game_login\handler\GateServList.h" />
+    <ClInclude Include="..\..\..\Framework\game_login\handler\ServList.h" />
     <ClInclude Include="..\..\..\Framework\game_login\handler\Login_handler.h" />
     <ClInclude Include="..\..\..\Framework\game_login\handler\Register_handler.h" />
     <ClInclude Include="..\..\..\Framework\game_login\Login.h" />
@@ -75,7 +75,7 @@
     <ClCompile Include="..\..\..\Framework\game_gate\clients\Clients.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\clients\Container.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
-    <ClCompile Include="..\..\..\Framework\game_login\handler\GateServList.cc" />
+    <ClCompile Include="..\..\..\Framework\game_login\handler\ServList.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\handler\Login_handler.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\handler\Register_handler.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\Login.cc" />

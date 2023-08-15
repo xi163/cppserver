@@ -88,8 +88,8 @@ bool LoginServ::InitZookeeper(std::string const& ipaddr) {
 void LoginServ::onZookeeperConnected() {
 	if (ZNONODE == zkclient_->existsNode("/GAME"))
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
-	if (ZNONODE == zkclient_->existsNode("/GAME/LoginServers"))
-		zkclient_->createNode("/GAME/LoginServers", "LoginServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/game_login"))
+		zkclient_->createNode("/GAME/game_login", "game_login"/*, true*/);
 	//websocket
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
@@ -105,7 +105,7 @@ void LoginServ::onZookeeperConnected() {
 	zkclient_->createNode(nodePath_, nodeValue_, true);
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/ProxyServers",
+		"/GAME/game_gate",
 		names,
 		std::bind(
 			&LoginServ::onGateWatcher, this,
@@ -126,7 +126,7 @@ void LoginServ::onGateWatcher(int type, int state,
 	const std::string& path, void* context) {
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/ProxyServers",
+		"/GAME/game_gate",
 		names,
 		std::bind(
 			&LoginServ::onGateWatcher, this,
@@ -145,8 +145,8 @@ void LoginServ::onGateWatcher(int type, int state,
 void LoginServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME"))
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
-	if (ZNONODE == zkclient_->existsNode("/GAME/LoginServers"))
-		zkclient_->createNode("/GAME/LoginServers", "LoginServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/game_login"))
+		zkclient_->createNode("/GAME/game_login", "game_login"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}

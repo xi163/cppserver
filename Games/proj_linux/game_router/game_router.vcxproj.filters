@@ -51,7 +51,7 @@
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_router\Gate.h" />
+    <ClInclude Include="..\..\..\Framework\game_router\Router.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
@@ -118,7 +118,7 @@
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_router\handler\GateServList.h">
+    <ClInclude Include="..\..\..\Framework\game_router\handler\ServList.h">
       <Filter>handler</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_router\handler\router_handler.h">
@@ -149,7 +149,7 @@
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_router\Gate.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\Router.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\main.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
       <Filter>pb</Filter>
@@ -202,7 +202,7 @@
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_router\handler\GateServList.cc">
+    <ClCompile Include="..\..\..\Framework\game_router\handler\ServList.cc">
       <Filter>handler</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_router\handler\router_handler.cc">

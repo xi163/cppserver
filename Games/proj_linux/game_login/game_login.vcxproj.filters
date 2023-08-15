@@ -112,7 +112,7 @@
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
       <Filter>public\RedisLock</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_login\handler\GateServList.h">
+    <ClInclude Include="..\..\..\Framework\game_login\handler\ServList.h">
       <Filter>handler</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_login\handler\Login_handler.h">
@@ -199,7 +199,7 @@
     <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
       <Filter>public\RedisLock</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_login\handler\GateServList.cc">
+    <ClCompile Include="..\..\..\Framework\game_login\handler\ServList.cc">
       <Filter>handler</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_login\handler\Login_handler.cc">

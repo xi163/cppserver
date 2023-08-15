@@ -98,8 +98,8 @@ bool ApiServ::InitZookeeper(std::string const& ipaddr) {
 void ApiServ::onZookeeperConnected() {
 	if (ZNONODE == zkclient_->existsNode("/GAME"))
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
-	if (ZNONODE == zkclient_->existsNode("/GAME/ApiServers"))
-		zkclient_->createNode("/GAME/ApiServers", "ApiServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/game_api"))
+		zkclient_->createNode("/GAME/game_api", "game_api"/*, true*/);
 	//websocket
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
@@ -115,7 +115,7 @@ void ApiServ::onZookeeperConnected() {
 	zkclient_->createNode(nodePath_, nodeValue_, true);
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/ProxyServers",
+		"/GAME/game_gate",
 		names,
 		std::bind(
 			&ApiServ::onGateWatcher, this,
@@ -136,7 +136,7 @@ void ApiServ::onGateWatcher(int type, int state,
 	const std::string& path, void* context) {
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/ProxyServers",
+		"/GAME/game_gate",
 		names,
 		std::bind(
 			&ApiServ::onGateWatcher, this,
@@ -155,8 +155,8 @@ void ApiServ::onGateWatcher(int type, int state,
 void ApiServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME"))
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
-	if (ZNONODE == zkclient_->existsNode("/GAME/ApiServers"))
-		zkclient_->createNode("/GAME/ApiServers", "ApiServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/game_api"))
+		zkclient_->createNode("/GAME/game_api", "game_api"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}

@@ -35,7 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Framework\game_api\handler\GateServList.h" />
+    <ClInclude Include="..\..\..\Framework\game_api\handler\ServList.h" />
     <ClInclude Include="..\..\..\Framework\game_api\handler\order_handler.h" />
     <ClInclude Include="..\..\..\Framework\game_api\Api.h" />
     <ClInclude Include="..\..\..\Framework\game_api\rpc\client\RpcClients.h" />
@@ -72,7 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Framework\game_api\handler\addscore_handler.cc" />
-    <ClCompile Include="..\..\..\Framework\game_api\handler\GateServList.cc" />
+    <ClCompile Include="..\..\..\Framework\game_api\handler\ServList.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\handler\order_handler.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\handler\subscore_handler.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\Api.cc" />

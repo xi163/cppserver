@@ -146,16 +146,10 @@ bool HallServ::InitZookeeper(std::string const& ipaddr) {
 void HallServ::onZookeeperConnected() {
 	if (ZNONODE == zkclient_->existsNode("/GAME"))
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
-	if (ZNONODE == zkclient_->existsNode("/GAME/ProxyServers"))
-		zkclient_->createNode("/GAME/ProxyServers", "ProxyServers"/*, true*/);
-	if (ZNONODE == zkclient_->existsNode("/GAME/HallServers"))
-		zkclient_->createNode("/GAME/HallServers", "HallServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/game_hall"))
+		zkclient_->createNode("/GAME/game_hall", "game_hall"/*, true*/);
 	//if (ZNONODE == zkclient_->existsNode("/GAME/HallServersInvalid"))
 	//	zkclient_->createNode("/GAME/HallServersInvalid", "HallServersInvalid", true);
-	if (ZNONODE == zkclient_->existsNode("/GAME/GameServers"))
-		zkclient_->createNode("/GAME/GameServers", "GameServers"/*, true*/);
-	//if (ZNONODE == zkclient_->existsNode("/GAME/GameServersInvalid"))
-	//	zkclient_->createNode("/GAME/GameServersInvalid", "GameServersInvalid", true);
 	{
 		//tcp
 		std::vector<std::string> vec;
@@ -174,7 +168,7 @@ void HallServ::onZookeeperConnected() {
 	{
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
-			"/GAME/ProxyServers",
+			"/GAME/game_gate",
 			names,
 			std::bind(
 				&HallServ::onGateWatcher, this,
@@ -191,7 +185,7 @@ void HallServ::onZookeeperConnected() {
 	{
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
-			"/GAME/GameServers",
+			"/GAME/game_serv",
 			names,
 			std::bind(
 				&HallServ::onGameWatcher, this,
@@ -213,7 +207,7 @@ void HallServ::onGateWatcher(int type, int state,
 	const std::string& path, void* context) {
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/ProxyServers",
+		"/GAME/game_gate",
 		names,
 		std::bind(
 			&HallServ::onGateWatcher, this,
@@ -233,7 +227,7 @@ void HallServ::onGameWatcher(int type, int state,
 	const std::string& path, void* context) {
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/GameServers",
+		"/GAME/game_serv",
 		names,
 		std::bind(
 			&HallServ::onGameWatcher, this,
@@ -252,8 +246,8 @@ void HallServ::onGameWatcher(int type, int state,
 void HallServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode("/GAME"))
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
-	if (ZNONODE == zkclient_->existsNode("/GAME/HallServers"))
-		zkclient_->createNode("/GAME/HallServers", "HallServers"/*, true*/);
+	if (ZNONODE == zkclient_->existsNode("/GAME/game_hall"))
+		zkclient_->createNode("/GAME/game_hall", "game_hall"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}

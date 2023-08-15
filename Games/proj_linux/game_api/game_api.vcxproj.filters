@@ -94,7 +94,7 @@
     <ClInclude Include="..\..\..\public\mgoKeys.h">
       <Filter>public\Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Framework\game_api\handler\GateServList.h">
+    <ClInclude Include="..\..\..\Framework\game_api\handler\ServList.h">
       <Filter>handler</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_api\handler\order_handler.h">
@@ -187,7 +187,7 @@
     <ClCompile Include="..\..\..\public\mgoKeys.cc">
       <Filter>public\Database</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Framework\game_api\handler\GateServList.cc">
+    <ClCompile Include="..\..\..\Framework\game_api\handler\ServList.cc">
       <Filter>handler</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_api\handler\order_handler.cc">

@@ -100,7 +100,7 @@ void RouterServ::onZookeeperConnected() {
 	{
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
-			"/GAME/LoginServers",
+			"/GAME/game_login",
 			names,
 			std::bind(
 				&RouterServ::onLoginWatcher, this,
@@ -118,7 +118,7 @@ void RouterServ::onZookeeperConnected() {
 	{
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
-			"/GAME/ApiServers",
+			"/GAME/game_api",
 			names,
 			std::bind(
 				&RouterServ::onApiWatcher, this,
@@ -136,7 +136,7 @@ void RouterServ::onZookeeperConnected() {
 	{
 		std::vector<std::string> names;
 		if (ZOK == zkclient_->getClildren(
-			"/GAME/ProxyServers",
+			"/GAME/game_gate",
 			names,
 			std::bind(
 				&RouterServ::onGateWatcher, this,
@@ -159,7 +159,7 @@ void RouterServ::onLoginWatcher(
 	const std::string& path, void* context) {
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/LoginServers",
+		"/GAME/game_login",
 		names,
 		std::bind(
 			&RouterServ::onLoginWatcher, this,
@@ -181,7 +181,7 @@ void RouterServ::onApiWatcher(
 	const std::string& path, void* context) {
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/ApiServers",
+		"/GAME/game_api",
 		names,
 		std::bind(
 			&RouterServ::onApiWatcher, this,
@@ -202,7 +202,7 @@ void RouterServ::onGateWatcher(int type, int state,
 	const std::string& path, void* context) {
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
-		"/GAME/ProxyServers",
+		"/GAME/game_gate",
 		names,
 		std::bind(
 			&RouterServ::onGateWatcher, this,
