@@ -28,6 +28,8 @@ enum EnterRoomErrCode {
 #define ERRORCODE_MAP(XX, YY) \
 	YY(CreateGameUser, 10001, "创建游戏账号失败") \
 	XX(GameGateNotExist, "没有可用的游戏网关") \
+	XX(GameLoginNotExist, "没有可用的登陆节点") \
+	XX(GameApiNotExist, "没有可用的API节点") \
 	XX(Decrypt, "请求token参数解密失败") \
 	XX(CheckMd5, "请求token参数MD5校验失败") \
 	\
