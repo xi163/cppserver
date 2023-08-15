@@ -1,6 +1,6 @@
-#include "Gate.h"
+#include "Router.h"
 
-GateServ* gServer = NULL;
+RouterServ* gServer = NULL;
 static void StopService(int signo) {
 	if (gServer) {
 		gServer->Quit();
@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 		_LOG_ERROR("./conf/game.conf not exists");
 		return -1;
 	}
-	std::string config = "game_gate_http";
+	std::string config = "game_router";
 	if (argc == 2) {
 		int id = stoi(argv[1]);
 		config += "_" + std::to_string(id);
@@ -24,8 +24,8 @@ int main(int argc, char* argv[]) {
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
 	//日志目录/文件 logdir/logname
-	std::string logdir = pt.get<std::string>(config + ".logdir", "./log/game_gate_http/");
-	std::string logname = pt.get<std::string>(config + ".logname", "game_gate_http");
+	std::string logdir = pt.get<std::string>(config + ".logdir", "./log/game_router/");
+	std::string logname = pt.get<std::string>(config + ".logname", "game_router");
 	int loglevel = pt.get<int>(config + ".loglevel", 1);
 	if (!boost::filesystem::exists(logdir)) {
 		boost::filesystem::create_directories(logdir);
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
 	muduo::net::EventLoop loop;
 	muduo::net::InetAddress listenAddr(ip, port);//websocket
 	muduo::net::InetAddress listenAddrHttp(ip, httpPort);//http
-	GateServ server(&loop, listenAddr, listenAddrHttp, cert_path, private_key);
+	RouterServ server(&loop, listenAddr, listenAddrHttp, cert_path, private_key);
 	server.maxConnections_ = kMaxConnections;
 	server.idleTimeout_ = kTimeoutSeconds;
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);

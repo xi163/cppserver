@@ -1,11 +1,11 @@
-#ifndef INCLUDE_GATESERVLIST_H
-#define INCLUDE_GATESERVLIST_H
+#ifndef INCLUDE_SERVLIST_H
+#define INCLUDE_SERVLIST_H
 
 #include "Logger/src/Macro.h"
 
-struct GateServItem :
+struct ServItem :
 	public BOOST::Any {
-	GateServItem(
+	ServItem(
 		std::string const& Host,
 		std::string const& Domain,
 		int NumOfLoads)
@@ -25,8 +25,8 @@ struct GateServItem :
 	std::string Domain;
 };
 
-struct GateServList :
-	public std::vector<GateServItem>,
+struct ServList :
+	public std::vector<ServItem>,
 	public BOOST::Any {
 	void bind(BOOST::Json& obj) {
 		for (iterator it = begin();
@@ -36,7 +36,7 @@ struct GateServList :
 	}
 };
 
-void GetGateServList(GateServList& servList);
+void GetGateServList(ServList& servList);
 
 void BroadcastGateUserScore(int64_t userId, int64_t score);
 

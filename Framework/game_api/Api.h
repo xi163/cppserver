@@ -1,5 +1,5 @@
-#ifndef INCLUDE_GAME_LOGIN_H
-#define INCLUDE_GAME_LOGIN_H
+#ifndef INCLUDE_GAME_API_H
+#define INCLUDE_GAME_API_H
 
 #include "public/Inc.h"
 #include "public/gameConst.h"

@@ -5,7 +5,7 @@
 #include "public/mgoKeys.h"
 #include "public/mgoModel.h"
 #include "public/redisKeys.h"
-#include "GateServList.h"
+#include "ServList.h"
 #include "public/errorCode.h"
 #include "../Api.h"
 

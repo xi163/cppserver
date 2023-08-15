@@ -1,9 +1,9 @@
-#include "../Gate.h"
+#include "../Router.h"
 #include "public/response.h"
 #include "public/mgoOperation.h"
 #include "handler/router_handler.h"
 
-bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
+bool RouterServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
 	httpserver_.getLoop()->assertInLoopThread();
@@ -28,7 +28,7 @@ bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	return true;
 }
 
-void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
+void RouterServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_[KHttpTy].incrementAndGet();
@@ -75,7 +75,7 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 }
 
-void GateServ::onHttpMessage(
+void RouterServ::onHttpMessage(
 	const muduo::net::TcpConnectionPtr& conn,
 	muduo::net::Buffer* buf, muduo::Timestamp receiveTime) {
 	conn->getLoop()->assertInLoopThread();
@@ -176,7 +176,7 @@ void GateServ::onHttpMessage(
 			}
 			entryContext.getWorker()->run(
 				std::bind(
-					&GateServ::asyncHttpHandler,
+					&RouterServ::asyncHttpHandler,
 					this, conn, buffer, receiveTime));
 		}
 		else {
@@ -205,7 +205,7 @@ void GateServ::onHttpMessage(
 	numTotalBadReq_.incrementAndGet();
 }
 
-void GateServ::asyncHttpHandler(
+void RouterServ::asyncHttpHandler(
 	const muduo::net::WeakTcpConnectionPtr& weakConn,
 	BufferPtr const& buf, muduo::Timestamp receiveTime) {
 	//刚开始还在想，会不会出现超时conn被异步关闭释放掉，而业务逻辑又被处理了，却发送不了的尴尬情况，
@@ -278,7 +278,7 @@ void GateServ::asyncHttpHandler(
 	}
 }
 
-void GateServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
+void RouterServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 #if 0
 	//不再发送数据
@@ -290,7 +290,7 @@ void GateServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
 #endif
 }
 
-void GateServ::processHttpRequest(
+void RouterServ::processHttpRequest(
 	const muduo::net::HttpRequest& req, muduo::net::HttpResponse& rsp,
 	const muduo::net::TcpConnectionPtr& conn,
 	BufferPtr const& buf,
@@ -496,7 +496,7 @@ void GateServ::processHttpRequest(
 	}
 }
 
-// std::string GateServ::onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& errcode, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS) {
+// std::string RouterServ::onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& errcode, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS) {
 // 	bool isdecrypt_ = false;
 // 	int opType = 0;
 // 	int agentId = 0;
@@ -816,15 +816,15 @@ void GateServ::processHttpRequest(
 // 	return json;
 // }
 
-// int GateServ::execute(int opType, std::string const& account, double score, std::string const& orderId, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS) {
+// int RouterServ::execute(int opType, std::string const& account, double score, std::string const& orderId, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS) {
 // 	int errcode = ErrorCode::kOk;
 // 	return errcode;
 // }
 
-void GateServ::refreshWhiteList() {
+void RouterServ::refreshWhiteList() {
 	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		RunInLoop(httpserver_.getLoop(), std::bind(&GateServ::refreshWhiteListInLoop, this));
+		RunInLoop(httpserver_.getLoop(), std::bind(&RouterServ::refreshWhiteListInLoop, this));
 	}
 	else if (whiteListControl_ == eApiCtrl::kOpen) {
 		//同步刷新IP访问白名单
@@ -832,7 +832,7 @@ void GateServ::refreshWhiteList() {
 	}
 }
 
-bool GateServ::refreshWhiteListSync() {
+bool RouterServ::refreshWhiteListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(whiteListControl_ == eApiCtrl::kOpen);
 	{
@@ -852,7 +852,7 @@ bool GateServ::refreshWhiteListSync() {
 	return false;
 }
 
-bool GateServ::refreshWhiteListInLoop() {
+bool RouterServ::refreshWhiteListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
 	httpserver_.getLoop()->assertInLoopThread();
@@ -870,7 +870,7 @@ bool GateServ::refreshWhiteListInLoop() {
 }
 
 //请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
-bool GateServ::repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
+bool RouterServ::repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
 	_LOG_WARN("name[%s] status[%d]", name.c_str(), status);
 	static std::string path[kMaxContainTy] = {
 		"/GAME/HallServers/",
@@ -956,7 +956,7 @@ bool GateServ::repairServer(containTy servTy, std::string const& servname, std::
 	return false;
 }
 
-bool GateServ::repairServer(std::string const& queryStr, std::string& rspdata) {
+bool RouterServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 	std::string errmsg;
 	containTy servTy;
 	std::string name;
@@ -1012,7 +1012,7 @@ bool GateServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 	return false;
 }
 
-void GateServ::repairServerNotify(std::string const& msg, std::string& rspdata) {
+void RouterServ::repairServerNotify(std::string const& msg, std::string& rspdata) {
 	std::string errmsg;
 	containTy servTy;
 	std::string name;

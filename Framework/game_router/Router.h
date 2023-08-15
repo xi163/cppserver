@@ -1,5 +1,5 @@
-#ifndef INCLUDE_GAME_LOGIN_H
-#define INCLUDE_GAME_LOGIN_H
+#ifndef INCLUDE_GAME_ROUTER_H
+#define INCLUDE_GAME_ROUTER_H
 
 #include "public/Inc.h"
 #include "public/gameConst.h"
@@ -163,18 +163,18 @@ static std::string createResponse2(
 	return json;
 }
 
-class GateServ : public boost::noncopyable {
+class RouterServ : public boost::noncopyable {
 public:
 	typedef std::function<
 		void(const muduo::net::TcpConnectionPtr&, BufferPtr const&)> CmdCallback;
 	typedef std::map<uint32_t, CmdCallback> CmdCallbacks;
-	GateServ(muduo::net::EventLoop* loop,
+	RouterServ(muduo::net::EventLoop* loop,
 		const muduo::net::InetAddress& listenAddr,
 		const muduo::net::InetAddress& listenAddrHttp,
 		std::string const& cert_path, std::string const& private_key_path,
 		std::string const& client_ca_cert_file_path = "",
 		std::string const& client_ca_cert_dir_path = "");
-	~GateServ();
+	~RouterServ();
 	void Quit();
 	void registerHandlers();
 	bool InitZookeeper(std::string const& ipaddr);

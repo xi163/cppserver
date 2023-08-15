@@ -1,5 +1,5 @@
-#ifndef INCLUDE_GAME_SERV_H
-#define INCLUDE_GAME_SERV_H
+#ifndef INCLUDE_GAME_SERV_CLUB_H
+#define INCLUDE_GAME_SERV_CLUB_H
 
 #include "public/Inc.h"
 #include "public/gameConst.h"

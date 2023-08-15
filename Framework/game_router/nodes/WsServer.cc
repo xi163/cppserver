@@ -1,12 +1,12 @@
 #include "proto/Game.Common.pb.h"
 
-#include "../Gate.h"
+#include "../Router.h"
 
-bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr) {
+bool RouterServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 	return true;
 }
 
-void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
+void RouterServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_[KWebsocketTy].incrementAndGet();
@@ -34,9 +34,9 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		//websocket::Context::ctor
 		//////////////////////////////////////////////////////////////////////////
 		muduo::net::websocket::hook(
-			std::bind(&GateServ::onConnected, this,
+			std::bind(&RouterServ::onConnected, this,
 				std::placeholders::_1, std::placeholders::_2),
-			std::bind(&GateServ::onMessage, this,
+			std::bind(&RouterServ::onMessage, this,
 				std::placeholders::_1, std::placeholders::_2,
 				std::placeholders::_3, std::placeholders::_4),
 			conn, path_handshake_);
@@ -61,13 +61,13 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		if (entryContext.getWorker()) {
 			entryContext.getWorker()->run(
 				std::bind(
-					&GateServ::asyncOfflineHandler,
+					&RouterServ::asyncOfflineHandler,
 					this, entryContext));
 		}
 	}
 }
 
-void GateServ::onConnected(
+void RouterServ::onConnected(
 	const muduo::net::TcpConnectionPtr& conn,
 	std::string const& ipaddr) {
 
@@ -95,7 +95,7 @@ void GateServ::onConnected(
 	}
 }
 
-void GateServ::onMessage(
+void RouterServ::onMessage(
 	const muduo::net::TcpConnectionPtr& conn,
 	muduo::net::Buffer* buf, int msgType,
 	muduo::Timestamp receiveTime) {
@@ -134,7 +134,7 @@ void GateServ::onMessage(
 #endif
 			entryContext.getWorker()->run(
 				std::bind(
-					&GateServ::asyncClientHandler,
+					&RouterServ::asyncClientHandler,
 					this, conn, buffer, receiveTime));
 		}
 		else {
@@ -156,7 +156,7 @@ void GateServ::onMessage(
 	}
 }
 
-void GateServ::asyncClientHandler(
+void RouterServ::asyncClientHandler(
 	const muduo::net::WeakTcpConnectionPtr& weakConn,
 	BufferPtr const& buf,
 	muduo::Timestamp receiveTime) {
@@ -282,7 +282,7 @@ void GateServ::asyncClientHandler(
 		}
 }
 
-void GateServ::asyncOfflineHandler(Context& entryContext) {
+void RouterServ::asyncOfflineHandler(Context& entryContext) {
 	std::string const& session = entryContext.getSession();
 	if (!session.empty()) {
 		entities_.remove(session);
@@ -293,10 +293,10 @@ void GateServ::asyncOfflineHandler(Context& entryContext) {
 	}
 }
 
-void GateServ::refreshBlackList() {
+void RouterServ::refreshBlackList() {
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {
 		//Accept时候判断，socket底层控制，否则开启异步检查
-		RunInLoop(server_.getLoop(), std::bind(&GateServ::refreshBlackListInLoop, this));
+		RunInLoop(server_.getLoop(), std::bind(&RouterServ::refreshBlackListInLoop, this));
 	}
 	else if (blackListControl_ == eApiCtrl::kOpen) {
 		//同步刷新IP访问黑名单
@@ -304,7 +304,7 @@ void GateServ::refreshBlackList() {
 	}
 }
 
-bool GateServ::refreshBlackListSync() {
+bool RouterServ::refreshBlackListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(blackListControl_ == eApiCtrl::kOpen);
 	{
@@ -320,7 +320,7 @@ bool GateServ::refreshBlackListSync() {
 	return false;
 }
 
-bool GateServ::refreshBlackListInLoop() {
+bool RouterServ::refreshBlackListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(blackListControl_ == eApiCtrl::kOpenAccept);
 	server_.getLoop()->assertInLoopThread();
@@ -334,7 +334,7 @@ bool GateServ::refreshBlackListInLoop() {
 	return false;
 }
 
-// void GateServ::cmd_getAesKey(
+// void RouterServ::cmd_getAesKey(
 // 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
 // 	packet::header_t const* header_ = (packet::header_t const*)buf->peek();
 // }

@@ -4,7 +4,7 @@
 #include "public/mgoOperation.h"
 #include "public/mgoModel.h"
 #include "public/redisKeys.h"
-#include "GateServList.h"
+#include "ServList.h"
 #include "public/errorCode.h"
 
 std::string md5code = "334270F58E3E9DEC";
@@ -27,7 +27,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 	case 0: {
 		if (req.Account.empty()) {
 			//查询网关节点
-			GateServList servList;
+			ServList servList;
 			GetGateServList(servList);
 			if (servList.size() == 0) {
 				return response::json::Result(ERR_GameGateNotExist, rsp);
@@ -100,7 +100,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				document{} << "account" << req.Account << finalize);
 			if (userId <= 0) {
 				//查询网关节点
-				GateServList servList;
+				ServList servList;
 				GetGateServList(servList);
 				if (servList.size() == 0) {
 					return response::json::Result(ERR_GameGateNotExist, rsp);
@@ -166,7 +166,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			//查询mongo命中
 			else {
 				//查询网关节点
-				GateServList servList;
+				ServList servList;
 				GetGateServList(servList);
 				if (servList.size() == 0) {
 					return response::json::Result(ERR_GameGateNotExist, rsp);
@@ -190,7 +190,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 		//查询redis命中
 		else {
 			//查询网关节点
-			GateServList servList;
+			ServList servList;
 			GetGateServList(servList);
 			if (servList.size() == 0) {
 				return response::json::Result(ERR_GameGateNotExist, rsp);

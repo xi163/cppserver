@@ -1,14 +1,14 @@
-#include "GateServList.h"
+#include "ServList.h"
 
 #include "../rpc/client/RpcClients.h"
 #include "../rpc/client/RpcContainer.h"
 #include "../rpc/client/RpcService_c.h"
 
-#include "../Login.h"
+#include "../Api.h"
 
-extern LoginServ* gServer;
+extern ApiServ* gServer;
 
-void GetGateServList(GateServList& servList) {
+void GetGateServList(ServList& servList) {
 	rpc::ClientConnList clients;
 	gServer->rpcClients_[rpc::containTy::kRpcGateTy].clients_->getAll(clients);
 	for (rpc::ClientConnList::iterator it = clients.begin();
@@ -17,7 +17,7 @@ void GetGateServList(GateServList& servList) {
 		::Game::Rpc::NodeInfoReq req;
 		::Game::Rpc::NodeInfoRspPtr rsp = client.GetNodeInfo(req);
 		if (rsp) {
-			servList.emplace_back(GateServItem(rsp->host(), rsp->domain(), rsp->numofloads()));
+			servList.emplace_back(ServItem(rsp->host(), rsp->domain(), rsp->numofloads()));
 		}
 	}
 }

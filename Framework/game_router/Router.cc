@@ -1,7 +1,7 @@
 
-#include "Gate.h"
+#include "Router.h"
 
-GateServ::GateServ(muduo::net::EventLoop* loop,
+RouterServ::RouterServ(muduo::net::EventLoop* loop,
 	const muduo::net::InetAddress& listenAddr,
 	const muduo::net::InetAddress& listenAddrHttp,
 	std::string const& cert_path, std::string const& private_key_path,
@@ -18,17 +18,17 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
 	server_.setConnectionCallback(
-		std::bind(&GateServ::onConnection, this, std::placeholders::_1));
+		std::bind(&RouterServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
 		std::bind(&muduo::net::websocket::onMessage,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	httpserver_.setConnectionCallback(
-		std::bind(&GateServ::onHttpConnection, this, std::placeholders::_1));
+		std::bind(&RouterServ::onHttpConnection, this, std::placeholders::_1));
 	httpserver_.setMessageCallback(
-		std::bind(&GateServ::onHttpMessage, this,
+		std::bind(&RouterServ::onHttpMessage, this,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	httpserver_.setWriteCompleteCallback(
-		std::bind(&GateServ::onHttpWriteComplete, this, std::placeholders::_1));
+		std::bind(&RouterServ::onHttpWriteComplete, this, std::placeholders::_1));
 	rpcClients_[rpc::containTy::kRpcLoginTy].clients_ = &loginRpcClients_;
 	rpcClients_[rpc::containTy::kRpcLoginTy].ty_ = rpc::containTy::kRpcLoginTy;
 	rpcClients_[rpc::containTy::kRpcApiTy].clients_ = &apiRpcClients_;
@@ -46,11 +46,11 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	threadTimer_->startLoop();
 }
 
-GateServ::~GateServ() {
+RouterServ::~RouterServ() {
 	Quit();
 }
 
-void GateServ::Quit() {
+void RouterServ::Quit() {
 	threadTimer_->getLoop()->quit();
 	gateRpcClients_.closeAll();
 	for (size_t i = 0; i < threadPool_.size(); ++i) {
@@ -67,28 +67,28 @@ void GateServ::Quit() {
 	google::protobuf::ShutdownProtobufLibrary();
 }
 
-void GateServ::registerHandlers() {
+void RouterServ::registerHandlers() {
 // 	handlers_[packet::enword(
 // 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL,
 // 		::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ)]
-// 		= std::bind(&GateServ::cmd_on_user_login, this,
+// 		= std::bind(&RouterServ::cmd_on_user_login, this,
 // 			std::placeholders::_1, std::placeholders::_2);
 }
 
-bool GateServ::InitZookeeper(std::string const& ipaddr) {
+bool RouterServ::InitZookeeper(std::string const& ipaddr) {
 	zkclient_.reset(new ZookeeperClient(ipaddr));
 	zkclient_->SetConnectedWatcherHandler(
-		std::bind(&GateServ::onZookeeperConnected, this));
+		std::bind(&RouterServ::onZookeeperConnected, this));
 	if (!zkclient_->connectServer()) {
 		_LOG_FATAL("error");
 		abort();
 		return false;
 	}
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
+	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&RouterServ::registerZookeeper, this));
 	return true;
 }
 
-void GateServ::onZookeeperConnected() {
+void RouterServ::onZookeeperConnected() {
 	//websocket
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
@@ -103,7 +103,7 @@ void GateServ::onZookeeperConnected() {
 			"/GAME/LoginServers",
 			names,
 			std::bind(
-				&GateServ::onLoginWatcher, this,
+				&RouterServ::onLoginWatcher, this,
 				placeholders::_1, std::placeholders::_2,
 				placeholders::_3, std::placeholders::_4,
 				placeholders::_5), this)) {
@@ -121,7 +121,7 @@ void GateServ::onZookeeperConnected() {
 			"/GAME/ApiServers",
 			names,
 			std::bind(
-				&GateServ::onApiWatcher, this,
+				&RouterServ::onApiWatcher, this,
 				placeholders::_1, std::placeholders::_2,
 				placeholders::_3, std::placeholders::_4,
 				placeholders::_5), this)) {
@@ -139,7 +139,7 @@ void GateServ::onZookeeperConnected() {
 			"/GAME/ProxyServers",
 			names,
 			std::bind(
-				&GateServ::onGateWatcher, this,
+				&RouterServ::onGateWatcher, this,
 				placeholders::_1, std::placeholders::_2,
 				placeholders::_3, std::placeholders::_4,
 				placeholders::_5), this)) {
@@ -153,7 +153,7 @@ void GateServ::onZookeeperConnected() {
 	}
 }
 
-void GateServ::onLoginWatcher(
+void RouterServ::onLoginWatcher(
 	int type, int state,
 	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
@@ -162,7 +162,7 @@ void GateServ::onLoginWatcher(
 		"/GAME/LoginServers",
 		names,
 		std::bind(
-			&GateServ::onLoginWatcher, this,
+			&RouterServ::onLoginWatcher, this,
 			placeholders::_1, std::placeholders::_2,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
@@ -175,7 +175,7 @@ void GateServ::onLoginWatcher(
 	}
 }
 
-void GateServ::onApiWatcher(
+void RouterServ::onApiWatcher(
 	int type, int state,
 	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
@@ -184,7 +184,7 @@ void GateServ::onApiWatcher(
 		"/GAME/ApiServers",
 		names,
 		std::bind(
-			&GateServ::onApiWatcher, this,
+			&RouterServ::onApiWatcher, this,
 			placeholders::_1, std::placeholders::_2,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
@@ -197,7 +197,7 @@ void GateServ::onApiWatcher(
 	}
 }
 
-void GateServ::onGateWatcher(int type, int state,
+void RouterServ::onGateWatcher(int type, int state,
 	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
 	std::vector<std::string> names;
@@ -205,7 +205,7 @@ void GateServ::onGateWatcher(int type, int state,
 		"/GAME/ProxyServers",
 		names,
 		std::bind(
-			&GateServ::onGateWatcher, this,
+			&RouterServ::onGateWatcher, this,
 			placeholders::_1, std::placeholders::_2,
 			placeholders::_3, std::placeholders::_4,
 			placeholders::_5), this)) {
@@ -218,11 +218,11 @@ void GateServ::onGateWatcher(int type, int state,
 	}
 }
 
-void GateServ::registerZookeeper() {
+void RouterServ::registerZookeeper() {
 
 }
 
-bool GateServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
+bool RouterServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
 	if (!redisClient_->initRedisCluster(ipaddr, passwd)) {
 		_LOG_FATAL("error");
@@ -234,7 +234,7 @@ bool GateServ::InitRedisCluster(std::string const& ipaddr, std::string const& pa
 	return true;
 }
 
-bool GateServ::InitMongoDB(std::string const& url) {
+bool RouterServ::InitMongoDB(std::string const& url) {
 	//http://mongocxx.org/mongocxx-v3/tutorial/
 	_LOG_INFO("%s", url.c_str());
 	mongocxx::instance instance{};
@@ -247,7 +247,7 @@ bool GateServ::InitMongoDB(std::string const& url) {
 
 static __thread mongocxx::database* dbgamemain_;
 
-void GateServ::threadInit() {
+void RouterServ::threadInit() {
 	if (!REDISCLIENT.initRedisCluster(redisIpaddr_, redisPasswd_)) {
 		_LOG_FATAL("initRedisCluster error");
 	}
@@ -265,7 +265,7 @@ void GateServ::threadInit() {
 	//_LOG_WARN("redisLock%s", s.c_str());
 }
 
-bool GateServ::InitServer() {
+bool RouterServ::InitServer() {
 	switch (tracemsg_) {
 	case true:
 		initTraceMessageID();
@@ -274,13 +274,13 @@ bool GateServ::InitServer() {
 	return true;
 }
 
-void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
+void RouterServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
 
 	for (int i = 0; i < numWorkerThreads; ++i) {
 		std::shared_ptr<muduo::ThreadPool> threadPool = std::make_shared<muduo::ThreadPool>("ThreadPool:" + std::to_string(i));
-		threadPool->setThreadInitCallback(std::bind(&GateServ::threadInit, this));
+		threadPool->setThreadInitCallback(std::bind(&RouterServ::threadInit, this));
 		threadPool->setMaxQueueSize(maxSize);
 		threadPool->start(1);
 		threadPool_.push_back(threadPool);
@@ -289,16 +289,16 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
 
-	_LOG_WARN("GateServ = %s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), numThreads, numWorkerThreads);
+	_LOG_WARN("RouterServ = %s http:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), numThreads, numWorkerThreads);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {
-		server_.setConditionCallback(std::bind(&GateServ::onCondition, this, std::placeholders::_1));
+		server_.setConditionCallback(std::bind(&RouterServ::onCondition, this, std::placeholders::_1));
 	}
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
-		httpserver_.setConditionCallback(std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1));
+		httpserver_.setConditionCallback(std::bind(&RouterServ::onHttpCondition, this, std::placeholders::_1));
 	}
 
 	server_.start(true);
@@ -316,7 +316,7 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	}
 }
 
-void GateServ::cmd_on_user_login(
+void RouterServ::cmd_on_user_login(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
 
 }

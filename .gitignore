@@ -1082,3 +1082,9 @@
 /Games/proj_linux/game_gate_http/obj/x64/Debug/game_login.tlog/*.tlog
 /Games/proj_linux/game_gate_http/obj/x64/Debug/game_login.tlog/*.lastbuildstate
 /Games/proj_linux/game_gate_http/obj/x64/Debug/*.json
+*.ipch
+*.tlog
+*.xml
+*.log
+*.lastbuildstate
+*.json
