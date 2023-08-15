@@ -13,7 +13,7 @@ namespace rpc {
 			::Game::Rpc::NodeInfoRsp rsp;
 			rsp.set_numofloads(gServer->numConnected_[KWebsocketTy].get() + gServer->numConnected_[KHttpTy].get());
 			//rsp.set_nodevalue(gServer->nodeValue_);
-			switch (req.flags()) {
+			switch (req->flags()) {
 			case 0:
 				rsp.set_host(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
 				rsp.set_domain(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
