@@ -874,12 +874,12 @@ bool LoginServ::refreshWhiteListInLoop() {
 bool LoginServ::repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
 	_LOG_WARN("name[%s] status[%d]", name.c_str(), status);
 	static std::string path[kMaxContainTy] = {
-		"/GAME/HallServers/",
-		"/GAME/GameServers/",
+		"/GAME/game_hall/",
+		"/GAME/game_serv/",
 	};
 	static std::string pathrepair[kMaxContainTy] = {
-		"/GAME/HallServersInvalid/",
-		"/GAME/GameServersInvalid/",
+		"/GAME/game_hallInvalid/",
+		"/GAME/game_servInvalid/",
 	};
 	do {
 		//请求挂维护

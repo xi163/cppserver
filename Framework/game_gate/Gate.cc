@@ -141,9 +141,9 @@ void GateServ::onZookeeperConnected() {
 		//http
 		boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
 		nodeValue_ += ":" + vec[1];
-		nodePath_ = "/GAME/ProxyServers/" + nodeValue_;
+		nodePath_ = "/GAME/game_gate/" + nodeValue_;
 		zkclient_->createNode(nodePath_, nodeValue_, true);
-		invalidNodePath_ = "/GAME/ProxyServersInvalid/" + nodeValue_;
+		invalidNodePath_ = "/GAME/game_gateInvalid/" + nodeValue_;
 	}
 	{
 		std::vector<std::string> names;

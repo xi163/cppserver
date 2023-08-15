@@ -107,8 +107,8 @@ void GameServ::onZookeeperConnected() {
 		zkclient_->createNode("/GAME", "GAME"/*, true*/);
 	if (ZNONODE == zkclient_->existsNode("/GAME/game_serv"))
 		zkclient_->createNode("/GAME/game_serv", "game_serv"/*, true*/);
-	//if (ZNONODE == zkclient_->existsNode("/GAME/GameServersInvalid"))
-	//	zkclient_->createNode("/GAME/GameServersInvalid", "GameServersInvalid", true);
+	//if (ZNONODE == zkclient_->existsNode("/GAME/game_servInvalid"))
+	//	zkclient_->createNode("/GAME/game_servInvalid", "game_servInvalid", true);
 	{
 		nodeValue_ = std::to_string(roomId_) + ":" + std::to_string(kClub);
 		//tcp
@@ -121,9 +121,9 @@ void GameServ::onZookeeperConnected() {
 		//http
 		//boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
 		//nodeValue_ += ":" + vec[1];
-		nodePath_ = "/GAME/GameServers/" + nodeValue_;
+		nodePath_ = "/GAME/game_serv/" + nodeValue_;
 		zkclient_->createNode(nodePath_, nodeValue_, true);
-		invalidNodePath_ = "/GAME/GameServersInvalid/" + nodeValue_;
+		invalidNodePath_ = "/GAME/game_servInvalid/" + nodeValue_;
 	}
 	{
 		std::vector<std::string> names;

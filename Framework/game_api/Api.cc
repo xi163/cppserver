@@ -111,7 +111,7 @@ void ApiServ::onZookeeperConnected() {
 	//http
 	boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
 	nodeValue_ += ":" + vec[1];
-	nodePath_ = "/GAME/ApiServers/" + nodeValue_;
+	nodePath_ = "/GAME/game_api/" + nodeValue_;
 	zkclient_->createNode(nodePath_, nodeValue_, true);
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
