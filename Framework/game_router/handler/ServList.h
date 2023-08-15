@@ -1,7 +1,7 @@
 #ifndef INCLUDE_SERVLIST_H
 #define INCLUDE_SERVLIST_H
 
-#include "Logger/src/Macro.h"
+#include "../rpc/client/RpcContainer.h"
 
 struct ServItem :
 	public BOOST::Any {
@@ -26,8 +26,9 @@ struct ServItem :
 };
 
 struct ServList :
-	public std::vector<ServItem>,
-	public BOOST::Any {
+	public BOOST::Any,
+	public std::vector<ServItem> {
+
 	void bind(BOOST::Json& obj) {
 		for (iterator it = begin();
 			it != end(); ++it) {
@@ -36,7 +37,7 @@ struct ServList :
 	}
 };
 
-void GetGateServList(ServList& servList);
+void GetServList(ServList& servList, rpc::containTy type, int flags = 0);
 
 void BroadcastGateUserScore(int64_t userId, int64_t score);
 

@@ -268,6 +268,8 @@ public:
 
 	CmdCallbacks handlers_;
 	std::string proto_ = "ws://";
+	std::string http_proto_ = "http://";
+	std::string path_http_router_ = "/opt/router";
 	std::string path_handshake_;
 	muduo::net::TcpServer server_;
 	//muduo::net::TcpServer tcpserver_;

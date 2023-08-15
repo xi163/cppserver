@@ -304,7 +304,7 @@ void ApiServ::processHttpRequest(
 	else if (req.path() == "/test") {
 		response::xml::Test(req, rsp);
 	}
-	else if (req.path() == "/opt/order") {
+	else if (req.path() == path_http_order_) {
 		boost::property_tree::ptree latest;
 		int testTPS = 0;
 #ifdef _STAT_QPS_

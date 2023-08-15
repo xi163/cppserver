@@ -12,9 +12,16 @@ namespace rpc {
 			const muduo::net::RpcDoneCallback& done) {
 			::Game::Rpc::NodeInfoRsp rsp;
 			rsp.set_numofloads(gServer->numConnected_[KWebsocketTy].get() + gServer->numConnected_[KHttpTy].get());
-			//rsp.set_host(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
-			//rsp.set_domain(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
-			rsp.set_nodevalue(gServer->nodeValue_);
+			//rsp.set_nodevalue(gServer->nodeValue_);
+			switch (req.flags()) {
+			case 0:
+				rsp.set_host(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
+				rsp.set_domain(gServer->proto_ + gServer->server_.ipPort() + gServer->path_handshake_);
+				break;
+			case 1:
+				rsp.set_host(gServer->http_proto_ + gServer->httpserver_.ipPort() + gServer->path_http_login_);
+				rsp.set_domain(gServer->http_proto_ + gServer->httpserver_.ipPort() + gServer->path_http_login_);
+			}
 			//_LOG_WARN("\nreq:%s\nrsp:%s", req->DebugString().c_str(), rsp.DebugString().c_str());
 			done(&rsp);
 		}

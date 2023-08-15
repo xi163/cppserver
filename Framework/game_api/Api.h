@@ -286,6 +286,8 @@ public:
 
 	CmdCallbacks handlers_;
 	std::string proto_ = "ws://";
+	std::string http_proto_ = "http://";
+	std::string path_http_order_ = "/opt/order";
 	std::string path_handshake_;
 	rpc::server::Service rpcservice_;
 	muduo::net::TcpServer server_;

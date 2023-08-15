@@ -11,11 +11,11 @@ std::string md5code = "334270F58E3E9DEC";
 std::string descode = "111362EE140F157D";
 
 struct LoginReq {
+	int	Type;
 	std::string Account;
 	std::string	Passwd;
 	std::string	Phone;
 	std::string	Email;
-	int	Type;
 	int64_t	Timestamp;
 };
 
@@ -28,7 +28,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 		if (req.Account.empty()) {
 			//查询网关节点
 			ServList servList;
-			GetGateServList(servList);
+			GetServList(servList, rpc::containTy::kRpcGateTy);
 			if (servList.size() == 0) {
 				return response::json::Result(ERR_GameGateNotExist, rsp);
 			}
@@ -101,7 +101,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			if (userId <= 0) {
 				//查询网关节点
 				ServList servList;
-				GetGateServList(servList);
+				GetServList(servList, rpc::containTy::kRpcGateTy);
 				if (servList.size() == 0) {
 					return response::json::Result(ERR_GameGateNotExist, rsp);
 				}
@@ -167,7 +167,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			else {
 				//查询网关节点
 				ServList servList;
-				GetGateServList(servList);
+				GetServList(servList, rpc::containTy::kRpcGateTy);
 				if (servList.size() == 0) {
 					return response::json::Result(ERR_GameGateNotExist, rsp);
 				}
@@ -191,7 +191,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 		else {
 			//查询网关节点
 			ServList servList;
-			GetGateServList(servList);
+			GetServList(servList, rpc::containTy::kRpcGateTy);
 			if (servList.size() == 0) {
 				return response::json::Result(ERR_GameGateNotExist, rsp);
 			}
@@ -251,54 +251,60 @@ int Login(
 
 		}
 		else if (sType.find(ContentType_Json) != string::npos) {
-			boost::property_tree::ptree pt;
-			{
-				std::string s(buf->peek(), buf->readableBytes());
-				std::stringstream ss(s);
-				boost::property_tree::read_json(ss, pt);
-			}
-			std::string key = pt.get<std::string>("key");
-			std::string param = pt.get<std::string>("param");
-			//param = utils::HTML::Decode(param);
-			std::string decrypt;
-			for (int c = 1; c < 3; ++c) {
-				param = utils::URL::Decode(param);
-#if 1
-				boost::replace_all<std::string>(param, "\r\n", "");
-				boost::replace_all<std::string>(param, "\r", "");
-				boost::replace_all<std::string>(param, "\n", "");
-#else
-				param = boost::regex_replace(param, boost::regex("\r\n|\r|\n"), "");
-#endif
-				std::string const& strURL = param;
-				decrypt = Crypto::AES_ECBDecrypt(strURL, descode);
-				_LOG_DEBUG("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, md5code.c_str(), descode.c_str(), decrypt.c_str());
-				if (!decrypt.empty()) {
-					break;
+			try {
+				boost::property_tree::ptree pt;
+				{
+					std::string s(buf->peek(), buf->readableBytes());
+					std::stringstream ss(s);
+					boost::property_tree::read_json(ss, pt);
 				}
+				std::string key = pt.get<std::string>("key");
+				std::string param = pt.get<std::string>("param");
+				//param = utils::HTML::Decode(param);
+				std::string decrypt;
+				for (int c = 1; c < 3; ++c) {
+					param = utils::URL::Decode(param);
+#if 1
+					boost::replace_all<std::string>(param, "\r\n", "");
+					boost::replace_all<std::string>(param, "\r", "");
+					boost::replace_all<std::string>(param, "\n", "");
+#else
+					param = boost::regex_replace(param, boost::regex("\r\n|\r|\n"), "");
+#endif
+					std::string const& strURL = param;
+					decrypt = Crypto::AES_ECBDecrypt(strURL, descode);
+					_LOG_DEBUG("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, md5code.c_str(), descode.c_str(), decrypt.c_str());
+					if (!decrypt.empty()) {
+						break;
+					}
+				}
+				if (decrypt.empty()) {
+					return response::json::Result(ERR_Decrypt, rsp);
+				}
+				pt.clear();
+				{
+					std::stringstream ss(decrypt);
+					boost::property_tree::read_json(ss, pt);
+				}
+				int lType = pt.get<int>("type");
+				std::string account = pt.get<std::string>("account");
+				int timestamp = pt.get<int64_t>("timestamp");
+				std::string src = account + std::to_string(lType) + std::to_string(timestamp) + md5code;
+				char md5[32 + 1] = { 0 };
+				utils::MD5(src.c_str(), src.length(), md5, 1);
+				if (strncasecmp(md5, key.c_str(), std::min<size_t>(32, key.length())) != 0) {
+					return response::json::Result(ERR_CheckMd5, rsp);
+				}
+				LoginReq req;
+				req.Type = lType;
+				req.Account = account;
+				req.Timestamp = timestamp;
+				return doLogin(req, rsp, conn, receiveTime);
 			}
-			if (decrypt.empty()) {
-				return response::json::Result(ERR_Decrypt, rsp);
+			catch (boost::property_tree::ptree_error& e) {
+				_LOG_ERROR(e.what());
+				return response::json::Result(ERR_GameHandleParamsError, rsp);
 			}
-			pt.clear();
-			{
-				std::stringstream ss(decrypt);
-				boost::property_tree::read_json(ss, pt);
-			}
-			std::string account = pt.get<std::string>("account");
-			int lType = pt.get<int>("type");
-			int timestamp = pt.get<int64_t>("timestamp");
-			std::string src = account + std::to_string(lType) + std::to_string(timestamp) + md5code;
-			char md5[32 + 1] = { 0 };
-			utils::MD5(src.c_str(), src.length(), md5, 1);
-			if (strncasecmp(md5, key.c_str(), std::min<size_t>(32, key.length())) != 0) {
-				return response::json::Result(ERR_CheckMd5, rsp);
-			}
-			LoginReq req;
-			req.Account = account;
-			req.Type = lType;
-			req.Timestamp = timestamp;
-			return doLogin(req, rsp, conn, receiveTime);
 		}
 		else if (sType.find(ContentType_Xml) != string::npos) {
 

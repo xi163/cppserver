@@ -8,17 +8,26 @@
 
 extern ApiServ* gServer;
 
-void GetGateServList(ServList& servList) {
-	rpc::ClientConnList clients;
-	gServer->rpcClients_[rpc::containTy::kRpcGateTy].clients_->getAll(clients);
-	for (rpc::ClientConnList::iterator it = clients.begin();
-		it != clients.end(); ++it) {
-		rpc::client::Service client(*it, 3);
-		::Game::Rpc::NodeInfoReq req;
-		::Game::Rpc::NodeInfoRspPtr rsp = client.GetNodeInfo(req);
-		if (rsp) {
-			servList.emplace_back(ServItem(rsp->host(), rsp->domain(), rsp->numofloads()));
+void GetServList(ServList& servList, rpc::containTy type, int flags) {
+	switch (type) {
+	case rpc::containTy::kRpcGateTy:
+	case rpc::containTy::kRpcHallTy:
+	case rpc::containTy::kRpcGameTy:
+	case rpc::containTy::kRpcLoginTy:
+	case rpc::containTy::kRpcApiTy: {
+		rpc::ClientConnList clients;
+		gServer->rpcClients_[type].clients_->getAll(clients);
+		for (rpc::ClientConnList::iterator it = clients.begin();
+			it != clients.end(); ++it) {
+			rpc::client::Service client(*it, 3);
+			::Game::Rpc::NodeInfoReq req;
+			req.set_flags(flags);
+			::Game::Rpc::NodeInfoRspPtr rsp = client.GetNodeInfo(req);
+			if (rsp) {
+				servList.emplace_back(ServItem(rsp->host(), rsp->domain(), rsp->numofloads()));
+			}
 		}
+	}
 	}
 }
 
