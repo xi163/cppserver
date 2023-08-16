@@ -490,6 +490,7 @@ namespace mgo {
 	}
 	
 	bool LoadUserClubs(int64_t userId, std::vector<UserClubInfo>& infos) {
+		infos.clear();
 		try {
 			mongocxx::cursor cursor = opt::Find(
 				mgoKeys::db::GAMECONFIG,
@@ -510,6 +511,9 @@ namespace mgo {
 						info.clubId = view["clubid"].get_int32();
 						break;
 					}
+				}
+				if (info.clubId <= 0) {
+					return false;
 				}
 				//我的上级推广代理
 				if (view["promoterid"]) {
@@ -587,7 +591,7 @@ namespace mgo {
 						mgoKeys::db::GAMECONFIG,
 						mgoKeys::tbl::GAME_CLUB,
 						{},
-						builder::stream::document{} << "clubid" << b_int64{ view["clubid"].get_int64() } << finalize);
+						builder::stream::document{} << "clubid" << b_int64{ info.clubId } << finalize);
 					if (!result) {
 						return false;
 					}
@@ -653,6 +657,7 @@ namespace mgo {
 						}
 					}
 				}
+				infos.emplace_back(info);
 			}
 			return true;
 		}
