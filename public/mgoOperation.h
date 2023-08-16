@@ -102,7 +102,7 @@ namespace mgo {
 		UserClubInfo& info);
 	
 	bool LoadUserClub(
-		int64_t userId, UserClubInfo& info);
+		int64_t userId, int64_t clubId, UserClubInfo& info);
 	
 	bool UserInClub(
 		document::view_or_value const& select,
@@ -118,6 +118,7 @@ namespace mgo {
 	
 	//用户通过邀请码加入
 	Msg const& JoinClub(
+		int64_t& clubId,
 		int32_t invitationCode,
 		int64_t userId,
 		int32_t status,

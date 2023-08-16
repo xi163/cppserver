@@ -537,6 +537,8 @@ void HallServ::asyncLogicHandler(
 		header->sign == HEADER_SIGN) {
 		switch (header->mainId) {
 		//case Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER:
+		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB:
+		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_FRIEND:
 		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL:
 		case Game::Common::MAINID::MAIN_MESSAGE_PROXY_TO_HALL: {
 			switch (header->enctype) {
@@ -1295,10 +1297,25 @@ void HallServ::JoinTheClubMessage_club(
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		if (reqdata.invitationcode() > 0) {
 			//用户通过邀请码加入
-			Msg const& errmsg = mgo::JoinClub(reqdata.invitationcode(), pre_header_->userId, 1);
+			int64_t clubId = 0;
+			Msg const& errmsg = mgo::JoinClub(clubId, reqdata.invitationcode(), pre_header_->userId, 1);
 			if (errmsg.code == Ok.code) {
+				rspdata.set_userid(pre_header_->userId);
 				rspdata.set_retcode(Ok.code);
 				rspdata.set_errormsg("欢迎您成为俱乐部一员");
+				UserClubInfo info;
+				mgo::LoadUserClub(pre_header_->userId, clubId, info);
+				rspdata.mutable_clubinfo()->set_clubid(info.clubId);
+				rspdata.mutable_clubinfo()->set_clubname(info.clubName);
+				rspdata.mutable_clubinfo()->set_clubiconid(info.iconId);
+				rspdata.mutable_clubinfo()->set_promoterid(info.promoterId);
+				rspdata.mutable_clubinfo()->set_status(info.status);
+				rspdata.mutable_clubinfo()->set_invitationcode(info.invitationCode);
+				rspdata.mutable_clubinfo()->set_clubplayernum(info.playerNum);
+				rspdata.mutable_clubinfo()->set_rate(info.ratio);
+				rspdata.mutable_clubinfo()->set_autobcpartnerrate(info.autoPartnerRatio);
+				rspdata.mutable_clubinfo()->set_url(info.url);
+				rspdata.mutable_clubinfo()->set_createtime(info.joinTime.format());
 			}
 			else {
 				rspdata.set_retcode(errmsg.code);
@@ -1309,8 +1326,22 @@ void HallServ::JoinTheClubMessage_club(
 			//代理发起人邀请加入
 			Msg const& errmsg = mgo::InviteJoinClub(reqdata.clubid(), pre_header_->userId, reqdata.userid(), 1);
 			if (errmsg.code == Ok.code) {
+				rspdata.set_userid(reqdata.userid());
 				rspdata.set_retcode(Ok.code);
 				rspdata.set_errormsg("邀请加入俱乐部成功");
+				UserClubInfo info;
+				mgo::LoadUserClub(reqdata.userid(), clubId, info);
+				rspdata.mutable_clubinfo()->set_clubid(info.clubId);
+				rspdata.mutable_clubinfo()->set_clubname(info.clubName);
+				rspdata.mutable_clubinfo()->set_clubiconid(info.iconId);
+				rspdata.mutable_clubinfo()->set_promoterid(info.promoterId);
+				rspdata.mutable_clubinfo()->set_status(info.status);
+				rspdata.mutable_clubinfo()->set_invitationcode(info.invitationCode);
+				rspdata.mutable_clubinfo()->set_clubplayernum(info.playerNum);
+				rspdata.mutable_clubinfo()->set_rate(info.ratio);
+				rspdata.mutable_clubinfo()->set_autobcpartnerrate(info.autoPartnerRatio);
+				rspdata.mutable_clubinfo()->set_url(info.url);
+				rspdata.mutable_clubinfo()->set_createtime(info.joinTime.format());
 			}
 			else {
 				rspdata.set_retcode(errmsg.code);

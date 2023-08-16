@@ -934,10 +934,10 @@ namespace mgo {
 	}
 	
 	bool LoadUserClub(
-		int64_t userId, UserClubInfo& info) {
+		int64_t userId, int64_t clubId, UserClubInfo& info) {
 		return LoadUserClub(
 			{},
-			builder::stream::document{} << "userid" << b_int64{ userId } << finalize,
+			builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize,
 			info);
 	}
 	
@@ -1123,6 +1123,7 @@ namespace mgo {
 	
 	//用户通过邀请码加入
 	Msg const& JoinClub(
+		int64_t& clubId,
 		int32_t invitationCode,
 		int64_t userId,
 		int32_t status,
@@ -1134,7 +1135,7 @@ namespace mgo {
 				//被邀请人不存在
 				return ERR_InvitedUserNotExist;
 			}
-			int64_t clubId = 0;
+			/*int64_t*/ clubId = 0;
 			int64_t promoterId = 0;
 			auto result = opt::FindOne(
 				mgoKeys::db::GAMEMAIN,
