@@ -205,6 +205,8 @@ void GateServ::asyncClientHandler(
 				}
 				break;
 			}
+			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB:
+			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_FRIEND:
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL: {
 				TraceMessageID(header->mainId, header->subId);
 				Context& entryContext = boost::any_cast<Context&>(conn->getContext());
@@ -238,6 +240,9 @@ void GateServ::asyncClientHandler(
 				}
 				break;
 			}
+			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER_CLUB:
+			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER_FRIEND:
+			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC_FRIEND:
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER:
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC: {
 				TraceMessageID(header->mainId, header->subId);
