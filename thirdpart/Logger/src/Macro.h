@@ -12,6 +12,8 @@
 #define _apple_
 #endif
 
+#if 0
+
 #define MY_PST (-8)
 #define MY_MST (-7)
 #define MY_EST (-5)
@@ -23,6 +25,20 @@
 //(UTC+08:00) Asia/shanghai, Beijing(China)
 #define MY_CST (+8)
 #define MY_JST (+9)
+
+#else
+
+#define TIMEZONE_MAP(XX, YY) \
+	YY(MY_PST, -8, "PST") \
+	YY(MY_MST, -7, "MST") \
+	YY(MY_EST, -5, "EST") \
+	YY(MY_BST, +1, "BST") \
+	YY(MY_UTC, +0, "UTC") \
+	YY(MY_GST, +4, "GST") \
+	YY(MY_CST, +8, "CST") \
+	YY(MY_JST, +9, "JST") \
+
+#endif
 
 #define LVL_FATAL       0
 #define LVL_ERROR       1
@@ -147,6 +163,12 @@ typedef std::chrono::system_clock::time_point time_point;
 typedef int pid_t, tid_t;
 
 #include "Logger/src/const.h"
+
+enum {
+	TIMEZONE_MAP(ENUM_X, ENUM_Y)
+};
+
+STATIC_FUNCTION_IMPLEMENT(TIMEZONE_MAP, DETAIL_X, DETAIL_Y, DESC, TimeZoneDesc)
 
 enum rTy {
 	Number = 0,

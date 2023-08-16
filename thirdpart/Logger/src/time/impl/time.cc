@@ -27,6 +27,7 @@ namespace STD {
 	time_point time_point::std_now() {
 		return time_point(now());
 	}
+	// to_sec() == to_time_t()
 	time_t time_point::to_time_t() {
 		return std::chrono::system_clock::to_time_t(t_);
 	}
@@ -39,6 +40,36 @@ namespace STD {
 	::time_point& time_point::get() {
 		return t_;
 	}
+	std::string const time_point::format(precision pre, int64_t timzone) const {
+		struct tm tm = { 0 };
+		struct timeval tv = { 0 };
+		//gettimeofday(&tv, NULL);
+		tv.tv_sec = to_sec();
+		utils::_convertUTC(tv.tv_sec, tm, NULL, timzone);
+		switch (pre) {
+		default:
+		case precision::SECOND: {
+			return utils::_sprintf("%s %04d-%02d-%02d %02d:%02d:%02d",
+				getTimeZoneDesc(timzone).c_str(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+				tm.tm_hour, tm.tm_min, tm.tm_sec);
+		}
+		case precision::MILLISECOND: {
+			tv.tv_usec = to_millisec() - tv.tv_sec * 1000;
+			return utils::_sprintf("%s %04d-%02d-%02d %02d:%02d:%02d.%.3lu",
+				getTimeZoneDesc(timzone).c_str(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
+		}
+		case precision::MICROSECOND: {
+			tv.tv_usec = to_microsec() - tv.tv_sec * 1000000UL;
+			return utils::_sprintf("%s %04d-%02d-%02d %02d:%02d:%02d.%.6lu",
+				getTimeZoneDesc(timzone).c_str(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
+		}
+		}
+	}
 	time_point time_point::duration(int64_t millsec) {
 		return time_point(t_ + std::chrono::milliseconds(millsec));
 	}
@@ -49,6 +80,7 @@ namespace STD {
 		t_ += std::chrono::milliseconds(millsec);
 		return *this;
 	}
+	// to_sec() == to_time_t()
 	int64_t time_point::to_sec() {
 		return std::chrono::duration_cast<std::chrono::seconds>(t_.time_since_epoch()).count();
 	}

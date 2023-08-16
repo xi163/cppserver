@@ -19,19 +19,22 @@
 	}
 
 #define RETURN_NAME(var, id) \
-	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
+	static int const l = ARRAYSIZE(var); \
+	for (int i = 0; i < l; ++i) { \
 		if (var[i].id_ == id) { \
 			return var[i].name_; \
 		}\
 	}
 #define RETURN_DESC(var, id) \
-	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
+	static int const l = ARRAYSIZE(var); \
+	for (int i = 0; i < l; ++i) { \
 		if (var[i].id_ == id) { \
 			return var[i].desc_; \
 		}\
 	}
 #define RETURN_STR(var, id) \
-	for (int i = 0; i < ARRAYSIZE(var); ++i) { \
+	static int const l = ARRAYSIZE(var); \
+	for (int i = 0; i < l; ++i) { \
 		if (var[i].id_ == id) { \
 			std::string name = var[i].name_; \
 			std::string desc = var[i].desc_; \
