@@ -88,6 +88,10 @@ namespace mgo {
 		document::view_or_value const& where,
 		UserBaseInfo& info);
 	
+	bool LoadUserClubs(
+		int64_t userId,
+		std::vector<UserClubInfo>& infos);
+	
 	bool LoadGameRoomInfos(
 		::HallServer::GetGameMessageResponse& gameinfos);
 	

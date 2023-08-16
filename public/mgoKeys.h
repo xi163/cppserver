@@ -20,6 +20,9 @@ namespace mgoKeys {
 		static char const* GAME_KIND_CLUB = "game_kind_club";
 		static char const* AUTO_INCREMENT = "auto_increment";
 
+		static char const* GAME_CLUB = "game_club";
+		static char const* GAME_CLUB_MEMBER = "game_club_user";
+
 		static char const* GAMEUSER = "game_user";
 		static char const* AGENTINFO = "proxy_info";
 		static char const* LOG_LOGIN = "login_log";

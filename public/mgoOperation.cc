@@ -489,6 +489,190 @@ namespace mgo {
 		return false;
 	}
 	
+	bool LoadUserClubs(int64_t userId, std::vector<UserClubInfo>& infos) {
+		try {
+			mongocxx::cursor cursor = opt::Find(
+				mgoKeys::db::GAMECONFIG,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				{},
+				builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+			for (auto& view : cursor) {
+				_LOG_WARN(to_json(view).c_str());
+				UserClubInfo info;
+				info.userId = userId;
+				//俱乐部Id 当玩家userId与clubId相同时为盟主
+				if (view["clubid"]) {
+					switch (view["clubid"].type()) {
+					case bsoncxx::type::k_int64:
+						info.clubId = view["clubid"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.clubId = view["clubid"].get_int32();
+						break;
+					}
+				}
+				//我的上级推广代理
+				if (view["promoterid"]) {
+					switch (view["promoterid"].type()) {
+					case bsoncxx::type::k_int64:
+						info.promoterId = view["promoterid"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.promoterId = view["promoterid"].get_int32();
+						break;
+					}
+				}
+				//1:会员 2:合伙人
+				if (view["status"]) {
+					switch (view["status"].type()) {
+					case bsoncxx::type::k_int64:
+						info.status = view["status"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.status = view["status"].get_int32();
+						break;
+					}
+				}
+				//邀请码 会员:0 合伙人或盟主 8位数邀请码
+				if (view["invitationcode"]) {
+					switch (view["invitationcode"].type()) {
+					case bsoncxx::type::k_int64:
+						info.invitationCode = view["invitationcode"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.invitationCode = view["invitationcode"].get_int32();
+						break;
+					}
+				}
+				//提成比例 会员:0 合伙人或盟主:75 表示75%
+				if (view["ratio"]) {
+					switch (view["ratio"].type()) {
+					case bsoncxx::type::k_int64:
+						info.ratio = view["ratio"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.ratio = view["ratio"].get_int32();
+						break;
+					}
+				}
+				//1-100:自动成为合伙人 提成比例
+				if (view["autopartnerratio"]) {
+					switch (view["autopartnerratio"].type()) {
+					case bsoncxx::type::k_int64:
+						info.autoPartnerRatio = view["autopartnerratio"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.autoPartnerRatio = view["autopartnerratio"].get_int32();
+						break;
+					}
+				}
+				//会员:"" 合伙人或盟主:url不为空 当玩家userId与clubId相同时为盟主
+				if (view["url"]) {
+					switch (view["url"].type()) {
+					case bsoncxx::type::k_utf8:
+						info.url = view["url"].get_utf8().value.to_string();
+						break;
+					}
+				}
+				//加入俱乐部时间
+				if (view["createtime"]) {
+					switch (view["createtime"].type()) {
+					case bsoncxx::type::k_date:
+						info.joinTime = ::time_point(view["createtime"].get_date());
+						break;
+					}
+				}
+				{
+					auto result = opt::FindOne(
+						mgoKeys::db::GAMECONFIG,
+						mgoKeys::tbl::GAME_CLUB,
+						{},
+						builder::stream::document{} << "clubid" << b_int64{ view["clubid"].get_int64() } << finalize);
+					if (!result) {
+						return false;
+					}
+					document::view view = result->view();
+					//俱乐部名称
+					if (view["clubname"]) {
+						switch (view["clubname"].type()) {
+						case bsoncxx::type::k_utf8:
+							info.clubName = view["clubname"].get_utf8().value.to_string();
+							break;
+						}
+					}
+					//俱乐部图标
+					if (view["iconid"]) {
+						switch (view["iconid"].type()) {
+						case bsoncxx::type::k_int64:
+							info.iconId = view["iconid"].get_int64();
+							break;
+						case bsoncxx::type::k_int32:
+							info.iconId = view["iconid"].get_int32();
+							break;
+						}
+					}
+					//0-未启用 1-活动 2-弃用 3-禁用
+					if (view["status"]) {
+						switch (view["status"].type()) {
+						case bsoncxx::type::k_int64:
+							info.clubStatus = view["status"].get_int64();
+							break;
+						case bsoncxx::type::k_int32:
+							info.clubStatus = view["status"].get_int32();
+							break;
+						}
+					}
+					//俱乐部人数
+					if (view["playernum"]) {
+						switch (view["playernum"].type()) {
+						case bsoncxx::type::k_int64:
+							info.playerNum = view["playernum"].get_int64();
+							break;
+						case bsoncxx::type::k_int32:
+							info.playerNum = view["playernum"].get_int32();
+							break;
+						}
+					}
+					//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启
+					if (view["autopartnerratio"]) {
+						switch (view["autopartnerratio"].type()) {
+						case bsoncxx::type::k_int64:
+							info.autoPartnerRatio = view["autopartnerratio"].get_int64();
+							break;
+						case bsoncxx::type::k_int32:
+							info.autoPartnerRatio = view["autopartnerratio"].get_int32();
+							break;
+						}
+					}
+					//俱乐部创建时间
+					if (view["createtime"]) {
+						switch (view["createtime"].type()) {
+						case bsoncxx::type::k_date:
+							info.createTime = ::time_point(view["createtime"].get_date());
+							break;
+						}
+					}
+				}
+			}
+			return true;
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+	
 	bool LoadGameRoomInfos(::HallServer::GetGameMessageResponse& gameinfos) {
 		//gameinfos.clear_header();
 		//gameinfos.clear_gamemessage();
@@ -1194,10 +1378,10 @@ namespace mgo {
 		return false;
 	}
 
-	bool GetUserBaseInfo(int64_t userid, UserBaseInfo& info) {
+	bool GetUserBaseInfo(int64_t userId, UserBaseInfo& info) {
 		return GetUserBaseInfo(
 			{},
-			builder::stream::document{} << "userid" << b_int64{ userid } << finalize,
+			builder::stream::document{} << "userid" << b_int64{ userId } << finalize,
 			info);
 	}
 	
@@ -1267,13 +1451,13 @@ namespace mgo {
 		return true;
 	}
 	
-	bool UpdateOnline(int64_t userid, int32_t status) {
+	bool UpdateOnline(int64_t userId, int32_t status) {
 		return UpdateUser(
 			builder::stream::document{}
 			<< "$set" << open_document
 			<< "onlinestatus" << b_int32{ status }
 			<< close_document << finalize,
-			builder::stream::document{} << "userid" << b_int64{ userid } << finalize);
+			builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
 	}
 	
 	bool UpdateAgent(

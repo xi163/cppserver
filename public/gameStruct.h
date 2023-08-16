@@ -4,6 +4,23 @@
 #include "Logger/src/time/time.h"
 #include "gameConst.h"
 
+struct UserClubInfo {
+	int64_t userId;
+	int64_t clubId;//俱乐部Id 当玩家userId与clubId相同时为盟主
+	int64_t promoterId;//我的上级推广代理
+	int32_t iconId;//俱乐部图标
+	std::string clubName;//俱乐部名称
+	int status;//1:会员 2:合伙人
+	int clubStatus;//0-未启用 1-活动 2-弃用 3-禁用
+	uint32_t invitationCode;//邀请码 会员:0 合伙人或盟主 8位数邀请码
+	uint32_t playerNum;//俱乐部人数
+	int ratio;//提成比例 会员:0 合伙人或盟主:75 表示75%
+	int autoPartnerRatio;//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+	std::string url;//会员:"" 合伙人或盟主:url不为空 当玩家userId与clubId相同时为盟主
+	STD::time_point jointime;//加入俱乐部时间
+	STD::time_point createtime;//俱乐部创建时间
+};
+
 //#pragma pack(1)
 struct tagGameInfo
 {
