@@ -1330,7 +1330,7 @@ void HallServ::JoinTheClubMessage_club(
 				rspdata.set_retcode(Ok.code);
 				rspdata.set_errormsg("邀请加入俱乐部成功");
 				UserClubInfo info;
-				mgo::LoadUserClub(reqdata.userid(), clubId, info);
+				mgo::LoadUserClub(reqdata.userid(), reqdata.clubid(), info);
 				rspdata.mutable_clubinfo()->set_clubid(info.clubId);
 				rspdata.mutable_clubinfo()->set_clubname(info.clubName);
 				rspdata.mutable_clubinfo()->set_clubiconid(info.iconId);
