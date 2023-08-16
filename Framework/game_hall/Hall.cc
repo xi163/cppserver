@@ -113,11 +113,11 @@ void HallServ::registerHandlers() {
 		::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_RECORD_DETAIL_REQ)]
 		= std::bind(&HallServ::cmd_get_play_record_detail, this,
 			std::placeholders::_1, std::placeholders::_2);
-	handlers_[packet::enword(
-		::Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER,
-		::Game::Common::MESSAGE_HTTP_TO_SERVER_SUBID::MESSAGE_NOTIFY_REPAIR_SERVER)]
-		= std::bind(&HallServ::cmd_repair_hallserver, this,
-			std::placeholders::_1, std::placeholders::_2);
+// 	handlers_[packet::enword(
+// 		::Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER,
+// 		::Game::Common::MESSAGE_HTTP_TO_SERVER_SUBID::MESSAGE_NOTIFY_REPAIR_SERVER)]
+// 		= std::bind(&HallServ::cmd_repair_hallserver, this,
+// 			std::placeholders::_1, std::placeholders::_2);
 	handlers_[packet::enword(
 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL,
 		::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_TASK_LIST_REQ)]
@@ -127,6 +127,130 @@ void HallServ::registerHandlers() {
 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL,
 		::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_AWARDS_REQ)]
 		= std::bind(&HallServ::cmd_get_task_award, this,
+			std::placeholders::_1, std::placeholders::_2);
+
+
+	//===================俱乐部==================
+	
+	// 获取游戏服务器IP
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_GAME_SERVER_MESSAGE_REQ)]
+		= std::bind(&HallServ::GetGameServerMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取我的俱乐部
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_CLUB_HALL_MESSAGE_REQ)]
+		= std::bind(&HallServ::GetMyClubHallMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 加入俱乐部
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_JOIN_THE_CLUB_MESSAGE_REQ)]
+		= std::bind(&HallServ::JoinTheClubMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 退出俱乐部 
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_EXIT_THE_CLUB_MESSAGE_REQ)]
+		= std::bind(&HallServ::ExitTheClubMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 设置是否开启自动成为合伙人
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_SET_AUTO_BECOME_PARTNER_MESSAGE_REQ)]
+		= std::bind(&HallServ::SetAutoBecomePartnerMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 成为合伙人
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_BECOME_PARTNER_MESSAGE_REQ)]
+		= std::bind(&HallServ::BecomePartnerMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 佣金兑换金币
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_EXCHANGE_MY_REVENUE_REQ)]
+		= std::bind(&HallServ::ExchangeRevenueMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取佣金提取记录 
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_EXCHANGE_MY_REVENUE_RECORD_REQ)]
+		= std::bind(&HallServ::GetExchangeRevenueRecordMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取我的业绩
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_REQ)]
+		= std::bind(&HallServ::GetMyAchievementMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取会员业绩详情
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_DETAIL_MEMBER_REQ)]
+		= std::bind(&HallServ::GetAchievementDetailMemberMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取合伙人业绩详情
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_DETAIL_PARTNER_REQ)]
+		= std::bind(&HallServ::GetAchievementDetailPartnerMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取俱乐部内我的团队我的俱乐部
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_CLUB_REQ)]
+		= std::bind(&HallServ::GetMyClubMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取我的团队成员
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_TEAM_REQ)]
+		= std::bind(&HallServ::GetMyTeamMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 设置下一级合伙人提成比例
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_SET_SUBORDINATE_RATE_REQ)]
+		= std::bind(&HallServ::SetSubordinateRateMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取游戏明细记录
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_PLAY_RECORD_REQ)]
+		= std::bind(&HallServ::GetPlayRecordMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取玩家俱乐部所有游戏记录列表
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_ALL_PLAY_RECORD_REQ)]
+		= std::bind(&HallServ::GetAllPlayRecordMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取玩家账户明细列表
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_USER_SCORE_CHANGE_RECORD_REQ)]
+		= std::bind(&HallServ::GetUserScoreChangeRecordMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 我的上级信息
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_CLUB_PROMOTER_REQ)]
+		= std::bind(&HallServ::GetClubPromoterInfoMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 开除此用户
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_FIRE_MEMBER_REQ)]
+		= std::bind(&HallServ::FireMemberMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
+	// 获取俱乐部申请QQ
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_APPLY_CLUB_QQ_REQ)]
+		= std::bind(&HallServ::GetApplyClubQQMessage_club, this,
 			std::placeholders::_1, std::placeholders::_2);
 }
 
@@ -412,9 +536,9 @@ void HallServ::asyncLogicHandler(
 		header->ver == 1 &&
 		header->sign == HEADER_SIGN) {
 		switch (header->mainId) {
+		//case Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER:
 		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL:
-		case Game::Common::MAINID::MAIN_MESSAGE_PROXY_TO_HALL:
-		case Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER: {
+		case Game::Common::MAINID::MAIN_MESSAGE_PROXY_TO_HALL: {
 			switch (header->enctype) {
 			case packet::PUBENC_PROTOBUF_NONE: {
 				TraceMessageID(header->mainId, header->subId);
@@ -1117,7 +1241,7 @@ void HallServ::GetGameServerMessage_club(
 }
 
 // 获取我的俱乐部
-void HallServ::GetMyClubGameMessage_club(
+void HallServ::GetMyClubHallMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
 	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 	packet::header_t const* header_ = packet::get_header(buf);

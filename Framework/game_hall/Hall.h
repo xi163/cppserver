@@ -188,7 +188,7 @@ private:
 	void GetGameServerMessage_club(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	// 获取我的俱乐部
-	void GetMyClubGameMessage_club(
+	void GetMyClubHallMessage_club(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	// 加入俱乐部
 	void JoinTheClubMessage_club(
