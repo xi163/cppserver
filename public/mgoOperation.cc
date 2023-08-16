@@ -1073,7 +1073,7 @@ namespace mgo {
 					<< "autopartnerratio" << autopartnerratio
 					<< "url" << ""
 					<< "createtime" << b_date{ now }
-				<< finalize);
+					<< finalize);
 				if (!result) {
 					return ERR_InsideErrorOrNonExcutive;
 				}
@@ -1246,7 +1246,7 @@ namespace mgo {
 					<< "autopartnerratio" << autopartnerratio
 					<< "url" << ""
 					<< "createtime" << b_date{ now }
-				<< finalize);
+					<< finalize);
 				if (!result) {
 					return ERR_InsideErrorOrNonExcutive;
 				}
