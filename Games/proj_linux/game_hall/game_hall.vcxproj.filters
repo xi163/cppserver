@@ -121,16 +121,13 @@
     <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.h">
       <Filter>internal\rpc\client</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RoomNodes.h">
       <Filter>internal\rpc\client</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
+    <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h">
+    <ClInclude Include="..\..\..\proto\HallClubServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
   </ItemGroup>
@@ -197,16 +194,13 @@
     <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.cc">
       <Filter>internal\rpc\client</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RoomNodes.cc">
       <Filter>internal\rpc\client</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
+    <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc">
+    <ClCompile Include="..\..\..\proto\HallClubServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
   </ItemGroup>

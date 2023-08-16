@@ -54,29 +54,34 @@ void AddLogoutLog(
 }
 
 int main() {
+	_LOG_INFO("%s", getTimeZoneDesc(MY_CST).c_str());
 
+	_LOG_WARN("tosec:%d to_time_t:%d", STD_NOW().to_sec(), STD_NOW().to_time_t());
+	_LOG_ERROR(STD_NOW().format(STD::SECOND,MY_CST).c_str());
+	_LOG_ERROR(STD_NOW().format(STD::precision::MILLISECOND, MY_CST).c_str());
+	_LOG_ERROR(STD_NOW().format(STD::precision::MICROSECOND, MY_CST).c_str());
 	boost::tuple<std::string,
 		std::shared_ptr<int>,
 		muduo::net::WeakTcpConnectionPtr> tup;
-	std::string s = tup.get<0>();
-	if (!s.empty()) {
-		_LOG_INFO("tup.get<0>() ok");
-	}
-	else {
-		_LOG_INFO("tup.get<0>() fail");
-	}
-	if (tup.get<1>()) {
-		_LOG_INFO("tup.get<1>() ok");
-	}
-	else {
-		_LOG_INFO("tup.get<1>() fail");
-	}
-	if (tup.get<2>()) {
-		_LOG_INFO("tup.get<2>() ok");
-	}
-	else {
-		_LOG_INFO("tup.get<2>() fail");
-	}
+// 	std::string s = tup.get<0>();
+// 	if (!s.empty()) {
+// 		_LOG_INFO("tup.get<0>() ok");
+// 	}
+// 	else {
+// 		_LOG_INFO("tup.get<0>() fail");
+// 	}
+// 	if (tup.get<1>()) {
+// 		_LOG_INFO("tup.get<1>() ok");
+// 	}
+// 	else {
+// 		_LOG_INFO("tup.get<1>() fail");
+// 	}
+// 	if (tup.get<2>()) {
+// 		_LOG_INFO("tup.get<2>() ok");
+// 	}
+// 	else {
+// 		_LOG_INFO("tup.get<2>() fail");
+// 	}
 // 	std::chrono::nanoseconds sec;
 // 	std::chrono::system_clock::time_point t1, t2(sec);
 // 	//t1 + t2;

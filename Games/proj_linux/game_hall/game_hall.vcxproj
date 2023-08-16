@@ -42,9 +42,8 @@
     <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h" />
-    <ClInclude Include="..\..\..\proto\GameServer.Message.pb.h" />
+    <ClInclude Include="..\..\..\proto\HallClubServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
-    <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h" />
     <ClInclude Include="..\..\..\public\errorCode.h" />
     <ClInclude Include="..\..\..\public\gameConst.h" />
     <ClInclude Include="..\..\..\public\gameStruct.h" />
@@ -75,9 +74,8 @@
     <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
     <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc" />
-    <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc" />
+    <ClCompile Include="..\..\..\proto\HallClubServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />
-    <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\public\IPFinder.cpp" />
     <ClCompile Include="..\..\..\public\mgoKeys.cc" />
     <ClCompile Include="..\..\..\public\mgoModel.cc" />

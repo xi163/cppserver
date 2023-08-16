@@ -11,6 +11,7 @@
 
 #include "proto/Game.Common.pb.h"
 #include "proto/HallServer.Message.pb.h"
+#include "proto/HallClubServer.Message.pb.h"
 
 class HallServ : public boost::noncopyable {
 public:

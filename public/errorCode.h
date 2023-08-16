@@ -33,7 +33,7 @@ enum EnterRoomErrCode {
 	XX(Decrypt, "请求token参数解密失败") \
 	XX(CheckMd5, "请求token参数MD5校验失败") \
 	\
-	YY(InsideErrorOrNonExcutive, -10, "内部异常或未执行任务") \
+	YY(InsideErrorOrNonExcutive, -100, "内部异常或未执行任务") \
 	XX(GameHandleProxyIDError, "代理ID不存在或代理已停用") \
 	XX(GameHandleProxyMD5CodeError, "代理MD5校验码错误") \
 	XX(GameHandleProxyDESCodeError, "参数转码或代理解密校验码错误") \
@@ -43,6 +43,10 @@ enum EnterRoomErrCode {
 	XX(GameHandleUserLineCodeNull, "站点编码为空") \
 	XX(GameHandleUserLineCodeNotExists, "站点编码不存在") \
 	XX(GameHandleRequestInvalidation, "请求已失效") \
+	XX(InvitedUserNotExist, "被邀请人不存在") \
+	XX(UserAlreadyInClub, "被邀请人已加入俱乐部") \
+	XX(InvitorNotInClubOrClubNotExist, "邀请人不是俱乐部成员或俱乐部不存在,无法操作") \
+	XX(InvalidInvitationcode, "无效邀请码或已失效") \
 	\
 	YY(AddScoreHandleInsertDataError, 32, "玩家上分失败") \
 	XX(SubScoreHandleInsertDataError, "玩家下分失败") \

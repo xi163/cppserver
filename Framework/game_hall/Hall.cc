@@ -1119,94 +1119,392 @@ void HallServ::GetGameServerMessage_club(
 // 获取我的俱乐部
 void HallServ::GetMyClubGameMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetMyClubHallMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetMyClubHallMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+		std::vector<UserClubInfo> infos;
+		if (!mgo::LoadUserClubs(pre_header_->userId, infos)) {
+			rspdata.set_retcode(-1);
+			rspdata.set_errormsg("获取我的俱乐部失败");
+		}
+		else {
+			for (std::vector<UserClubInfo>::iterator it = infos.begin();
+				it != infos.end(); ++it) {
+				rspdata.set_userid(pre_header_->userId);
+				::ClubHallServer::ClubHallInfo* info = rspdata.add_clubinfos();
+				info->set_clubid(it->clubId);
+				info->set_clubname(it->clubName);
+				info->set_clubiconid(it->iconId);
+				info->set_promoterid(it->promoterId);
+				info->set_status(it->status);
+				info->set_invitationcode(it->invitationCode);
+				info->set_clubplayernum(it->playerNum);
+				info->set_rate(it->ratio);
+				info->set_autobcpartnerrate(it->autoPartnerRatio);
+				info->set_url(it->url);
+				info->set_createtime(it->joinTime.format());
+			}
+			rspdata.set_retcode(0);
+			rspdata.set_errormsg("获取我的俱乐部成功");
+		}
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_CLUB_HALL_MESSAGE_RES,
+			pre_header_, header_);
+	}
 }
 
 // 加入俱乐部
 void HallServ::JoinTheClubMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::JoinTheClubMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::JoinTheClubMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+		if (reqdata.invitationcode() > 0) {
+			//用户通过邀请码加入
+			Msg const& errmsg = mgo::JoinClub(reqdata.invitationcode(), pre_header_->userId, 1);
+			if (errmsg.code == Ok.code) {
+				rspdata.set_retcode(Ok.code);
+				rspdata.set_errormsg("欢迎您成为俱乐部一员");
+			}
+			else {
+				rspdata.set_retcode(errmsg.code);
+				rspdata.set_errormsg(errmsg.errmsg() + " 邀请码加入俱乐部失败");
+			}
+		}
+		else if (reqdata.userid() > 0 && reqdata.clubid() > 0) {
+			//代理发起人邀请加入
+			Msg const& errmsg = mgo::InviteJoinClub(reqdata.clubid(), pre_header_->userId, reqdata.userid(), 1);
+			if (errmsg.code == Ok.code) {
+				rspdata.set_retcode(Ok.code);
+				rspdata.set_errormsg("邀请加入俱乐部成功");
+			}
+			else {
+				rspdata.set_retcode(errmsg.code);
+				rspdata.set_errormsg(errmsg.errmsg() + " 邀请加入俱乐部失败");
+			}
+		}
+		else {
+			rspdata.set_retcode(-1);
+			rspdata.set_errormsg("加入俱乐部参数错误");
+		}
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_JOIN_THE_CLUB_MESSAGE_RES,
+			pre_header_, header_);
+	}
 }
 
 // 退出俱乐部
 void HallServ::ExitTheClubMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::ExitTheClubMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::ExitTheClubMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_EXIT_THE_CLUB_MESSAGE_RES,
+			pre_header_, header_);
+	}
 }
 
 // 设置是否开启自动成为合伙人
 void HallServ::SetAutoBecomePartnerMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::SetAutoBecomePartnerMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::SetAutoBecomePartnerMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_SET_AUTO_BECOME_PARTNER_MESSAGE_RES,
+			pre_header_, header_);
+	}
 }
 
 // 成为合伙人
 void HallServ::BecomePartnerMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::BecomePartnerMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::BecomePartnerMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_BECOME_PARTNER_MESSAGE_RES,
+			pre_header_, header_);
+	}
 }
 
 // 佣金兑换金币
 void HallServ::ExchangeRevenueMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::ExchangeRevenueMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::ExchangeRevenueMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_EXCHANGE_MY_REVENUE_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取佣金提取记录 
 void HallServ::GetExchangeRevenueRecordMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetExchangeRevenueRecordMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetExchangeRevenueRecordMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_EXCHANGE_MY_REVENUE_RECORD_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取我的业绩
 void HallServ::GetMyAchievementMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetMyAchievementMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetMyAchievementMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取会员业绩详情
 void HallServ::GetAchievementDetailMemberMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetAchievementDetailMemberMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetAchievementDetailMemberMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_DETAIL_MEMBER_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取合伙人业绩详情
 void HallServ::GetAchievementDetailPartnerMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetAchievementDetailPartnerMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetAchievementDetailPartnerMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_DETAIL_PARTNER_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取俱乐部内我的团队我的俱乐部
 void HallServ::GetMyClubMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetMyClubMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetMyClubMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_CLUB_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取我的团队成员
 void HallServ::GetMyTeamMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetMyTeamMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetMyTeamMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_TEAM_RES,
+			pre_header_, header_);
+	}
 }
 
 // 设置下一级合伙人提成比例
 void HallServ::SetSubordinateRateMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::SetSubordinateRateMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::SetSubordinateRateMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_SET_SUBORDINATE_RATE_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取游戏明细记录
 void HallServ::GetPlayRecordMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetPlayRecordMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetPlayRecordMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_PLAY_RECORD_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取玩家俱乐部所有游戏记录列表
 void HallServ::GetAllPlayRecordMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetAllPlayRecordMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetAllPlayRecordMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_ALL_PLAY_RECORD_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取玩家账户明细列表
 void HallServ::GetUserScoreChangeRecordMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetUserScoreChangeRecordMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetUserScoreChangeRecordMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_USER_SCORE_CHANGE_RECORD_RES,
+			pre_header_, header_);
+	}
 }
 
 // 我的上级信息
 void HallServ::GetClubPromoterInfoMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetClubPromoterInfoMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetClubPromoterInfoMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_CLUB_PROMOTER_RES,
+			pre_header_, header_);
+	}
 }
 
 // 开除此用户
 void HallServ::FireMemberMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::FireMemberMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::FireMemberMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_FIRE_MEMBER_RES,
+			pre_header_, header_);
+	}
 }
 
 // 获取俱乐部申请QQ
 void HallServ::GetApplyClubQQMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::GetApplyClubQQMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::GetApplyClubQQMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_APPLY_CLUB_QQ_RES,
+			pre_header_, header_);
+	}
 }

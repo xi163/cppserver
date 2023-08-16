@@ -489,18 +489,28 @@ namespace mgo {
 		return false;
 	}
 	
-	bool LoadUserClubs(int64_t userId, std::vector<UserClubInfo>& infos) {
-		infos.clear();
+	bool LoadUserClubs(
+		document::view_or_value const& select,
+		document::view_or_value const& where,
+		std::vector<UserClubInfo>& infos) {
 		try {
 			mongocxx::cursor cursor = opt::Find(
-				mgoKeys::db::GAMECONFIG,
+				mgoKeys::db::GAMEMAIN,
 				mgoKeys::tbl::GAME_CLUB_MEMBER,
-				{},
-				builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+				select, where);
 			for (auto& view : cursor) {
 				_LOG_WARN(to_json(view).c_str());
 				UserClubInfo info;
-				info.userId = userId;
+				if (view["userid"]) {
+					switch (view["userid"].type()) {
+					case bsoncxx::type::k_int64:
+						info.userId = view["userid"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.userId = view["userid"].get_int32();
+						break;
+					}
+				}
 				//俱乐部Id 当玩家userId与clubId相同时为盟主
 				if (view["clubid"]) {
 					switch (view["clubid"].type()) {
@@ -559,7 +569,7 @@ namespace mgo {
 						break;
 					}
 				}
-				//1-100:自动成为合伙人 提成比例
+				//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
 				if (view["autopartnerratio"]) {
 					switch (view["autopartnerratio"].type()) {
 					case bsoncxx::type::k_int64:
@@ -588,7 +598,7 @@ namespace mgo {
 				}
 				{
 					auto result = opt::FindOne(
-						mgoKeys::db::GAMECONFIG,
+						mgoKeys::db::GAMEMAIN,
 						mgoKeys::tbl::GAME_CLUB,
 						{},
 						builder::stream::document{} << "clubid" << b_int64{ info.clubId } << finalize);
@@ -637,7 +647,18 @@ namespace mgo {
 							break;
 						}
 					}
-					//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启
+					//提成比例 会员:0 合伙人或盟主:75 表示75%
+					if (view["ratio"]) {
+						switch (view["ratio"].type()) {
+						case bsoncxx::type::k_int64:
+							info.ratio = view["ratio"].get_int64();
+							break;
+						case bsoncxx::type::k_int32:
+							info.ratio = view["ratio"].get_int32();
+							break;
+						}
+					}
+					//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
 					if (view["autopartnerratio"]) {
 						switch (view["autopartnerratio"].type()) {
 						case bsoncxx::type::k_int64:
@@ -653,6 +674,14 @@ namespace mgo {
 						switch (view["createtime"].type()) {
 						case bsoncxx::type::k_date:
 							info.createTime = ::time_point(view["createtime"].get_date());
+							break;
+						}
+					}
+					//俱乐部更新时间
+					if (view["updatetime"]) {
+						switch (view["updatetime"].type()) {
+						case bsoncxx::type::k_date:
+							info.updateTime = ::time_point(view["updatetime"].get_date());
 							break;
 						}
 					}
@@ -676,6 +705,593 @@ namespace mgo {
 		catch (...) {
 		}
 		return false;
+	}
+	
+	bool LoadUserClubs(int64_t userId, std::vector<UserClubInfo>& infos) {
+		infos.clear();
+		return LoadUserClubs(
+			{},
+			builder::stream::document{} << "userid" << b_int64{ userId } << finalize,
+			infos);
+	}
+	
+	bool LoadUserClub(
+		document::view_or_value const& select,
+		document::view_or_value const& where,
+		UserClubInfo& info) {
+		try {
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				select, where);
+			if (!result) {
+				return false;
+			}
+			document::view view = result->view();
+			_LOG_WARN(to_json(view).c_str());
+			if (view["userid"]) {
+				switch (view["userid"].type()) {
+				case bsoncxx::type::k_int64:
+					info.userId = view["userid"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.userId = view["userid"].get_int32();
+					break;
+				}
+			}
+			//俱乐部Id 当玩家userId与clubId相同时为盟主
+			if (view["clubid"]) {
+				switch (view["clubid"].type()) {
+				case bsoncxx::type::k_int64:
+					info.clubId = view["clubid"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.clubId = view["clubid"].get_int32();
+					break;
+				}
+			}
+			if (info.clubId <= 0) {
+				return false;
+			}
+			//我的上级推广代理
+			if (view["promoterid"]) {
+				switch (view["promoterid"].type()) {
+				case bsoncxx::type::k_int64:
+					info.promoterId = view["promoterid"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.promoterId = view["promoterid"].get_int32();
+					break;
+				}
+			}
+			//1:会员 2:合伙人
+			if (view["status"]) {
+				switch (view["status"].type()) {
+				case bsoncxx::type::k_int64:
+					info.status = view["status"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.status = view["status"].get_int32();
+					break;
+				}
+			}
+			//邀请码 会员:0 合伙人或盟主 8位数邀请码
+			if (view["invitationcode"]) {
+				switch (view["invitationcode"].type()) {
+				case bsoncxx::type::k_int64:
+					info.invitationCode = view["invitationcode"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.invitationCode = view["invitationcode"].get_int32();
+					break;
+				}
+			}
+			//提成比例 会员:0 合伙人或盟主:75 表示75%
+			if (view["ratio"]) {
+				switch (view["ratio"].type()) {
+				case bsoncxx::type::k_int64:
+					info.ratio = view["ratio"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.ratio = view["ratio"].get_int32();
+					break;
+				}
+			}
+			//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+			if (view["autopartnerratio"]) {
+				switch (view["autopartnerratio"].type()) {
+				case bsoncxx::type::k_int64:
+					info.autoPartnerRatio = view["autopartnerratio"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					info.autoPartnerRatio = view["autopartnerratio"].get_int32();
+					break;
+				}
+			}
+			//会员:"" 合伙人或盟主:url不为空 当玩家userId与clubId相同时为盟主
+			if (view["url"]) {
+				switch (view["url"].type()) {
+				case bsoncxx::type::k_utf8:
+					info.url = view["url"].get_utf8().value.to_string();
+					break;
+				}
+			}
+			//加入俱乐部时间
+			if (view["createtime"]) {
+				switch (view["createtime"].type()) {
+				case bsoncxx::type::k_date:
+					info.joinTime = ::time_point(view["createtime"].get_date());
+					break;
+				}
+			}
+			{
+				auto result = opt::FindOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB,
+					{},
+					builder::stream::document{} << "clubid" << b_int64{ info.clubId } << finalize);
+				if (!result) {
+					return false;
+				}
+				document::view view = result->view();
+				//俱乐部名称
+				if (view["clubname"]) {
+					switch (view["clubname"].type()) {
+					case bsoncxx::type::k_utf8:
+						info.clubName = view["clubname"].get_utf8().value.to_string();
+						break;
+					}
+				}
+				//俱乐部图标
+				if (view["iconid"]) {
+					switch (view["iconid"].type()) {
+					case bsoncxx::type::k_int64:
+						info.iconId = view["iconid"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.iconId = view["iconid"].get_int32();
+						break;
+					}
+				}
+				//0-未启用 1-活动 2-弃用 3-禁用
+				if (view["status"]) {
+					switch (view["status"].type()) {
+					case bsoncxx::type::k_int64:
+						info.clubStatus = view["status"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.clubStatus = view["status"].get_int32();
+						break;
+					}
+				}
+				//俱乐部人数
+				if (view["playernum"]) {
+					switch (view["playernum"].type()) {
+					case bsoncxx::type::k_int64:
+						info.playerNum = view["playernum"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.playerNum = view["playernum"].get_int32();
+						break;
+					}
+				}
+				//提成比例 会员:0 合伙人或盟主:75 表示75%
+				if (view["ratio"]) {
+					switch (view["ratio"].type()) {
+					case bsoncxx::type::k_int64:
+						info.ratio = view["ratio"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.ratio = view["ratio"].get_int32();
+						break;
+					}
+				}
+				//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+				if (view["autopartnerratio"]) {
+					switch (view["autopartnerratio"].type()) {
+					case bsoncxx::type::k_int64:
+						info.autoPartnerRatio = view["autopartnerratio"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						info.autoPartnerRatio = view["autopartnerratio"].get_int32();
+						break;
+					}
+				}
+				//俱乐部创建时间
+				if (view["createtime"]) {
+					switch (view["createtime"].type()) {
+					case bsoncxx::type::k_date:
+						info.createTime = ::time_point(view["createtime"].get_date());
+						break;
+					}
+				}
+				//俱乐部更新时间
+				if (view["updatetime"]) {
+					switch (view["updatetime"].type()) {
+					case bsoncxx::type::k_date:
+						info.updateTime = ::time_point(view["updatetime"].get_date());
+						break;
+					}
+				}
+			}
+			return true;
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+	
+	bool LoadUserClub(
+		int64_t userId, UserClubInfo& info) {
+		return LoadUserClub(
+			{},
+			builder::stream::document{} << "userid" << b_int64{ userId } << finalize,
+			info);
+	}
+	
+	bool UserInClub(
+		document::view_or_value const& select,
+		document::view_or_value const& where) {
+		try {
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				select, where);
+			if (!result) {
+				return false;
+			}
+			return true;
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return false;
+	}
+
+	//代理发起人邀请加入
+	Msg const& InviteJoinClub(
+		int64_t clubId,
+		int64_t promoterId,
+		int64_t userId,
+		int32_t status,
+		int32_t ratio, int32_t autopartnerratio) {
+		try {
+			if (GetUserId(
+				builder::stream::document{} << "userid" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << finalize) <= 0) {
+				//被邀请人不存在
+				return ERR_InvitedUserNotExist;
+			}
+			if (UserInClub(
+				builder::stream::document{} << "userid" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize)) {
+				//被邀请人已加入俱乐部
+				return ERR_UserAlreadyInClub;
+			}
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "ratio" << 1 << "autopartnerratio" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ promoterId }  << "clubid" << b_int64{ clubId } << finalize);
+			if (!result) {
+				//邀请人不是俱乐部成员
+				return ERR_InvitorNotInClubOrClubNotExist;
+			}
+			document::view view = result->view();
+			_LOG_WARN(to_json(view).c_str());
+			//提成比例 会员:0 合伙人或盟主:75 表示75%
+			if (ratio == 0 && view["ratio"]) {
+				switch (view["ratio"].type()) {
+				case bsoncxx::type::k_int64:
+					ratio = view["ratio"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					ratio = view["ratio"].get_int32();
+					break;
+				}
+			}
+			//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+			if (autopartnerratio == 0 && view["autopartnerratio"]) {
+				switch (view["autopartnerratio"].type()) {
+				case bsoncxx::type::k_int64:
+					autopartnerratio = view["autopartnerratio"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					autopartnerratio = view["autopartnerratio"].get_int32();
+					break;
+				}
+			}
+			{
+#if 0
+				auto result = opt::FindOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB,
+					<< "ratio" << 1 << "autopartnerratio" << 1 << finalize,
+					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
+				if (!result) {
+					return false;
+				}
+				//提成比例 会员:0 合伙人或盟主:75 表示75%
+				if (view["ratio"]) {
+					switch (view["ratio"].type()) {
+					case bsoncxx::type::k_int64:
+						ratio = view["ratio"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						ratio = view["ratio"].get_int32();
+						break;
+					}
+				}
+				//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+				if (view["autopartnerratio"]) {
+					switch (view["autopartnerratio"].type()) {
+					case bsoncxx::type::k_int64:
+						autopartnerratio = view["autopartnerratio"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						autopartnerratio = view["autopartnerratio"].get_int32();
+						break;
+					}
+				}
+#endif
+			}
+			::time_point now = NOW();
+			{
+				auto result = opt::InsertOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB_MEMBER,
+					builder::stream::document{}
+					<< "userid" << b_int64{ userId }
+					<< "clubid" << b_int64{ clubId }
+					<< "promoterid" << b_int64{ promoterId }
+					<< "status" << b_int32{ status }
+					<< "invitationcode" << b_int32{ RANDOM().betweenInt64(10000000, 99999999).randInt64_mt() }//STD::variant(utils::random::charStr(8,rTy::Number)).as_ulong()
+					<< "ratio" << ratio
+					<< "autopartnerratio" << autopartnerratio
+					<< "url" << ""
+					<< "createtime" << b_date{ now }
+					<< "updatetime" << b_date{ now }
+				<< finalize);
+				if (!result) {
+					return ERR_InsideErrorOrNonExcutive;
+				}
+			}
+			{
+#if 0
+				auto docid = result->inserted_id();
+				switch (docid.type()) {
+				case bsoncxx::type::k_oid:
+					bsoncxx::oid oid = docid.get_oid().value;
+					std::string insert_id = oid.to_string();
+				}
+#endif
+				auto result = opt::UpdateOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB,
+					builder::stream::document{}
+					<< "$inc" << open_document << "playernum" << b_int32{ 1 } << close_document
+					<< "$set" << open_document << "updatetime" << b_date{ now } << close_document
+					<< finalize,
+					builder::stream::document{} << "userid" << b_int64{ clubId } << finalize);
+#if 0
+				if (!result || result->modified_count() == 0) {
+					return ERR_InsideErrorOrNonExcutive;
+				}
+#endif
+			}
+			return Ok;
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return ERR_InsideErrorOrNonExcutive;
+	}
+	
+	//用户通过邀请码加入
+	Msg const& JoinClub(
+		int32_t invitationCode,
+		int64_t userId,
+		int32_t status,
+		int32_t ratio, int32_t autopartnerratio) {
+		try {
+			if (GetUserId(
+				builder::stream::document{} << "userid" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << finalize) <= 0) {
+				//被邀请人不存在
+				return ERR_InvitedUserNotExist;
+			}
+			int64_t clubId = 0;
+			int64_t promoterId = 0;
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{}
+				<< "userid" << 1 << "clubid" << 1 << "ratio" << 1 << "autopartnerratio" << 1 << finalize,
+				builder::stream::document{} << "invitationcode" << b_int32{ invitationCode } << finalize);
+			if (!result) {
+				//无效邀请码或已失效
+				return ERR_InvalidInvitationcode;
+			}
+			document::view view = result->view();
+			_LOG_WARN(to_json(view).c_str());
+			if (view["userid"]) {
+				switch (view["userid"].type()) {
+				case bsoncxx::type::k_int64:
+					promoterId = view["userid"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					promoterId = view["userid"].get_int32();
+					break;
+				}
+			}
+			//俱乐部Id 当玩家userId与clubId相同时为盟主
+			if (view["clubid"]) {
+				switch (view["clubid"].type()) {
+				case bsoncxx::type::k_int64:
+					clubId = view["clubid"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					clubId = view["clubid"].get_int32();
+					break;
+				}
+			}
+			//提成比例 会员:0 合伙人或盟主:75 表示75%
+			if (ratio == 0 && view["ratio"]) {
+				switch (view["ratio"].type()) {
+				case bsoncxx::type::k_int64:
+					ratio = view["ratio"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					ratio = view["ratio"].get_int32();
+					break;
+				}
+			}
+			//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+			if (autopartnerratio == 0 && view["autopartnerratio"]) {
+				switch (view["autopartnerratio"].type()) {
+				case bsoncxx::type::k_int64:
+					autopartnerratio = view["autopartnerratio"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					autopartnerratio = view["autopartnerratio"].get_int32();
+					break;
+				}
+			}
+			{
+#if 0
+				auto result = opt::FindOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB,
+					<< "ratio" << 1 << "autopartnerratio" << 1 << finalize,
+					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
+				if (!result) {
+					return false;
+				}
+				//提成比例 会员:0 合伙人或盟主:75 表示75%
+				if (view["ratio"]) {
+					switch (view["ratio"].type()) {
+					case bsoncxx::type::k_int64:
+						ratio = view["ratio"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						ratio = view["ratio"].get_int32();
+						break;
+					}
+				}
+				//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+				if (view["autopartnerratio"]) {
+					switch (view["autopartnerratio"].type()) {
+					case bsoncxx::type::k_int64:
+						autopartnerratio = view["autopartnerratio"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						autopartnerratio = view["autopartnerratio"].get_int32();
+						break;
+					}
+				}
+#endif
+			}
+			if (UserInClub(
+				builder::stream::document{} << "userid" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize)) {
+				//被邀请人已加入俱乐部
+				return ERR_UserAlreadyInClub;
+			}
+			::time_point now = NOW();
+			{
+				auto result = opt::InsertOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB_MEMBER,
+					builder::stream::document{}
+					<< "userid" << b_int64{ userId }
+					<< "clubid" << b_int64{ clubId }
+					<< "promoterid" << b_int64{ promoterId }
+					<< "status" << b_int32{ status }
+					<< "invitationcode" << b_int32{ RANDOM().betweenInt64(10000000, 99999999).randInt64_mt() }//STD::variant(utils::random::charStr(8,rTy::Number)).as_ulong()
+					<< "ratio" << ratio
+					<< "autopartnerratio" << autopartnerratio
+					<< "url" << ""
+					<< "createtime" << b_date{ now }
+					<< "updatetime" << b_date{ now }
+				<< finalize);
+				if (!result) {
+					return ERR_InsideErrorOrNonExcutive;
+				}
+			}
+			{
+#if 0
+				auto docid = result->inserted_id();
+				switch (docid.type()) {
+				case bsoncxx::type::k_oid:
+					bsoncxx::oid oid = docid.get_oid().value;
+					std::string insert_id = oid.to_string();
+				}
+#endif
+				auto result = opt::UpdateOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB,
+					builder::stream::document{}
+					<< "$inc" << open_document << "playernum" << b_int32{ 1 } << close_document
+					<< "$set" << open_document << "updatetime" << b_date{ now } << close_document
+					<< finalize,
+					builder::stream::document{} << "userid" << b_int64{ clubId } << finalize);
+#if 0
+				if (!result || result->modified_count() == 0) {
+					return ERR_InsideErrorOrNonExcutive;
+				}
+#endif
+			}
+			return Ok;
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return ERR_InsideErrorOrNonExcutive;
 	}
 	
 	bool LoadGameRoomInfos(::HallServer::GetGameMessageResponse& gameinfos) {

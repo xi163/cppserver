@@ -17,8 +17,9 @@ struct UserClubInfo {
 	int ratio;//提成比例 会员:0 合伙人或盟主:75 表示75%
 	int autoPartnerRatio;//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
 	std::string url;//会员:"" 合伙人或盟主:url不为空 当玩家userId与clubId相同时为盟主
-	STD::time_point jointime;//加入俱乐部时间
-	STD::time_point createtime;//俱乐部创建时间
+	STD::time_point joinTime;//加入俱乐部时间
+	STD::time_point createTime;//俱乐部创建时间
+	STD::time_point updateTime;//俱乐部更新时间
 };
 
 //#pragma pack(1)

@@ -127,6 +127,79 @@ enum MESSAGE_CLIENT_TO_HALL_SUBID
 
 }
 
+//===================俱乐部==================
+enum MESSAGE_CLIENT_TO_HALL_CLUB_SUBID
+{
+    MESSAGE_CLIENT_TO_HALL_CLUB_SUBID_BEGIN                       = 0;
+
+    CLIENT_TO_HALL_CLUB_GET_GAME_SERVER_MESSAGE_REQ               = 3;      // 获取游戏服务器IP ClubHallServer.GetGameServerMessage
+    CLIENT_TO_HALL_CLUB_GET_GAME_SERVER_MESSAGE_RES               = 4;      // 返回游戏服务器IP ClubHallServer.GetGameServerMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_MY_CLUB_GAME_MESSAGE_REQ              = 5;      // 获取我的俱乐部 游戏部分  ClubHallServer.GetMyClubGameMessage
+    CLIENT_TO_HALL_CLUB_GET_MY_CLUB_GAME_MESSAGE_RES              = 6;      // 获取我的俱乐部 游戏部分  ClubHallServer.GetMyClubGameMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_MY_CLUB_HALL_MESSAGE_REQ              = 11;     // 获取我的俱乐部  ClubHallServer.GetMyClubHallMessage
+    CLIENT_TO_HALL_CLUB_GET_MY_CLUB_HALL_MESSAGE_RES              = 12;     // 获取我的俱乐部  ClubHallServer.GetMyClubHallMessageResponse
+
+    CLIENT_TO_HALL_CLUB_JOIN_THE_CLUB_MESSAGE_REQ                 = 13;     // 加入俱乐部  ClubHallServer.JoinTheClubMessage
+    CLIENT_TO_HALL_CLUB_JOIN_THE_CLUB_MESSAGE_RES                 = 14;     // 加入俱乐部  ClubHallServer.JoinTheClubMessageResponse
+
+    CLIENT_TO_HALL_CLUB_EXIT_THE_CLUB_MESSAGE_REQ                 = 15;     // 退出俱乐部  ClubHallServer.ExitTheClubMessage
+    CLIENT_TO_HALL_CLUB_EXIT_THE_CLUB_MESSAGE_RES                 = 16;     // 退出俱乐部  ClubHallServer.ExitTheClubMessageResponse
+
+
+    CLIENT_TO_HALL_CLUB_SET_AUTO_BECOME_PARTNER_MESSAGE_REQ       = 21;     // 设置是否开启自动成为合伙人  ClubHallServer.SetAutoBecomePartnerMessage
+    CLIENT_TO_HALL_CLUB_SET_AUTO_BECOME_PARTNER_MESSAGE_RES       = 22;     // 设置是否开启自动成为合伙人  ClubHallServer.SetAutoBecomePartnerMessageResponse
+
+    CLIENT_TO_HALL_CLUB_BECOME_PARTNER_MESSAGE_REQ                = 23;     // 成为合伙人  ClubHallServer.BecomePartnerMessage
+    CLIENT_TO_HALL_CLUB_BECOME_PARTNER_MESSAGE_RES                = 24;     // 成为合伙人  ClubHallServer.BecomePartnerMessageResponse
+
+    CLIENT_TO_HALL_CLUB_EXCHANGE_MY_REVENUE_REQ                   = 25;     // 佣金兑换金币 ClubHallServer.ExchangeRevenueMessage
+    CLIENT_TO_HALL_CLUB_EXCHANGE_MY_REVENUE_RES                   = 26;     // 佣金兑换金币 ClubHallServer.ExchangeRevenueMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_EXCHANGE_MY_REVENUE_RECORD_REQ        = 31;     // 获取佣金提取记录     ClubHallServer.GetExchangeRevenueRecordMessage
+    CLIENT_TO_HALL_CLUB_GET_EXCHANGE_MY_REVENUE_RECORD_RES        = 32;     // 返回佣金提取记录结果  ClubHallServer.GetExchangeRevenueRecordMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_REQ                    = 33;     // 获取我的业绩 ClubHallServer.GetMyAchievementMessage
+    CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_RES                    = 34;     // 返回我的业绩 ClubHallServer.GetMyAchievementMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_DETAIL_MEMBER_REQ      = 35;     // 获取会员业绩详情 ClubHallServer.GetAchievementDetailMemberMessage
+    CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_DETAIL_MEMBER_RES      = 36;     // 返回会员业绩详情结果 ClubHallServer.GetAchievementDetailMemberMessage
+
+    CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_DETAIL_PARTNER_REQ     = 41;     // 获取合伙人业绩详情 ClubHallServer.GetAchievementDetailPartnerMessage
+    CLIENT_TO_HALL_CLUB_GET_MY_ACHIEVEMENT_DETAIL_PARTNER_RES     = 42;     // 返回合伙人业绩详情结果 ClubHallServer.GetAchievementDetailPartnerMessage
+
+    CLIENT_TO_HALL_CLUB_GET_MY_CLUB_REQ                           = 43;     // 获取俱乐部内我的团队我的俱乐部 ClubHallServer.GetMyClubMessage
+    CLIENT_TO_HALL_CLUB_GET_MY_CLUB_RES                           = 44;     // 返回俱乐部内我的团队我的俱乐部 ClubHallServer.GetMyClubMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_MY_TEAM_REQ                           = 51;     // 获取我的团队成员 ClubHallServer.GetMyTeamMessage
+    CLIENT_TO_HALL_CLUB_GET_MY_TEAM_RES                           = 52;     // 返回我的团队成员 ClubHallServer.GetMyTeamMessageResponse
+
+    CLIENT_TO_HALL_CLUB_SET_SUBORDINATE_RATE_REQ                  = 53;     // 设置下一级合伙人提成比例     ClubHallServer.SetSubordinateRateMessage
+    CLIENT_TO_HALL_CLUB_SET_SUBORDINATE_RATE_RES                  = 54;     // 返回设置下一级合伙人提成比例  ClubHallServer.SetSubordinateRateMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_PLAY_RECORD_REQ                       = 55;     // 获取游戏明细记录  ClubHallServer.GetPlayRecordMessage
+    CLIENT_TO_HALL_CLUB_GET_PLAY_RECORD_RES                       = 56;     // 获取游戏明细记录  ClubHallServer.GetPlayRecordMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_ALL_PLAY_RECORD_REQ                   = 61;     // 获取玩家俱乐部所有游戏记录列表   ClubHallServer.GetAllPlayRecordMessage
+    CLIENT_TO_HALL_CLUB_GET_ALL_PLAY_RECORD_RES                   = 62;     // 返回玩家俱乐部所有游戏记录列表   ClubHallServer.GetAllPlayRecordMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_USER_SCORE_CHANGE_RECORD_REQ          = 63;     // 获取玩家账户明细列表   ClubHallServer.GetUserScoreChangeRecordMessage
+    CLIENT_TO_HALL_CLUB_GET_USER_SCORE_CHANGE_RECORD_RES          = 64;     // 返回玩家账户明细列表   ClubHallServer.GetUserScoreChangeRecordMessageResponse
+
+    CLIENT_TO_HALL_CLUB_GET_CLUB_PROMOTER_REQ                     = 65;     // 我的上级信息  ClubHallServer.GetClubPromoterInfoMessage
+    CLIENT_TO_HALL_CLUB_GET_CLUB_PROMOTER_RES                     = 66;     // 我的上级信息  ClubHallServer.GetClubPromoterInfoMessageResponse
+
+    CLIENT_TO_HALL_CLUB_FIRE_MEMBER_REQ                           = 71;     // 开除此用户  ClubHallServer.FireMemberMessage
+    CLIENT_TO_HALL_CLUB_FIRE_MEMBER_RES                           = 72;     // 开除此用户  ClubHallServer.FireMemberMessageResponse
+
+
+    CLIENT_TO_HALL_CLUB_GET_APPLY_CLUB_QQ_REQ                     = 73;     // 获取俱乐部申请QQ  ClubHallServer.GetApplyClubQQMessage
+    CLIENT_TO_HALL_CLUB_GET_APPLY_CLUB_QQ_RES                     = 74;     // 获取俱乐部申请QQ  ClubHallServer.GetApplyClubQQMessage
+
+
+}
+
 enum MESSAGE_CLIENT_TO_GAME_SERVER_SUBID
 {
     A = 0;
