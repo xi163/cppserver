@@ -15,36 +15,71 @@ namespace mgo {
 	namespace opt {
 		
 		int getErrCode(std::string const& errmsg);
-
+		
 		optional<result::insert_one> InsertOne(
 			std::string const& dbname,
 			std::string const& tblname,
 			document::view_or_value const& view);
 
+		optional<result::insert_many> Insert(
+			std::string const& dbname,
+			std::string const& tblname,
+			std::vector<document::view_or_value> const& views);
+		
+		optional<result::delete_result> DeleteOne(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& where);
+
+		optional<result::delete_result> Delete(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& where);
+		
 		optional<result::update> UpdateOne(
 			std::string const& dbname,
 			std::string const& tblname,
 			document::view_or_value const& update,
 			document::view_or_value const& where);
-
+		
+		optional<result::update> Update(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& update,
+			document::view_or_value const& where);
+		
 		optional<document::value> FindOne(
 			std::string const& dbname,
 			std::string const& tblname,
 			document::view_or_value const& select,
 			document::view_or_value const& where);
-
+		
 		mongocxx::cursor Find(
 			std::string const& dbname,
 			std::string const& tblname,
 			document::view_or_value const& select,
 			document::view_or_value const& where);
-
+		
 		optional<document::value> FindOneAndUpdate(
 			std::string const& dbname,
 			std::string const& tblname,
 			document::view_or_value const& select,
 			document::view_or_value const& update,
 			document::view_or_value const& where);
+		
+		optional<document::value> FindOneAndReplace(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& select,
+			document::view_or_value const& replace,
+			document::view_or_value const& where);
+		
+		optional<document::value> FindOneAndDelete(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& select,
+			document::view_or_value const& where);
+
 	
 	} // namespace opt
 	
@@ -123,6 +158,12 @@ namespace mgo {
 		int64_t userId,
 		int32_t status,
 		int32_t ratio = 0, int32_t autopartnerratio = 0);
+	
+	//用户退出俱乐部
+	Msg const& ExitClub(int64_t userId, int64_t clubId);
+	
+	//代理发起人开除俱乐部成员
+	Msg const& FireClubUser(int64_t clubId, int64_t promoterId, int64_t userId);
 	
 	bool LoadGameRoomInfos(
 		::HallServer::GetGameMessageResponse& gameinfos);

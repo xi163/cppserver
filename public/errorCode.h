@@ -50,6 +50,14 @@ enum EnterRoomErrCode {
 	XX(JoinClub_InvalidInvitationcode, "加入俱乐部错误: 无效邀请码或已失效") \
 	XX(JoinClub_InsideError, "加入俱乐部错误: 操作内部异常") \
 	\
+	XX(ExitClub_UserNotInClub, "您已退出俱乐部或不是俱乐部成员") \
+	XX(ExitClub_InsideError, "退出俱乐部错误: 操作内部异常") \
+	\
+	XX(FireClub_UserNotInClub, "被开除用户不存在或已不是俱乐部成员") \
+	XX(FireClub_NotInClubOrClubNotExist, "开除俱乐部成员错误: 您不是俱乐部成员或俱乐部不存在") \
+	XX(FireClub_OerationPermissionsErr, "开除俱乐部成员错误: 您所在俱乐部操作权限不够") \
+	XX(FireClub_InsideError, "开除俱乐部成员错误: 操作内部异常") \
+	\
 	YY(AddScoreHandleInsertDataError, 32, "玩家上分失败") \
 	XX(SubScoreHandleInsertDataError, "玩家下分失败") \
 	XX(SubScoreHandleUserNotExistsError, "玩家不存在") \	

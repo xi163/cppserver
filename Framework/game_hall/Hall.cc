@@ -1372,7 +1372,19 @@ void HallServ::ExitTheClubMessage_club(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::ClubHallServer::ExitTheClubMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-
+		Msg const& errmsg = mgo::ExitClub(pre_header_->userId, reqdata.clubid());
+		if (errmsg.code == Ok.code) {
+			rspdata.set_retcode(Ok.code);
+			rspdata.set_errormsg("您退出俱乐部成功");
+		}
+		else if (errmsg.code == ERR_ExitClub_UserNotInClub.code){
+			rspdata.set_retcode(Ok.code);
+			rspdata.set_errormsg(errmsg.errmsg());
+		}
+		else {
+			rspdata.set_retcode(errmsg.code);
+			rspdata.set_errormsg(errmsg.errmsg());
+		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_EXIT_THE_CLUB_MESSAGE_RES,
 			pre_header_, header_);
@@ -1642,7 +1654,19 @@ void HallServ::FireMemberMessage_club(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::ClubHallServer::FireMemberMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-
+		Msg const& errmsg = mgo::FireClubUser(reqdata.clubid(), pre_header_->userId, reqdata.userid());
+		if (errmsg.code == Ok.code) {
+			rspdata.set_retcode(Ok.code);
+			rspdata.set_errormsg("开除俱乐部成员成功");
+		}
+		else if (errmsg.code == ERR_FireClub_UserNotInClub.code) {
+			rspdata.set_retcode(Ok.code);
+			rspdata.set_errormsg(errmsg.errmsg());
+		}
+		else {
+			rspdata.set_retcode(errmsg.code);
+			rspdata.set_errormsg(errmsg.errmsg());
+		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_FIRE_MEMBER_RES,
 			pre_header_, header_);

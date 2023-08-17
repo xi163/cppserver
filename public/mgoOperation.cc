@@ -30,6 +30,36 @@ namespace mgo {
 			return coll.insert_one(view, opts);
 		}
 		
+		optional<result::insert_many> Insert(
+			std::string const& dbname,
+			std::string const& tblname,
+			std::vector<document::view_or_value> const& views) {
+			static __thread mongocxx::database db = MONGODBCLIENT[dbname];
+			mongocxx::collection  coll = db[tblname];
+			mongocxx::options::insert opts = mongocxx::options::insert{};
+			return coll.insert_many(views, opts);
+		}
+		
+		optional<result::delete_result> DeleteOne(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& where) {
+			static __thread mongocxx::database db = MONGODBCLIENT[dbname];
+			mongocxx::collection  coll = db[tblname];
+			mongocxx::options::delete_options opts = mongocxx::options::delete_options{};
+			return coll.delete_one(where, opts);
+		}
+
+		optional<result::delete_result> Delete(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& where) {
+			static __thread mongocxx::database db = MONGODBCLIENT[dbname];
+			mongocxx::collection  coll = db[tblname];
+			mongocxx::options::delete_options opts = mongocxx::options::delete_options{};
+			return coll.delete_many(where, opts);
+		}
+
 		optional<result::update> UpdateOne(
 			std::string const& dbname,
 			std::string const& tblname,
@@ -40,7 +70,18 @@ namespace mgo {
 			mongocxx::options::update opts = mongocxx::options::update{};
 			return coll.update_one(where, update, opts);
 		}
-		
+
+		optional<result::update> Update(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& update,
+			document::view_or_value const& where) {
+			static __thread mongocxx::database db = MONGODBCLIENT[dbname];
+			mongocxx::collection  coll = db[tblname];
+			mongocxx::options::update opts = mongocxx::options::update{};
+			return coll.update_many(where, update, opts);
+		}
+
 		optional<document::value> FindOne(
 			std::string const& dbname,
 			std::string const& tblname,
@@ -79,6 +120,31 @@ namespace mgo {
 			mongocxx::options::find_one_and_update opts = mongocxx::options::find_one_and_update{};
 			opts.projection(select);
 			return coll.find_one_and_update(where, update, opts);
+		}
+		
+		optional<document::value> FindOneAndReplace(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& select,
+			document::view_or_value const& replace,
+			document::view_or_value const& where) {
+			static __thread mongocxx::database db = MONGODBCLIENT[dbname];
+			mongocxx::collection  coll = db[tblname];
+			mongocxx::options::find_one_and_replace opts = mongocxx::options::find_one_and_replace{};
+			opts.projection(select);
+			return coll.find_one_and_replace(where, replace, opts);
+		}
+		
+		optional<document::value> FindOneAndDelete(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& select,
+			document::view_or_value const& where) {
+			static __thread mongocxx::database db = MONGODBCLIENT[dbname];
+			mongocxx::collection  coll = db[tblname];
+			mongocxx::options::find_one_and_delete opts = mongocxx::options::find_one_and_delete{};
+			opts.projection(select);
+			return coll.find_one_and_delete(where, opts);
 		}
 	}
 
@@ -1291,6 +1357,145 @@ namespace mgo {
 		catch (...) {
 		}
 		return ERR_JoinClub_InsideError;
+	}
+	
+	//用户退出俱乐部
+	Msg const& ExitClub(int64_t userId, int64_t clubId) {
+		try {
+			auto result = opt::Delete(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize);
+			if (!result) {
+				return ERR_ExitClub_InsideError;
+			}
+			if (result->deleted_count() > 0) {
+				auto result = opt::UpdateOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB,
+					builder::stream::document{}
+					<< "$inc" << open_document << "playernum" << b_int32{ -1 } << close_document
+					<< "$set" << open_document << "updatetime" << b_date{ NOW() } << close_document
+					<< finalize,
+					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
+#if 0
+				if (!result || result->modified_count() == 0) {
+					rturn ERR_ExitClub_InsideError;
+				}
+#endif	
+				return Ok;
+			}
+			return ERR_ExitClub_UserNotInClub;
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return ERR_ExitClub_InsideError;
+	}
+	
+	//代理发起人开除俱乐部成员
+	Msg const& FireClubUser(int64_t clubId, int64_t promoterId, int64_t userId) {
+		try {
+			int32_t status = 0;
+			int64_t userPromoterId = 0;
+			{
+				auto result = opt::FindOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB_MEMBER,
+					builder::stream::document{} << "promoterid" << 1 << finalize,
+					builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize);
+				if (!result) {
+					return ERR_FireClub_UserNotInClub;
+				}
+				document::view view = result->view();
+				//_LOG_WARN(to_json(view).c_str());
+				if (view["promoterid"]) {
+					switch (view["promoterid"].type()) {
+					case bsoncxx::type::k_int64:
+						userPromoterId = view["promoterid"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						userPromoterId = view["promoterid"].get_int32();
+						break;
+					}
+				}
+			}
+			{
+				auto result = opt::FindOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB_MEMBER,
+					builder::stream::document{} << "status" << 1 << finalize,
+					builder::stream::document{} << "userid" << b_int64{ promoterId } << "clubid" << b_int64{ clubId } << finalize);
+				if (!result) {
+					return ERR_FireClub_NotInClubOrClubNotExist;
+				}
+				document::view view = result->view();
+				//_LOG_WARN(to_json(view).c_str());
+				if (view["status"]) {
+					switch (view["status"].type()) {
+					case bsoncxx::type::k_int64:
+						status = view["status"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						status = view["status"].get_int32();
+						break;
+					}
+				}
+			}
+			if (status < 2) {
+				return ERR_FireClub_OerationPermissionsErr;
+			}
+			auto result = opt::Delete(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize);
+			if (!result) {
+				return ERR_FireClub_InsideError;
+			}
+			if (result->deleted_count() > 0) {
+				auto result = opt::UpdateOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAME_CLUB,
+					builder::stream::document{}
+					<< "$inc" << open_document << "playernum" << b_int32{ -1 } << close_document
+					<< "$set" << open_document << "updatetime" << b_date{ NOW() } << close_document
+					<< finalize,
+					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
+#if 0
+				if (!result || result->modified_count() == 0) {
+					rturn ERR_FireClub_InsideError;
+				}
+#endif	
+				return Ok;
+			}
+			return ERR_FireClub_UserNotInClub;
+		}
+		catch (const bsoncxx::exception& e) {
+			_LOG_ERROR(e.what());
+			switch (opt::getErrCode(e.what())) {
+			case 11000:
+				break;
+			default:
+				break;
+			}
+		}
+		catch (const std::exception& e) {
+			_LOG_ERROR(e.what());
+		}
+		catch (...) {
+		}
+		return ERR_FireClub_InsideError;
 	}
 	
 	bool LoadGameRoomInfos(::HallServer::GetGameMessageResponse& gameinfos) {
