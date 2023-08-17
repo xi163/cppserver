@@ -1319,7 +1319,7 @@ void HallServ::JoinTheClubMessage_club(
 			}
 			else {
 				rspdata.set_retcode(errmsg.code);
-				rspdata.set_errormsg(errmsg.errmsg() + " 邀请码加入俱乐部失败");
+				rspdata.set_errormsg(errmsg.errmsg());
 			}
 		}
 		else if (reqdata.userid() > 0 && reqdata.clubid() > 0) {
@@ -1345,7 +1345,7 @@ void HallServ::JoinTheClubMessage_club(
 			}
 			else {
 				rspdata.set_retcode(errmsg.code);
-				rspdata.set_errormsg(errmsg.errmsg() + " 邀请加入俱乐部失败");
+				rspdata.set_errormsg(errmsg.errmsg());
 			}
 		}
 		else {

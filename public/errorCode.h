@@ -43,10 +43,12 @@ enum EnterRoomErrCode {
 	XX(GameHandleUserLineCodeNull, "站点编码为空") \
 	XX(GameHandleUserLineCodeNotExists, "站点编码不存在") \
 	XX(GameHandleRequestInvalidation, "请求已失效") \
-	XX(InvitedUserNotExist, "被邀请人不存在") \
-	XX(UserAlreadyInClub, "被邀请人已加入俱乐部") \
-	XX(InvitorNotInClubOrClubNotExist, "邀请人不是俱乐部成员或俱乐部不存在,无法操作") \
-	XX(InvalidInvitationcode, "无效邀请码或已失效") \
+	\
+	XX(JoinClub_InvitedUserNotExist, "加入俱乐部错误: 被邀请人不存在") \
+	XX(JoinClub_UserAlreadyInClub, "被邀请人已是俱乐部成员") \
+	XX(JoinClub_InvitorNotInClubOrClubNotExist, "加入俱乐部错误: 邀请人不是俱乐部成员或俱乐部不存在") \
+	XX(JoinClub_InvalidInvitationcode, "加入俱乐部错误: 无效邀请码或已失效") \
+	XX(JoinClub_InsideError, "加入俱乐部错误: 操作内部异常") \
 	\
 	YY(AddScoreHandleInsertDataError, 32, "玩家上分失败") \
 	XX(SubScoreHandleInsertDataError, "玩家下分失败") \

@@ -983,13 +983,13 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << finalize,
 				builder::stream::document{} << "userid" << b_int64{ userId } << finalize) <= 0) {
 				//被邀请人不存在
-				return ERR_InvitedUserNotExist;
+				return ERR_JoinClub_InvitedUserNotExist;
 			}
 			if (UserInClub(
 				builder::stream::document{} << "userid" << 1 << finalize,
 				builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize)) {
 				//被邀请人已加入俱乐部
-				return ERR_UserAlreadyInClub;
+				return ERR_JoinClub_UserAlreadyInClub;
 			}
 			auto result = opt::FindOne(
 				mgoKeys::db::GAMEMAIN,
@@ -998,7 +998,7 @@ namespace mgo {
 				builder::stream::document{} << "userid" << b_int64{ promoterId }  << "clubid" << b_int64{ clubId } << finalize);
 			if (!result) {
 				//邀请人不是俱乐部成员
-				return ERR_InvitorNotInClubOrClubNotExist;
+				return ERR_JoinClub_InvitorNotInClubOrClubNotExist;
 			}
 			document::view view = result->view();
 			_LOG_WARN(to_json(view).c_str());
@@ -1075,7 +1075,7 @@ namespace mgo {
 					<< "createtime" << b_date{ now }
 					<< finalize);
 				if (!result) {
-					return ERR_InsideErrorOrNonExcutive;
+					return ERR_JoinClub_InsideErrorOrNonExcutive;
 				}
 			}
 			{
@@ -1097,7 +1097,7 @@ namespace mgo {
 					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
 #if 0
 				if (!result || result->modified_count() == 0) {
-					return ERR_InsideErrorOrNonExcutive;
+					return ERR_JoinClub_InsideErrorOrNonExcutive;
 				}
 #endif
 			}
@@ -1117,7 +1117,7 @@ namespace mgo {
 		}
 		catch (...) {
 		}
-		return ERR_InsideErrorOrNonExcutive;
+		return ERR_JoinClub_InsideErrorOrNonExcutive;
 	}
 	
 	//用户通过邀请码加入
@@ -1132,7 +1132,7 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << finalize,
 				builder::stream::document{} << "userid" << b_int64{ userId } << finalize) <= 0) {
 				//被邀请人不存在
-				return ERR_InvitedUserNotExist;
+				return ERR_JoinClub_InvitedUserNotExist;
 			}
 			/*int64_t*/ clubId = 0;
 			int64_t promoterId = 0;
@@ -1144,7 +1144,7 @@ namespace mgo {
 				builder::stream::document{} << "invitationcode" << b_int32{ invitationCode } << finalize);
 			if (!result) {
 				//无效邀请码或已失效
-				return ERR_InvalidInvitationcode;
+				return ERR_JoinClub_InvalidInvitationcode;
 			}
 			document::view view = result->view();
 			_LOG_WARN(to_json(view).c_str());
@@ -1229,7 +1229,7 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << finalize,
 				builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize)) {
 				//被邀请人已加入俱乐部
-				return ERR_UserAlreadyInClub;
+				return ERR_JoinClub_UserAlreadyInClub;
 			}
 			::time_point now = NOW();
 			{
@@ -1248,7 +1248,7 @@ namespace mgo {
 					<< "createtime" << b_date{ now }
 					<< finalize);
 				if (!result) {
-					return ERR_InsideErrorOrNonExcutive;
+					return ERR_JoinClub_InsideErrorOrNonExcutive;
 				}
 			}
 			{
@@ -1270,7 +1270,7 @@ namespace mgo {
 					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
 #if 0
 				if (!result || result->modified_count() == 0) {
-					return ERR_InsideErrorOrNonExcutive;
+					return ERR_JoinClub_InsideErrorOrNonExcutive;
 				}
 #endif
 			}
@@ -1290,7 +1290,7 @@ namespace mgo {
 		}
 		catch (...) {
 		}
-		return ERR_InsideErrorOrNonExcutive;
+		return ERR_JoinClub_InsideErrorOrNonExcutive;
 	}
 	
 	bool LoadGameRoomInfos(::HallServer::GetGameMessageResponse& gameinfos) {
