@@ -35,6 +35,9 @@
 		} \
 	}
 
+//XX(::Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER, "服务器", LVL_DEBUG) \
+//XX(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_MATCH_SERVER, "比赛服", LVL_DEBUG) \
+
 #define MY_MAINID_MAP(XX) \
 	XX(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_ID_BEGIN, "", LVL_DEBUG) \
 	XX(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_PROXY, "网关服", LVL_DEBUG) \
@@ -44,9 +47,7 @@
 	XX(::Game::Common::MAINID::MAIN_MESSAGE_PROXY_TO_HALL, "大厅服", LVL_DEBUG) \
 	XX(::Game::Common::MAINID::MAIN_MESSAGE_HALL_TO_PROXY, "网关服", LVL_DEBUG) \
 	XX(::Game::Common::MAINID::MAIN_MESSAGE_PROXY_TO_GAME_SERVER, "游戏服", LVL_DEBUG) \
-	XX(::Game::Common::MAINID::MAIN_MESSAGE_GAME_SERVER_TO_PROXY, "网关服", LVL_DEBUG) \
-	XX(::Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER, "服务器", LVL_DEBUG) \
-	XX(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_MATCH_SERVER, "比赛服", LVL_DEBUG)
+	XX(::Game::Common::MAINID::MAIN_MESSAGE_GAME_SERVER_TO_PROXY, "网关服", LVL_DEBUG)
 MY_TAB_MAP(mainid_, MY_MAINID_MAP);
 
 #define MY_SUBID_CLIENT_TO_SERVER_MAP(XX) \
@@ -215,10 +216,10 @@ extern "C" int strMessageID(
 // 		MY_CMD_DESC(subId, subid_game_server_to_proxy_, strSubID, strSubDesc, lvl);
 // 		break;
 // 	}
-	case ::Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER: {
-		MY_CMD_DESC(subId, subid_http_to_server_, strSubID, strSubDesc, lvl);
-		break;
-	}
+// 	case ::Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER: {
+// 		MY_CMD_DESC(subId, subid_http_to_server_, strSubID, strSubDesc, lvl);
+// 		break;
+// 	}
 // 	case ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_MATCH_SERVER: {
 // 		MY_CMD_DESC(subId, subid_client_to_match_server_, strSubID, strSubDesc, lvl);
 // 		break;

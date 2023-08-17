@@ -1,0 +1,565 @@
+syntax = "proto3";
+
+package ClubHallServer;
+
+import public "Game.Common.proto";
+
+
+
+//获取分配的游戏服务器IP地址相关信息
+message GetGameServerMessage
+{
+    Game.Common.Header     header                  = 1;
+
+    int32                  gameId                  = 2;    // 游戏编号
+    int32                  roomId                  = 3;    // 房间编号
+    int64                  clubId                  = 4;
+}
+message GetGameServerMessageResponse
+{
+    Game.Common.Header     header                  = 1;
+    int32                  retCode                 = 2;
+    string                 errorMsg                = 3;
+
+    int32                  gameId                  = 4;    // 游戏编号
+    int32                  roomId                  = 5;    // 房间编号
+    int64                  clubId                  = 6;    // 俱乐部Id 金币场 好友房:0
+    int32                  type                    = 7;    // 1-金币场 2-好友房 3-俱乐部
+}
+
+//获取我的俱乐部 游戏接口
+message GetMyClubGameMessage
+{
+    Game.Common.Header     header                  = 1;
+}
+message ClubGameInfo
+{
+    int64                  clubId                  = 1;
+    string                 clubName                = 2;
+}
+message GetMyClubGameMessageResponse
+{
+    Game.Common.Header     header                  = 1;
+    int32                  retCode                 = 2;
+    string                 errorMsg                = 3;
+
+    int64                  userId                  = 4;
+    repeated ClubGameInfo           clubInfos               = 5;
+}
+
+//获取我的俱乐部 大厅接口
+message GetMyClubHallMessage
+{
+    Game.Common.Header     header                  = 1;
+}
+message ClubHallInfo
+{
+    int64                  clubId                  = 1;  //俱乐部Id 当玩家userId与clubId相同时为盟主
+    string                 clubName                = 2;  //俱乐部名称
+    int64                  promoterId              = 3;  //我的上级推广代理
+    int32                  clubIconId              = 4;  //俱乐部图标
+    int32                  status                  = 5;  //1：会员 2：合伙人
+    int32                  invitationCode          = 6;  //邀请码 会员:0  合伙人或盟主 8位数邀请码
+    int32                  clubPlayerNum           = 7;  //俱乐部人数
+    int32                  rate                    = 8;  //提成比例 会员：0   合伙人或盟主:75 表示75%
+    int32                  autoBCPartnerRate       = 9;  //-1:自动成为合伙人无效   0:自动成为合伙人 未开启  1-100:自动成为合伙人 提成比例
+    string                 url                     = 10; //url  会员:""  合伙人或盟主:url不空为 当玩家userId与clubId相同时为盟主
+    string                 createTime              = 11; //加入俱乐部时间
+}
+message GetMyClubHallMessageResponse
+{
+    Game.Common.Header     header                  = 1;
+    int32                  retCode                 = 2;
+    string                 errorMsg                = 3;
+
+    int64                  userId                  = 4;
+    repeated ClubHallInfo           clubInfos               = 5;
+
+    int64                  todayProfit             = 6;  //今日佣金
+    int64                  allowDrawScore          = 7;  //可提取佣金
+}
+
+
+//加入俱乐部
+message JoinTheClubMessage
+{
+    Game.Common.Header     header                  = 1;
+	//用户通过邀请码加入
+    int32                  invitationCode          = 2;
+	//代理发起人邀请加入
+	int64                  clubId                  = 3;
+	int64                  userId                  = 4;
+}
+message JoinTheClubMessageResponse
+{
+    Game.Common.Header     header                  = 1;
+    int32                  retCode                 = 2;
+    string                 errorMsg                = 3;
+
+    int64                  userId                  = 4;
+    ClubHallInfo           clubInfo                = 5;
+}
+
+//退出俱乐部
+message ExitTheClubMessage
+{
+    Game.Common.Header     header                  = 1;
+    int64                  clubId                  = 2;
+}
+message ExitTheClubMessageResponse
+{
+    Game.Common.Header     header                  = 1;
+    int32                  retCode                 = 2;
+    string                 errorMsg                = 3;
+
+    int64                  userId                  = 4;
+    int64                  clubId                  = 5;
+}
+
+//设置是否开启自动成为合伙人
+message SetAutoBecomePartnerMessage
+{
+    Game.Common.Header     header                  = 1;
+    int64                  clubId                  = 2;
+    int32                  autoBCPartnerRate       = 3;  //-1:自动成为合伙人无效(只有会员无效)   0:自动成为合伙人 未开启  1-100:自动成为合伙人 提成比例
+}
+message SetAutoBecomePartnerMessageResponse
+{
+    Game.Common.Header     header                  = 1;
+    int32                  retCode                 = 2;
+    string                 errorMsg                = 3;
+
+    int64                  userId                  = 4;
+    int64                  clubId                  = 5;
+    int32                  autoBCPartnerRate       = 6;  //-1:自动成为合伙人无效(只有会员无效)   0:自动成为合伙人 未开启  1-100:自动成为合伙人 提成比例
+}
+
+//成为合伙人
+message BecomePartnerMessage
+{
+    Game.Common.Header     header                  = 1;
+    int64                  clubId                  = 2;
+    int64                  memberId                = 3;  //要升级的会员Id
+    int32                  rate                    = 4;  //要升级的会员的分成比例
+}
+message BecomePartnerMessageResponse
+{
+    Game.Common.Header     header                  = 1;
+    int32                  retCode                 = 2;
+    string                 errorMsg                = 3;
+
+    int64                  userId                  = 4;
+    int64                  clubId                  = 5;
+    int64                  memberId                = 6;  //要升级的会员Id
+    int32                  rate                    = 7;  //要升级的会员的分成比例
+}
+
+//佣金领取
+message ExchangeRevenueMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int64                  userId                  = 2;    // 玩家ID
+    int32                  type                    = 3;    // 兑换类型 1: Alipay 2:bankcard 3:game account
+    int64                  exchangeScore           = 4;    // 提取佣金金额
+}
+//返回领取结果
+message ExchangeRevenueMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误描述.
+
+    int64                  userId                  = 4;    // 玩家ID.
+    int32                  type                    = 5;    // 兑换类型
+    int64                  exchangeScore           = 6;    // 提取佣金金额
+    int64                  leftScore               = 7;    // 剩下佣金金额
+    int64                  score                   = 8;    // 游戏账户金币
+}
+
+
+//获取我的业绩
+message GetMyAchievementMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+}
+message AchievementItem
+{
+    int32                  newPlayerCount          = 1;    // 直属新增人数
+    int64                  newRevenue              = 2;    // 直属新增税收
+    int64                  newMyProfit             = 3;    // 直属分成
+    int32                  newTeamPlayerCount      = 4;    // 团队新增人数
+    int64                  newTeamRevenue          = 5;    // 团队新增税收
+    int64                  teamProfit              = 6;    // 团队分成
+    int64                  myTeamProfit            = 7;    // 预计佣金(我的收益)
+}
+message DayAchievementItem
+{
+    string                 strDate                 = 1;    // 佣金日期
+    AchievementItem        achievementItem         = 2;
+}
+//返回业绩结果
+message GetMyAchievementMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误描述.
+
+    int64                  userId                  = 4;    // 玩家ID.
+    AchievementItem        thisWeek                = 5;    // 本周业绩
+    repeated DayAchievementItem     dayAchievementItems     = 6;    // 每天业绩
+}
+
+//获取业绩详情-直属业绩
+message GetAchievementDetailMemberMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int64                  pid                     = 2;    // 查询该代理下的所有子代理业绩
+    int32                  type                    = 3;    // 0-查看天业绩 1-查看本周的业绩 2-查看上周的业绩 3-按时间和UID查询
+    int64                  searchId                = 4;    // 查询pid代理下的子代理searchId 没有UID填0
+    string                 startDate               = 5;    // 开始日期
+    string                 endDate                 = 6;    // 结束日期
+}
+message MemberAchievementItem
+{
+    int64                  memberId                = 1;    // 会员Id
+    int64                  revenue                 = 2;    // 税收
+    int64                  rate                    = 3;    // 分成比例
+    int64                  myProfit                = 4;    // 预计佣金(我的收益)
+    int64                  clubId                  = 5;
+    string                 clubName                = 6;    // 所属俱乐部
+}
+message DayMemberAchievementItem
+{
+    string                 strDate                 = 1;    // 佣金日期
+    MemberAchievementItem  achievementItem         = 2;
+}
+//返回业绩详情结果-直属业绩
+message GetAchievementDetailMemberMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误描述.
+
+    int64                  userId                  = 4;    // 玩家ID.
+    int64                  pid                     = 5;    // 查询该代理下的所有子代理业绩
+    int32                  type                    = 6;    // 0-查看天业绩 1-查看本周的业绩 2-查看上周的业绩 3-按时间和UID查询
+    int64                  searchId                = 7;    // 查询pid代理下的子代理searchId 没有UID填0
+    string                 startDate               = 8;    // 开始上期
+    string                 endDate                 = 9;    // 结束日期
+
+    repeated DayMemberAchievementItem     dayAchievementItems = 10; // 每天业绩
+}
+
+//获取业绩详情-合伙人业绩
+message GetAchievementDetailPartnerMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int64                  userId                  = 2;    // 玩家ID
+    int64                  pid                     = 3;    // 查询该代理下的所有子代理业绩
+    int32                  type                    = 4;    // 0-查看天业绩 1-查看本周的业绩 2-查看上周的业绩 3-按时间和UID查询
+    int64                  searchId                = 5;    // 查询pid代理下的子代理searchId 没有UID填0
+    string                 startDate               = 6;    // 开始日期
+    string                 endDate                 = 7;    // 结束日期
+}
+message PartnerAchievementItem
+{
+    int64                  partnerId               = 1;    // 合伙人Id
+    int64                  revenue                 = 2;    // 直属税收
+    int64                  newTeamRegPeople        = 3;    // 团队新增
+    int64                  teamRevenue             = 4;    // 团队税收
+    int64                  rate                    = 5;    // 分成比例
+    int64                  myProfit                = 6;    // 预计佣金(我的收益)
+    int64                  devoteProfit            = 7;    // 对上级贡献
+    int64                  clubId                  = 8;    // 俱乐部Id
+    string                 clubName                = 9;    // 所属俱乐部
+}
+message DayPartnerAchievementItem
+{
+    string                  strDate                = 1;    // 佣金日期
+    PartnerAchievementItem  achievementItem        = 2;
+}
+//返回业绩详情结果-合伙人业绩
+message GetAchievementDetailPartnerMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误描述.
+
+    int64                  userId                  = 4;    // 玩家ID.
+    int64                  pid                     = 5;    // 查询该代理下的所有子代理业绩
+    int32                  type                    = 6;    // 0-查看天业绩 1-查看本周的业绩 2-查看上周的业绩 3-按时间和UID查询
+    int64                  searchId                = 7;    // 查询pid代理下的子代理searchId 没有UID填0
+    string                 startDate               = 8;    // 开始上期
+    string                 endDate                 = 9;    // 结束日期
+
+    repeated DayPartnerAchievementItem     dayAchievementItems = 10;// 每天业绩
+}
+
+
+//获取佣金提取记录
+message GetExchangeRevenueRecordMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int64                  userId                  = 2;    // 玩家ID
+    string                 startDate               = 3;    // 开始日期
+    string                 endDate                 = 4;    // 结束日期
+}
+message ExchangeRevenueItem
+{
+    string                 strDateTime             = 1;    // 代理兑换订单时间
+    string                 orderId                 = 2;    // 订单号
+    int64                  requestMoney            = 3;    // 订单金额
+    int32                  status                  = 4;    // 订单状态  审核中(8), 已驳回(9), 兑换成功(18), 已拒绝(20) 取消订单(30)
+}
+//返回获取佣金提取记录
+message GetExchangeRevenueRecordMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误描述.
+
+    int64                  userId                  = 4;    // 玩家ID.
+    string                 startDate               = 5;    // 开始日期
+    string                 endDate                 = 6;    // 结束日期
+
+    int64                  hasGetMoney             = 7;    // 已领取金额
+
+    repeated ExchangeRevenueItem    exchangeRevenueItem     = 8;    // 每笔兑换
+}
+
+
+
+//获取俱乐部内我的俱乐部
+message GetMyClubMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+}
+message ClubItem
+{
+    int64                  clubId                  = 1;    // 俱乐部Id
+    string                 clubName                = 2;    // 俱乐部名称
+}
+message GetMyClubMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误描述.
+
+    int64                  userId                  = 4;    // 玩家ID.
+
+    repeated ClubItem               clubItem                = 5;    // 俱乐部
+}
+
+//获取我的团队成员
+message GetMyTeamMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int64                  clubId                  = 2;    // 俱乐部Id
+    int32                  type                    = 3;    // 类型 0-所有会员 1-直属合伙人 2-直属会员
+    int64                  searchPromoterId        = 4;    // 团队合伙人Id或会员Id 没有ID条件时填0
+}
+message TeamItem
+{
+    int64                  memberId                = 1;    // 合伙人Id或会员Id  当status==2时，如果memberId==clubId则为盟主
+    string                 memberName              = 2;    // 合伙人名称或会员名称
+    int32                  status                  = 3;    // 我的俱乐部状态 0：退出 1：会员 2：合伙人
+    int32                  promoterRate            = 4;    // 提成比例(合伙人0-100,会员-1)
+    int32                  teamPlayerCount         = 5;    // 团队人数(会员-1)
+    int64                  todayRevenue            = 6;    // 团队今天税收
+    int64                  thisWeekRevenue         = 7;    // 团队本周税收
+}
+message GetMyTeamMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误描述
+
+    int64                  userId                  = 4;    // 玩家ID.
+    int64                  clubId                  = 5;    // 俱乐部Id
+    int32                  type                    = 6;    // 类型 0-所有会员 1-直属合伙人 2-直属会员
+    int64                  searchPromoterId        = 7;    // 团队合伙人Id或会员Id 没有ID条件时填0
+
+    repeated TeamItem               teamItems               = 8;    // 团队成员
+}
+
+//设置下一级代理提成比例
+message SetSubordinateRateMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int64                  clubId                  = 2;    // 俱乐部Id
+    int64                  promoterId              = 3;    // 下一级代理Id
+    int32                  setRate                 = 4;    // 代理提成比例
+}
+message SetSubordinateRateMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误描述.
+
+    int64                  userId                  = 4;    // 玩家ID
+    int64                  clubId                  = 5;    // 俱乐部Id
+    int64                  promoterId              = 6;    // 下一级代理ID
+    int32                  setRate                 = 7;    // 代理提成比例
+}
+
+
+//========获取玩家最近十局输赢信息========
+message GetPlayRecordMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int64                  clubId                  = 2;    // 俱乐部Id 请求消息传上来的Id
+    int32                  gameId                  = 3;    // 游戏ID
+    string                 lastGameEndTime         = 4;    // 最后一条 记录的gameEndTime  如果要找最新的 此字段设置为""
+}
+message GameRecordInfo
+{
+    string                 gameRoundNo             = 1;    //牌局编号
+    int64                  clubId                  = 2;    //俱乐部Id
+    string                 clubName                = 3;    //俱乐部名称
+    int32                  gameId                  = 4;    //游戏Id
+    int32                  roomId                  = 5;    //房间Id
+    int64                  betScore                = 6;    //投注分数
+    int64                  winLoseScore            = 7;    //输赢分数
+    string                 gameEndTime             = 8;    //游戏结束时间
+}
+message GetPlayRecordMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int32                  retCode                 = 2;    // 错误代码.
+    string                 errorMsg                = 3;    // 错误信息.
+
+    int64                  clubId                  = 4;    // 俱乐部Id 请求消息传上来的Id
+    int32                  gameId                  = 5;    // 请求消息传上来的gameId
+    string                 lastGameEndTime         = 6;    // 请求消息传上来的 最后一条 记录的gameEndTime
+    repeated GameRecordInfo         detailInfo              = 7;    // 详细的游戏记录
+}
+
+//玩家游戏明细
+message GetAllPlayRecordMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    string                 startDate               = 2;    // 开始上期 2021-03-01 全部时间 为 ""  空字符串
+    string                 endDate                 = 3;    // 结束日期 2021-03-01 全部时间 为 ""  空字符串
+    int64                  clubId                  = 4;    // 俱乐部Id 全部俱乐部时 为 0
+    int32                  gameId                  = 5;    // 游戏Id   全部游戏时 为 0
+    string                 lastGameEndTime         = 6;    // 最后一条 记录的gameEndTime  如果要找最新的 此字段设置为""
+}
+message GetAllPlayRecordMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int32                  retCode                 = 2;    // 错误代码.
+    string                 errorMsg                = 3;    // 错误信息.
+
+    int64                  clubId                  = 4;    // 俱乐部Id 请求消息传上来的Id
+    int32                  gameId                  = 5;    // 游戏Id   请求消息传上来的Id
+    string                 lastGameEndTime         = 6;    // 请求消息传上来的 最后一条 记录的gameEndTime
+    repeated GameRecordInfo         detailInfo              = 7;    // 详细的游戏记录
+}
+
+//========获取玩家账户明细========
+message GetUserScoreChangeRecordMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    string                 startDate               = 2;    // 开始上期 2021-03-01 全部时间 为 ""  空字符串
+    string                 endDate                 = 3;    // 结束日期 2021-03-01 全部时间 为 ""  空字符串
+    int32                  changeType              = 4;    // 变化类型 填0，目前没有启用，备用
+    string                 lastCreateTime          = 5;    // 最后一条 记录的createTime  如果要找最新的 此字段设置为""
+}
+message UserScoreChangeRecordInfo
+{
+    string                 Id                      = 1;    //编号
+    int64                  changeScore             = 2;    //变化分数
+    int64                  afterScore              = 3;    //变化后分数
+    int32                  changeType              = 4;    //变化类型
+    int64                  clubId                  = 5;    //clubId
+    string                 refId                   = 6;    //变化类型补充
+    string                 createTime              = 7;    //变化时间
+}
+message GetUserScoreChangeRecordMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息.
+    int32                  retCode                 = 2;    // 错误代码.
+    string                 errorMsg                = 3;    // 错误信息.
+
+    int32                  changeType              = 4;    // 请求消息传上来的变化类型
+    string                 lastCreateTime          = 5;    // 请求消息传上来的createTime
+    repeated UserScoreChangeRecordInfo detailInfo           = 6;    // 详细的变化记录
+}
+
+//我的上级信息
+message GetClubPromoterInfoMessage
+{
+    Game.Common.Header     header                  = 1;    //头信息.
+    int64                  clubId                  = 2;    //俱乐部Id
+    string                 clubName                = 3;    //俱乐部名称
+}
+message SocialContactInfo
+{
+    string                 invitationCode          = 1;    //邀请码
+
+    string                 wechat                  = 2;    //微信
+    string                 qq                      = 3;    //QQ
+    string                 ww                      = 4;    //旺旺
+}
+message MyClubPromoterInfo
+{
+    int64                  userId                  = 1;    //俱乐部上级Id
+    string                 nickName                = 2;    //俱乐部上级昵称
+    int32                  headId                  = 3;    //俱乐部上级头像Id
+    int32                  headboxId               = 4;    //俱乐部上级头像框Id
+    string                 headImgUrl              = 5;    //俱乐部上级头像Url
+
+    SocialContactInfo      socialContactInfo       = 6;
+}
+message GetClubPromoterInfoMessageResponse
+{
+    Game.Common.Header     header                  = 1;    //头信息.
+    int32                  retCode                 = 2;    //错误代码
+    string                 errorMsg                = 3;    //错误描述.
+
+    int64                  userId                  = 4;    //玩家Id
+    int64                  clubId                  = 5;    //俱乐部Id
+    string                 clubName                = 6;    //俱乐部名称
+    string                 wwUrl                   = 7;    //旺旺下载地址
+
+    MyClubPromoterInfo     myClubPromoterInfo      = 8;    //我的上级信息
+    SocialContactInfo      mySocialContactInfo     = 9;    //我的信息
+}
+
+//开除此用户
+message FireMemberMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int64                  clubId                  = 2;    // 俱乐部Id
+    int64                  promoterId              = 3;    // 上一级合伙人Id
+    int64                  userId                  = 4;    // 要开除的合伙人Id或会员Id
+}
+message FireMemberMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误描述.
+
+    int64                  clubId                  = 4;    // 俱乐部Id
+    int64                  promoterId              = 5;    // 上一级合伙人Id
+    int64                  userId                  = 6;    // 要开除的合伙人Id或会员Id
+}
+
+
+//获取俱乐部申请QQ
+message GetApplyClubQQMessage
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+}
+message GetApplyClubQQMessageResponse
+{
+    Game.Common.Header     header                  = 1;    // 头信息
+    int32                  retCode                 = 2;    // 错误代码
+    string                 errorMsg                = 3;    // 错误信息
+
+    int64                  userId                  = 4;    // 玩家ID.
+    string                 QQ                      = 5;    // QQ
+}
+
+
+
