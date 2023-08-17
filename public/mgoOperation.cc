@@ -1437,13 +1437,14 @@ namespace mgo {
 			}
 			/*int64_t*/ clubId = 0;
 			int64_t promoterId = 0;
+			int32_t promoterStatus = 0;
 			int32_t ratio = 0;
 			int32_t autopartnerratio = 0;
 			auto result = opt::FindOne(
 				mgoKeys::db::GAMEMAIN,
 				mgoKeys::tbl::GAME_CLUB_MEMBER,
 				builder::stream::document{}
-				<< "userid" << 1 << "clubid" << 1 << "ratio" << 1 << "autopartnerratio" << 1 << finalize,
+				<< "userid" << 1 << "clubid" << 1 << "status" << 1 << "ratio" << 1 << "autopartnerratio" << 1 << finalize,
 				builder::stream::document{} << "invitationcode" << b_int32{ invitationCode } << finalize);
 			if (!result) {
 				return ERR_JoinClub_InvalidInvitationcode;
@@ -1458,6 +1459,19 @@ namespace mgo {
 					promoterId = view["userid"].get_int32();
 					break;
 				}
+			}
+			if (view["status"]) {
+				switch (view["status"].type()) {
+				case bsoncxx::type::k_int64:
+					promoterStatus = view["status"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					promoterStatus = view["status"].get_int32();
+					break;
+				}
+			}
+			if (promoterStatus < 2) {
+				return ERR_JoinClub_InvitationcodePermissionsErr;
 			}
 			//俱乐部Id 当玩家userId与clubId相同时为盟主
 			if (view["clubid"]) {

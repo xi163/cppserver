@@ -55,6 +55,7 @@ enum EnterRoomErrCode {
 	XX(JoinClub_OperationPermissionsErr, "加入俱乐部错误: 您所在俱乐部操作权限不够 非合伙人或盟主") \
 	XX(JoinClub_InvitorNotInClubOrClubNotExist, "加入俱乐部错误: 邀请人不是俱乐部成员或俱乐部不存在") \
 	XX(JoinClub_InvalidInvitationcode, "加入俱乐部错误: 无效邀请码或已失效") \
+	XX(JoinClub_InvitationcodePermissionsErr, "加入俱乐部错误: 邀请码受限") \
 	XX(JoinClub_InsideError, "加入俱乐部错误: 操作内部异常") \
 	\
 	XX(ExitClub_UserNotInClub, "您已退出俱乐部或不是俱乐部成员") \
