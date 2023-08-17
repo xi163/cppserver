@@ -1372,8 +1372,10 @@ namespace mgo {
 			switch (status) {
 			default:
 				status = 1;
+				break;
 			case 2:
 				invitationCode = RANDOM().betweenInt64(10000000, 99999999).randInt64_mt();
+				break;
 			}
 			::time_point now = NOW();
 			{
@@ -1452,6 +1454,9 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << finalize,
 				builder::stream::document{} << "userid" << b_int64{ userId } << finalize) <= 0) {
 				return ERR_JoinClub_InvitedUserNotExist;
+			}
+			if (invitationCode <= 0 || std::to_string(invitationCode).length() != 8) {
+				return ERR_JoinClub_InvalidInvitationcode;
 			}
 			/*int64_t*/ clubId = 0;
 			int64_t promoterId = 0;
@@ -1568,8 +1573,10 @@ namespace mgo {
 			switch (status) {
 			default:
 				status = 1;
+				break;
 			case 2:
 				invitationCode = RANDOM().betweenInt64(10000000, 99999999).randInt64_mt();
+				break;
 			}
 			::time_point now = NOW();
 			{
