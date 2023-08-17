@@ -62,7 +62,7 @@ enum EnterRoomErrCode {
 	XX(ExitClub_UserNotInClub, "您已退出俱乐部或不是俱乐部成员") \
 	XX(ExitClub_InsideError, "退出俱乐部错误: 操作内部异常") \
 	\
-	XX(FireClub_UserNotInClub, "被开除用户不存在或已不是俱乐部成员") \
+	XX(FireClub_UserNotInClub, "被开除用户不存在或已不是俱乐部成员或俱乐部不存在") \
 	XX(FireClub_NotInClubOrClubNotExist, "开除俱乐部成员错误: 您不是俱乐部成员或俱乐部不存在") \
 	XX(FireClub_OperationPermissionsErrAdmin, "开除俱乐部成员错误: 操作权限不够 非管理员") \
 	XX(FireClub_OperationPermissionsErr, "开除俱乐部成员错误: 您所在俱乐部操作权限不够 非合伙人或盟主") \
