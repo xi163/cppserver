@@ -1295,27 +1295,23 @@ void HallServ::JoinTheClubMessage_club(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::ClubHallServer::JoinTheClubMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
+		UserClubInfo info;
+		info.clubId = 0;
 		if (reqdata.invitationcode() > 0) {
 			//用户通过邀请码加入
 			int64_t clubId = 0;
 			Msg const& errmsg = mgo::JoinClub(clubId, reqdata.invitationcode(), pre_header_->userId, 1);
 			if (errmsg.code == Ok.code) {
+				mgo::LoadUserClub(pre_header_->userId, clubId, info);
 				rspdata.set_userid(pre_header_->userId);
 				rspdata.set_retcode(Ok.code);
 				rspdata.set_errormsg("欢迎您成为俱乐部一员");
-				UserClubInfo info;
+			}
+			else if (errmsg.code == ERR_JoinClub_UserAlreadyInClub.code) {
 				mgo::LoadUserClub(pre_header_->userId, clubId, info);
-				rspdata.mutable_clubinfo()->set_clubid(info.clubId);
-				rspdata.mutable_clubinfo()->set_clubname(info.clubName);
-				rspdata.mutable_clubinfo()->set_clubiconid(info.iconId);
-				rspdata.mutable_clubinfo()->set_promoterid(info.promoterId);
-				rspdata.mutable_clubinfo()->set_status(info.status);
-				rspdata.mutable_clubinfo()->set_invitationcode(info.invitationCode);
-				rspdata.mutable_clubinfo()->set_clubplayernum(info.playerNum);
-				rspdata.mutable_clubinfo()->set_rate(info.ratio);
-				rspdata.mutable_clubinfo()->set_autobcpartnerrate(info.autoPartnerRatio);
-				rspdata.mutable_clubinfo()->set_url(info.url);
-				rspdata.mutable_clubinfo()->set_createtime(info.joinTime.format());
+				rspdata.set_userid(pre_header_->userId);
+				rspdata.set_retcode(Ok.code);
+				rspdata.set_errormsg(errmsg.errmsg());
 			}
 			else {
 				rspdata.set_retcode(errmsg.code);
@@ -1326,22 +1322,16 @@ void HallServ::JoinTheClubMessage_club(
 			//代理发起人邀请加入
 			Msg const& errmsg = mgo::InviteJoinClub(reqdata.clubid(), pre_header_->userId, reqdata.userid(), 1);
 			if (errmsg.code == Ok.code) {
+				mgo::LoadUserClub(reqdata.userid(), reqdata.clubid(), info);
 				rspdata.set_userid(reqdata.userid());
 				rspdata.set_retcode(Ok.code);
 				rspdata.set_errormsg("邀请加入俱乐部成功");
-				UserClubInfo info;
-				mgo::LoadUserClub(reqdata.userid(), reqdata.clubid(), info);
-				rspdata.mutable_clubinfo()->set_clubid(info.clubId);
-				rspdata.mutable_clubinfo()->set_clubname(info.clubName);
-				rspdata.mutable_clubinfo()->set_clubiconid(info.iconId);
-				rspdata.mutable_clubinfo()->set_promoterid(info.promoterId);
-				rspdata.mutable_clubinfo()->set_status(info.status);
-				rspdata.mutable_clubinfo()->set_invitationcode(info.invitationCode);
-				rspdata.mutable_clubinfo()->set_clubplayernum(info.playerNum);
-				rspdata.mutable_clubinfo()->set_rate(info.ratio);
-				rspdata.mutable_clubinfo()->set_autobcpartnerrate(info.autoPartnerRatio);
-				rspdata.mutable_clubinfo()->set_url(info.url);
-				rspdata.mutable_clubinfo()->set_createtime(info.joinTime.format());
+			}
+			else if (errmsg.code == ERR_JoinClub_UserAlreadyInClub.code) {
+				mgo::LoadUserClub(pre_header_->userId, reqdata.clubid(), info);
+				rspdata.set_userid(pre_header_->userId);
+				rspdata.set_retcode(Ok.code);
+				rspdata.set_errormsg(errmsg.errmsg());
 			}
 			else {
 				rspdata.set_retcode(errmsg.code);
@@ -1351,6 +1341,19 @@ void HallServ::JoinTheClubMessage_club(
 		else {
 			rspdata.set_retcode(-1);
 			rspdata.set_errormsg("加入俱乐部参数错误");
+		}
+		if (info.clubId > 0) {
+			rspdata.mutable_clubinfo()->set_clubid(info.clubId);
+			rspdata.mutable_clubinfo()->set_clubname(info.clubName);
+			rspdata.mutable_clubinfo()->set_clubiconid(info.iconId);
+			rspdata.mutable_clubinfo()->set_promoterid(info.promoterId);
+			rspdata.mutable_clubinfo()->set_status(info.status);
+			rspdata.mutable_clubinfo()->set_invitationcode(info.invitationCode);
+			rspdata.mutable_clubinfo()->set_clubplayernum(info.playerNum);
+			rspdata.mutable_clubinfo()->set_rate(info.ratio);
+			rspdata.mutable_clubinfo()->set_autobcpartnerrate(info.autoPartnerRatio);
+			rspdata.mutable_clubinfo()->set_url(info.url);
+			rspdata.mutable_clubinfo()->set_createtime(info.joinTime.format());
 		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_JOIN_THE_CLUB_MESSAGE_RES,

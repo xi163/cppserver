@@ -1075,7 +1075,7 @@ namespace mgo {
 					<< "createtime" << b_date{ now }
 					<< finalize);
 				if (!result) {
-					return ERR_JoinClub_InsideErrorOrNonExcutive;
+					return ERR_JoinClub_InsideError;
 				}
 			}
 			{
@@ -1097,7 +1097,7 @@ namespace mgo {
 					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
 #if 0
 				if (!result || result->modified_count() == 0) {
-					return ERR_JoinClub_InsideErrorOrNonExcutive;
+					return ERR_JoinClub_InsideError;
 				}
 #endif
 			}
@@ -1117,7 +1117,7 @@ namespace mgo {
 		}
 		catch (...) {
 		}
-		return ERR_JoinClub_InsideErrorOrNonExcutive;
+		return ERR_JoinClub_InsideError;
 	}
 	
 	//用户通过邀请码加入
@@ -1248,7 +1248,7 @@ namespace mgo {
 					<< "createtime" << b_date{ now }
 					<< finalize);
 				if (!result) {
-					return ERR_JoinClub_InsideErrorOrNonExcutive;
+					return ERR_JoinClub_InsideError;
 				}
 			}
 			{
@@ -1270,7 +1270,7 @@ namespace mgo {
 					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
 #if 0
 				if (!result || result->modified_count() == 0) {
-					return ERR_JoinClub_InsideErrorOrNonExcutive;
+					return ERR_JoinClub_InsideError;
 				}
 #endif
 			}
@@ -1290,7 +1290,7 @@ namespace mgo {
 		}
 		catch (...) {
 		}
-		return ERR_JoinClub_InsideErrorOrNonExcutive;
+		return ERR_JoinClub_InsideError;
 	}
 	
 	bool LoadGameRoomInfos(::HallServer::GetGameMessageResponse& gameinfos) {
