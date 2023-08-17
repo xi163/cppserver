@@ -83,11 +83,11 @@ void GameServ::registerHandlers() {
 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC, 0)]
 		= std::bind(&GameServ::cmd_on_game_message, this,
 			std::placeholders::_1, std::placeholders::_2);
-	handlers_[packet::enword(
-		::Game::Common::MAIN_MESSAGE_HTTP_TO_SERVER,
-		::Game::Common::MESSAGE_HTTP_TO_SERVER_SUBID::MESSAGE_NOTIFY_REPAIR_SERVER)]
-		= std::bind(&GameServ::cmd_notifyRepairServerResp, this,
-			std::placeholders::_1, std::placeholders::_2);
+// 	handlers_[packet::enword(
+// 		::Game::Common::MAIN_MESSAGE_HTTP_TO_SERVER,
+// 		::Game::Common::MESSAGE_HTTP_TO_SERVER_SUBID::MESSAGE_NOTIFY_REPAIR_SERVER)]
+// 		= std::bind(&GameServ::cmd_notifyRepairServerResp, this,
+// 			std::placeholders::_1, std::placeholders::_2);
 }
 
 bool GameServ::InitZookeeper(std::string const& ipaddr) {
@@ -400,10 +400,13 @@ void GameServ::asyncLogicHandler(
 		header->ver == 1 &&
 		header->sign == HEADER_SIGN) {
 		switch (header->mainId) {
+		//case Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER:
+		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER_CLUB:
+		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER_FRIEND:
+		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC_FRIEND:
 		case Game::Common::MAINID::MAIN_MESSAGE_PROXY_TO_GAME_SERVER:
 		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER:
-		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC:
-		case Game::Common::MAINID::MAIN_MESSAGE_HTTP_TO_SERVER: {
+		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC: {
 			switch (header->enctype) {
 			case packet::PUBENC_PROTOBUF_NONE: {
 				TraceMessageID(header->mainId, header->subId);
