@@ -1094,7 +1094,7 @@ namespace mgo {
 					<< "$inc" << open_document << "playernum" << b_int32{ 1 } << close_document
 					<< "$set" << open_document << "updatetime" << b_date{ now } << close_document
 					<< finalize,
-					builder::stream::document{} << "userid" << b_int64{ clubId } << finalize);
+					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
 #if 0
 				if (!result || result->modified_count() == 0) {
 					return ERR_InsideErrorOrNonExcutive;
@@ -1267,7 +1267,7 @@ namespace mgo {
 					<< "$inc" << open_document << "playernum" << b_int32{ 1 } << close_document
 					<< "$set" << open_document << "updatetime" << b_date{ now } << close_document
 					<< finalize,
-					builder::stream::document{} << "userid" << b_int64{ clubId } << finalize);
+					builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
 #if 0
 				if (!result || result->modified_count() == 0) {
 					return ERR_InsideErrorOrNonExcutive;
