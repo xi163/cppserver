@@ -144,6 +144,12 @@ void HallServ::registerHandlers() {
 		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_MY_CLUB_HALL_MESSAGE_REQ)]
 		= std::bind(&HallServ::GetMyClubHallMessage_club, this,
 			std::placeholders::_1, std::placeholders::_2);
+	// 创建俱乐部
+	handlers_[packet::enword(
+		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
+		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_CREATE_CLUB_MESSAGE_REQ)]
+		= std::bind(&HallServ::CreateClubMessage_club, this,
+			std::placeholders::_1, std::placeholders::_2);
 	// 加入俱乐部
 	handlers_[packet::enword(
 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
@@ -1284,6 +1290,47 @@ void HallServ::GetMyClubHallMessage_club(
 	}
 }
 
+// 创建俱乐部
+void HallServ::CreateClubMessage_club(
+	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
+	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+	packet::header_t const* header_ = packet::get_header(buf);
+	uint8_t const* msg = packet::get_msg(buf);
+	size_t msgLen = packet::get_msglen(buf);
+	::ClubHallServer::CreateClubMessage reqdata;
+	if (reqdata.ParseFromArray(msg, msgLen)) {
+		::ClubHallServer::CreateClubMessageResponse rspdata;
+		rspdata.mutable_header()->CopyFrom(reqdata.header());
+ 		UserClubInfo info;
+		Msg const& errmsg = mgo::CreateClub(pre_header_->userId, reqdata.clubname(), reqdata.rate(), reqdata.autobcpartnerrate(), info);
+		if (errmsg.code == Ok.code) {
+			rspdata.set_userid(pre_header_->userId);
+			rspdata.set_retcode(Ok.code);
+			rspdata.set_errormsg("创建俱乐部成功");
+		}
+		else {
+			rspdata.set_retcode(-1);
+			rspdata.set_errormsg("创建俱乐部失败");
+		}
+		if (info.clubId > 0) {
+			rspdata.mutable_clubinfo()->set_clubid(info.clubId);
+			rspdata.mutable_clubinfo()->set_clubname(info.clubName);
+			rspdata.mutable_clubinfo()->set_clubiconid(info.iconId);
+			rspdata.mutable_clubinfo()->set_promoterid(info.promoterId);
+			rspdata.mutable_clubinfo()->set_status(info.status);
+			rspdata.mutable_clubinfo()->set_invitationcode(info.invitationCode);
+			rspdata.mutable_clubinfo()->set_clubplayernum(info.playerNum);
+			rspdata.mutable_clubinfo()->set_rate(info.ratio);
+			rspdata.mutable_clubinfo()->set_autobcpartnerrate(info.autoPartnerRatio);
+			rspdata.mutable_clubinfo()->set_url(info.url);
+			rspdata.mutable_clubinfo()->set_createtime(info.joinTime.format());
+		}
+		send(conn, &rspdata,
+			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_CREATE_CLUB_MESSAGE_RES,
+			pre_header_, header_);
+	}
+}
+
 // 加入俱乐部
 void HallServ::JoinTheClubMessage_club(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
@@ -1296,11 +1343,10 @@ void HallServ::JoinTheClubMessage_club(
 		::ClubHallServer::JoinTheClubMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		UserClubInfo info;
-		info.clubId = 0;
 		if (reqdata.invitationcode() > 0) {
 			//用户通过邀请码加入
 			int64_t clubId = 0;
-			Msg const& errmsg = mgo::JoinClub(clubId, reqdata.invitationcode(), pre_header_->userId, 1);
+			Msg const& errmsg = mgo::JoinClub(clubId, reqdata.invitationcode(), pre_header_->userId);
 			if (errmsg.code == Ok.code) {
 				mgo::LoadUserClub(pre_header_->userId, clubId, info);
 				rspdata.set_userid(pre_header_->userId);

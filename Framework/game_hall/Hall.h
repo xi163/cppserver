@@ -190,6 +190,9 @@ private:
 	// 获取我的俱乐部
 	void GetMyClubHallMessage_club(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
+	// 创建俱乐部
+	void CreateClubMessage_club(
+		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	// 加入俱乐部
 	void JoinTheClubMessage_club(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);

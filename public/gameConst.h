@@ -73,6 +73,13 @@ enum eApiVisit {
 	kDisable = 1,//IP禁止访问
 };
 
+//用户权限
+#define PERMISSION_MAP(XX, YY) \
+	YY(Guest, 0, "游客") \
+	YY(GeneralUser, 1, "普通用户") \
+    YY(Admin, 8, "管理员") \
+	YY(SuperAdmin, 9, "超级管理员") \
+
 //1-金币场 2-好友房 3-俱乐部
 #define GAMEMODE_MAP(XX, YY) \
 	YY(GoldCoin, 1, "金币场") \
@@ -104,6 +111,11 @@ enum eApiVisit {
 	XX(sBreakline, "断线") \
 	XX(sStop, "冻结")
 
+
+enum Authorization {
+	PERMISSION_MAP(K_ENUM_X, K_ENUM_Y)
+};
+
 enum GameType {
 	GAMETYPE_MAP(ENUM_X, ENUM_Y)
 };
@@ -132,6 +144,9 @@ STATIC_FUNCTION_IMPLEMENT(GAMEMODE_MAP, K_DETAIL_X, K_DETAIL_Y, NAME, ModeName)
 STATIC_FUNCTION_IMPLEMENT(GAMEMODE_MAP, K_DETAIL_X, K_DETAIL_Y, DESC, ModeDesc)
 STATIC_FUNCTION_IMPLEMENT(GAMEMODE_MAP, K_DETAIL_X, K_DETAIL_Y, STR, ModeStr)
 
+STATIC_FUNCTION_IMPLEMENT(PERMISSION_MAP, K_DETAIL_X, K_DETAIL_Y, NAME, PermissionName)
+STATIC_FUNCTION_IMPLEMENT(PERMISSION_MAP, K_DETAIL_X, K_DETAIL_Y, DESC, PermissionDesc)
+STATIC_FUNCTION_IMPLEMENT(PERMISSION_MAP, K_DETAIL_X, K_DETAIL_Y, STR, PermissionStr)
 
 #define TASK_ROOM           99999
 #define TASK_SCORE_CHANGE_TYPE  4

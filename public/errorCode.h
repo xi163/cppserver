@@ -44,8 +44,13 @@ enum EnterRoomErrCode {
 	XX(GameHandleUserLineCodeNotExists, "站点编码不存在") \
 	XX(GameHandleRequestInvalidation, "请求已失效") \
 	\
+	XX(CreateClub_OperationPermissionsErr, "创建俱乐部错误: 您的操作权限不够") \
+	XX(CreateClub_ClubNameExist, "创建俱乐部错误: 同名俱乐部已存在") \
+	XX(CreateClub_InsideError, "创建俱乐部错误: 操作内部异常") \
+	\
 	XX(JoinClub_InvitedUserNotExist, "加入俱乐部错误: 被邀请人不存在") \
 	XX(JoinClub_UserAlreadyInClub, "被邀请人已是俱乐部成员") \
+	XX(JoinClub_OperationPermissionsErr, "加入俱乐部错误: 您所在俱乐部操作权限不够") \
 	XX(JoinClub_InvitorNotInClubOrClubNotExist, "加入俱乐部错误: 邀请人不是俱乐部成员或俱乐部不存在") \
 	XX(JoinClub_InvalidInvitationcode, "加入俱乐部错误: 无效邀请码或已失效") \
 	XX(JoinClub_InsideError, "加入俱乐部错误: 操作内部异常") \
@@ -55,7 +60,7 @@ enum EnterRoomErrCode {
 	\
 	XX(FireClub_UserNotInClub, "被开除用户不存在或已不是俱乐部成员") \
 	XX(FireClub_NotInClubOrClubNotExist, "开除俱乐部成员错误: 您不是俱乐部成员或俱乐部不存在") \
-	XX(FireClub_OerationPermissionsErr, "开除俱乐部成员错误: 您所在俱乐部操作权限不够") \
+	XX(FireClub_OperationPermissionsErr, "开除俱乐部成员错误: 您所在俱乐部操作权限不够") \
 	XX(FireClub_InsideError, "开除俱乐部成员错误: 操作内部异常") \
 	\
 	YY(AddScoreHandleInsertDataError, 32, "玩家上分失败") \

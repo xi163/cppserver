@@ -33,6 +33,7 @@ namespace mgo {
 			std::string Linecode;//`bson:"linecode"`
 			std::string Nickname;//`bson:"nickname"`
 			int Headindex;//`bson:"headindex"`
+			int32_t Permission;//`bson:"privilege"`
 			time_point Registertime;//`bson:"registertime"`
 			std::string Regip;//`bson:"regip"`
 			time_point Lastlogintime;//`bson:"lastlogintime"`

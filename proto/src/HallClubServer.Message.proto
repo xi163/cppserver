@@ -79,6 +79,23 @@ message GetMyClubHallMessageResponse
     int64                  allowDrawScore          = 7;  //可提取佣金
 }
 
+//创建俱乐部
+message CreateClubMessage
+{
+	Game.Common.Header     header                  = 1;
+	string                 clubName                = 2;
+	int32                  rate                    = 3; 
+	int32                  autoBCPartnerRate       = 4;
+}
+message CreateClubMessageResponse
+{
+    Game.Common.Header     header                  = 1;
+    int32                  retCode                 = 2;
+    string                 errorMsg                = 3;
+
+    int64                  userId                  = 4;
+    ClubHallInfo           clubInfo                = 5;
+}
 
 //加入俱乐部
 message JoinTheClubMessage

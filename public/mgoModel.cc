@@ -29,5 +29,6 @@ namespace mgo {
 		model.Onlinestatus = 0;
 		model.Gender = 0;
 		model.Integralvalue = 0;
+		model.Permission = Authorization::kGuest;
 	}
 }

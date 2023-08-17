@@ -215,7 +215,8 @@ enum MESSAGE_CLIENT_TO_HALL_CLUB_SUBID
     CLIENT_TO_HALL_CLUB_GET_APPLY_CLUB_QQ_REQ                     = 73;     // 获取俱乐部申请QQ  ClubHallServer.GetApplyClubQQMessage
     CLIENT_TO_HALL_CLUB_GET_APPLY_CLUB_QQ_RES                     = 74;     // 获取俱乐部申请QQ  ClubHallServer.GetApplyClubQQMessage
 
-
+	CLIENT_TO_HALL_CLUB_CREATE_CLUB_MESSAGE_REQ                 = 75;     // 创建俱乐部  ClubHallServer.CreateClubMessage
+    CLIENT_TO_HALL_CLUB_CREATE_CLUB_MESSAGE_RES                 = 76;     // 创建俱乐部  ClubHallServer.CreateClubMessageResponse
 }
 
 enum MESSAGE_CLIENT_TO_GAME_SERVER_SUBID

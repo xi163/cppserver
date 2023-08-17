@@ -83,7 +83,7 @@ namespace mgo {
 	
 	} // namespace opt
 	
-	int64_t NewUserId(
+	int64_t NewAutoId(
 		document::view_or_value const& select,
 		document::view_or_value const& update,
 		document::view_or_value const& where);
@@ -143,7 +143,14 @@ namespace mgo {
 		document::view_or_value const& select,
 		document::view_or_value const& where);
 	
-	//代理发起人邀请加入
+	//创建俱乐部
+	Msg const& CreateClub(
+		int64_t userId,
+		std::string const& clubName,
+		int32_t ratio, int32_t autopartnerratio,
+		UserClubInfo& info);
+
+	//代理发起人邀请加入俱乐部
 	Msg const& InviteJoinClub(
 		int64_t clubId,
 		int64_t promoterId,
@@ -151,13 +158,11 @@ namespace mgo {
 		int32_t status,
 		int32_t ratio = 0, int32_t autopartnerratio = 0);
 	
-	//用户通过邀请码加入
+	//用户通过邀请码加入俱乐部
 	Msg const& JoinClub(
 		int64_t& clubId,
 		int32_t invitationCode,
-		int64_t userId,
-		int32_t status,
-		int32_t ratio = 0, int32_t autopartnerratio = 0);
+		int64_t userId);
 	
 	//用户退出俱乐部
 	Msg const& ExitClub(int64_t userId, int64_t clubId);

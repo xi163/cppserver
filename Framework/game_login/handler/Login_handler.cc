@@ -33,7 +33,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				return response::json::Result(ERR_GameGateNotExist, rsp);
 			}
 			//生成userid
-			int64_t userId = mgo::NewUserId(
+			int64_t userId = mgo::NewAutoId(
 				document{} << "seq" << 1 << finalize,
 				document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
 				document{} << "_id" << "userid" << finalize);
@@ -53,6 +53,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 					kvp("linecode", model.Linecode),
 					kvp("nickname", model.Nickname),
 					kvp("headindex", model.Headindex),
+					kvp("privilege", model.Permission),
 					kvp("registertime", b_date{ model.Registertime }),
 					kvp("regip", model.Regip),
 					kvp("lastlogintime", b_date{ model.Lastlogintime }),
@@ -106,7 +107,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 					return response::json::Result(ERR_GameGateNotExist, rsp);
 				}
 				//生成userid
-				int64_t userId = mgo::NewUserId(
+				int64_t userId = mgo::NewAutoId(
 					document{} << "seq" << 1 << finalize,
 					document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
 					document{} << "_id" << "userid" << finalize);
@@ -126,6 +127,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 						kvp("linecode", model.Linecode),
 						kvp("nickname", model.Nickname),
 						kvp("headindex", model.Headindex),
+						kvp("privilege", model.Permission),
 						kvp("registertime", b_date{ model.Registertime }),
 						kvp("regip", model.Regip),
 						kvp("lastlogintime", b_date{ model.Lastlogintime }),
