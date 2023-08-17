@@ -1,4 +1,5 @@
 #include "mgoModel.h"
+#include "public/gameConst.h"
 
 namespace mgo {
 	

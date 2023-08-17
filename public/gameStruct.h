@@ -131,6 +131,7 @@ struct UserBaseInfo {
 		userId = -1;
 		account = "";
 		headId = 0;
+		privilege = 0;
 		nickName = "";
 		userScore = 0;
 		agentId = 0;

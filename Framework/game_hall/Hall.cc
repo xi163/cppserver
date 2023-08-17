@@ -1309,8 +1309,8 @@ void HallServ::CreateClubMessage_club(
 			rspdata.set_errormsg("创建俱乐部成功");
 		}
 		else {
-			rspdata.set_retcode(-1);
-			rspdata.set_errormsg("创建俱乐部失败");
+			rspdata.set_retcode(errmsg.code);
+			rspdata.set_errormsg(errmsg.errmsg());
 		}
 		if (info.clubId > 0) {
 			rspdata.mutable_clubinfo()->set_clubid(info.clubId);

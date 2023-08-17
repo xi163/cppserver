@@ -673,6 +673,14 @@ namespace mgo {
 					}
 					document::view view = result->view();
 					//_LOG_WARN(to_json(view).c_str());
+					//俱乐部名称
+					if (view["clubname"]) {
+						switch (view["clubname"].type()) {
+						case bsoncxx::type::k_utf8:
+							info.clubName = view["clubname"].get_utf8().value.to_string();
+							break;
+						}
+					}
 					//俱乐部盟主/发起人
 					if (view["promoterid"]) {
 						switch (view["promoterid"].type()) {
@@ -681,14 +689,6 @@ namespace mgo {
 							break;
 						case bsoncxx::type::k_int32:
 							info.promoterId = view["promoterid"].get_int32();
-							break;
-						}
-					}
-					//俱乐部名称
-					if (view["clubname"]) {
-						switch (view["clubname"].type()) {
-						case bsoncxx::type::k_utf8:
-							info.clubName = view["clubname"].get_utf8().value.to_string();
 							break;
 						}
 					}
@@ -933,6 +933,14 @@ namespace mgo {
 				}
 				document::view view = result->view();
 				//_LOG_WARN(to_json(view).c_str());
+				//俱乐部名称
+				if (view["clubname"]) {
+					switch (view["clubname"].type()) {
+					case bsoncxx::type::k_utf8:
+						info.clubName = view["clubname"].get_utf8().value.to_string();
+						break;
+					}
+				}
 				//俱乐部盟主/发起人
 				if (view["promoterid"]) {
 					switch (view["promoterid"].type()) {
@@ -941,14 +949,6 @@ namespace mgo {
 						break;
 					case bsoncxx::type::k_int32:
 						info.promoterId = view["promoterid"].get_int32();
-						break;
-					}
-				}
-				//俱乐部名称
-				if (view["clubname"]) {
-					switch (view["clubname"].type()) {
-					case bsoncxx::type::k_utf8:
-						info.clubName = view["clubname"].get_utf8().value.to_string();
 						break;
 					}
 				}
@@ -1118,7 +1118,7 @@ namespace mgo {
 					builder::stream::document{} << "privilege" << 1 << finalize,
 					builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
 				if (!result) {
-					return ERR_CreateClub_UserNotInClub;
+					return ERR_CreateClub_OperationPermissionsErrAdmin;
 				}
 				document::view view = result->view();
 				if (view["privilege"]) {
@@ -1132,24 +1132,24 @@ namespace mgo {
 					}
 				}
 				if (permission < Authorization::kAdmin) {
-					return ERR_CreateClub_OperationPermissionsErr;
+					return ERR_CreateClub_OperationPermissionsErrAdmin;
 				}
 			}
 			{
 				auto result = opt::FindOne(
 					mgoKeys::db::GAMEMAIN,
 					mgoKeys::tbl::GAME_CLUB,
-					builder::stream::document{} << "clubname" << clubName << finalize
-				);
+					builder::stream::document{} << "clubid" << 1 << finalize,
+					builder::stream::document{} << "clubname" << clubName << finalize);
 				if (result) {
 					return ERR_CreateClub_ClubNameExist;
 				}
 			}
 			//生成clubid
 			int64_t clubId = mgo::NewAutoId(
-				document{} << "seq" << 1 << finalize,
-				document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
-				document{} << "_id" << "clubid" << finalize);
+				builder::stream::document{} << "seq" << 1 << finalize,
+				builder::stream::document{} << "$inc" << open_document << "seq" << b_int64{ 1 } << close_document << finalize,
+				builder::stream::document{} << "_id" << "clubid" << finalize);
 			if (clubId <= 0) {
 				return ERR_CreateClub_InsideError;
 			}
@@ -1160,8 +1160,8 @@ namespace mgo {
 					mgoKeys::tbl::GAME_CLUB,
 					builder::stream::document{}
 					<< "clubid" << b_int64{ clubId }
-					<< "promoterid" << b_int64{ userId }//俱乐部盟主/发起人
 					<< "clubname" << clubName
+					<< "promoterid" << b_int64{ userId }//俱乐部盟主/发起人
 					<< "iconid" << b_int32{ 0 }
 					<< "status" << b_int32{ 1 }//0-未启用 1-活动 2-弃用 3-禁用
 					<< "playernum" << b_int32{ 1 }
@@ -1252,7 +1252,7 @@ namespace mgo {
 					builder::stream::document{} << "privilege" << 1 << finalize,
 					builder::stream::document{} << "userid" << b_int64{ promoterId } << finalize);
 				if (!result) {
-					return ERR_JoinClub_OperationPermissionsErr;
+					return ERR_JoinClub_OperationPermissionsErrAdmin;
 				}
 				document::view view = result->view();
 				if (view["privilege"]) {
@@ -1266,7 +1266,7 @@ namespace mgo {
 					}
 				}
 				if (permission < Authorization::kAdmin) {
-					return ERR_JoinClub_OperationPermissionsErr;
+					return ERR_JoinClub_OperationPermissionsErrAdmin;
 				}
 			}
 			{
@@ -1684,7 +1684,7 @@ namespace mgo {
 					builder::stream::document{} << "privilege" << 1 << finalize,
 					builder::stream::document{} << "userid" << b_int64{ promoterId } << finalize);
 				if (!result) {
-					return ERR_FireClub_OperationPermissionsErr;
+					return ERR_FireClub_OperationPermissionsErrAdmin;
 				}
 				document::view view = result->view();
 				if (view["privilege"]) {
@@ -1698,7 +1698,7 @@ namespace mgo {
 					}
 				}
 				if (permission < Authorization::kAdmin) {
-					return ERR_FireClub_OperationPermissionsErr;
+					return ERR_FireClub_OperationPermissionsErrAdmin;
 				}
 			}
 			{
