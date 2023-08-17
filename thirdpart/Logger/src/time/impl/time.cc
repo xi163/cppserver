@@ -80,6 +80,19 @@ namespace STD {
 		t_ += std::chrono::milliseconds(millsec);
 		return *this;
 	}
+	time_point time_point::to_UTC(int64_t timzone) {
+		struct tm tm = { 0 };
+		time_t t;
+		utils::_convertUTC(to_sec(), tm, &t, timzone);
+		return time_point(t);
+
+	}
+	time_point const time_point::to_UTC(int64_t timzone) const {
+		struct tm tm = { 0 };
+		time_t t;
+		utils::_convertUTC(to_sec(), tm, &t, timzone);
+		return time_point(t);
+	}
 	// to_sec() == to_time_t()
 	int64_t time_point::to_sec() {
 		return std::chrono::duration_cast<std::chrono::seconds>(t_.time_since_epoch()).count();

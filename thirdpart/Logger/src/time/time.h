@@ -33,6 +33,8 @@ namespace STD {
 		time_point duration(int64_t millsec);
 		time_point const duration(int64_t millsec) const;
 		time_point& add(int64_t millsec);
+		time_point to_UTC(int64_t timzone);
+		time_point const to_UTC(int64_t timzone) const;
 		int64_t to_sec();
 		int64_t to_sec() const;
 		int64_t to_millisec();
