@@ -47,6 +47,7 @@ enum EnterRoomErrCode {
 	XX(CreateClub_OperationPermissionsErrAdmin, "创建俱乐部错误: 操作权限不够 非管理员") \
 	XX(CreateClub_OperationPermissionsErr, "创建俱乐部错误: 操作权限不够 非合伙人或盟主") \
 	XX(CreateClub_ClubNameExist, "创建俱乐部错误: 同名俱乐部已存在") \
+	XX(CreateClub_MaxNumLimit, "创建俱乐部错误: 创建俱乐部数量限制") \
 	XX(CreateClub_InsideError, "创建俱乐部错误: 操作内部异常") \
 	\
 	XX(JoinClub_InvitedUserNotExist, "加入俱乐部错误: 被邀请人不存在") \

@@ -18,7 +18,18 @@ namespace mgo {
 			}
 			return 0XFFFFFFFF;
 		}
-
+		
+		int64_t Count(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& select,
+			document::view_or_value const& where) {
+			static __thread mongocxx::database db = MONGODBCLIENT[dbname];
+			mongocxx::collection  coll = db[tblname];
+			mongocxx::options::count opts = mongocxx::options::count{};
+			return coll.count_documents(where, opts);
+		}
+		
 		//https://mongocxx.org/mongocxx-v3/tutorial/
 		optional<result::insert_one> InsertOne(
 			std::string const& dbname,
@@ -1144,6 +1155,13 @@ namespace mgo {
 				if (result) {
 					return ERR_CreateClub_ClubNameExist;
 				}
+			}
+			if (opt::Count(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB,
+				{},
+				builder::stream::document{} << "promoterid" << int64_t{ userId } << finalize) >= 2) {
+				return ERR_CreateClub_MaxNumLimit;
 			}
 			//生成clubid
 			int64_t clubId = mgo::NewAutoId(
