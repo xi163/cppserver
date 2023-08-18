@@ -101,7 +101,7 @@ namespace rpc {
 			clients_->add(name, serverAddr);
 			//try remove from repair
 			repair_.remove(name);
-			room::nodes::add(name);
+			room::nodes::add((GameMode)atoi(vec[1].c_str()), name);
 			break;
 		}
 		case containTy::kRpcLoginTy: {
@@ -159,7 +159,7 @@ namespace rpc {
 			clients_->remove(name, true);
 			//try remove from repair
 			repair_.remove(name);
-			room::nodes::remove(name);
+			room::nodes::remove((GameMode)atoi(vec[1].c_str()), name);
 			break;
 		}
 		case containTy::kRpcLoginTy: {

@@ -10,10 +10,18 @@ extern HallServ* gServer;
 namespace room {
 	namespace nodes {
 
-		std::map<int, std::set<std::string>> nodes_;
-		/*mutable*/ boost::shared_mutex mutex_;
+		static class RoomList {
+		public:
+			void add(std::string const& name);
+			void remove(std::string const& name);
+			void random_server(uint32_t roomid, std::string& ipport);
+			void balance_server(uint32_t roomid, std::string& ipport);
+		private:
+			std::map<int, std::set<std::string>> nodes_;
+			mutable boost::shared_mutex mutex_;
+		}game_serv_[kClub + 1];
 
-		void add(std::string const& name) {
+		void RoomList::add(std::string const& name) {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 			WRITE_LOCK(mutex_);
@@ -21,7 +29,7 @@ namespace room {
 			room.insert(name);
 		}
 
-		void remove(std::string const& name) {
+		void RoomList::remove(std::string const& name) {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 			WRITE_LOCK(mutex_);
@@ -37,7 +45,7 @@ namespace room {
 			}
 		}
 
-		void random_server(uint32_t roomid, std::string& ipport) {
+		void RoomList::random_server(uint32_t roomid, std::string& ipport) {
 			ipport.clear();
 			READ_LOCK(mutex_);
 			std::map<int, std::set<std::string>>::iterator it = nodes_.find(roomid);
@@ -51,7 +59,7 @@ namespace room {
 			}
 		}
 
-		void balance_server(uint32_t roomid, std::string& ipport) {
+		void RoomList::balance_server(uint32_t roomid, std::string& ipport) {
 			std::map<int, std::set<std::string>>::iterator it = nodes_.find(roomid);
 			if (it != nodes_.end()) {
 				if (!it->second.empty()) {
@@ -91,6 +99,22 @@ namespace room {
 					}
 				}
 			}
+		}
+
+		void add(GameMode mode, std::string const& name) {
+			game_serv_[mode].add(name);
+		}
+
+		void remove(GameMode mode, std::string const& name) {
+			game_serv_[mode].remove(name);
+		}
+
+		void random_server(GameMode mode, uint32_t roomid, std::string& ipport) {
+			game_serv_[mode].random_server(roomid, ipport);
+		}
+
+		void balance_server(GameMode mode, uint32_t roomid, std::string& ipport) {
+			game_serv_[mode].balance_server(roomid, ipport);
 		}
 	}
 }

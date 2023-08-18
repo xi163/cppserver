@@ -80,11 +80,11 @@ enum eApiVisit {
     YY(Admin, 8, "管理员") \
 	YY(SuperAdmin, 9, "超级管理员") \
 
-//1-金币场 2-好友房 3-俱乐部
+//0-金币场 1-好友房 2-俱乐部
 #define GAMEMODE_MAP(XX, YY) \
-	YY(GoldCoin, 1, "金币场") \
-	XX(FriendRoom, "好友房") \
-	XX(Club, "俱乐部") \
+	YY(GoldCoin, 0, "金币场") \
+	YY(FriendRoom, 1, "好友房") \
+	YY(Club, 2, "俱乐部") \
 
 //0-百人 1-对战
 #define GAMETYPE_MAP(XX, YY) \
