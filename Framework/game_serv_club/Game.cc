@@ -601,7 +601,7 @@ void GameServ::GetRoomInfoMessage(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::ClubGameServer::MSG_S2C_GetRoomInfoResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-		if (reqdata.gameid() != gameInfos_[0].gameId ||
+		if (reqdata.gameid() != gameInfo_.gameId ||
 			reqdata.roomid() != roomInfos_[0].roomId) {
 			return;
 		}
