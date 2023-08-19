@@ -83,17 +83,17 @@ private:
 	void cmd_on_user_offline(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	/// <summary>
-	/// 查询游戏房间列表
+	/// 获取所有游戏列表
 	/// </summary>
 	void cmd_get_game_info(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	/// <summary>
-	/// 查询正在玩的游戏
+	/// 查询正在玩的游戏/游戏服务器IP
 	/// </summary>
 	void cmd_get_playing_game_info(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	/// <summary>
-	/// 查询指定游戏节点
+	/// 查询指定游戏节点/游戏服务器IP
 	/// </summary>
 	void cmd_get_game_server_message(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
@@ -114,8 +114,7 @@ private:
 	void cmd_get_task_list(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	void cmd_get_task_award(
-		const muduo::net::Tc85
-		pConnectionPtr& conn, BufferPtr const& buf);
+		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 
 
 	//===================俱乐部==================

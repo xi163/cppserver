@@ -61,7 +61,7 @@ void HallServ::registerHandlers() {
 		= std::bind(&HallServ::cmd_on_user_offline, this,
 			std::placeholders::_1, std::placeholders::_2);
 	/// <summary>
-	/// 查询游戏房间列表
+	/// 获取所有游戏列表
 	/// </summary>
 	handlers_[packet::enword(
 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL,
@@ -69,7 +69,7 @@ void HallServ::registerHandlers() {
 		= std::bind(&HallServ::cmd_get_game_info, this,
 			std::placeholders::_1, std::placeholders::_2);
 	/// <summary>
-	/// 查询正在玩的游戏
+	/// 查询正在玩的游戏/游戏服务器IP
 	/// </summary>
 	handlers_[packet::enword(
 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL,
@@ -77,7 +77,7 @@ void HallServ::registerHandlers() {
 		= std::bind(&HallServ::cmd_get_playing_game_info, this,
 			std::placeholders::_1, std::placeholders::_2);
 	/// <summary>
-	/// 查询指定游戏节点
+	/// 查询指定游戏节点/游戏服务器IP
 	/// </summary>
 	handlers_[packet::enword(::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL,
 		::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_REQ)]
@@ -827,7 +827,7 @@ void HallServ::cmd_on_user_offline(
 }
 
 /// <summary>
-/// 查询游戏房间列表
+/// 获取所有游戏列表
 /// </summary>
 void HallServ::cmd_get_game_info(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
@@ -839,11 +839,20 @@ void HallServ::cmd_get_game_info(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::HallServer::GetGameMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-		rspdata.set_retcode(0);
-		rspdata.set_errormsg("Get Game Message OK!");
-		{
+		switch (reqdata.type()) {
+		case GameMode::kGoldCoin:
+		case GameMode::kFriendRoom:
+		case GameMode::kClub: {
+			rspdata.set_retcode(0);
+			rspdata.set_errormsg("Get Game Message OK!");
 			READ_LOCK(gameinfo_mutex_);
-			rspdata.CopyFrom(gameinfo_);
+			rspdata.CopyFrom(gameinfo_[reqdata.type()]);
+			break;
+		}
+		default:
+			rspdata.set_retcode(-1);
+			rspdata.set_errormsg("Get Game type error!");
+			break;
 		}
 		send(conn, &rspdata,
 			::Game::Common::CLIENT_TO_HALL_GET_GAME_ROOM_INFO_RES,
@@ -852,7 +861,7 @@ void HallServ::cmd_get_game_info(
 }
 
 /// <summary>
-/// 查询正在玩的游戏
+/// 查询正在玩的游戏/游戏服务器IP
 /// </summary>
 void HallServ::cmd_get_playing_game_info(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
@@ -884,7 +893,7 @@ void HallServ::cmd_get_playing_game_info(
 }
 
 /// <summary>
-/// 查询指定游戏节点
+/// 查询指定游戏节点/游戏服务器IP
 /// </summary>
 void HallServ::cmd_get_game_server_message(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
@@ -1189,9 +1198,12 @@ void HallServ::db_refresh_game_room_info() {
 
 void HallServ::db_update_game_room_info() {
 	WRITE_LOCK(gameinfo_mutex_);
-	gameinfo_.clear_header();
-	gameinfo_.clear_gamemessage();
-	mgo::LoadGameRoomInfos(gameinfo_);
+	gameinfo_[kGoldCoin].clear_header();
+	gameinfo_[kGoldCoin].clear_gamemessage();
+	mgo::LoadGameRoomInfos(gameinfo_[kGoldCoin]);
+	gameinfo_[kClub].clear_header();
+	gameinfo_[kClub].clear_gamemessage();
+	mgo::LoadGameClubRoomInfos(gameinfo_[kClub]);
 }
 
 void HallServ::redis_refresh_room_player_nums() {
@@ -1204,36 +1216,36 @@ void HallServ::redis_refresh_room_player_nums() {
 
 void HallServ::redis_update_room_player_nums() {
 	WRITE_LOCK(room_playernums_mutex_);
-	room_playernums_.clear_header();
-	room_playernums_.clear_gameplayernummessage();
-	auto& gameMessage = gameinfo_.gamemessage();
-	try {
-		//各个子游戏
-		for (auto& gameinfo : gameMessage) {
-			::HallServer::SimpleGameMessage* simpleMessage = room_playernums_.add_gameplayernummessage();
-			uint32_t gameid = gameinfo.gameid();
-			simpleMessage->set_gameid(gameid);
-			auto& gameroommsg = gameinfo.gameroommsg();
-			//各个子游戏房间
-			for (auto& roominfo : gameroommsg) {
-				::HallServer::RoomPlayerNum* roomPlayerNum = simpleMessage->add_roomplayernum();
-				uint32_t roomid = roominfo.roomid();
-				//redis获取房间人数
-				uint64_t playerNums = 0;
-				//if (room_servers_.find(roomid) != room_servers_.end()) {
-				//	REDISCLIENT.GetGameServerplayerNum(room_servers_[roomid], playerNums);
-				//}
-				//更新房间游戏人数
-				roomPlayerNum->set_roomid(roomid);
-				roomPlayerNum->set_playernum(playerNums);
-				const_cast<::HallServer::GameRoomMessage&>(roominfo).set_playernum(playerNums);
-				//_LOG_DEBUG("roomId=%d playerCount=%d", roomid, playerNums);
-			}
-		}
-	}
-	catch (std::exception& e) {
-		_LOG_ERROR(e.what());
-	}
+// 	room_playernums_.clear_header();
+// 	room_playernums_.clear_gameplayernummessage();
+// 	auto& gameMessage = gameinfo_.gamemessage();
+// 	try {
+// 		//各个子游戏
+// 		for (auto& gameinfo : gameMessage) {
+// 			::HallServer::SimpleGameMessage* simpleMessage = room_playernums_.add_gameplayernummessage();
+// 			uint32_t gameid = gameinfo.gameid();
+// 			simpleMessage->set_gameid(gameid);
+// 			auto& gameroommsg = gameinfo.gameroommsg();
+// 			//各个子游戏房间
+// 			for (auto& roominfo : gameroommsg) {
+// 				::HallServer::RoomPlayerNum* roomPlayerNum = simpleMessage->add_roomplayernum();
+// 				uint32_t roomid = roominfo.roomid();
+// 				//redis获取房间人数
+// 				uint64_t playerNums = 0;
+// 				//if (room_servers_.find(roomid) != room_servers_.end()) {
+// 				//	REDISCLIENT.GetGameServerplayerNum(room_servers_[roomid], playerNums);
+// 				//}
+// 				//更新房间游戏人数
+// 				roomPlayerNum->set_roomid(roomid);
+// 				roomPlayerNum->set_playernum(playerNums);
+// 				const_cast<::HallServer::GameRoomMessage&>(roominfo).set_playernum(playerNums);
+// 				//_LOG_DEBUG("roomId=%d playerCount=%d", roomid, playerNums);
+// 			}
+// 		}
+// 	}
+// 	catch (std::exception& e) {
+// 		_LOG_ERROR(e.what());
+// 	}
 }
 
 void HallServ::on_refresh_game_config(std::string msg) {

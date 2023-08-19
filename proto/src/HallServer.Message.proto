@@ -65,6 +65,8 @@ message GameMessage
 message GetGameMessage
 {
      Game.Common.Header     header                  = 1;  // ID
+	 int32                  type                    = 2; // 0-金币场 1-好友房 2-俱乐部
+	 int64                  clubId                  = 3; // 俱乐部Id 金币场 好友房:0
 }
 message GetGameMessageResponse
 {
