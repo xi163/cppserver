@@ -18,6 +18,7 @@ class IReplayRecord;
 struct TableState;
 struct tagGameInfo;
 struct tagGameRoomInfo;
+struct tagGameClubInfo;
 
 struct tagScoreInfo;
 struct tagSpecialScoreInfo;
@@ -30,9 +31,6 @@ public:
 	ITable() = default;
 	virtual ~ITable() = default;
 	virtual void Reset() = 0;
-	virtual void Init(std::shared_ptr<ITableDelegate>& tableDelegate, TableState& tableState,
-		tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo,
-		std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) = 0;
 	virtual uint32_t GetTableId() = 0;
 	virtual void GetTableInfo(TableState& TableInfo) = 0;
 	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread() = 0;
@@ -63,6 +61,7 @@ public:
 	virtual void GetPlayerCount(uint32_t& realCount, uint32_t& robotCount) = 0;
 	virtual uint32_t GetMaxPlayerCount() = 0;
 	virtual tagGameRoomInfo* GetRoomInfo() = 0;
+	virtual tagGameClubInfo* GetClubInfo() = 0;
 	virtual bool IsRobot(uint32_t chairId) = 0;
 	virtual bool IsOfficial(uint32_t chairId) = 0;
 	virtual bool OnGameEvent(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len) = 0;

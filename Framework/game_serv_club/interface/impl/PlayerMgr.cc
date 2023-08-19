@@ -1,17 +1,12 @@
 
 #include "PlayerMgr.h"
 
-CPlayerMgr::CPlayerMgr() : roomInfo_(NULL) {
+CPlayerMgr::CPlayerMgr() {
 }
 
 CPlayerMgr::~CPlayerMgr() {
 	items_.clear();
 	freeItems_.clear();
-}
-
-void CPlayerMgr::Init(tagGameRoomInfo* roomInfo) {
-	assert(roomInfo);
-	roomInfo_ = roomInfo;
 }
 
 std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {

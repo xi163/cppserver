@@ -30,9 +30,6 @@ public:
 	ITable() = default;
 	virtual ~ITable() = default;
 	virtual void Reset() = 0;
-	virtual void Init(std::shared_ptr<ITableDelegate>& tableDelegate, TableState& tableState,
-		tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo,
-		std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) = 0;
 	virtual uint32_t GetTableId() = 0;
 	virtual void GetTableInfo(TableState& TableInfo) = 0;
 	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread() = 0;

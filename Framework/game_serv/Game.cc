@@ -6,6 +6,7 @@
 
 #include "proto/Game.Common.pb.h"
 #include "proto/GameServer.Message.pb.h"
+
 #include "public/mgoOperation.h"
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
@@ -36,6 +37,7 @@ GameServ::~GameServ() {
 }
 
 void GameServ::Quit() {
+	CTableMgr::get_mutable_instance().KickAll();
 	// 	for (size_t i = 0; i < logicThread_.size(); ++i) {
 	// 		logicThread_[i]->stop();
 	// 	}
@@ -264,20 +266,30 @@ bool GameServ::InitServer() {
 		initTraceMessageID();
 		break;
 	}
-	if (mgo::LoadGameRoomInfo(gameId_,roomId_, gameInfo_, roomInfo_)) {
-		CPlayerMgr::get_mutable_instance().Init(&roomInfo_);
-		CTableMgr::get_mutable_instance().Init(&gameInfo_, &roomInfo_, logicThread_, this);
-		if (roomInfo_.bEnableAndroid) {
-			CRobotMgr::get_mutable_instance().Init(&gameInfo_, &roomInfo_, logicThread_, this);
-			CRobotMgr::get_mutable_instance().Load();
+	switch (roomId_) {
+	default: {
+		tagGameRoomInfo roomInfo;
+		if (!mgo::LoadGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo)) {
+			_LOG_ERROR("error");
+			return false;
 		}
-		else {
-		}
-		_LOG_WARN("roomId = %d robot enabled = %d maxRobotCount = %d", roomId_, roomInfo_.bEnableAndroid, roomInfo_.maxAndroidCount);
-		return true;
+		roomInfos_.emplace_back(roomInfo);
+		break;
 	}
-	_LOG_ERROR("error");
-	return false;
+	case 0:
+		if (!mgo::LoadGameRoomInfos(gameId_, gameInfo_, roomInfos_)) {
+			_LOG_ERROR("error");
+			return false;
+		}
+		break;
+	}
+	CTableMgr::get_mutable_instance().Init(logicThread_, this);
+	if (enable()) {
+		CRobotMgr::get_mutable_instance().Init(this);
+	}
+	else {
+	}
+	return true;
 }
 
 void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
@@ -298,17 +310,28 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	//server_.getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
 	//server_.getLoop()->runAfter(30, std::bind(&GameServ::redis_refresh_room_player_nums, this));
 
-	if (roomInfo_.bEnableAndroid) {
-		if (gameInfo_.gameType == GameType_BaiRen) {
+	if (enable()) {
+		switch (gameInfo_.gameType) {
+		case GameType_BaiRen: {
 			logicThread_->getLoop()->runEvery(3.0, std::bind(&CRobotMgr::OnTimerCheckIn, &CRobotMgr::get_mutable_instance()));
 			auto player = std::make_shared<CPlayer>();
 			CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
-			CRobotMgr::get_mutable_instance().Hourtimer();
+			break;
 		}
-		else if (gameInfo_.gameType == GameType_Confrontation) {
+		case GameType_Confrontation:
 			logicThread_->getLoop()->runEvery(0.1f, std::bind(&CRobotMgr::OnTimerCheckIn, &CRobotMgr::get_mutable_instance()));
+			break;
 		}
 	}
+}
+
+bool GameServ::enable() {
+	for (std::vector<tagGameRoomInfo>::iterator it = roomInfos_.begin(); it != roomInfos_.end(); ++it) {
+		if (it->bEnableAndroid) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
@@ -567,22 +590,24 @@ void GameServ::cmd_on_user_enter_room(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::GameServer::MSG_S2C_UserEnterMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-		rspdata.set_retcode(0);
-		rspdata.set_errormsg("Unknown Error");
-		assert(reqdata.gameid() == gameInfo_.gameId && reqdata.roomid() == roomInfo_.roomId);
-		std::string uuid = reqdata.dynamicpassword();
-
+		if (reqdata.gameid() != gameInfo_.gameId ||
+			reqdata.roomid() != roomInfos_[0].roomId) {
+			return;
+		}
+		
 		//判断玩家是否在上分
 		//Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER
 		//::GameServer::SUB_S2C_ENTER_ROOM_RES
 		//ERROR_ENTERROOM_USER_ORDER_SCORE
 		//需要先加锁禁止玩家上分操作，然后继续
 
-		//redis已标记玩家游戏中
 		if (REDISCLIENT.ExistOnlineInfo(pre_header_->userId)) {
 			std::string redisPasswd;
 			if (REDISCLIENT.GetUserLoginInfo(pre_header_->userId, "dynamicPassword", redisPasswd)) {
-				std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
+				std::string passwd = utils::buffer2HexStr(
+					(unsigned char const*)
+					reqdata.dynamicpassword().c_str(),
+					reqdata.dynamicpassword().size());
 				if (passwd == redisPasswd) {
 					AddContext(conn, pre_header_, header_);
 				}
@@ -665,7 +690,7 @@ void GameServ::cmd_on_user_enter_room(
 		uint32_t gameid = 0, roomid = 0;
 		if (REDISCLIENT.GetOnlineInfo(pre_header_->userId, gameid, roomid)) {
 			if (gameid != 0 && roomid != 0 &&
-				gameInfo_.gameId != gameid || roomInfo_.roomId != roomid) {
+				gameInfo_.gameId != gameid || roomInfos_[0].roomId != roomid) {
 				::GameServer::MSG_S2C_PlayInOtherRoom rspdata;
 				rspdata.mutable_header()->CopyFrom(reqdata.header());
 				rspdata.set_gameid(gameid);
@@ -705,11 +730,11 @@ void GameServ::cmd_on_user_enter_room(
 				"ERROR_ENTERROOM_NOSESSION", pre_header_, header_);
 			return;
 		}
-		_LOG_WARN("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfo_.roomId,
-			roomInfo_.enterMinScore, roomInfo_.enterMaxScore, pre_header_->userId, userInfo.userScore);
+		_LOG_WARN("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfos_[0].roomId,
+			roomInfos_[0].enterMinScore, roomInfos_[0].enterMaxScore, pre_header_->userId, userInfo.userScore);
 		//最小进入条件
-		if (roomInfo_.enterMinScore > 0 &&
-			userInfo.userScore < roomInfo_.enterMinScore) {
+		if (roomInfos_[0].enterMinScore > 0 &&
+			userInfo.userScore < roomInfos_[0].enterMinScore) {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
 			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
@@ -721,8 +746,8 @@ void GameServ::cmd_on_user_enter_room(
 			return;
 		}
 		//最大进入条件
-		if (roomInfo_.enterMaxScore > 0 &&
-			userInfo.userScore > roomInfo_.enterMaxScore) {
+		if (roomInfos_[0].enterMaxScore > 0 &&
+			userInfo.userScore > roomInfos_[0].enterMaxScore) {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
 			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
@@ -812,7 +837,7 @@ void GameServ::cmd_on_user_left_room(
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				table->assertThisThread();
-				//KickOffLine(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
+				//KickUser(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
 				if (table->CanLeftTable(pre_header_->userId)) {
 					if (table->OnUserLeft(player, true)) {
 						rspdata.set_retcode(0);
@@ -855,7 +880,7 @@ void GameServ::cmd_on_user_offline(
 		break;
 	default:
 		_LOG_ERROR("KICK_LEAVEGS %d", pre_header_->userId);
-		//KickOffLine(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
+		//KickUser(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (!player) {
 			return;
@@ -899,11 +924,12 @@ void GameServ::cmd_notifyRepairServerResp(
 	size_t msgLen = packet::get_msglen(buf);
 }
 
-void GameServ::KickOffLine(int64_t userId, int32_t kickType) {
+void GameServ::KickUser(int64_t userId, int32_t kickType) {
 	std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(userId);
 	if (!player) {
 		return;
 	}
+#if 0
 	packet::internal_prev_header_t pre_header;
 	memset(&pre_header, 0, packet::kPrevHeaderLen);
 	boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> ctx = GetContext(userId);
@@ -921,6 +947,14 @@ void GameServ::KickOffLine(int64_t userId, int32_t kickType) {
 	if (likely(conn)) {
 		conn->send((char const*)&pre_header, pre_header.len);
 	}
+#else
+	std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+	if (table) {
+		table->assertThisThread();
+		//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
+		table->OnUserOffline(player);
+	}
+#endif
 }
 
 boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> GameServ::GetContext(int64_t userId) {

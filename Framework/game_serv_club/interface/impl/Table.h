@@ -36,9 +36,9 @@ public:
 		::google::protobuf::Message* msg,
 		uint8_t subId, bool v = false, int flag = 0);
 	virtual void Init(std::shared_ptr<ITableDelegate>& tableDelegate,
-		TableState& tableState,
-		tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo,
+		TableState& tableState, tagGameRoomInfo* roomInfo,
 		std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
+	virtual void SetClubInfo(tagGameClubInfo* clubInfo);
 	virtual uint32_t GetTableId();
 	virtual void GetTableInfo(TableState& tableState);
 	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread();
@@ -71,6 +71,7 @@ public:
 	virtual void GetPlayerCount(uint32_t& realCount, uint32_t& robotCount);
 	virtual uint32_t GetMaxPlayerCount();
 	virtual tagGameRoomInfo* GetRoomInfo();
+	virtual tagGameClubInfo* GetClubInfo();
 	virtual bool IsRobot(uint32_t chairId);
 	virtual bool IsOfficial(uint32_t chairId);
 	virtual bool OnGameEvent(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len);
@@ -97,7 +98,7 @@ public:
 	virtual bool GetStorageScore(tagStorageInfo& storageInfo);
 	bool WriteGameChangeStorage(int64_t changeStockScore);
 	static bool ReadStorageScore(tagGameRoomInfo* roomInfo);
-	void KickOffLine(std::shared_ptr<IPlayer> const& player, int32_t kickType = KICK_GS | KICK_CLOSEONLY);
+	void KickUser(std::shared_ptr<IPlayer> const& player, int32_t kickType = KICK_GS | KICK_CLOSEONLY);
 	bool SetOnlineInfo(int64_t userId);
 	bool DelOnlineInfo(int64_t userId);
 	virtual void RefreshRechargeScore(std::shared_ptr<IPlayer> const& player);
@@ -118,8 +119,8 @@ public:
 	STD::Weight weight_;
 	uint8_t status_;
 	TableState tableState_;
-	tagGameInfo* gameInfo_;
 	tagGameRoomInfo* roomInfo_;
+	tagGameClubInfo* clubInfo_;
 	ITableContext* tableContext_;
 	std::vector<std::shared_ptr<IPlayer>> items_;//items_[chairId]
 	std::shared_ptr<ITableDelegate> tableDelegate_;

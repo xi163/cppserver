@@ -323,7 +323,7 @@ public:
 	std::string mongoDBUrl_;
 private:
 	//所有游戏房间信息
-	::HallServer::GetGameMessageResponse gameinfo_;
+	::HallServer::GetGameMessageResponse gameinfo_[kClub+1];
 	mutable boost::shared_mutex gameinfo_mutex_;
 	::HallServer::GetServerPlayerNumResponse room_playernums_;
 	mutable boost::shared_mutex room_playernums_mutex_;

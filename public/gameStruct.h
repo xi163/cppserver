@@ -20,22 +20,58 @@ struct UserClubInfo {
 	int64_t promoterId;//俱乐部盟主/发起人
 	int64_t creatorId;//俱乐部创建者
 	STD::time_point joinTime;//加入俱乐部时间
-	STD::time_point createTime;//俱乐部创建时间
 	STD::time_point updateTime;//俱乐部更新时间
+	STD::time_point createTime;//俱乐部创建时间
 };
 
 //#pragma pack(1)
 struct tagGameInfo
 {
-	uint32_t gameId;       // game id.
+	uint32_t gameId;
 	std::string gameName;
-	uint32_t sortId;       // game sort id.
-	uint8_t gameType;     // 0-bairen   1-duizhan
+	uint32_t sortId;//游戏排序0 1 2 3 4
+	uint8_t gameType;//0-百人场 1-对战类
 	std::string serviceName;
 	uint8_t revenueRatio;  // revenue
 	bool matchforbids[10];// forbid match types
 	uint32_t updatePlayerNum;
-	uint8_t serverStatus;
+	uint8_t serverStatus;//-1:关停 0:暂未开放 1：正常开启 2：敬请期待 3: 正在维护
+};
+
+struct tagAndroidUserParameter
+{
+	int64_t    userId;
+	std::string     account;
+	std::string     nickName;
+	uint8_t    headId;
+
+	int64_t    score;
+
+	std::string     enterTime;
+	std::string     leaveTime;
+	int64_t    takeMinScore;
+	int64_t    takeMaxScore;
+
+	std::string    location;
+};
+
+struct AndroidStrategyArea
+{
+	int32_t weight;
+	int32_t lowTimes;
+	int32_t highTimes;
+};
+
+//机器人策略
+struct tagAndroidStrategyParam
+{
+	int32_t gameId;
+	int32_t roomId;
+	int64_t exitLowScore;
+	int64_t exitHighScore;
+	int64_t minScore;
+	int64_t maxScore;
+	std::vector<AndroidStrategyArea> areas;
 };
 
 struct tagGameRoomInfo
@@ -82,6 +118,7 @@ struct tagGameRoomInfo
 
 	int64_t     totalJackPot[5];          //预存N个奖池信息
 
+	tagAndroidStrategyParam robotStrategy_;
 	//    uint8_t     bisKeepAndroidin;       // is keep android in room.
 	//    uint8_t     bisLeaveAnyTime;        // is user can leave game any time.
 	//    uint8_t     bisAndroidWaitList;     // DDZ: android have to do wait list.
@@ -89,6 +126,22 @@ struct tagGameRoomInfo
 	//    uint8_t     bisAutoReady;           // is game auto ready.
 	//    uint8_t     bisEnterIsReady;		// is enter is ready.
 	//    uint8_t     bisQipai;               // need to wait player ready.
+};
+
+struct tagGameClubInfo {
+	int64_t clubId;//俱乐部Id 当玩家userId与clubId相同时为盟主
+	int32_t iconId;//俱乐部图标
+	std::string clubName;//俱乐部名称
+	int status;//0-未启用 1-活动 2-弃用 3-禁用
+	uint32_t playerNum;//俱乐部人数
+	int ratio;//提成比例 会员:0 合伙人或盟主:75 表示75%
+	int autoPartnerRatio;//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+	std::string url;//会员:"" 合伙人或盟主:url不为空 当玩家userId与clubId相同时为盟主
+	int64_t promoterId;//俱乐部盟主/发起人
+	int64_t creatorId;//俱乐部创建者
+	STD::time_point joinTime;//加入俱乐部时间
+	STD::time_point updateTime;//俱乐部更新时间
+	STD::time_point createTime;//俱乐部创建时间
 };
 //#pragma pack()
 
@@ -290,42 +343,6 @@ struct tagSpecialScoreInfo
 	bool       bIsAndroid;
 	bool       bWriteScore;           // 写分
 	bool       bWriteRecord;          // 写记录
-};
-
-
-struct tagAndroidUserParameter
-{
-	int64_t    userId;
-	std::string     account;
-	std::string     nickName;
-	uint8_t    headId;
-
-	int64_t    score;
-
-	std::string     enterTime;
-	std::string     leaveTime;
-	int64_t    takeMinScore;
-	int64_t    takeMaxScore;
-
-	std::string    location;
-};
-
-struct AndroidStrategyArea
-{
-	int32_t weight;
-	int32_t lowTimes;
-	int32_t highTimes;
-};
-//机器人策略
-struct tagAndroidStrategyParam
-{
-	int32_t gameId;
-	int32_t roomId;
-	int64_t exitLowScore;
-	int64_t exitHighScore;
-	int64_t minScore;
-	int64_t maxScore;
-	std::vector<AndroidStrategyArea> areas;
 };
 
 //记录水果机免费游戏剩余次数 add by caiqing

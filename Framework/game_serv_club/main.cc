@@ -9,8 +9,8 @@ static void StopService(int signo) {
 
 int main(int argc, char* argv[]) {
 	//检查命令行参数
-	if (argc < 3) {
-		_LOG_ERROR("argc < 2, error gameid & roomid");
+	if (argc < 2) {
+		_LOG_ERROR("argc < 2, error gameid [, roomid]");
 		exit(1);
 	}
 	std::string config = "game_serv_club";
@@ -21,7 +21,10 @@ int main(int argc, char* argv[]) {
 	utils::setrlimit();
 	utils::setenv();
 	uint32_t gameId = strtol(argv[1], NULL, 10);
-	uint32_t roomId = strtol(argv[2], NULL, 10);
+	uint32_t roomId = 0;
+	if (argc >= 3) {
+		roomId = strtol(argv[2], NULL, 10);
+	}
 	//检查配置文件
 	if (!boost::filesystem::exists("./conf/game.conf")) {
 		_LOG_ERROR("./conf/game.conf not exists");

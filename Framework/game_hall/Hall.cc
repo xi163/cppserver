@@ -1194,7 +1194,6 @@ void HallServ::db_update_game_room_info() {
 	mgo::LoadGameRoomInfos(gameinfo_);
 }
 
-
 void HallServ::redis_refresh_room_player_nums() {
 	static STD::Random r(0, threadPool_.size() - 1);
 	int index = r.randInt_re();
@@ -1258,6 +1257,7 @@ void HallServ::GetGameServerMessage_club(
 		rspdata.set_errormsg("Unknown error.");
 		rspdata.set_gameid(reqdata.gameid());
 		rspdata.set_roomid(reqdata.roomid());
+		rspdata.set_clubid(reqdata.clubid());
 		uint32_t gameid = reqdata.gameid();
 		uint32_t roomid = reqdata.roomid();
 		int64_t userId = pre_header_->userId;

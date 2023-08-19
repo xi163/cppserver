@@ -176,16 +176,33 @@ namespace mgo {
 	//代理发起人开除俱乐部成员
 	Msg const& FireClubUser(int64_t clubId, int64_t promoterId, int64_t userId);
 	
+	bool LoadGameClubInfos(
+		document::view_or_value const& select,
+		document::view_or_value const& where,
+		std::vector<tagGameClubInfo>& infos);
+	
+	bool LoadGameClubInfos(std::vector<tagGameClubInfo>& infos);
+	
 	bool LoadGameRoomInfos(
 		::HallServer::GetGameMessageResponse& gameinfos);
 	
+	bool LoadGameClubRoomInfos(
+		::HallServer::GetGameMessageResponse& gameinfos);
+
+	//金币场
 	bool LoadGameRoomInfo(
 		uint32_t gameid, uint32_t roomid,
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_);
-
+	bool LoadGameRoomInfos(
+		uint32_t gameid,
+		tagGameInfo& gameInfo_, std::vector<tagGameRoomInfo>& roomInfos_);
+	//俱乐部
 	bool LoadClubGameRoomInfo(
 		uint32_t gameid, uint32_t roomid,
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_);
+	bool LoadClubGameRoomInfos(
+		uint32_t gameid,
+		tagGameInfo& gameInfo_, std::vector<tagGameRoomInfo>& roomInfos_);
 
 	bool GetUserBaseInfo(int64_t userid, UserBaseInfo& info);
 

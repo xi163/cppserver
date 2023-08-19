@@ -7,6 +7,7 @@
 #include "Packet.h"
 
 #include "Table.h"
+#include "ITableContext.h"
 
 template<typename T>
 struct second_t {
@@ -25,7 +26,7 @@ public:
 	CTableMgr();
 	virtual ~CTableMgr();
 	std::list<std::shared_ptr<CTable>> UsedTables();
-	void Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
+	void Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
 	std::shared_ptr<CTable> Get(uint32_t tableId);
 	/// <summary>
 	/// 返回指定桌子，前提是桌子未满
@@ -36,12 +37,12 @@ public:
 	/// </summary>
 	std::shared_ptr<CTable> FindSuit(std::shared_ptr<IPlayer> const& player, uint32_t exceptTableId = INVALID_TABLE);
 	void Delete(uint32_t tableId);
-	bool SetTableStockInfo(tagStockInfo& stockInfo);
-	void KickAllTableUsers();
+	/// <summary>
+	/// 踢出所有桌子玩家
+	/// </summary>
+	void KickAll();
 protected:
-	tagGameInfo* gameInfo_;
-	tagGameRoomInfo* roomInfo_;
-	tagStockInfo stockInfo_;
+	ITableContext* tableContext_;
 	std::vector<std::shared_ptr<CTable>> items_;//items_[tableId]
 	std::map<uint32_t, std::shared_ptr<CTable>> usedItems_;
 	std::list<std::shared_ptr<CTable>> freeItems_;

@@ -22,7 +22,6 @@ int CTable::sysChangeCardRatio_(0);
 
 CTable::CTable()
     : tableDelegate_(NULL)
-    , gameInfo_(NULL)
     , roomInfo_(NULL)
     , tableContext_(NULL)
     , logicThread_(NULL)
@@ -46,10 +45,8 @@ void CTable::Reset() {
 }
 
 void CTable::Init(std::shared_ptr<ITableDelegate>& tableDelegate,
-    TableState& tableState,
-    tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo,
+    TableState& tableState, tagGameRoomInfo* roomInfo,
     std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) {
-    gameInfo_ = gameInfo;
     roomInfo_ = roomInfo;
     logicThread_ = logicThread;
     tableContext_ = tableContext;
@@ -410,7 +407,7 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
         }
     }
     if (GetPlayerCount() == 0) {
-        if (gameInfo_->gameType == GameType_Confrontation) {
+        if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
             CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
         }
     }
@@ -443,7 +440,7 @@ bool CTable::ConcludeGame(uint8_t gameStatus) {
 }
 
 int64_t CTable::CalculateRevenue(int64_t score) {
-    return score * gameInfo_->revenueRatio / 100;
+    return score * tableContext_->GetGameInfo()->revenueRatio / 100;
 }
 
 std::shared_ptr<IPlayer> CTable::GetChairPlayer(uint32_t chairId) {
@@ -699,7 +696,7 @@ bool CTable::CheckGameStart() {
             return false;
         }
     }
-    // 	if (playerCount >= gameInfo_->MIN_GAME_PLAYER) {
+    // 	if (playerCount >= tableContext_->GetGameInfo()->MIN_GAME_PLAYER) {
     // 		return true;
     // 	}
     return false;
@@ -737,13 +734,13 @@ bool CTable::OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendStat
             CRobotMgr::get_mutable_instance().Delete(userId);
         }
         else {
-            if (roomInfo_->serverStatus != kRunning && gameInfo_->gameType == GameType_BaiRen) {
+            if (roomInfo_->serverStatus != kRunning && tableContext_->GetGameInfo()->gameType == GameType_BaiRen) {
                 uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
                 uint8_t subId = GameServer::SUB_S2C_USER_LEFT_RES;
                 ::GameServer::MSG_C2S_UserLeftMessageResponse response;
                 ::Game::Common::Header* resp_header = response.mutable_header();
                 resp_header->set_sign(HEADER_SIGN);
-                response.set_gameid(gameInfo_->gameId);
+                response.set_gameid(tableContext_->GetGameInfo()->gameId);
                 response.set_roomid(roomInfo_->roomId);
                 response.set_type(0);
                 response.set_retcode(ERROR_ENTERROOM_SERVERSTOP);
@@ -992,7 +989,7 @@ bool CTable::WriteUserScore(tagScoreInfo* pScoreInfo, uint32_t nCount, std::stri
                         AddUserGameLogToDB(userBaseInfo, scoreInfo, strRound);
                         player->SetUserScore(targetScore);
                         //LOG_DEBUG << "AddUserScore userId:" << userBaseInfo.userId << ", Source Score:" << sourceScore << ", AddScore:" << scoreInfo->addScore << ", lNewScore:" << targetScore;
-                        /*if( gameInfo_->matchforbids[MTH_BLACKLIST] && player->GetBlacklistInfo().status == 1 )
+                        /*if( tableContext_->GetGameInfo()->matchforbids[MTH_BLACKLIST] && player->GetBlacklistInfo().status == 1 )
                         {
                             long current;
                             std::string blacklistkey = REDIS_BLACKLIST+to_string(player->GetUserId());
@@ -1063,7 +1060,7 @@ bool CTable::WriteUserScore(tagScoreInfo* pScoreInfo, uint32_t nCount, std::stri
                     else //is android
                     {
                         //                        UpdateUserScoreToDB(userBaseInfo.userId, scoreInfo);
-                        if (gameInfo_->gameType == GameType_Confrontation)
+                        if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation)
                         {
                             //                            AddUserGameInfoToDB(userBaseInfo, scoreInfo, strRound, true);
                         }
@@ -1166,7 +1163,7 @@ bool CTable::WriteSpecialUserScore(tagSpecialScoreInfo* pSpecialScoreInfo, uint3
                         {
                             UpdateUserScoreToDB(userBaseInfo.userId, scoreInfo);
                             AddUserGameLogToDB(scoreInfo, strRound);
-                            // 							if (gameInfo_->matchforbids[MTH_BLACKLIST] && player->GetBlacklistInfo().status == 1)
+                            // 							if (tableContext_->GetGameInfo()->matchforbids[MTH_BLACKLIST] && player->GetBlacklistInfo().status == 1)
                             // 							{
                             // 								long current;
                             //                                 std::string blacklistkey = REDIS_BLACKLIST + std::to_string(player->GetUserId());
@@ -1239,7 +1236,7 @@ bool CTable::WriteSpecialUserScore(tagSpecialScoreInfo* pSpecialScoreInfo, uint3
                         else//is android
                         {
                             //                        UpdateUserScoreToDB(userBaseInfo.userId, scoreInfo);
-                            if (gameInfo_->gameType == GameType_Confrontation)
+                            if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation)
                             {
                                 //                            AddUserGameInfoToDB(userBaseInfo, scoreInfo, strRound, true);
                             }
@@ -1358,7 +1355,7 @@ bool CTable::AddUserGameInfoToDB(UserBaseInfo& userBaseInfo, tagScoreInfo* score
     bool ok = false;
     // 为不重编译全部游戏临时增加的解决方法，后面需要优化
 //     int32_t rankId = 0;
-//     if (gameInfo_->gameId == (int32_t)eGameKindId::sgj && scoreInfo->cardValue.compare("") != 0){
+//     if (tableContext_->GetGameInfo()->gameId == (int32_t)eGameKindId::sgj && scoreInfo->cardValue.compare("") != 0){
 //         //解析-97
 //         if (scoreInfo->cardValue.length() >= 5){
 //             std::string str1= scoreInfo->cardValue.substr(0,5);
@@ -1381,7 +1378,7 @@ bool CTable::AddUserGameInfoToDB(UserBaseInfo& userBaseInfo, tagScoreInfo* score
         << "account" << userBaseInfo.account
         << "agentid" << (int32_t)userBaseInfo.agentId
         << "linecode" << userBaseInfo.lineCode
-        << "gameid" << (int32_t)gameInfo_->gameId
+        << "gameid" << (int32_t)tableContext_->GetGameInfo()->gameId
         << "roomid" << (int32_t)roomInfo_->roomId
         << "tableid" << (int32_t)tableState_.tableId
         << "chairid" << (int32_t)scoreInfo->chairId
@@ -1432,7 +1429,7 @@ bool CTable::AddUserGameInfoToDB(tagSpecialScoreInfo* scoreInfo, std::string& st
 
     // 为不重编译全部游戏临时增加的解决方法，后面需要优化
 //     int32_t rankId = 0;
-//     if (gameInfo_->gameId == (int32_t)eGameKindId::sgj && scoreInfo->cardValue.compare("") != 0){
+//     if (tableContext_->GetGameInfo()->gameId == (int32_t)eGameKindId::sgj && scoreInfo->cardValue.compare("") != 0){
 //         //解析-97
 //         if (scoreInfo->cardValue.length() >= 5){
 //             std::string str1= scoreInfo->cardValue.substr(0,5);
@@ -1455,7 +1452,7 @@ bool CTable::AddUserGameInfoToDB(tagSpecialScoreInfo* scoreInfo, std::string& st
         << "account" << scoreInfo->account
         << "agentid" << (int32_t)scoreInfo->agentId
         << "linecode" << scoreInfo->lineCode
-        << "gameid" << (int32_t)gameInfo_->gameId
+        << "gameid" << (int32_t)tableContext_->GetGameInfo()->gameId
         << "roomid" << (int32_t)roomInfo_->roomId
         << "tableid" << (int32_t)tableState_.tableId
         << "chairid" << (int32_t)scoreInfo->chairId
@@ -1576,7 +1573,7 @@ bool CTable::AddUserGameLogToDB(UserBaseInfo& userBaseInfo, tagScoreInfo* scoreI
         << "account" << userBaseInfo.account
         << "agentid" << (int32_t)userBaseInfo.agentId
         << "linecode" << userBaseInfo.lineCode
-        << "gameid" << (int32_t)gameInfo_->gameId
+        << "gameid" << (int32_t)tableContext_->GetGameInfo()->gameId
         << "roomid" << (int32_t)roomInfo_->roomId
         << "winscore" << scoreInfo->addScore
         << "revenue" << scoreInfo->revenue
@@ -1614,7 +1611,7 @@ bool CTable::AddUserGameLogToDB(tagSpecialScoreInfo* scoreInfo, std::string& str
         << "account" << scoreInfo->account
         << "agentid" << (int32_t)scoreInfo->agentId
         << "linecode" << scoreInfo->lineCode
-        << "gameid" << (int32_t)gameInfo_->gameId
+        << "gameid" << (int32_t)tableContext_->GetGameInfo()->gameId
         << "roomid" << (int32_t)roomInfo_->roomId
         << "winscore" << scoreInfo->addScore
         << "revenue" << scoreInfo->revenue
@@ -2024,9 +2021,9 @@ bool CTable::SaveReplayDetailJson(tagGameReplay& replay) {
     return true;
 }
 
-void CTable::KickOffLine(std::shared_ptr<IPlayer> const& player, int32_t kickType) {
+void CTable::KickUser(std::shared_ptr<IPlayer> const& player, int32_t kickType) {
     if (tableContext_) {
-        tableContext_->KickOffLine(player->GetUserId(), kickType);
+        tableContext_->KickUser(player->GetUserId(), kickType);
     }
 }
 
@@ -2044,8 +2041,8 @@ bool CTable::DelOnlineInfo(int64_t userId) {
 }
 
 bool CTable::SetOnlineInfo(int64_t userId) {
-    _LOG_ERROR("%d %d %d", userId, gameInfo_->gameId, roomInfo_->roomId);
-    REDISCLIENT.SetOnlineInfo(userId, gameInfo_->gameId, roomInfo_->roomId);
+    _LOG_ERROR("%d %d %d", userId, tableContext_->GetGameInfo()->gameId, roomInfo_->roomId);
+    REDISCLIENT.SetOnlineInfo(userId, tableContext_->GetGameInfo()->gameId, roomInfo_->roomId);
     return true;
 }
 
@@ -2056,7 +2053,7 @@ bool CTable::RoomSitChair(std::shared_ptr<IPlayer> const& player, packet::intern
     uint32_t chairId = 0;
     uint32_t maxPlayerNum = roomInfo_->maxPlayerNum;
     uint32_t startIndex = 0;
-    if (gameInfo_->gameType == GameType_Confrontation) {
+    if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
         startIndex = weight_.rand().betweenInt64(0, maxPlayerNum - 1).randInt_mt();
     }
     for (uint32_t i = 0; i < maxPlayerNum; ++i) {

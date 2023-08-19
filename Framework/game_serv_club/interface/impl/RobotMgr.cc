@@ -28,67 +28,55 @@ static RobotDelegateCreator LoadLibrary(std::string const& serviceName) {
 	return creator;
 }
 
-CRobotMgr::CRobotMgr() :
-	gameInfo_(NULL)
-	, roomInfo_(NULL)
-	, tableContext_(NULL)
-	//, logicThread_(NULL)
-	, percentage_(0) {
+CRobotMgr::CRobotMgr()
+	: percentage_(0) {
 }
 
 CRobotMgr::~CRobotMgr() {
 	freeItems_.clear();
 	items_.clear();
-	gameInfo_ = NULL;
-	roomInfo_ = NULL;
-	tableContext_ = NULL;
-	//logicThread_ = NULL;
 }
 
-void CRobotMgr::Init(tagGameInfo* gameInfo, tagGameRoomInfo* roomInfo, std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) {
-	if (!gameInfo || !roomInfo) {
+void CRobotMgr::Init(ITableContext* tableContext) {
+	if (!tableContext->GetGameInfo() || tableContext->GetRoomInfos().empty()) {
 		return;
 	}
-	RobotDelegateCreator creator = LoadLibrary(gameInfo->serviceName);
+	RobotDelegateCreator creator = LoadLibrary(tableContext->GetGameInfo()->serviceName);
 	if (!creator) {
 		exit(0);
 	}
-	gameInfo_ = gameInfo;
-	roomInfo_ = roomInfo;
-	//logicThread_ = logicThread;
-	tableContext_ = tableContext;
-	creator_ = creator;
+	load(tableContext->GetRoomInfos(), creator);
 }
 
-void CRobotMgr::Load() {
+void CRobotMgr::load(tagGameRoomInfo* roomInfo, RobotDelegateCreator creator) {
 	try {
 		mongocxx::collection androidStrategy = MONGODBCLIENT["gameconfig"]["android_strategy"];
-		bsoncxx::document::value query_value = document{} << "gameid" << (int32_t)roomInfo_->gameId << "roomid" << (int32_t)roomInfo_->roomId << finalize;
+		bsoncxx::document::value query_value = document{} << "gameid" << (int32_t)roomInfo->gameId << "roomid" << (int32_t)roomInfo->roomId << finalize;
 		bsoncxx::stdx::optional<bsoncxx::document::value> result = androidStrategy.find_one(query_value.view());
 		if (result) {
 			bsoncxx::document::view view = result->view();
 			//_LOG_DEBUG(bsoncxx::to_json(view).c_str());
-			robotStrategy_.gameId = view["gameid"].get_int32();
-			robotStrategy_.roomId = view["roomid"].get_int32();
-			robotStrategy_.exitLowScore = view["exitLowScore"].get_int64();
-			robotStrategy_.exitHighScore = view["exitHighScore"].get_int64();
-			robotStrategy_.minScore = view["minScore"].get_int64();
-			robotStrategy_.maxScore = view["maxScore"].get_int64();
+			roomInfo->robotStrategy_.gameId = view["gameid"].get_int32();
+			roomInfo->robotStrategy_.roomId = view["roomid"].get_int32();
+			roomInfo->robotStrategy_.exitLowScore = view["exitLowScore"].get_int64();
+			roomInfo->robotStrategy_.exitHighScore = view["exitHighScore"].get_int64();
+			roomInfo->robotStrategy_.minScore = view["minScore"].get_int64();
+			roomInfo->robotStrategy_.maxScore = view["maxScore"].get_int64();
 			auto arr = view["areas"].get_array();
 			for (auto& elem : arr.value) {
 				AndroidStrategyArea area;
 				area.weight = elem["weight"].get_int32();
 				area.lowTimes = elem["lowTimes"].get_int32();
 				area.highTimes = elem["highTimes"].get_int32();
-				robotStrategy_.areas.emplace_back(area);
+				roomInfo->robotStrategy_.areas.emplace_back(area);
 			}
 		}
 		uint32_t robotCount = 0;
 		//房间桌子数 * 每张桌子最大机器人数
-		uint32_t needRobotCount = roomInfo_->tableCount * roomInfo_->maxAndroidCount;
+		uint32_t needRobotCount = roomInfo->tableCount * roomInfo->maxAndroidCount;
 		//机器人账号
 		mongocxx::collection coll = MONGODBCLIENT["gameconfig"]["android_user"];
-		bsoncxx::document::value query_value2 = document{} << "gameId" << (int32_t)roomInfo_->gameId << "roomId" << (int32_t)roomInfo_->roomId << finalize;
+		bsoncxx::document::value query_value2 = document{} << "gameId" << (int32_t)roomInfo->gameId << "roomId" << (int32_t)roomInfo->roomId << finalize;
 		mongocxx::cursor cursor = coll.find({ query_value2 });
 		for (auto& doc : cursor) {
 			//_LOG_DEBUG(bsoncxx::to_json(doc).c_str());
@@ -101,14 +89,14 @@ void CRobotMgr::Load() {
 			//doc["leaveTime"].get_utf8().value.to_string();
 			//userInfo.takeMinScore = doc["minScore"].get_int64();
 			//userInfo.takeMaxScore = doc["maxScore"].get_int64();
-			userInfo.takeMinScore = robotStrategy_.minScore;
-			userInfo.takeMaxScore = robotStrategy_.maxScore;
+			userInfo.takeMinScore = roomInfo->robotStrategy_.minScore;
+			userInfo.takeMaxScore = roomInfo->robotStrategy_.maxScore;
 			userInfo.userScore = 0;
 			userInfo.agentId = 0;
 			userInfo.status = 0;
 			userInfo.location = doc["location"].get_utf8().value.to_string();
 			//创建子游戏机器人代理
-			std::shared_ptr<IRobotDelegate> robotDelegate = creator_();
+			std::shared_ptr<IRobotDelegate> robotDelegate = creator();
 			//创建机器人
 			std::shared_ptr<CRobot> robot(new CRobot());
 			if (!robot || !robotDelegate) {
@@ -116,22 +104,25 @@ void CRobotMgr::Load() {
 				break;
 			}
 			robot->SetUserBaseInfo(userInfo);
-			robotDelegate->SetStrategy(&robotStrategy_);
+			robotDelegate->SetStrategy(&roomInfo->robotStrategy_);
 			robot->Init(robotDelegate);
 			freeItems_.emplace_back(robot);
 			if (++robotCount >= needRobotCount) {
 				break;
 			}
-			_LOG_DEBUG("robot %d score:%ld", userInfo.userId, userInfo.userScore);
+			_LOG_DEBUG("游戏ID[%d] 房间ID[%d] 机器人ID[%d] 积分[%ld]", roomInfo->gameId, roomInfo->roomId, userInfo.userId, userInfo.userScore);
 		}
-		_LOG_WARN("robot count:%d need:%d", robotCount, needRobotCount);
+		_LOG_WARN("游戏ID[%d] 房间ID[%d] 桌子数[%d] 每桌机器人至多[%d] 机器人数[%d] 需求数[%d]", roomInfo->gameId, roomInfo->roomId, roomInfo->tableCount, roomInfo->maxAndroidCount, robotCount, needRobotCount);
 	}
 	catch (std::exception& e) {
 		_LOG_ERROR(e.what());
 	}
-#if 0
-	logicThread_->getLoop()->runEvery(3.0, boost::bind(&CRobotMgr::OnTimerCheckIn, this));
-#endif
+}
+
+void CRobotMgr::load(std::vector<tagGameRoomInfo>& roomInfos, RobotDelegateCreator creator) {
+	for (std::vector<tagGameRoomInfo>::iterator it = roomInfos.begin(); it != roomInfos.end(); ++it) {
+		load(&*it, creator);
+	}
 }
 
 std::shared_ptr<CRobot> CRobotMgr::Pick() {
@@ -167,26 +158,26 @@ void CRobotMgr::Delete(int64_t userId) {
 	_LOG_ERROR("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
 
-int64_t CRobotMgr::randScore(int64_t minScore, int64_t maxScore) {
+int64_t CRobotMgr::randScore(tagGameRoomInfo* roomInfo, int64_t minScore, int64_t maxScore) {
 	int i = 0;
 #if 0
 	int r = weight_.rand().betweenInt(0, 1000).randInt_mt();
-	for (; i < robotStrategy_.areas.size(); ++i) {
-		if (r < robotStrategy_.areas[i].weight) {
+	for (; i < roomInfo->robotStrategy_.areas.size(); ++i) {
+		if (r < roomInfo->robotStrategy_.areas[i].weight) {
 			break;
 		}
 	}
 #else
-	int weight[robotStrategy_.areas.size()];
-	for (i = 0; i < robotStrategy_.areas.size(); ++i) {
-		weight[i] = robotStrategy_.areas[i].weight;
+	int weight[roomInfo->robotStrategy_.areas.size()];
+	for (i = 0; i < roomInfo->robotStrategy_.areas.size(); ++i) {
+		weight[i] = roomInfo->robotStrategy_.areas[i].weight;
 	}
-	weight_.init(weight, robotStrategy_.areas.size());
+	weight_.init(weight, roomInfo->robotStrategy_.areas.size());
 	weight_.shuffle();
 	i = weight_.getResult();
 #endif
-	int64_t lowLineScore = robotStrategy_.areas[i].lowTimes * minScore / 100;
-	int64_t highLineScore = robotStrategy_.areas[i].highTimes * maxScore / 100;
+	int64_t lowLineScore = roomInfo->robotStrategy_.areas[i].lowTimes * minScore / 100;
+	int64_t highLineScore = roomInfo->robotStrategy_.areas[i].highTimes * maxScore / 100;
 	return weight_.rand().betweenInt64(lowLineScore, highLineScore).randInt64_mt();
 }
 
@@ -201,12 +192,6 @@ int CRobotMgr::randomOnce(int32_t need, int N) {
 }
 
 void CRobotMgr::OnTimerCheckIn() {
-	if (!roomInfo_->bEnableAndroid) {
-		return;
-	}
-	if (roomInfo_->serverStatus == kStopped) {
-		return;
-	}
 	if (freeItems_.empty()) {
 		_LOG_ERROR("机器人没有库存了");
 		return;
@@ -215,29 +200,38 @@ void CRobotMgr::OnTimerCheckIn() {
 	for (auto it : tables) {
 		std::shared_ptr<CTable>& table = it;
 		if (table) {
+			if (!table->roomInfo_->bEnableAndroid) {
+				continue;
+			}
+			if (table->roomInfo_->serverStatus == kStopped) {
+				continue;
+			}
+			if (!table->roomInfo_->bEnableAndroid) {
+				continue;
+			}
 			table->assertThisThread();
 			uint32_t realCount = 0, robotCount = 0;
 			table->GetPlayerCount(realCount, robotCount);
 			uint32_t playerCount = realCount + robotCount;
-			uint32_t MaxPlayer = roomInfo_->maxPlayerNum;
-			uint32_t MinPlayer = roomInfo_->minPlayerNum;
-			int32_t maxRobotCount = roomInfo_->maxAndroidCount;
-			switch (gameInfo_->gameType) {
+			uint32_t MaxPlayer = table->roomInfo_->maxPlayerNum;
+			uint32_t MinPlayer = table->roomInfo_->minPlayerNum;
+			int32_t maxRobotCount = table->roomInfo_->maxAndroidCount;
+			switch (table->tableContext_->GetGameInfo()->gameType) {
 			case GameType_BaiRen: {
 				//隔段时间计算机器人波动系数
-				Hourtimer();
+				Hourtimer(table->roomInfo_);
 				maxRobotCount *= percentage_;
 				//进入桌子的真人越多，允许进的机器人就越少
-				if (roomInfo_->realChangeAndroid > 0) {
-					maxRobotCount -= (int)realCount / roomInfo_->realChangeAndroid;
+				if (table->roomInfo_->realChangeAndroid > 0) {
+					maxRobotCount -= (int)realCount / table->roomInfo_->realChangeAndroid;
 				}
 				std::shared_ptr<CRobot> robot = std::make_shared<CRobot>();
 				if (!table->CanJoinTable(robot)) {
 					continue;
 				}
-				if (roomInfo_->bEnableAndroid && playerCount < MaxPlayer && robotCount < maxRobotCount) {
-					if (roomInfo_->realChangeAndroid > 0) {
-						maxRobotCount -= (int)realCount / roomInfo_->realChangeAndroid;
+				if (table->roomInfo_->bEnableAndroid && playerCount < MaxPlayer && robotCount < maxRobotCount) {
+					if (table->roomInfo_->realChangeAndroid > 0) {
+						maxRobotCount -= (int)realCount / table->roomInfo_->realChangeAndroid;
 					}
 					int n = randomOnce(maxRobotCount - robotCount);
 					for (int i = 0; i < n; ++i) {
@@ -247,8 +241,9 @@ void CRobotMgr::OnTimerCheckIn() {
 							continue;
 						}
 						int64_t score = randScore(
-							roomInfo_->enterMinScore > 0 ? roomInfo_->enterMinScore : robot->GetTakeMinScore(),
-							roomInfo_->enterMaxScore > 0 ? roomInfo_->enterMaxScore : robot->GetTakeMaxScore());
+							table->roomInfo_,
+							table->roomInfo_->enterMinScore > 0 ? table->roomInfo_->enterMinScore : robot->GetTakeMinScore(),
+							table->roomInfo_->enterMaxScore > 0 ? table->roomInfo_->enterMaxScore : robot->GetTakeMaxScore());
 						robot->SetUserScore(score);
 						std::shared_ptr<IRobotDelegate> robotDelegate = robot->GetDelegate();
 						if (robotDelegate) {
@@ -277,7 +272,7 @@ void CRobotMgr::OnTimerCheckIn() {
 				if (!table->CanJoinTable(robot)) {
 					continue;
 				}
-				if (roomInfo_->bEnableAndroid && realCount > 0 && playerCount < MaxPlayer && robotCount < maxRobotCount) {
+				if (table->roomInfo_->bEnableAndroid && realCount > 0 && playerCount < MaxPlayer && robotCount < maxRobotCount) {
 					int n = randomOnce(maxRobotCount - robotCount, 1);
 					for (int i = 0; i < n; ++i) {
 						std::shared_ptr<CRobot> robot = Pick();
@@ -286,8 +281,9 @@ void CRobotMgr::OnTimerCheckIn() {
 							continue;
 						}
 						int64_t score = randScore(
-							roomInfo_->enterMinScore > 0 ? roomInfo_->enterMinScore : robot->GetTakeMinScore(),
-							roomInfo_->enterMaxScore > 0 ? roomInfo_->enterMaxScore : robot->GetTakeMaxScore());
+							table->roomInfo_,
+							table->roomInfo_->enterMinScore > 0 ? table->roomInfo_->enterMinScore : robot->GetTakeMinScore(),
+							table->roomInfo_->enterMaxScore > 0 ? table->roomInfo_->enterMaxScore : robot->GetTakeMaxScore());
 						robot->SetUserScore(score);
 						std::shared_ptr<IRobotDelegate> robotDelegate = robot->GetDelegate();
 						if (robotDelegate) {
@@ -313,16 +309,15 @@ void CRobotMgr::OnTimerCheckIn() {
 	}
 }
 
-void CRobotMgr::Hourtimer() {
+void CRobotMgr::Hourtimer(tagGameRoomInfo* roomInfo) {
 	time_t now = time(NULL);
 	static time_t last = 0;
 	if (percentage_ == 0 || (now - last) > 3600) {
 		struct tm* local = localtime(&now);
 		uint8_t hour = (int)local->tm_hour;
 		float r = (weight_.rand().betweenInt(0, 10).randInt_mt() + 95) * 0.01;//随机浮动一定比例0.9~1.1
-		percentage_ = roomInfo_->enterAndroidPercentage[hour] ?
-			roomInfo_->enterAndroidPercentage[hour] * (r) : 0.5 * (r);
+		percentage_ = roomInfo->enterAndroidPercentage[hour] ?
+			roomInfo->enterAndroidPercentage[hour] * (r) : 0.5 * (r);
 		last = now;
 	}
-	//logicThread_->getLoop()->runAfter(60,std::bind(&CRobotMgr::Hourtimer,&CRobotMgr::get_mutable_instance()));
 }
