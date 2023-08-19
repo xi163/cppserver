@@ -1,0 +1,97 @@
+syntax = "proto3";
+package ClubGameServer;
+
+import "Game.Common.proto";
+
+
+// 俱乐部游戏服消息
+enum SUBID
+{
+    SUBID_BEGIN                                     = 0;
+
+
+    SUB_C2S_GET_ROOM_INFO_REQ                       = 3;    // 获取俱乐部房间信息 MSG_C2S_GetRoomInfoMessage
+    SUB_S2C_GET_ROOM_INFO_RES                       = 4;    // 获取俱乐部房间信息 MSG_S2C_GetRoomInfoResponse
+
+}
+
+
+
+// 获取俱乐部房间信息
+message MSG_C2S_GetRoomInfoMessage
+{
+    Game.Common.Header header               = 1;    // 命令包头.
+
+    int64  clubId                           = 2;    // 俱乐部Id  0-全部俱乐部时
+    int32  gameId                           = 3;    // 游戏Id
+    int32  roomId                           = 4;    // 房间Id
+    bytes  dynamicPassword                  = 5;    // 动态密码
+
+    int64  curTakeScore                     = 6;    // 梭哈、德州使用当前携带金币
+    bool  bAutoSetScore                     = 7;    // 梭哈、德州 设置自动补充金币
+}
+message UserInfo
+{
+       int64   userId                      = 1;
+       string  nickName                    = 2;
+       int32   chairId                     = 3;
+       int32   headerId                    = 4;
+       int32   headboxId                   = 5;
+       string  headImgUrl                  = 6;
+}
+message TableInfo
+{
+    int64      clubId                      = 1;    // 俱乐部Id
+    int32      tableId                     = 2;
+    int32      gameStatus                  = 3;
+    repeated UserInfo   userInfo                    = 4;
+    int64      applyBankerScore            = 5;    // 百人上庄 金币数
+    int64      curBankerUserId             = 6;    // 当前庄家Id   -1:系统庄
+}
+message MSG_S2C_GetRoomInfoResponse
+{
+    Game.Common.Header header              = 1;    // 命令包头.
+
+    int32      retCode                     = 2;
+    string     errorMsg                    = 3;
+
+    int64      userId                      = 4;
+    int64      clubId                      = 5;    // 俱乐部Id   0-全部俱乐部时
+    int32      gameId                      = 6;    // 游戏Id
+    int32      roomId                      = 7;    // 房间Id
+    int32      tableCount                  = 8;    // 桌子数量  桌子Id [0,tableCount)
+
+    repeated TableInfo  tableInfos                  = 9;    // 有人的桌子
+}
+
+
+/*
+message RoomInfo
+{
+    uint32     roomId                      = 1;  // 房间类型 初 中 高 房间
+    uint32     tableCount                  = 2;  // 桌子数量 有几桌游戏在开启
+    int64      floorScore                  = 3;  // 底注
+    int64      ceilScore                   = 4;  // 顶注
+    int64      enterMinScore               = 5;  // 进游戏需要的最低分
+    int64      enterMaxScore               = 6;  // 进游戏最大分
+    uint32     minPlayerNum                = 7;  // 房间里面最少数量玩家
+    uint32     maxPlayerNum                = 8;  // 房间里面最大数量玩家
+    int32      status                      = 9;  // -1:关停 0:暂未开放 1：正常开启  2：敬请期待
+}
+
+message GameRoomMessage
+{
+    uint32                 roomId                  = 1;  // 房间类型 初 中 高 房间
+    string                 roomName                = 2;  // 类型名称  初 中 高
+    uint32                 tableCount              = 3;  // 桌子数量 有几桌游戏在开启
+    int64                  floorScore              = 4;  // 底注
+    int64                  ceilScore               = 5;  // 顶注
+    int64                  enterMinScore           = 6;  // 进游戏需要的最低分
+    int64                  enterMaxScore           = 7;  // 进游戏最大分
+    uint32                 minPlayerNum            = 8;  // 房间里面最少数量玩家
+    uint32                 maxPlayerNum            = 9;  // 房间里面最大数量玩家
+    int64                  maxJettonScore          = 10; // 每区域最大下注
+    int32                  status                  = 11; // -1:关停 0:暂未开放 1：正常开启  2：敬请期待
+    repeated int64                  jettons                 = 12; // 筹码数组
+}
+*/

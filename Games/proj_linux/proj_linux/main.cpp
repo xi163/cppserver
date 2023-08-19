@@ -149,8 +149,20 @@ void RoomList::balance_server(uint32_t roomid, std::string& ipport) {
 // 	}
 }
 
+class IPlayer {
+public:
+	IPlayer() {}
+	virtual ~IPlayer() {}
+};
 
+class CPlayer : public IPlayer {
+public:
+	CPlayer() {}
+};
 int main() {
+	std::vector<std::shared_ptr<CPlayer>> items_;
+	std::shared_ptr<IPlayer>  target = items_[0];
+	std::shared_ptr<CPlayer> d = std::dynamic_pointer_cast<CPlayer>(target);
 	int arr[100] = { 0 };
 	for (int i = 0; i < 10; ++i) {
 		for (int k = 0; k < 10; ++k) {
@@ -158,16 +170,16 @@ int main() {
 		//	arr[(i * k + k] = i*k + k;//(k + 1) * i;
 		}
 	}
-	for (int i = 0; i < 100; ++i) {
-	//	_LOG_DEBUG("%d", arr[i]);
-	}
-	int* p = NULL;
-	switch (p) {
-	case NULL:
-		break;
-	default:
-		break;
-	}
+// 	for (int i = 0; i < 100; ++i) {
+// 	//	_LOG_DEBUG("%d", arr[i]);
+// 	}
+// 	int* p = NULL;
+// 	switch (p) {
+// 	case NULL:
+// 		break;
+// 	default:
+// 		break;
+// 	}
 // 	_LOG_INFO("%s", getTimeZoneDesc(MY_CST).c_str());
 // 
 // 	_LOG_WARN("tosec:%d to_time_t:%d", STD_NOW().to_sec(), STD_NOW().to_time_t());

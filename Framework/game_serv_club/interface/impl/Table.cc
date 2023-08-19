@@ -222,7 +222,7 @@ bool CTable::send(
 bool CTable::SendTableData(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len) {
     if (INVALID_CHAIR == chairId) {
         for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-            std::shared_ptr<IPlayer> player = items_[i];
+            std::shared_ptr<CPlayer> player = items_[i];
             if (player && player->Valid()) {
                 if (!SendUserData(player, subId, data, len)) {
                     return false;
@@ -235,7 +235,7 @@ bool CTable::SendTableData(uint32_t chairId, uint8_t subId, uint8_t const* data,
         if (chairId >= roomInfo_->maxPlayerNum) {
             return false;
         }
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             return SendUserData(player, subId, data, len);
         }
@@ -246,7 +246,7 @@ bool CTable::SendTableData(uint32_t chairId, uint8_t subId, uint8_t const* data,
 bool CTable::SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::Message* msg) {
     if (INVALID_CHAIR == chairId) {
         for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-            std::shared_ptr<IPlayer> player = items_[i];
+            std::shared_ptr<CPlayer> player = items_[i];
             if (player && player->Valid()) {
                 std::string data = msg->SerializeAsString();
                 if (!SendUserData(player, subId, (uint8_t const*)data.data(), data.size())) {
@@ -260,7 +260,7 @@ bool CTable::SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::
         if (chairId >= roomInfo_->maxPlayerNum) {
             return false;
         }
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             std::string data = msg->SerializeAsString();
             return SendUserData(player, subId, (uint8_t const*)data.data(), data.size());
@@ -287,7 +287,7 @@ bool CTable::SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t m
     uint8_t mainId = ::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC;
     uint8_t subId = ::GameServer::SUB_GF_SYSTEM_MESSAGE;
     if ((msgType & SMT_GLOBAL) && (msgType & SMT_SCROLL)) {
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             UserBaseInfo userBaseItem = std::dynamic_pointer_cast<CPlayer>(player)->GetUserBaseInfo();
             // Json::Value root;
@@ -315,7 +315,7 @@ bool CTable::SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t m
     msgInfo.set_msgcontent(msg);
     if (INVALID_CHAIR == chairId) {
         for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-            std::shared_ptr<IPlayer>  player = items_[i];
+            std::shared_ptr<CPlayer>  player = items_[i];
             if (player && player->Valid()) {
                 return send(player, &msgInfo, mainId, subId);
             }
@@ -325,7 +325,7 @@ bool CTable::SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t m
         if (chairId >= roomInfo_->maxPlayerNum) {
             return false;
         }
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             return send(player, &msgInfo, mainId, subId);
         }
@@ -336,7 +336,7 @@ bool CTable::SendGameMessage(uint32_t chairId, std::string const& msg, uint8_t m
 void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, uint8_t sendErrCode) {
     if (INVALID_CHAIR == chairId) {
         for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-            std::shared_ptr<IPlayer> player = items_[i];
+            std::shared_ptr<CPlayer> player = items_[i];
             if (player && player->Valid()) {
                 int64_t userId = player->GetUserId();
                 switch (sendErrCode) {
@@ -374,7 +374,7 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
         if (chairId >= roomInfo_->maxPlayerNum) {
             return;
         }
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             int64_t userId = player->GetUserId();
 			switch (sendErrCode) {
@@ -459,7 +459,7 @@ std::shared_ptr<IPlayer> CTable::GetPlayer(int64_t userId) {
     //         }
     //     }
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-        std::shared_ptr<IPlayer> player = items_[i];
+        std::shared_ptr<CPlayer> player = items_[i];
         if (player && player->GetUserId() == userId) {
             return player;
         }
@@ -471,7 +471,7 @@ bool CTable::ExistUser(uint32_t chairId) {
     if (chairId < 0 || chairId == INVALID_CHAIR || chairId >= roomInfo_->maxPlayerNum) {
         return false;
     }
-    std::shared_ptr<IPlayer> player = items_[chairId];
+    std::shared_ptr<CPlayer> player = items_[chairId];
     if (player && player->Valid()) {
         return true;
     }
@@ -501,7 +501,7 @@ std::string CTable::StrGameStatus() {
 	return "";
 }
 
-bool CTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
+bool CTable::CanJoinTable(std::shared_ptr<CPlayer> const& player) {
     if (roomInfo_->serverStatus == kStopped || roomInfo_->serverStatus == kRepairing) {
         return false;
     }
@@ -514,7 +514,7 @@ bool CTable::CanLeftTable(int64_t userId) {
 
 void CTable::SetUserTrustee(uint32_t chairId, bool trustee) {
     if (chairId < roomInfo_->maxPlayerNum) {
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             player->setTrustee(trustee);
         }
@@ -524,7 +524,7 @@ void CTable::SetUserTrustee(uint32_t chairId, bool trustee) {
 bool CTable::GetUserTrustee(uint32_t chairId) {
     bool trustee = false;
     if (chairId < roomInfo_->maxPlayerNum) {
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             trustee = player->getTrustee();
         }
@@ -534,7 +534,7 @@ bool CTable::GetUserTrustee(uint32_t chairId) {
 
 void CTable::SetUserReady(uint32_t chairId) {
     if (chairId < roomInfo_->maxPlayerNum) {
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             player->SetUserStatus(sReady);
             BroadcastUserStatus(player, true);
@@ -543,7 +543,7 @@ void CTable::SetUserReady(uint32_t chairId) {
 }
 
 //点击离开按钮
-bool CTable::OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf) {
+bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf) {
     if (!player->IsRobot()) {
         _LOG_INFO("%d 点击离开按钮", player->GetUserId());
     }
@@ -562,7 +562,7 @@ bool CTable::OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf)
 }
 
 //关闭页面
-bool CTable::OnUserOffline(std::shared_ptr<IPlayer> const& player) {
+bool CTable::OnUserOffline(std::shared_ptr<CPlayer> const& player) {
     if (!player->IsRobot()) {
         _LOG_INFO("%d 关闭页面", player->GetUserId());
     }
@@ -576,7 +576,7 @@ bool CTable::OnUserOffline(std::shared_ptr<IPlayer> const& player) {
 uint32_t CTable::GetPlayerCount() {
     uint32_t count = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-        std::shared_ptr<IPlayer> player = items_[i];
+        std::shared_ptr<CPlayer> player = items_[i];
         if (player) {
             ++count;
         }
@@ -587,7 +587,7 @@ uint32_t CTable::GetPlayerCount() {
 uint32_t CTable::GetPlayerCount(bool includeRobot) {
     uint32_t count = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-        std::shared_ptr<IPlayer> player = items_[i];
+        std::shared_ptr<CPlayer> player = items_[i];
         if (player) {
             if (includeRobot && player->IsRobot()) {
                 ++count;
@@ -603,7 +603,7 @@ uint32_t CTable::GetPlayerCount(bool includeRobot) {
 uint32_t CTable::GetRobotPlayerCount() {
     uint32_t count = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-        std::shared_ptr<IPlayer> player = items_[i];
+        std::shared_ptr<CPlayer> player = items_[i];
         if (player && player->IsRobot()) {
             ++count;
         }
@@ -614,7 +614,7 @@ uint32_t CTable::GetRobotPlayerCount() {
 uint32_t CTable::GetRealPlayerCount() {
     uint32_t count = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-        std::shared_ptr<IPlayer> player = items_[i];
+        std::shared_ptr<CPlayer> player = items_[i];
         if (player && !player->IsRobot()) {
             ++count;
         }
@@ -626,7 +626,7 @@ void CTable::GetPlayerCount(uint32_t& realCount, uint32_t& robotCount) {
     realCount = 0;
     robotCount = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-        std::shared_ptr<IPlayer> player = items_[i];
+        std::shared_ptr<CPlayer> player = items_[i];
         if (player) {
             if (player->IsRobot()) {
                 ++robotCount;
@@ -656,7 +656,7 @@ void CTable::SetClubInfo(tagGameClubInfo* clubInfo) {
 
 bool CTable::IsRobot(uint32_t chairId) {
     if (chairId < roomInfo_->maxPlayerNum) {
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player) {
             return player->IsRobot();
         }
@@ -666,7 +666,7 @@ bool CTable::IsRobot(uint32_t chairId) {
 
 bool CTable::IsOfficial(uint32_t chairId) {
     if (chairId < roomInfo_->maxPlayerNum) {
-        std::shared_ptr<IPlayer> player = items_[chairId];
+        std::shared_ptr<CPlayer> player = items_[chairId];
         if (player) {
             return player->IsOfficial();
         }
@@ -680,7 +680,7 @@ bool CTable::OnGameEvent(uint32_t chairId, uint8_t subId, uint8_t const* data, s
 
 void CTable::OnStartGame() {
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-        std::shared_ptr<IPlayer> player = items_[i];
+        std::shared_ptr<CPlayer> player = items_[i];
         if (player && player->Valid()) {
             if (player->isSit() ||
                 player->isReady() ||
@@ -696,7 +696,7 @@ void CTable::OnStartGame() {
 bool CTable::CheckGameStart() {
     int playerCount = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-        std::shared_ptr<IPlayer> player = items_[i];
+        std::shared_ptr<CPlayer> player = items_[i];
         if (!player) {
             continue;
         }
@@ -711,7 +711,7 @@ bool CTable::CheckGameStart() {
     return false;
 }
 
-bool CTable::OnUserEnterAction(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
+bool CTable::OnUserEnterAction(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
     SendUserSitdownFinish(player, pre_header, header);
     //BroadcastUserInfoToOther(player);
     //SendAllOtherUserInfoToUser(player);
@@ -719,7 +719,7 @@ bool CTable::OnUserEnterAction(std::shared_ptr<IPlayer> const& player, packet::i
     return tableDelegate_->OnUserEnter(player->GetUserId(), player->lookon());
 }
 
-void CTable::SendUserSitdownFinish(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
+void CTable::SendUserSitdownFinish(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
     uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
     uint8_t subId = GameServer::SUB_S2C_ENTER_ROOM_RES;
     GameServer::MSG_S2C_UserEnterMessageResponse rspdata;
@@ -729,7 +729,7 @@ void CTable::SendUserSitdownFinish(std::shared_ptr<IPlayer> const& player, packe
     send(player, &rspdata, mainId, subId);
 }
 
-bool CTable::OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendState, bool sendToSelf) {
+bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendState, bool sendToSelf) {
     assert(player && player->Valid() && player->GetTableId() >= 0 && player->GetChairId() >= 0);
     //游戏中禁止起立
     if (!player->isPlaying()) {
@@ -764,7 +764,7 @@ bool CTable::OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendStat
         }
         //清空重置座位
         if (chairId < items_.size()) {
-            items_[chairId] = std::shared_ptr<IPlayer>();
+            items_[chairId] = std::shared_ptr<CPlayer>();
         }
         return true;
     }
@@ -2055,7 +2055,7 @@ bool CTable::SetOnlineInfo(int64_t userId) {
     return true;
 }
 
-bool CTable::RoomSitChair(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
+bool CTable::RoomSitChair(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
     if (!player || player->GetUserId() <= 0) {
         return false;
     }

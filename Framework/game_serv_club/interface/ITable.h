@@ -5,11 +5,6 @@
 
 #include "IReplayRecord.h"
 
-namespace packet {
-	struct internal_prev_header_t;
-	struct header_t;
-};
-
 class IPlayer;
 class ITableDelegate;
 class ITableContext;
@@ -50,10 +45,6 @@ public:
 	virtual void SetUserTrustee(uint32_t chairId, bool trustee) = 0;
 	virtual bool GetUserTrustee(uint32_t chairId) = 0;
 	virtual void SetUserReady(uint32_t chairId) = 0;
-	virtual bool OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf = true) = 0;
-	virtual bool OnUserOffline(std::shared_ptr<IPlayer> const& player) = 0;
-	virtual bool CanJoinTable(std::shared_ptr<IPlayer> const& player) = 0;
-	virtual bool CanLeftTable(int64_t userId) = 0;
 	virtual uint32_t GetPlayerCount() = 0;
 	virtual uint32_t GetPlayerCount(bool includeRobot) = 0;
 	virtual uint32_t GetRobotPlayerCount() = 0;
@@ -68,10 +59,6 @@ public:
 	virtual void OnStartGame() = 0;
 	virtual bool IsGameStarted() = 0;
 	virtual bool CheckGameStart() = 0;
-	virtual bool RoomSitChair(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header) = 0;
-	virtual bool OnUserEnterAction(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header) = 0;
-	virtual void SendUserSitdownFinish(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header) = 0;
-	virtual bool OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendState = true, bool sendToSelf = false) = 0;
 	virtual bool SendTableData(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len) = 0;
 	virtual bool SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::Message* msg) = 0;
 	virtual bool SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len) = 0;

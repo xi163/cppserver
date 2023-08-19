@@ -114,7 +114,8 @@ private:
 	void cmd_get_task_list(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	void cmd_get_task_award(
-		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
+		const muduo::net::Tc85
+		pConnectionPtr& conn, BufferPtr const& buf);
 
 
 	//===================俱乐部==================

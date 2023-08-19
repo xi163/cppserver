@@ -121,7 +121,7 @@ std::shared_ptr<CTable> CTableMgr::Find(uint32_t tableId) {
 /// <summary>
 /// 查找能进的桌子，没有则取空闲桌子
 /// </summary>
-std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<IPlayer> const& player, uint32_t ignoreTableId) {
+std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& player, uint32_t ignoreTableId) {
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
 		READ_LOCK(mutex_);

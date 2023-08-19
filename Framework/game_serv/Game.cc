@@ -769,7 +769,7 @@ void GameServ::cmd_on_user_enter_room(
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
 			if (table) {
 				table->assertThisThread();
-				table->RoomSitChair(std::dynamic_pointer_cast<IPlayer>(player), pre_header_, header_);
+				table->RoomSitChair(player, pre_header_, header_);
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;

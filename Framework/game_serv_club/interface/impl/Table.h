@@ -10,6 +10,7 @@
 #include "ITable.h"
 #include "ITableDelegate.h"
 #include "IPlayer.h"
+#include "Player.h"
 //#include "IReplayRecord.h"
 
 class CTable : public ITable/*, public IReplayRecord*/ {
@@ -59,10 +60,10 @@ public:
 	virtual bool GetUserTrustee(uint32_t chairId);
 	virtual void SetUserReady(uint32_t chairId);
 	//点击离开按钮
-	virtual bool OnUserLeft(std::shared_ptr<IPlayer> const& player, bool sendToSelf = true);
+	virtual bool OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf = true);
 	//关闭页面
-	virtual bool OnUserOffline(std::shared_ptr<IPlayer> const& player);
-	virtual bool CanJoinTable(std::shared_ptr<IPlayer> const& player);
+	virtual bool OnUserOffline(std::shared_ptr<CPlayer> const& player);
+	virtual bool CanJoinTable(std::shared_ptr<CPlayer> const& player);
 	virtual bool CanLeftTable(int64_t userId);
 	virtual uint32_t GetPlayerCount();
 	virtual uint32_t GetPlayerCount(bool includeRobot);
@@ -78,10 +79,10 @@ public:
 	virtual void OnStartGame();
 	virtual bool IsGameStarted() { return status_ >= GAME_STATUS_START && status_ < GAME_STATUS_END; }
 	virtual bool CheckGameStart();
-	virtual bool RoomSitChair(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
-	virtual bool OnUserEnterAction(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
-	virtual void SendUserSitdownFinish(std::shared_ptr<IPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
-	virtual bool OnUserStandup(std::shared_ptr<IPlayer> const& player, bool sendState = true, bool sendToSelf = false);
+	virtual bool RoomSitChair(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
+	virtual bool OnUserEnterAction(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
+	virtual void SendUserSitdownFinish(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
+	virtual bool OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendState = true, bool sendToSelf = false);
 	virtual bool SendTableData(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len);
 	virtual bool SendTableData(uint32_t chairId, uint8_t subId, ::google::protobuf::Message* msg);
 	virtual bool SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len);
@@ -122,7 +123,7 @@ public:
 	tagGameRoomInfo* roomInfo_;
 	tagGameClubInfo* clubInfo_;
 	ITableContext* tableContext_;
-	std::vector<std::shared_ptr<IPlayer>> items_;//items_[chairId]
+	std::vector<std::shared_ptr<CPlayer>> items_;//items_[chairId]
 	std::shared_ptr<ITableDelegate> tableDelegate_;
 	std::shared_ptr<muduo::net::EventLoopThread> logicThread_;//桌子逻辑线程/定时器
 public:

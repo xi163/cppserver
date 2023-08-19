@@ -8,6 +8,7 @@
 
 #include "Table.h"
 #include "ITableContext.h"
+#include "Player.h"
 
 template<typename T>
 struct second_t {
@@ -35,7 +36,7 @@ public:
 	/// <summary>
 	/// 查找能进的桌子，没有则取空闲桌子
 	/// </summary>
-	std::shared_ptr<CTable> FindSuit(std::shared_ptr<IPlayer> const& player, uint32_t exceptTableId = INVALID_TABLE);
+	std::shared_ptr<CTable> FindSuit(std::shared_ptr<CPlayer> const& player, uint32_t exceptTableId = INVALID_TABLE);
 	void Delete(uint32_t tableId);
 	/// <summary>
 	/// 踢出所有桌子玩家
