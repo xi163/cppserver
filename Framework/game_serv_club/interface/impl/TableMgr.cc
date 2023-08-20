@@ -111,7 +111,7 @@ size_t CTableMgr::UsedCount() {
 /// 返回指定俱乐部桌子
 /// </summary>
 void CTableMgr::Get(int64_t clubId, std::set<uint32_t>& vec) {
-	{
+	if (clubId > INVALID_CLUB) {
 		READ_LOCK(mutex_);
 		for (std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.begin(); it != usedItems_.end(); ++it) {
 			if (clubId == it->second->GetClubId()) {
