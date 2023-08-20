@@ -148,7 +148,7 @@ public:
 	//muduo::net::TcpServer httpserver_;
 	muduo::AtomicInt32 numConnected_;
 	muduo::AtomicInt32 numUsers_;
-
+	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 	//桌子逻辑线程/定时器
 	std::shared_ptr<muduo::net::EventLoopThread> logicThread_;
 	//std::shared_ptr<muduo::net::EventLoopThreadPool> logicThread_;

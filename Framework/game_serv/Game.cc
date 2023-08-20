@@ -19,6 +19,7 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 	uint32_t gameId, uint32_t roomId)
 	: server_(loop, listenAddr, "tcpServer")
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
+	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
 	, logicThread_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "GameLogicEventLoopThread"))
 	, ipFinder_("qqwry.dat")
 	, gameId_(gameId)
@@ -30,6 +31,7 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 		std::bind(&GameServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
 		std::bind(&GameServ::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	//threadTimer_->startLoop();
 }
 
 GameServ::~GameServ() {
@@ -214,7 +216,7 @@ void GameServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
-	server_.getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
+	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
 }
 
 bool GameServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
@@ -284,7 +286,8 @@ bool GameServ::InitServer() {
 void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
-
+	
+	threadTimer_->startLoop();
 	logicThread_->startLoop();
 
 	std::vector<std::string> vec;
@@ -295,9 +298,9 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	server_.start(true);
 	rpcserver_.start(true);
 
-	server_.getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
-	//server_.getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
-	//server_.getLoop()->runAfter(30, std::bind(&GameServ::redis_refresh_room_player_nums, this));
+	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
+	//threadTimer_->getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
+	//threadTimer_->getLoop()->runAfter(30, std::bind(&GameServ::redis_refresh_room_player_nums, this));
 
 	if (enable()) {
 		switch (gameInfo_.gameType) {

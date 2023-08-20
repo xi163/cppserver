@@ -12,6 +12,7 @@ HallServ::HallServ(muduo::net::EventLoop* loop,
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, gameRpcClients_(loop)
 	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
+	//, threadTimer_(new muduo::net::EventLoopThread(std::bind(&HallServ::threadInit, this), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
@@ -21,7 +22,7 @@ HallServ::HallServ(muduo::net::EventLoop* loop,
 		std::bind(&HallServ::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	rpcClients_[rpc::containTy::kRpcGameTy].clients_ = &gameRpcClients_;
 	rpcClients_[rpc::containTy::kRpcGameTy].ty_ = rpc::containTy::kRpcGameTy;
-	threadTimer_->startLoop();
+	//threadTimer_->startLoop();
 }
 
 HallServ::~HallServ() {
@@ -276,7 +277,6 @@ bool HallServ::InitZookeeper(std::string const& ipaddr) {
 		abort();
 		return false;
 	}
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&HallServ::registerZookeeper, this));
 	return true;
 }
 
@@ -448,7 +448,9 @@ bool HallServ::InitServer() {
 void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
-
+	
+	threadTimer_->startLoop();
+	
 	for (int i = 0; i < numWorkerThreads; ++i) {
 		std::shared_ptr<muduo::ThreadPool> threadPool = std::make_shared<muduo::ThreadPool>("ThreadPool:" + std::to_string(i));
 		threadPool->setThreadInitCallback(std::bind(&HallServ::threadInit, this));
@@ -464,6 +466,7 @@ void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 
 	server_.start(true);
 
+	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&HallServ::registerZookeeper, this));
 	threadTimer_->getLoop()->runAfter(3.0f, std::bind(&HallServ::db_refresh_game_room_info, this));
 	threadTimer_->getLoop()->runAfter(30, std::bind(&HallServ::redis_refresh_room_player_nums, this));
 }

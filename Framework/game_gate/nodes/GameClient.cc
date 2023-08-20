@@ -172,7 +172,7 @@ void GateServ::asyncGameOfflineHandler(std::string const& ipPort) {
 						buffer = GateServ::packKickGameUserMsg();
 					}
 					muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
-					REDISCLIENT.DelOnlineInfo(*ir);
+					//REDISCLIENT.DelOnlineInfo(*ir);
 				}
 			}
 		}

@@ -24,7 +24,8 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	, idleTimeout_(3)
 	, maxConnections_(15000)
 	, server_state_(kRunning)
-	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&GateServ::threadInit, this), "EventLoopThreadTimer"))
+	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
+	//, threadTimer_(new muduo::net::EventLoopThread(std::bind(&GateServ::threadInit, this), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
@@ -77,7 +78,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	//指定SSL_CTX
 	server_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
 	httpserver_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
-	threadTimer_->startLoop();
+	//threadTimer_->startLoop();
 }
 
 GateServ::~GateServ() {
@@ -117,7 +118,6 @@ bool GateServ::InitZookeeper(std::string const& ipaddr) {
 	if (!zkclient_->connectServer()) {
 		_LOG_FATAL("error");
 	}
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
 	return true;
 }
 
@@ -354,7 +354,9 @@ bool GateServ::InitServer() {
 void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
-
+	
+	threadTimer_->startLoop();
+	
 	for (int i = 0; i < numWorkerThreads; ++i) {
 		std::shared_ptr<muduo::ThreadPool> threadPool = std::make_shared<muduo::ThreadPool>("ThreadPool:" + std::to_string(i));
 		threadPool->setThreadInitCallback(std::bind(&GateServ::threadInit, this));
@@ -384,6 +386,8 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	tcpserver_.start(true);
 	rpcserver_.start(true);
 	httpserver_.start(true);
+
+	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
 
 	//sleep(2);
 
