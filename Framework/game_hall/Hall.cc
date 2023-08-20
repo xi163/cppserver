@@ -2,6 +2,7 @@
 #include "Hall.h"
 #include "public/mgoOperation.h"
 #include "public/redisKeys.h"
+#include "public/mgoKeys.h"
 #include "rpc/client/RoomNodes.h"
 
 HallServ::HallServ(muduo::net::EventLoop* loop,
