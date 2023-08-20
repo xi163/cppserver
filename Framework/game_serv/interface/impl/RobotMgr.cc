@@ -38,17 +38,17 @@ CRobotMgr::~CRobotMgr() {
 }
 
 void CRobotMgr::Init(ITableContext* tableContext) {
-	if (!tableContext->GetGameInfo() || tableContext->GetRoomInfos().empty()) {
+	if (!tableContext->GetGameInfo() || !tableContext->GetRoomInfo()) {
 		return;
 	}
 	RobotDelegateCreator creator = LoadLibrary(tableContext->GetGameInfo()->serviceName);
 	if (!creator) {
 		exit(0);
 	}
-	load(tableContext->GetRoomInfos(), creator);
+	load(tableContext->GetRoomInfo(), tableContext, creator);
 }
 
-void CRobotMgr::load(tagGameRoomInfo* roomInfo, RobotDelegateCreator creator) {
+void CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, RobotDelegateCreator creator) {
 	try {
 		mongocxx::collection androidStrategy = MONGODBCLIENT["gameconfig"]["android_strategy"];
 		bsoncxx::document::value query_value = document{} << "gameid" << (int32_t)roomInfo->gameId << "roomid" << (int32_t)roomInfo->roomId << finalize;
@@ -110,18 +110,22 @@ void CRobotMgr::load(tagGameRoomInfo* roomInfo, RobotDelegateCreator creator) {
 			if (++robotCount >= needRobotCount) {
 				break;
 			}
-			_LOG_DEBUG("游戏ID[%d] 房间ID[%d] 机器人ID[%d] 积分[%ld]", roomInfo->gameId, roomInfo->roomId, userInfo.userId, userInfo.userScore);
+			_LOG_DEBUG("%d:%s %d:%s robotId:%d score:%ld",
+				tableContext->GetGameInfo()->gameId,
+				tableContext->GetGameInfo()->gameName.c_str(),
+				tableContext->GetRoomInfo()->roomId,
+				tableContext->GetRoomInfo()->roomName.c_str(),
+				userInfo.userId, userInfo.userScore);
 		}
-		_LOG_WARN("游戏ID[%d] 房间ID[%d] 桌子数[%d] 每桌机器人至多[%d] 机器人数[%d] 需求数[%d]", roomInfo->gameId, roomInfo->roomId, roomInfo->tableCount, roomInfo->maxAndroidCount, robotCount, needRobotCount);
+		_LOG_WARN("%d:%s %d:%s tableCount:%d tableMaxRobotCount:%d robotCount:%d needRobotCount:%d",
+			tableContext->GetGameInfo()->gameId,
+			tableContext->GetGameInfo()->gameName.c_str(),
+			tableContext->GetRoomInfo()->roomId,
+			tableContext->GetRoomInfo()->roomName.c_str(),
+			roomInfo->tableCount, roomInfo->maxAndroidCount, robotCount, needRobotCount);
 	}
 	catch (std::exception& e) {
 		_LOG_ERROR(e.what());
-	}
-}
-
-void CRobotMgr::load(std::vector<tagGameRoomInfo>& roomInfos, RobotDelegateCreator creator) {
-	for (std::vector<tagGameRoomInfo>::iterator it = roomInfos.begin(); it != roomInfos.end(); ++it) {
-		load(&*it, creator);
 	}
 }
 
@@ -200,9 +204,6 @@ void CRobotMgr::OnTimerCheckIn() {
 	for (auto it : tables) {
 		std::shared_ptr<CTable>& table = it;
 		if (table) {
-			if (!table->roomInfo_->bEnableAndroid) {
-				continue;
-			}
 			if (table->roomInfo_->serverStatus == kStopped) {
 				continue;
 			}

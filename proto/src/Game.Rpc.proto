@@ -24,7 +24,46 @@ message UserScoreReq {
 message UserScoreRsp {
 }
 
+// 获取俱乐部房间信息
+message RoomInfoReq
+{
+    int64  clubId                           = 1;    // 俱乐部Id  0-全部俱乐部时
+	int32  gameId                           = 2;    // 游戏Id
+    int32  roomId                           = 3;    // 房间Id
+    bytes  dynamicPassword                  = 4;    // 动态密码
+
+    int64  curTakeScore                     = 5;    // 梭哈、德州使用当前携带金币
+    bool  bAutoSetScore                     = 6;    // 梭哈、德州 设置自动补充金币
+}
+message UserInfo
+{
+       int64   userId                      = 1;
+       string  nickName                    = 2;
+       int32   chairId                     = 3;
+       int32   headerId                    = 4;
+       int32   headboxId                   = 5;
+       string  headImgUrl                  = 6;
+}
+message TableInfo
+{
+	string     servId                      = 1;
+    int32      tableId                     = 2;
+	int32      gameStatus                  = 3;
+    repeated UserInfo   userInfo           = 4;
+    int64      applyBankerScore            = 5;    // 百人上庄 金币数
+    int64      curBankerUserId             = 6;    // 当前庄家Id   -1:系统庄
+}
+message RoomInfoRsp
+{
+    int64      clubId                      = 1;    // 俱乐部Id
+    int32      gameId                      = 2;    // 游戏Id
+    int32      roomId                      = 3;    // 房间Id
+    int32      tableCount                  = 4;    // 空的桌子 = 桌子数量[0,tableCount) - 有人的桌子(除去所有归属当前俱乐部及其他俱乐部)
+    repeated TableInfo tableInfos          = 5;    // 有人的桌子 归属当前俱乐部Id
+}
+
 service RpcService {
-  rpc GetNodeInfo(NodeInfoReq) returns(NodeInfoRsp);
-  rpc NotifyUserScore(UserScoreReq) returns(UserScoreRsp);
+	rpc GetRoomInfo(RoomInfoReq) returns(RoomInfoRsp);
+	rpc GetNodeInfo(NodeInfoReq) returns(NodeInfoRsp);
+	rpc NotifyUserScore(UserScoreReq) returns(UserScoreRsp);
 }

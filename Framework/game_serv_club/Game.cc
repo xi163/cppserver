@@ -91,12 +91,6 @@ void GameServ::registerHandlers() {
 // 		::Game::Common::MESSAGE_HTTP_TO_SERVER_SUBID::MESSAGE_NOTIFY_REPAIR_SERVER)]
 // 		= std::bind(&GameServ::cmd_notifyRepairServerResp, this,
 // 			std::placeholders::_1, std::placeholders::_2);
-	// 获取俱乐部房间信息
-	handlers_[packet::enword(
-		::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER_CLUB,
-		::ClubGameServer::SUBID::SUB_C2S_GET_ROOM_INFO_REQ)]
-		= std::bind(&GameServ::GetRoomInfoMessage, this,
-			std::placeholders::_1, std::placeholders::_2);
 }
 
 bool GameServ::InitZookeeper(std::string const& ipaddr) {
@@ -119,7 +113,9 @@ void GameServ::onZookeeperConnected() {
 	//if (ZNONODE == zkclient_->existsNode("/GAME/game_servInvalid"))
 	//	zkclient_->createNode("/GAME/game_servInvalid", "game_servInvalid", true);
 	{
-		nodeValue_ = std::to_string(roomId_) + ":" + std::to_string(kClub);
+		nodeValue_ = std::to_string(gameId_);
+		nodeValue_ += ":" + std::to_string(roomId_);
+		nodeValue_ += ":" + std::to_string(kClub);
 		//tcp
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
@@ -277,30 +273,17 @@ bool GameServ::InitServer() {
 		initTraceMessageID();
 		break;
 	}
-	switch (roomId_) {
-	default: {
-		tagGameRoomInfo roomInfo;
-		if (!mgo::LoadClubGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo)) {
-			_LOG_ERROR("error");
-			return false;
+	if (mgo::LoadClubGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo_)) {
+		CTableMgr::get_mutable_instance().Init(logicThread_, this);
+		if (enable()) {
+			CRobotMgr::get_mutable_instance().Init(this);
 		}
-		roomInfos_.emplace_back(roomInfo);
-		break;
-	}
-	case 0:
-		if (!mgo::LoadClubGameRoomInfos(gameId_, gameInfo_, roomInfos_)) {
-			_LOG_ERROR("error");
-			return false;
+		else {
 		}
-		break;
+		return true;
 	}
-	CTableMgr::get_mutable_instance().Init(logicThread_, this);
-	if (enable()) {
-		CRobotMgr::get_mutable_instance().Init(this);
-	}
-	else {
-	}
-	return true;
+	_LOG_ERROR("error");
+	return false;
 }
 
 void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
@@ -337,12 +320,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 }
 
 bool GameServ::enable() {
-	for (std::vector<tagGameRoomInfo>::iterator it = roomInfos_.begin(); it != roomInfos_.end(); ++it) {
-		if (it->bEnableAndroid) {
-			return true;
-		}
-	}
-	return false;
+	return roomInfo_.bEnableAndroid;
 }
 
 void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
@@ -591,69 +569,6 @@ void GameServ::cmd_keep_alive_ping(
 	}
 }
 
-void GameServ::GetRoomInfoMessage(
-	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
-	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
-	packet::header_t const* header_ = packet::get_header(buf);
-	uint8_t const* msg = packet::get_msg(buf);
-	size_t msgLen = packet::get_msglen(buf);
-	::ClubGameServer::MSG_C2S_GetRoomInfoMessage reqdata;
-	if (reqdata.ParseFromArray(msg, msgLen)) {
-		::ClubGameServer::MSG_S2C_GetRoomInfoResponse rspdata;
-		rspdata.mutable_header()->CopyFrom(reqdata.header());
-		if (reqdata.gameid() != gameInfo_.gameId ||
-			reqdata.roomid() != roomInfos_[0].roomId) {
-			return;
-		}
-		if (REDISCLIENT.ExistOnlineInfo(pre_header_->userId)) {
-			std::string redisPasswd;
-			if (REDISCLIENT.GetUserLoginInfo(pre_header_->userId, "dynamicPassword", redisPasswd)) {
-				std::string passwd = utils::buffer2HexStr(
-					(unsigned char const*)
-					reqdata.dynamicpassword().c_str(),
-					reqdata.dynamicpassword().size());
-				if (passwd == redisPasswd) {
-
-					//AddContext(conn, pre_header_, header_);
-				}
-				else {
-					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-					//DelContext(pre_header_->userId);
-					//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
-					//桌子密码错误
-// 					SendGameErrorCode(conn,
-// 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
-// 						::GameServer::SUB_S2C_ENTER_ROOM_RES,
-// 						ERROR_ENTERROOM_PASSWORD_ERROR, "ERROR_ENTERROOM_PASSWORD_ERROR", pre_header_, header_);
-					return;
-				}
-			}
-			else {
-				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-				//DelContext(pre_header_->userId);
-				//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
-				//会话不存在
-// 				SendGameErrorCode(conn,
-// 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
-// 					::GameServer::SUB_S2C_ENTER_ROOM_RES,
-// 					ERROR_ENTERROOM_NOSESSION, "ERROR_ENTERROOM_NOSESSION", pre_header_, header_);
-				return;
-			}
-		}
-		else {
-			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-			//DelContext(pre_header_->userId);
-			//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
-			//游戏已结束
-// 			SendGameErrorCode(conn,
-// 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
-// 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
-// 				ERROR_ENTERROOM_GAME_IS_END, "ERROR_ENTERROOM_GAME_IS_END", pre_header_, header_);
-			return;
-		}
-	}
-}
-
 void GameServ::cmd_on_user_enter_room(
 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
 	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
@@ -665,7 +580,7 @@ void GameServ::cmd_on_user_enter_room(
 		::GameServer::MSG_S2C_UserEnterMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		if (reqdata.gameid() != gameInfo_.gameId ||
-			reqdata.roomid() != roomInfos_[0].roomId) {
+			reqdata.roomid() != roomInfo_.roomId) {
 			return;
 		}
 		
@@ -764,7 +679,7 @@ void GameServ::cmd_on_user_enter_room(
 		uint32_t gameid = 0, roomid = 0;
 		if (REDISCLIENT.GetOnlineInfo(pre_header_->userId, gameid, roomid)) {
 			if (gameid != 0 && roomid != 0 &&
-				gameInfo_.gameId != gameid || roomInfos_[0].roomId != roomid) {
+				gameInfo_.gameId != gameid || roomInfo_.roomId != roomid) {
 				::GameServer::MSG_S2C_PlayInOtherRoom rspdata;
 				rspdata.mutable_header()->CopyFrom(reqdata.header());
 				rspdata.set_gameid(gameid);
@@ -804,11 +719,11 @@ void GameServ::cmd_on_user_enter_room(
 				"ERROR_ENTERROOM_NOSESSION", pre_header_, header_);
 			return;
 		}
-		_LOG_WARN("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfos_[0].roomId,
-			roomInfos_[0].enterMinScore, roomInfos_[0].enterMaxScore, pre_header_->userId, userInfo.userScore);
+		_LOG_WARN("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfo_.roomId,
+			roomInfo_.enterMinScore, roomInfo_.enterMaxScore, pre_header_->userId, userInfo.userScore);
 		//最小进入条件
-		if (roomInfos_[0].enterMinScore > 0 &&
-			userInfo.userScore < roomInfos_[0].enterMinScore) {
+		if (roomInfo_.enterMinScore > 0 &&
+			userInfo.userScore < roomInfo_.enterMinScore) {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
 			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
@@ -820,8 +735,8 @@ void GameServ::cmd_on_user_enter_room(
 			return;
 		}
 		//最大进入条件
-		if (roomInfos_[0].enterMaxScore > 0 &&
-			userInfo.userScore > roomInfos_[0].enterMaxScore) {
+		if (roomInfo_.enterMaxScore > 0 &&
+			userInfo.userScore > roomInfo_.enterMaxScore) {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
 			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
@@ -840,10 +755,24 @@ void GameServ::cmd_on_user_enter_room(
 			}
 			userInfo.ip = pre_header_->clientIp;
 			player->SetUserBaseInfo(userInfo);
-			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
+			std::shared_ptr<CTable> table;
+			if (reqdata.clubid() > 0) {
+				if (reqdata.tableid() >= 0) {
+					table = CTableMgr::get_mutable_instance().GetSuit(player, reqdata.clubid(), reqdata.tableid());
+				}
+				else {
+					table = CTableMgr::get_mutable_instance().New(reqdata.clubid());
+				}
+			}
 			if (table) {
 				table->assertThisThread();
-				table->RoomSitChair(player, pre_header_, header_);
+				if (table->RoomSitChair(player, pre_header_, header_)) {
+				}
+				else {
+					if (table->GetPlayerCount() == 0) {
+						CTableMgr::get_mutable_instance().Delete(table->GetTableId());
+					}
+				}
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;

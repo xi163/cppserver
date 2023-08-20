@@ -76,11 +76,15 @@ struct tagAndroidStrategyParam
 
 struct tagGameRoomInfo
 {
+	tagGameRoomInfo() {
+		usedCount = 0;
+	}
 	uint32_t    gameId;                // game id.
 	uint32_t    roomId;                // room kind id.
 	std::string      roomName;              // room kind name.
 
 	uint16_t    tableCount;            // table count.
+	uint16_t    usedCount;
 
 	int64_t     floorScore;            // cell score.
 	int64_t     ceilScore;             // cell score.

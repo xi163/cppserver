@@ -39,9 +39,12 @@ public:
 	virtual void Init(std::shared_ptr<ITableDelegate>& tableDelegate,
 		TableState& tableState, tagGameRoomInfo* roomInfo,
 		std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
-	virtual void SetClubInfo(tagGameClubInfo* clubInfo);
 	virtual uint32_t GetTableId();
+	virtual int64_t GetClubId();
+	virtual void SetClubId(int64_t clubId);
 	virtual void GetTableInfo(TableState& tableState);
+	virtual void GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items);
+	virtual void GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& bok);
 	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread();
 	virtual void assertThisThread();
 	virtual std::string const& ServId();
@@ -72,7 +75,6 @@ public:
 	virtual void GetPlayerCount(uint32_t& realCount, uint32_t& robotCount);
 	virtual uint32_t GetMaxPlayerCount();
 	virtual tagGameRoomInfo* GetRoomInfo();
-	virtual tagGameClubInfo* GetClubInfo();
 	virtual bool IsRobot(uint32_t chairId);
 	virtual bool IsOfficial(uint32_t chairId);
 	virtual bool OnGameEvent(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len);
@@ -121,7 +123,7 @@ public:
 	uint8_t status_;
 	TableState tableState_;
 	tagGameRoomInfo* roomInfo_;
-	tagGameClubInfo* clubInfo_;
+	int64_t clubId_;
 	ITableContext* tableContext_;
 	std::vector<std::shared_ptr<CPlayer>> items_;//items_[chairId]
 	std::shared_ptr<ITableDelegate> tableDelegate_;

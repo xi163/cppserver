@@ -41,6 +41,8 @@ public:
 		std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
 	virtual uint32_t GetTableId();
 	virtual void GetTableInfo(TableState& tableState);
+	virtual void GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items);
+	virtual void GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& bok);
 	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread();
 	virtual void assertThisThread();
 	virtual std::string const& ServId();

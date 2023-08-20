@@ -28,7 +28,12 @@ public:
 	virtual ~CTableMgr();
 	std::list<std::shared_ptr<CTable>> UsedTables();
 	void Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
+	/// <summary>
+	/// 返回有人的桌子数量
+	/// </summary>
+	size_t UsedCount();
 	std::shared_ptr<CTable> Get(uint32_t tableId);
+	std::shared_ptr<CTable> GetSuit(std::shared_ptr<CPlayer> const& player, uint32_t tableId);
 	/// <summary>
 	/// 返回指定桌子，前提是桌子未满
 	/// </summary>
@@ -37,6 +42,7 @@ public:
 	/// 查找能进的桌子，没有则取空闲桌子
 	/// </summary>
 	std::shared_ptr<CTable> FindSuit(std::shared_ptr<CPlayer> const& player, uint32_t exceptTableId = INVALID_TABLE);
+	std::shared_ptr<CTable> New();
 	void Delete(uint32_t tableId);
 	/// <summary>
 	/// 踢出所有桌子玩家

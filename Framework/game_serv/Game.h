@@ -102,7 +102,7 @@ private:
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 public:
 	tagGameInfo* GetGameInfo() { return &gameInfo_; }
-	std::vector<tagGameRoomInfo>& GetRoomInfos() { return roomInfos_; }
+	tagGameRoomInfo* GetRoomInfo() { return &roomInfo_; }
 	std::string const& ServId() { return nodeValue_; }
 	void KickUser(int64_t userId, int32_t kickType);
 	boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> GetContext(int64_t userId);
@@ -138,7 +138,7 @@ public:
 	std::string mongoDBUrl_;
 public:
 	tagGameInfo gameInfo_;
-	std::vector<tagGameRoomInfo> roomInfos_;
+	tagGameRoomInfo roomInfo_;
 	tagGameReplay gameReplay_;
 	int maxConnections_;
 	CmdCallbacks handlers_;

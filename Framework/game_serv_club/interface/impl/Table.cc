@@ -23,7 +23,7 @@ int CTable::sysChangeCardRatio_(0);
 CTable::CTable()
     : tableDelegate_(NULL)
     , roomInfo_(NULL)
-    , clubInfo_(NULL)
+    , clubId_(INVALID_CLUB)
     , tableContext_(NULL)
     , logicThread_(NULL)
     , status_(GAME_STATUS_INIT) {
@@ -36,6 +36,7 @@ CTable::~CTable() {
 }
 
 void CTable::Reset() {
+    clubId_ = INVALID_CLUB;
     if (tableDelegate_) {
         tableDelegate_->Reposition();
     }
@@ -43,6 +44,23 @@ void CTable::Reset() {
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         items_[i] = std::shared_ptr<CPlayer>();
     }
+}
+
+void CTable::GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items) {
+	bool bok = false;
+	QueueInLoop(logicThread_->getLoop(),
+		std::bind(&CTable::GetPlayersInLoop, this, std::ref(items), std::ref(bok)));
+	while (!bok);
+}
+
+void CTable::GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& bok) {
+	for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
+		std::shared_ptr<CPlayer> player = items_[i];
+		if (player && player->Valid()) {
+			items.emplace_back(player);
+		}
+	}
+	bok = true;
 }
 
 void CTable::Init(std::shared_ptr<ITableDelegate>& tableDelegate,
@@ -422,6 +440,14 @@ uint32_t CTable::GetTableId() {
     return tableState_.tableId;
 }
 
+int64_t CTable::GetClubId() {
+    return clubId_;
+}
+
+void  CTable::SetClubId(int64_t clubId) {
+    clubId_ = clubId;
+}
+
 std::shared_ptr<muduo::net::EventLoopThread> CTable::GetLoopThread() {
     return logicThread_;
 }
@@ -644,14 +670,6 @@ uint32_t CTable::GetMaxPlayerCount() {
 
 tagGameRoomInfo* CTable::GetRoomInfo() {
     return roomInfo_;
-}
-
-tagGameClubInfo* CTable::GetClubInfo() {
-    return clubInfo_;
-}
-
-void CTable::SetClubInfo(tagGameClubInfo* clubInfo) {
-    clubInfo_ = clubInfo;
 }
 
 bool CTable::IsRobot(uint32_t chairId) {

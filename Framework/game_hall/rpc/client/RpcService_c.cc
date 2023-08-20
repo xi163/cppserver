@@ -76,5 +76,39 @@ namespace rpc {
 // 				}
 // 			}
 		}
+		
+		::Game::Rpc::RoomInfoRspPtr Service::GetRoomInfo(
+			const ::Game::Rpc::RoomInfoReq& req) {
+			//_LOG_WARN(req.DebugString().c_str());
+			if (!conn_.get<1>().expired()) {
+				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+				if (c) {
+					if (conn_.get<2>()) {
+						conn_.get<2>()->setConnection(c);
+						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
+						stub.GetRoomInfo(req, std::bind(&Service::doneRoomInfoRsp, this, std::placeholders::_1));
+						lock_.wait();
+					}
+				}
+			}
+			return ptrRoomInfoRsp_;
+		}
+
+		void Service::doneRoomInfoRsp(const ::Game::Rpc::RoomInfoRspPtr& rsp) {
+			ptrRoomInfoRsp_ = rsp;
+			lock_.notify();
+			//_LOG_WARN(rsp->DebugString().c_str());
+			if (!conn_.get<1>().expired()) {
+				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+				if (c) {
+					if (conn_.get<2>()) {
+						conn_.get<2>()->setConnection(c);
+						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(conn_.get<2>()));
+						//stub.channel()->connection()->conn->shutdown();
+						//stub.channel()->connection()->conn->forceClose();
+					}
+				}
+			}
+		}
 	}
 }

@@ -13,7 +13,6 @@ class IReplayRecord;
 struct TableState;
 struct tagGameInfo;
 struct tagGameRoomInfo;
-struct tagGameClubInfo;
 
 struct tagScoreInfo;
 struct tagSpecialScoreInfo;
@@ -52,7 +51,6 @@ public:
 	virtual void GetPlayerCount(uint32_t& realCount, uint32_t& robotCount) = 0;
 	virtual uint32_t GetMaxPlayerCount() = 0;
 	virtual tagGameRoomInfo* GetRoomInfo() = 0;
-	virtual tagGameClubInfo* GetClubInfo() = 0;
 	virtual bool IsRobot(uint32_t chairId) = 0;
 	virtual bool IsOfficial(uint32_t chairId) = 0;
 	virtual bool OnGameEvent(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len) = 0;

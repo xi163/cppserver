@@ -11,6 +11,7 @@
 #define INVALID_TABLE	0xFFFF
 #define INVALID_CHAIR	0xFFFF
 #define INVALID_CARD	0xFFFF
+#define INVALID_CLUB    0
 
 #define KICK_NULL         0x0
 #define KICK_GS           0x01

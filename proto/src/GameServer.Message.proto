@@ -71,10 +71,11 @@ message MSG_S2C_SystemMessage
 message MSG_C2S_UserEnterMessage
 {
     Game.Common.Header header               = 1;                // 命令包头.
-	
-    int32 gameId                            = 2;                // 游戏ID.
-    int32 roomId                            = 3;                // 房间类型ID.
-    bytes dynamicPassword                   = 4;                // 动态密码
+	int64 clubId                            = 2;                // 俱乐部Id
+    int32 gameId                            = 3;                // 游戏ID.
+    int32 roomId                            = 4;                // 房间类型ID.
+	int32 tableId                           = 5;				// 桌子有人传tableId>=0 没人传-1 
+    bytes dynamicPassword                   = 6;                // 动态密码
 }
 // 进入房间成功.
 message MSG_S2C_UserEnterMessageResponse

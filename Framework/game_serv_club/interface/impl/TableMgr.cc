@@ -38,7 +38,7 @@ CTableMgr::~CTableMgr() {
 }
 
 void CTableMgr::Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) {
-	if (!tableContext->GetGameInfo() || tableContext->GetRoomInfos().empty()) {
+	if (!tableContext->GetGameInfo() || !tableContext->GetRoomInfo()) {
 		return;
 	}
 	TableDelegateCreator creator = LoadLibrary(tableContext->GetGameInfo()->serviceName);
@@ -46,30 +46,36 @@ void CTableMgr::Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, 
 		exit(0);
 	}
 	tableContext_ = tableContext;
-	for (uint32_t i = 0; i < tableContext->GetRoomInfos().size(); ++i) {
-		tagGameRoomInfo* roomInfo = &tableContext->GetRoomInfos()[i];
-		CTable::ReadStorageScore(roomInfo);
-		for (uint32_t k = 0; k < roomInfo->tableCount; ++k) {
-			//创建子游戏桌子代理
-			std::shared_ptr<ITableDelegate> tableDelegate = creator();
-			//创建桌子
-			std::shared_ptr<CTable> table(new CTable());
-			if (!table || !tableDelegate) {
-				_LOG_ERROR("table = %d Failed", i);
-				break;
-			}
-			TableState state = { 0 };
-			state.tableId = i * 10 + k;
-			state.locked = false;
-			state.lookon = false;
-			table->Init(tableDelegate, state, roomInfo, logicThread, tableContext);
-			items_.emplace_back(table);
-			freeItems_.emplace_back(table);
-			_LOG_DEBUG("游戏ID[%d] 房间ID[%d] 桌子ID[%d] 库存[%ld]", tableContext->GetGameInfo()->gameId, roomInfo->roomId, state.tableId, roomInfo->totalStock);
+	CTable::ReadStorageScore(tableContext->GetRoomInfo());
+	for (uint32_t i = 0; i < tableContext->GetRoomInfo()->tableCount; ++i) {
+		//创建子游戏桌子代理
+		std::shared_ptr<ITableDelegate> tableDelegate = creator();
+		//创建桌子
+		std::shared_ptr<CTable> table(new CTable());
+		if (!table || !tableDelegate) {
+			_LOG_ERROR("table = %d Failed", i);
+			break;
 		}
-		_LOG_WARN("游戏ID[%d] 房间ID[%d] 桌子数[%d] 库存[%ld]", tableContext->GetGameInfo()->gameId, roomInfo->roomId, roomInfo->tableCount, roomInfo->totalStock);
+		TableState state = { 0 };
+		state.tableId = i;
+		state.locked = false;
+		state.lookon = false;
+		table->Init(tableDelegate, state, tableContext->GetRoomInfo(), logicThread, tableContext);
+		items_.emplace_back(table);
+		freeItems_.emplace_back(table);
+		//_LOG_DEBUG("%d:%s %d:%s tableId:%d stock:%ld",
+		//	tableContext->GetGameInfo()->gameId,
+		//	tableContext->GetGameInfo()->gameName.c_str(),
+		//	tableContext->GetRoomInfo()->roomId,
+		//	tableContext->GetRoomInfo()->roomName.c_str(),
+		//	state.tableId, tableContext->GetRoomInfo()->totalStock);
 	}
-	_LOG_WARN("游戏ID[%d] 桌子数[%d]", tableContext->GetGameInfo()->gameId, items_.size());
+	_LOG_WARN("%d:%s %d:%s tableCount:%d stock:%ld",
+		tableContext->GetGameInfo()->gameId,
+		tableContext->GetGameInfo()->gameName.c_str(),
+		tableContext->GetRoomInfo()->roomId,
+		tableContext->GetRoomInfo()->roomName.c_str(),
+		tableContext->GetRoomInfo()->tableCount, tableContext->GetRoomInfo()->totalStock);
 }
 
 std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
@@ -91,11 +97,57 @@ std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
 	return usedItems;
 }
 
+/// <summary>
+/// 返回有人的桌子数量
+/// </summary>
+size_t CTableMgr::UsedCount() {
+	{
+		READ_LOCK(mutex_);
+		return usedItems_.size();
+	}
+}
+
+/// <summary>
+/// 返回指定俱乐部桌子
+/// </summary>
+void CTableMgr::Get(int64_t clubId, std::set<uint32_t>& vec) {
+	{
+		READ_LOCK(mutex_);
+		for (std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.begin(); it != usedItems_.end(); ++it) {
+			if (clubId == it->second->GetClubId()) {
+				vec.insert(it->second->GetTableId());
+			}
+		}
+	}
+}
+
 std::shared_ptr<CTable> CTableMgr::Get(uint32_t tableId) {
 	{
 		//READ_LOCK(mutex_);
 		if (tableId < items_.size()) {
 			return items_[tableId];
+		}
+	}
+	return std::shared_ptr<CTable>();
+}
+
+std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint32_t tableId) {
+	{
+		//READ_LOCK(mutex_);
+		if (tableId < items_.size()) {
+			std::shared_ptr<CTable> table = items_[tableId];
+			do {
+				if (table->GetClubId() == INVALID_CLUB || table->GetClubId() != clubId) {
+					break;
+				}
+				if (table->GetPlayerCount() >= table->GetMaxPlayerCount()) {
+					break;
+				}
+				if (table->CanJoinTable(player)) {
+					break;
+				}
+				return table;
+			} while (0);
 		}
 	}
 	return std::shared_ptr<CTable>();
@@ -121,7 +173,7 @@ std::shared_ptr<CTable> CTableMgr::Find(uint32_t tableId) {
 /// <summary>
 /// 查找能进的桌子，没有则取空闲桌子
 /// </summary>
-std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& player, uint32_t ignoreTableId) {
+std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint32_t ignoreTableId) {
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
 		READ_LOCK(mutex_);
@@ -134,6 +186,9 @@ std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& play
 		if (INVALID_TABLE == ignoreTableId || ignoreTableId == table->GetTableId()) {
 			continue;
 		}
+		if (table->GetClubId() == INVALID_CLUB || table->GetClubId() != clubId) {
+			continue;
+		}
 		if (table->GetPlayerCount() >= table->GetMaxPlayerCount()) {
 			continue;
 		}
@@ -141,12 +196,17 @@ std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& play
 			return table;
 		}
 	}
+	return New(clubId);
+}
+
+std::shared_ptr<CTable> CTableMgr::New(int64_t clubId) {
 	{
 		WRITE_LOCK(mutex_);
 		if (!freeItems_.empty()) {
 			std::shared_ptr<CTable> table = freeItems_.front();
 			freeItems_.pop_front();
 			table->Reset();
+			table->SetClubId(clubId);
 			usedItems_[table->GetTableId()] = table;
 			return table;
 		}
@@ -162,6 +222,7 @@ void CTableMgr::Delete(uint32_t tableId) {
 			std::shared_ptr<CTable>& table = it->second;
 			usedItems_.erase(it);
 			table->Reset();
+			table->SetClubId(INVALID_CLUB);
 			freeItems_.emplace_back(table);
 		}
 	}
@@ -202,9 +263,8 @@ void CTableMgr::Delete(uint32_t tableId) {
 /// 踢出所有桌子玩家
 /// </summary>
 void CTableMgr::KickAll() {
-	for (std::vector<tagGameRoomInfo>::iterator it = tableContext_->GetRoomInfos().begin();
-		it != tableContext_->GetRoomInfos().end(); ++it) {
-		tagGameRoomInfo* roomInfo = &*it;
+	if (tableContext_->GetRoomInfo()) {
+		tagGameRoomInfo* roomInfo = tableContext_->GetRoomInfo();
 		roomInfo->serverStatus = kStopped;
 		std::list<std::shared_ptr<CTable>> usedItems;
 		{

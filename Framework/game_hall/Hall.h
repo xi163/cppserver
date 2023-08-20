@@ -119,6 +119,9 @@ private:
 
 	//===================俱乐部==================
 	
+	//CLIENT_TO_HALL_CLUB_GET_ROOM_INFO_MESSAGE_REQ                 = 77;     // 获取俱乐部房间信息 ClubHallServer.GetRoomInfoMessage
+	//CLIENT_TO_HALL_CLUB_GET_ROOM_INFO_MESSAGE_RES                 = 78;     // 获取俱乐部房间信息 ClubHallServer.GetRoomInfoMessageResponse
+	
 	//CLIENT_TO_HALL_CLUB_GET_GAME_SERVER_MESSAGE_REQ               = 3;      // 获取游戏服务器IP ClubHallServer.GetGameServerMessage
 	//CLIENT_TO_HALL_CLUB_GET_GAME_SERVER_MESSAGE_RES               = 4;      // 返回游戏服务器IP ClubHallServer.GetGameServerMessageResponse
 
@@ -180,13 +183,18 @@ private:
 	//CLIENT_TO_HALL_CLUB_FIRE_MEMBER_REQ                           = 71;     // 开除此用户  ClubHallServer.FireMemberMessage
 	//CLIENT_TO_HALL_CLUB_FIRE_MEMBER_RES                           = 72;     // 开除此用户  ClubHallServer.FireMemberMessageResponse
 
-
 	//CLIENT_TO_HALL_CLUB_GET_APPLY_CLUB_QQ_REQ                     = 73;     // 获取俱乐部申请QQ  ClubHallServer.GetApplyClubQQMessage
 	//CLIENT_TO_HALL_CLUB_GET_APPLY_CLUB_QQ_RES                     = 74;     // 获取俱乐部申请QQ  ClubHallServer.GetApplyClubQQMessage
 	
-	// 获取游戏服务器IP
-	void GetGameServerMessage_club(
+	//CLIENT_TO_HALL_CLUB_CREATE_CLUB_MESSAGE_REQ                   = 75;     // 创建俱乐部  ClubHallServer.CreateClubMessage
+	//CLIENT_TO_HALL_CLUB_CREATE_CLUB_MESSAGE_RES                   = 76;     // 创建俱乐部  ClubHallServer.CreateClubMessageResponse
+
+	// 获取俱乐部房间信息
+	void GetRoomInfoMessage_club(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
+	// 获取游戏服务器IP
+	//void GetGameServerMessage_club(
+	//	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	// 获取我的俱乐部
 	void GetMyClubHallMessage_club(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);

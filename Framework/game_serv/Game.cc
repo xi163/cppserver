@@ -112,7 +112,9 @@ void GameServ::onZookeeperConnected() {
 	//if (ZNONODE == zkclient_->existsNode("/GAME/game_servInvalid"))
 	//	zkclient_->createNode("/GAME/game_servInvalid", "game_servInvalid", true);
 	{
-		nodeValue_ = std::to_string(roomId_) + ":" + std::to_string(kGoldCoin);
+		nodeValue_ = std::to_string(gameId_);
+		nodeValue_ += ":" + std::to_string(roomId_);
+		nodeValue_ += ":" + std::to_string(kGoldCoin);
 		//tcp
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
@@ -266,30 +268,17 @@ bool GameServ::InitServer() {
 		initTraceMessageID();
 		break;
 	}
-	switch (roomId_) {
-	default: {
-		tagGameRoomInfo roomInfo;
-		if (!mgo::LoadGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo)) {
-			_LOG_ERROR("error");
-			return false;
+	if (mgo::LoadGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo_)) {
+		CTableMgr::get_mutable_instance().Init(logicThread_, this);
+		if (enable()) {
+			CRobotMgr::get_mutable_instance().Init(this);
 		}
-		roomInfos_.emplace_back(roomInfo);
-		break;
-	}
-	case 0:
-		if (!mgo::LoadGameRoomInfos(gameId_, gameInfo_, roomInfos_)) {
-			_LOG_ERROR("error");
-			return false;
+		else {
 		}
-		break;
+		return true;
 	}
-	CTableMgr::get_mutable_instance().Init(logicThread_, this);
-	if (enable()) {
-		CRobotMgr::get_mutable_instance().Init(this);
-	}
-	else {
-	}
-	return true;
+	_LOG_ERROR("error");
+	return false;
 }
 
 void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
@@ -326,12 +315,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 }
 
 bool GameServ::enable() {
-	for (std::vector<tagGameRoomInfo>::iterator it = roomInfos_.begin(); it != roomInfos_.end(); ++it) {
-		if (it->bEnableAndroid) {
-			return true;
-		}
-	}
-	return false;
+	return roomInfo_.bEnableAndroid;
 }
 
 void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
@@ -591,7 +575,7 @@ void GameServ::cmd_on_user_enter_room(
 		::GameServer::MSG_S2C_UserEnterMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		if (reqdata.gameid() != gameInfo_.gameId ||
-			reqdata.roomid() != roomInfos_[0].roomId) {
+			reqdata.roomid() != roomInfo_.roomId) {
 			return;
 		}
 		
@@ -690,7 +674,7 @@ void GameServ::cmd_on_user_enter_room(
 		uint32_t gameid = 0, roomid = 0;
 		if (REDISCLIENT.GetOnlineInfo(pre_header_->userId, gameid, roomid)) {
 			if (gameid != 0 && roomid != 0 &&
-				gameInfo_.gameId != gameid || roomInfos_[0].roomId != roomid) {
+				gameInfo_.gameId != gameid || roomInfo_.roomId != roomid) {
 				::GameServer::MSG_S2C_PlayInOtherRoom rspdata;
 				rspdata.mutable_header()->CopyFrom(reqdata.header());
 				rspdata.set_gameid(gameid);
@@ -730,11 +714,11 @@ void GameServ::cmd_on_user_enter_room(
 				"ERROR_ENTERROOM_NOSESSION", pre_header_, header_);
 			return;
 		}
-		_LOG_WARN("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfos_[0].roomId,
-			roomInfos_[0].enterMinScore, roomInfos_[0].enterMaxScore, pre_header_->userId, userInfo.userScore);
+		_LOG_WARN("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfo_.roomId,
+			roomInfo_.enterMinScore, roomInfo_.enterMaxScore, pre_header_->userId, userInfo.userScore);
 		//最小进入条件
-		if (roomInfos_[0].enterMinScore > 0 &&
-			userInfo.userScore < roomInfos_[0].enterMinScore) {
+		if (roomInfo_.enterMinScore > 0 &&
+			userInfo.userScore < roomInfo_.enterMinScore) {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
 			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
@@ -746,8 +730,8 @@ void GameServ::cmd_on_user_enter_room(
 			return;
 		}
 		//最大进入条件
-		if (roomInfos_[0].enterMaxScore > 0 &&
-			userInfo.userScore > roomInfos_[0].enterMaxScore) {
+		if (roomInfo_.enterMaxScore > 0 &&
+			userInfo.userScore > roomInfo_.enterMaxScore) {
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
 			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
@@ -769,7 +753,13 @@ void GameServ::cmd_on_user_enter_room(
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
 			if (table) {
 				table->assertThisThread();
-				table->RoomSitChair(player, pre_header_, header_);
+				if (table->RoomSitChair(player, pre_header_, header_)) {
+				}
+				else {
+					if (table->GetPlayerCount() == 0) {
+						CTableMgr::get_mutable_instance().Delete(table->GetTableId());
+					}
+				}
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;

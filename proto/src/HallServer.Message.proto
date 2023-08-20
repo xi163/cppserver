@@ -73,8 +73,8 @@ message GetGameMessageResponse
      Game.Common.Header     header                  = 1;  // ID
      int32                  retCode                 = 2;
      string                 errorMsg                = 3;
-
-     repeated GameMessage   gameMessage             = 4;
+	 int32                  type                    = 4; // 0-金币场 1-好友房 2-俱乐部
+     repeated GameMessage   gameMessage             = 5;
 }
 
 message MatchMessage
@@ -157,9 +157,10 @@ message GetPlayingGameInfoMessageResponse
 message GetGameServerMessage
 {
      Game.Common.Header     header                  = 1;
-
-     uint32                 gameId                  = 2; // 游戏ID
-     uint32                 roomId                  = 3; // 房间类型 初 中 高 房间
+	 int32                  type                    = 2; // 0-金币场 1-好友房 2-俱乐部
+     uint32                 gameId                  = 3; // 游戏ID
+     uint32                 roomId                  = 4; // 房间类型 初 中 高 房间
+	 int64                  clubId                  = 5;
 }
 
 message GetMatchServerMessage

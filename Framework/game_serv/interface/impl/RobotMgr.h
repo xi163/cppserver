@@ -16,9 +16,7 @@ public:
 	void OnTimerCheckIn();
 	void Hourtimer(tagGameRoomInfo* roomInfo);
 private:
-	void load(tagGameRoomInfo* roomInfo, RobotDelegateCreator creator);
-	void load(std::vector<tagGameRoomInfo>& roomInfos, RobotDelegateCreator creator);
-private:
+	void load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, RobotDelegateCreator creator);
 	int64_t randScore(tagGameRoomInfo* roomInfo, int64_t minScore, int64_t maxScore);
 	int randomOnce(int32_t need, int N = 3);
 protected:

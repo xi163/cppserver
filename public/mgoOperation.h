@@ -19,8 +19,13 @@ namespace mgo {
 		int64_t Count(
 			std::string const& dbname,
 			std::string const& tblname,
-			document::view_or_value const& select,
 			document::view_or_value const& where);
+
+		int64_t Count(
+			std::string const& dbname,
+			std::string const& tblname,
+			document::view_or_value const& where,
+			int64_t limit);
 		
 		optional<result::insert_one> InsertOne(
 			std::string const& dbname,

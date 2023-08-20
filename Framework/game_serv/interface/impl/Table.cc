@@ -44,6 +44,23 @@ void CTable::Reset() {
     }
 }
 
+void CTable::GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items) {
+	bool bok = false;
+	QueueInLoop(logicThread_->getLoop(),
+		std::bind(&CTable::GetPlayersInLoop, this, std::ref(items), std::ref(bok)));
+	while (!bok);
+}
+
+void CTable::GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& bok) {
+	for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
+		std::shared_ptr<CPlayer> player = items_[i];
+		if (player && player->Valid()) {
+			items.emplace_back(player);
+		}
+	}
+	bok = true;
+}
+
 void CTable::Init(std::shared_ptr<ITableDelegate>& tableDelegate,
     TableState& tableState, tagGameRoomInfo* roomInfo,
     std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) {
