@@ -19,7 +19,7 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 	uint32_t gameId, uint32_t roomId)
 	: server_(loop, listenAddr, "tcpServer")
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
-	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
+	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "EventLoopThreadTimer"))
 	, logicThread_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "GameLogicEventLoopThread"))
 	, ipFinder_("qqwry.dat")
 	, gameId_(gameId)
@@ -31,7 +31,6 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 		std::bind(&GameServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
 		std::bind(&GameServ::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	//threadTimer_->startLoop();
 }
 
 GameServ::~GameServ() {

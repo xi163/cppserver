@@ -24,8 +24,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	, idleTimeout_(3)
 	, maxConnections_(15000)
 	, server_state_(kRunning)
-	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
-	//, threadTimer_(new muduo::net::EventLoopThread(std::bind(&GateServ::threadInit, this), "EventLoopThreadTimer"))
+	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&GateServ::threadInit, this), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
@@ -78,7 +77,6 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	//指定SSL_CTX
 	server_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
 	httpserver_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
-	//threadTimer_->startLoop();
 }
 
 GateServ::~GateServ() {

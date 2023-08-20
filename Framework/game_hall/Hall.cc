@@ -11,8 +11,7 @@ HallServ::HallServ(muduo::net::EventLoop* loop,
 	: server_(loop, listenAddr, "tcpServer")
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, gameRpcClients_(loop)
-	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
-	//, threadTimer_(new muduo::net::EventLoopThread(std::bind(&HallServ::threadInit, this), "EventLoopThreadTimer"))
+	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&HallServ::threadInit, this), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
@@ -22,7 +21,6 @@ HallServ::HallServ(muduo::net::EventLoop* loop,
 		std::bind(&HallServ::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	rpcClients_[rpc::containTy::kRpcGameTy].clients_ = &gameRpcClients_;
 	rpcClients_[rpc::containTy::kRpcGameTy].ty_ = rpc::containTy::kRpcGameTy;
-	//threadTimer_->startLoop();
 }
 
 HallServ::~HallServ() {
