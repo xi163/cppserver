@@ -752,7 +752,7 @@ namespace mgo {
 				mgoKeys::tbl::GAME_CLUB_MEMBER,
 				select, where);
 			for (auto& view : cursor) {
-				//_LOG_WARN(to_json(view).c_str());
+				_LOG_WARN(to_json(view).c_str());
 				UserClubInfo info;
 				if (view["userid"]) {
 					switch (view["userid"].type()) {
@@ -973,7 +973,7 @@ namespace mgo {
 				}
 				infos.emplace_back(info);
 			}
-			return true;
+			return infos.size() > 0;
 		}
 		catch (const bsoncxx::exception& e) {
 			_LOG_ERROR(e.what());

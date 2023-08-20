@@ -24,7 +24,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	, idleTimeout_(3)
 	, maxConnections_(15000)
 	, server_state_(kRunning)
-	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
+	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&GateServ::threadInit, this), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");

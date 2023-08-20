@@ -16,8 +16,8 @@ namespace rpc {
 			::Game::Rpc::NodeInfoRsp rsp;
 			rsp.set_numofloads(gServer->numUsers_.get());
 			rsp.set_nodevalue(gServer->nodeValue_);
-			//_LOG_WARN("\nreq:%s\nrsp:%s", req->DebugString().c_str(), rsp.DebugString().c_str());
 			done(&rsp);
+			//_LOG_WARN("\nrsp:%s", rsp.DebugString().c_str());
 		}
 		void Service::GetRoomInfo(const ::Game::Rpc::RoomInfoReqPtr& req,
 			const ::Game::Rpc::RoomInfoRsp* responsePrototype,
@@ -26,6 +26,7 @@ namespace rpc {
 			rsp.set_clubid(req->clubid());
 			rsp.set_gameid(gServer->gameInfo_.gameId);
 			rsp.set_roomid(gServer->roomInfo_.roomId);
+			rsp.set_servid(gServer->nodeValue_);
 			rsp.set_tablecount(gServer->roomInfo_.tableCount - (uint16_t)CTableMgr::get_mutable_instance().UsedCount());
 			//tableInfos
 			std::set<uint32_t> vec;
@@ -34,7 +35,6 @@ namespace rpc {
 				std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(*it);
 				if (table) {
 					::Game::Rpc::TableInfo* tableInfo = rsp.add_tableinfos();
-					tableInfo->set_servid(gServer->nodeValue_);
 					tableInfo->set_tableid(table->GetTableId());
 					tableInfo->set_gamestatus(table->GetGameStatus());
 					//userInfos
@@ -52,6 +52,8 @@ namespace rpc {
 					}
 				}
 			}
+			done(&rsp);
+			_LOG_WARN("\nrsp:%s", rsp.DebugString().c_str());
 		}
 		void Service::NotifyUserScore(const ::Game::Rpc::UserScoreReqPtr& req,
 			const ::Game::Rpc::UserScoreRsp* responsePrototype,

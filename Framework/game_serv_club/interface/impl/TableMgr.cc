@@ -137,7 +137,8 @@ std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& playe
 		if (tableId < items_.size()) {
 			std::shared_ptr<CTable> table = items_[tableId];
 			do {
-				if (table->GetClubId() == INVALID_CLUB || table->GetClubId() != clubId) {
+				if (table->GetClubId() <= INVALID_CLUB || table->GetClubId() != clubId) {
+					_LOG_ERROR("clubId:%d tableId:%d table.clubId:%d", clubId, tableId, table->GetClubId());
 					break;
 				}
 				if (table->GetPlayerCount() >= table->GetMaxPlayerCount()) {

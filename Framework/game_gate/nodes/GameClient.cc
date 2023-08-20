@@ -106,7 +106,9 @@ void GateServ::asyncGameHandler(
 		//进房间失败/离开房间/游戏结束，清理用户游戏节点
 		//////////////////////////////////////////////////////////////////////////
 		if (header->mainId == Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER ||
-			header->mainId == Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) {
+			header->mainId == Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER ||
+			header->mainId == Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER_CLUB ||
+			header->mainId == Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER_FRIEND) {
 			if (header->subId == ::GameServer::SUB_S2C_ENTER_ROOM_RES) {
 				if (pre_header->ok == -1) {
 					entryContext.resetClientConn(containTy::kGameTy);
@@ -170,6 +172,7 @@ void GateServ::asyncGameOfflineHandler(std::string const& ipPort) {
 						buffer = GateServ::packKickGameUserMsg();
 					}
 					muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
+					REDISCLIENT.DelOnlineInfo(*ir);
 				}
 			}
 		}

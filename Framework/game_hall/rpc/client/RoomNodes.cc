@@ -128,6 +128,7 @@ namespace room {
 			for (GameRoomNodes::const_iterator it = nodes_.begin(); it != nodes_.end(); ++it) {
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
+						_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, it->first, ir->first, ix->c_str());
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
 						rpc::client::Service client(conn, 3);
@@ -147,6 +148,7 @@ namespace room {
 			if (it != nodes_.end()) {
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
+						_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, ir->first, ix->c_str());
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
 						rpc::client::Service client(conn, 3);
@@ -167,6 +169,7 @@ namespace room {
 				RoomNodes::const_iterator ir = it->second.find(roomId);
 				if (ir != it->second.end()) {
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
+						_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, roomId, ix->c_str());
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
 						rpc::client::Service client(conn, 3);
