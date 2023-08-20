@@ -2,6 +2,13 @@
 #include "public/gameConst.h"
 #include "Logger/src/log/Logger.h"
 
+#define _gameid(v) v[0].c_str()
+#define _roomid(v) v[1].c_str()
+#define _modeid(v) v[2].c_str()
+#define _gameip(v) v[3].c_str()
+#define _game_tcp_port(v) v[4].c_str()
+#define _game_rpc_port(v) v[5].c_str()
+
 void Container::add(std::vector<std::string> const& names, std::string const& exclude) {
 	{
 		WRITE_LOCK(mutex_);
@@ -93,9 +100,9 @@ void Container::add(std::string const& name) {
 	case containTy::kGameTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", vec[2].c_str(), vec[3].c_str(), vec[4].c_str(), vec[0].c_str(), getModeStr(atoi(vec[1].c_str())).c_str());
+		_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _gameip(vec), _game_tcp_port(vec), _game_rpc_port(vec), _roomid(vec), getModeStr(atoi(_modeid(vec))).c_str());
 		//try add & connect
-		muduo::net::InetAddress serverAddr(vec[2], atoi(vec[3].c_str()));
+		muduo::net::InetAddress serverAddr(_gameip(vec), atoi(_game_tcp_port(vec)));
 		clients_->add(name, serverAddr);
 		//try remove from repair
 		repair_.remove(name);
@@ -129,7 +136,7 @@ void Container::remove(std::string const& name) {
 	case containTy::kGameTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", vec[2].c_str(), vec[3].c_str(), vec[4].c_str(), vec[0].c_str(), getModeStr(atoi(vec[1].c_str())).c_str());
+		_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _gameip(vec), _game_tcp_port(vec), _game_rpc_port(vec), _roomid(vec), getModeStr(atoi(_modeid(vec))).c_str());
 		//try remove
 		clients_->remove(name, true);
 		//try remove from repair

@@ -61,7 +61,7 @@ void GameServ::registerHandlers() {
 		= std::bind(&GameServ::cmd_keep_alive_ping, this,
 			std::placeholders::_1, std::placeholders::_2);
 	handlers_[packet::enword(
-		::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
+		::Game::Common::MAINID:MAIN_MESSAGE_CLIENT_TO_GAME_SERVER_CLUB,
 		::GameServer::SUBID::SUB_C2S_ENTER_ROOM_REQ)]
 		= std::bind(&GameServ::cmd_on_user_enter_room, this,
 			std::placeholders::_1, std::placeholders::_2);
