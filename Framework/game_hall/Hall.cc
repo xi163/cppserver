@@ -954,7 +954,7 @@ void HallServ::cmd_get_game_server_message(
 					if (mgo::opt::Count(
 						mgoKeys::db::GAMEMAIN,
 						mgoKeys::tbl::GAME_CLUB_MEMBER,
-						builder::stream::document{} << "userid" << int64_t{ pre_header_->userId } << "clubid" << b_int64{ reqdata.clubid() } << finalize, 1) > 0) {
+						document{} << "userid" << int64_t{ pre_header_->userId } << "clubid" << b_int64{ reqdata.clubid() } << finalize, 1) > 0) {
 						room::nodes::balance_server(kClub, gameid, roomid, ipport);
 						if (ipport.empty()) {
 							rspdata.set_retcode(ERROR_ENTERROOM_GAMENOTEXIST);
