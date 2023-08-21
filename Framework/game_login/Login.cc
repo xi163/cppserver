@@ -12,7 +12,7 @@ LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, httpserver_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
-	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
+	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&LoginServ::threadInit, this), "EventLoopThreadTimer"))
 	, server_state_(kRunning)
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
@@ -40,7 +40,6 @@ LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	//指定SSL_CTX
 	server_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
 	httpserver_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
-	threadTimer_->startLoop();
 }
 
 LoginServ::~LoginServ() {
@@ -81,7 +80,6 @@ bool LoginServ::InitZookeeper(std::string const& ipaddr) {
 		abort();
 		return false;
 	}
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&LoginServ::registerZookeeper, this));
 	return true;
 }
 
@@ -208,7 +206,9 @@ bool LoginServ::InitServer() {
 void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
-
+	
+	threadTimer_->startLoop();
+	
 	for (int i = 0; i < numWorkerThreads; ++i) {
 		std::shared_ptr<muduo::ThreadPool> threadPool = std::make_shared<muduo::ThreadPool>("ThreadPool:" + std::to_string(i));
 		threadPool->setThreadInitCallback(std::bind(&LoginServ::threadInit, this));
@@ -236,7 +236,9 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	server_.start(true);
 	rpcserver_.start(true);
 	httpserver_.start(true);
-
+	
+	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&LoginServ::registerZookeeper, this));
+	
 	//sleep(2);
 
 	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =

@@ -12,7 +12,7 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, httpserver_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
-	, threadTimer_(new muduo::net::EventLoopThread(muduo::net::EventLoopThread::ThreadInitCallback(), "EventLoopThreadTimer"))
+	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&ApiServ::threadInit, this), "EventLoopThreadTimer"))
 	, idleTimeout_(3)
 	, isdecrypt_(false)
 	, whiteListControl_(eApiCtrl::kClose)
@@ -50,7 +50,6 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	//指定SSL_CTX
 	server_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
 	httpserver_.set_SSL_CTX(muduo::net::ssl::SSL_CTX_Get());
-	threadTimer_->startLoop();
 }
 
 ApiServ::~ApiServ() {
@@ -91,7 +90,6 @@ bool ApiServ::InitZookeeper(std::string const& ipaddr) {
 		abort();
 		return false;
 	}
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&ApiServ::registerZookeeper, this));
 	return true;
 }
 
@@ -218,7 +216,9 @@ bool ApiServ::InitServer() {
 void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
-
+	
+	threadTimer_->startLoop();
+	
 	for (int i = 0; i < numWorkerThreads; ++i) {
 		std::shared_ptr<muduo::ThreadPool> threadPool = std::make_shared<muduo::ThreadPool>("ThreadPool:" + std::to_string(i));
 		threadPool->setThreadInitCallback(std::bind(&ApiServ::threadInit, this));
@@ -246,7 +246,9 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	server_.start(true);
 	rpcserver_.start(true);
 	httpserver_.start(true);
-
+	
+	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&ApiServ::registerZookeeper, this));
+	
 	//sleep(2);
 
 	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =
