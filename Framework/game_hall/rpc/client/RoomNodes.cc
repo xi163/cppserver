@@ -225,7 +225,7 @@ namespace room {
 							info.set_roomid(roomId);
 							info.set_tablecount(info.tablecount() + rsp->tablecount());//tablecount
 							//tableinfos
-							for (int i = 0; i < rsp->infos_size(); ++i) {
+							for (int i = 0; i < rsp->tables_size(); ++i) {
 								::club::game::room::table::info* tableinfo = info.add_tables();
 								tableinfo->CopyFrom(*rsp->mutable_tables(i));
 								if (tableinfo->users_size() > 0) {
