@@ -1315,14 +1315,17 @@ void HallServ::GetRoomInfoMessage_club(
 		if (reqdata.clubid() > 0) {
 			if (reqdata.gameid() > 0) {
 				if (reqdata.roomid() > 0) {
-					room::nodes::get_room_info(kClub, reqdata.clubid(), reqdata.gameid(), reqdata.roomid());
+					::club::game::room::info info;
+					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), reqdata.roomid(), info);
 				}
 				else {
-					room::nodes::get_room_info(kClub, reqdata.clubid(), reqdata.gameid());
+					::club::game::info info;
+					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), info);
 				}
 			}
 			else {
-				room::nodes::get_room_info(kClub, reqdata.clubid());
+				::club::info info;
+				room::nodes::get_club_room_info(kClub, reqdata.clubid(), info);
 			}
 		}
 		send(conn, &rspdata,

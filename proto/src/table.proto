@@ -1,0 +1,17 @@
+syntax = "proto3";
+package club.game.room.node.table;
+
+import "user.proto";
+
+// option cc_generic_services = true;
+option java_generic_services = true;
+option py_generic_services = true;
+
+message info
+{
+    int32 tableId                                      = 1;
+	int32 gameStatus                                   = 2;
+    repeated club.game.room.node.table.user.info infos = 3;
+	int64 applyBankerScore                             = 4; // 百人上庄 金币数
+    int64 curBankerUserId                              = 5; // 当前庄家Id   -1:系统庄
+}

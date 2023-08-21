@@ -7,6 +7,9 @@
 
 extern HallServ* gServer;
 
+#define _gameid(v) v[0].c_str()
+#define _roomid(v) v[1].c_str()
+
 namespace room {
 	namespace nodes {
 
@@ -21,9 +24,9 @@ namespace room {
 			void random_server(uint32_t gameId, uint32_t roomId, std::string& ipport);
 			void balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport);
 		public:
-			void get_room_info(int64_t clubId);
-			void get_room_info(int64_t clubId, uint32_t gameId);
-			void get_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId);
+			void get_club_room_info(int64_t clubId, ::club::info& info);
+			void get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info);
+			void get_club_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info);
 		private:
 			GameRoomNodes nodes_;
 			mutable boost::shared_mutex mutex_;
@@ -33,8 +36,8 @@ namespace room {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 			WRITE_LOCK(mutex_);
-			RoomNodes& roomNodes = nodes_[stoi(vec[0])];
-			Nodes& nodes = roomNodes[stoi(vec[1])];
+			RoomNodes& roomNodes = nodes_[stoi(_gameid(vec))];
+			Nodes& nodes = roomNodes[stoi(_roomid(vec))];
 			nodes.insert(name);
 		}
 
@@ -42,9 +45,9 @@ namespace room {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 			WRITE_LOCK(mutex_);
-			GameRoomNodes::iterator it = nodes_.find(stoi(vec[0]));
+			GameRoomNodes::iterator it = nodes_.find(stoi(_gameid(vec)));
 			if (it != nodes_.end()) {
-				RoomNodes::iterator ir = it->second.find(stoi(vec[1]));
+				RoomNodes::iterator ir = it->second.find(stoi(_roomid(vec)));
 				if (ir != it->second.end()) {
 					Nodes::iterator ix = ir->second.find(name);
 					if (ix != ir->second.end()) {
@@ -76,7 +79,7 @@ namespace room {
 				}
 			}
 		}
-		
+
 		void RoomList::balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport) {
 			ipport.clear();
 			READ_LOCK(mutex_);
@@ -123,10 +126,12 @@ namespace room {
 				}
 			}
 		}
-		
-		void RoomList::get_room_info(int64_t clubId) {
+
+		void RoomList::get_club_room_info(int64_t clubId, ::club::info& info) {
 			for (GameRoomNodes::const_iterator it = nodes_.begin(); it != nodes_.end(); ++it) {
+				bool new_gameid = true;
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
+					bool new_roomid = true;
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
 						_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, it->first, ir->first, ix->c_str());
 						rpc::ClientConn conn;
@@ -136,17 +141,39 @@ namespace room {
 						req.set_clubid(clubId);
 						::Game::Rpc::RoomInfoRspPtr rsp = client.GetRoomInfo(req);
 						if (rsp) {
-							_LOG_DEBUG("%d --- %s ---\n%s", clubId, ix->c_str(), rsp->DebugString().c_str());
+							//gameid
+							if (new_gameid) {
+								new_gameid = false;
+								info.add_infos()->set_gameid(it->first);
+							}
+							::club::game::info* gameinfo = info.mutable_infos(info.infos_size() - 1);
+							//roomid
+							if (new_roomid) {
+								new_roomid = false;
+								gameinfo->add_infos()->set_roomid(ir->first);
+							}
+							::club::game::room::info* roominfo = gameinfo->mutable_infos(gameinfo->infos_size() - 1);
+							//nodeid
+							::club::game::room::node::info* nodeinfo = roominfo->add_infos();
+							nodeinfo->set_nodeid(*ix);//nodevalue
+							nodeinfo->set_tablecount(rsp->tablecount());//tablecount
+							//tableinfos
+							for (int i = 0; i < rsp->infos_size(); ++i) {
+								::club::game::room::node::table::info* tableinfo = nodeinfo->add_infos();
+								tableinfo->CopyFrom(*rsp->mutable_infos(i));
+							}
+							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
 					}
 				}
 			}
 		}
-		
-		void RoomList::get_room_info(int64_t clubId, uint32_t gameId) {
+
+		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info) {
 			GameRoomNodes::const_iterator it = nodes_.find(gameId);
 			if (it != nodes_.end()) {
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
+					bool new_roomid = true;
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
 						_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, ir->first, ix->c_str());
 						rpc::ClientConn conn;
@@ -156,14 +183,31 @@ namespace room {
 						req.set_clubid(clubId);
 						::Game::Rpc::RoomInfoRspPtr rsp = client.GetRoomInfo(req);
 						if (rsp) {
-							_LOG_DEBUG("%d:%d --- %s ---\n%s", clubId, gameId, ix->c_str(), rsp->DebugString().c_str());
+							//gameid
+							info.set_gameid(gameId);
+							//roomid
+							if (new_roomid) {
+								new_roomid = false;
+								info.add_infos()->set_roomid(ir->first);
+							}
+							::club::game::room::info* roominfo = info.mutable_infos(info.infos_size() - 1);
+							//nodeid
+							::club::game::room::node::info* nodeinfo = roominfo->add_infos();
+							nodeinfo->set_nodeid(*ix);//nodevalue
+							nodeinfo->set_tablecount(rsp->tablecount());//tablecount
+							//tableinfos
+							for (int i = 0; i < rsp->infos_size(); ++i) {
+								::club::game::room::node::table::info* tableinfo = nodeinfo->add_infos();
+								tableinfo->CopyFrom(*rsp->mutable_infos(i));
+							}
+							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
 					}
 				}
 			}
 		}
-		
-		void RoomList::get_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId) {
+
+		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info) {
 			GameRoomNodes::const_iterator it = nodes_.find(gameId);
 			if (it != nodes_.end()) {
 				RoomNodes::const_iterator ir = it->second.find(roomId);
@@ -177,13 +221,24 @@ namespace room {
 						req.set_clubid(clubId);
 						::Game::Rpc::RoomInfoRspPtr rsp = client.GetRoomInfo(req);
 						if (rsp) {
-							_LOG_DEBUG("%d:%d:%d --- %s ---\n%s", clubId, gameId, roomId, ix->c_str(), rsp->DebugString().c_str());
+							//roomid
+							info.set_roomid(roomId);
+							//nodeid
+							::club::game::room::node::info* nodeinfo = info.add_infos();
+							nodeinfo->set_nodeid(*ix);//nodevalue
+							nodeinfo->set_tablecount(rsp->tablecount());//tablecount
+							//tableinfos
+							for (int i = 0; i < rsp->infos_size(); ++i) {
+								::club::game::room::node::table::info* tableinfo = nodeinfo->add_infos();
+								tableinfo->CopyFrom(*rsp->mutable_infos(i));
+							}
+							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
 					}
 				}
 			}
 		}
-		
+
 		void add(GameMode mode, std::string const& name) {
 			game_serv_[mode].add(name);
 		}
@@ -199,17 +254,17 @@ namespace room {
 		void balance_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport) {
 			game_serv_[mode].balance_server(gameId, roomId, ipport);
 		}
-		
-		void get_room_info(GameMode mode, int64_t clubId) {
-			game_serv_[mode].get_room_info(clubId);
+
+		void get_club_room_info(GameMode mode, int64_t clubId, ::club::info& info) {
+			game_serv_[mode].get_club_room_info(clubId, info);
 		}
-		
-		void get_room_info(GameMode mode, int64_t clubId, uint32_t gameId) {
-			game_serv_[mode].get_room_info(clubId, gameId);
+
+		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, ::club::game::info& info) {
+			game_serv_[mode].get_club_room_info(clubId, gameId, info);
 		}
-		
-		void get_room_info(GameMode mode, int64_t clubId, uint32_t gameId, uint32_t roomId) {
-			game_serv_[mode].get_room_info(clubId, gameId, roomId);
+
+		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info) {
+			game_serv_[mode].get_club_room_info(clubId, gameId, roomId, info);
 		}
 	}
 }

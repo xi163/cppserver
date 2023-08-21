@@ -157,6 +157,12 @@
     <ClInclude Include="..\..\..\proto\GameClubServer.Message.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\proto\table.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\user.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -240,6 +246,12 @@
       <Filter>pb</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\proto\GameClubServer.Message.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\table.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\user.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
   </ItemGroup>

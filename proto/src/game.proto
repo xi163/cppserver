@@ -1,0 +1,14 @@
+syntax = "proto3";
+package club.game;
+
+import "room.proto";
+
+// option cc_generic_services = true;
+option java_generic_services = true;
+option py_generic_services = true;
+
+message info
+{
+    int32      gameId                      = 1;    // 游戏Id
+    repeated club.game.room.info infos     = 2;
+}

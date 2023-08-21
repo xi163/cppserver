@@ -1,0 +1,16 @@
+syntax = "proto3";
+package club.game.room.node.table.user;
+
+// option cc_generic_services = true;
+option java_generic_services = true;
+option py_generic_services = true;
+
+message info
+{
+       int64   userId                      = 1;
+       string  nickName                    = 2;
+       int32   chairId                     = 3;
+       int32   headerId                    = 4;
+       int32   headboxId                   = 5;
+       string  headImgUrl                  = 6;
+}

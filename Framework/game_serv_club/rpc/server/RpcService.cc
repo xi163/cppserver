@@ -3,6 +3,8 @@
 #include "TableMgr.h"
 #include "Player.h"
 
+#include "table.pb.h"
+
 #include "../../Game.h"
 
 extern GameServ* gServer;
@@ -23,10 +25,6 @@ namespace rpc {
 			const ::Game::Rpc::RoomInfoRsp* responsePrototype,
 			const muduo::net::RpcDoneCallback& done) {
 			::Game::Rpc::RoomInfoRsp rsp;
-			rsp.set_clubid(req->clubid());
-			rsp.set_gameid(gServer->gameInfo_.gameId);
-			rsp.set_roomid(gServer->roomInfo_.roomId);
-			rsp.set_servid(gServer->nodeValue_);
 			rsp.set_tablecount(gServer->roomInfo_.tableCount - (uint16_t)CTableMgr::get_mutable_instance().UsedCount());
 			//tableInfos
 			std::set<uint32_t> vec;
@@ -34,7 +32,7 @@ namespace rpc {
 			for (std::set<uint32_t>::iterator it = vec.begin(); it != vec.end(); ++it) {
 				std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(*it);
 				if (table) {
-					::Game::Rpc::TableInfo* tableInfo = rsp.add_tableinfos();
+					::club::game::room::node::table::info* tableInfo = rsp.add_infos();
 					tableInfo->set_tableid(table->GetTableId());
 					tableInfo->set_gamestatus(table->GetGameStatus());
 					//userInfos
@@ -42,7 +40,7 @@ namespace rpc {
 					table->GetPlayers(items);
 					for (std::vector<std::shared_ptr<CPlayer>>::iterator it = items.begin(); it != items.end(); ++it) {
 						std::shared_ptr<CPlayer> player = *it;
-						::Game::Rpc::UserInfo* userInfo = tableInfo->add_userinfo();
+						::club::game::room::node::table::user::info* userInfo = tableInfo->add_infos();
 						userInfo->set_userid(player->GetUserId());
 						userInfo->set_nickname(player->GetNickName());
 						userInfo->set_chairid(player->GetChairId());
