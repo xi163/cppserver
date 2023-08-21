@@ -1319,9 +1319,9 @@ void HallServ::GetRoomInfoMessage_club(
 					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), reqdata.roomid(), info);
 					::club::info* clubinfo = rspdata.mutable_info();
 					clubinfo->set_clubid(reqdata.clubid());
-					::club::game::info* gameinfo = clubinfo->add_infos();
+					::club::game::info* gameinfo = clubinfo->add_games();
 					gameinfo->set_gameid(reqdata.gameid());
-					::club::game::room::info* roominfo = gameinfo->add_infos();
+					::club::game::room::info* roominfo = gameinfo->add_rooms();
 					if (info.roomid() > 0) {
 						roominfo->CopyFrom(info);
 					}
@@ -1334,7 +1334,7 @@ void HallServ::GetRoomInfoMessage_club(
 					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), info);
 					::club::info* clubinfo = rspdata.mutable_info();
 					clubinfo->set_clubid(reqdata.clubid());
-					::club::game::info* gameinfo = clubinfo->add_infos();
+					::club::game::info* gameinfo = clubinfo->add_games();
 					if (info.gameid() > 0) {
 						gameinfo->CopyFrom(info);
 					}

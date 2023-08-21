@@ -4,32 +4,11 @@
     <Filter Include="pb">
       <UniqueIdentifier>{dbe7505c-c190-438a-a9be-cbedb94f7eb8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public">
-      <UniqueIdentifier>{130bbfe6-f2a8-41c2-8af9-eb12ffecbbe4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="public\TraceMsg">
-      <UniqueIdentifier>{40b1e615-4f00-4e2b-9fad-9ce611993e07}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="public\zookeeperclient">
-      <UniqueIdentifier>{6b5f973f-5934-4ac3-b8a6-0c4802ed2eba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="public\RedisClient">
-      <UniqueIdentifier>{14a84c59-504d-4fe1-ad65-317e939c8df9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal">
       <UniqueIdentifier>{01b551a3-569e-494c-91a2-493d80b5668b}</UniqueIdentifier>
     </Filter>
     <Filter Include="internal\nodes">
       <UniqueIdentifier>{60b00ba1-8650-44e8-a220-ad8f94ef952d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="public\Database">
-      <UniqueIdentifier>{a6d66faf-e957-4f4e-aabd-881a54f75680}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="public\MongoDB">
-      <UniqueIdentifier>{8fe05a75-e69a-44cc-95c1-5c85fc21a5f7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="public\RedisLock">
-      <UniqueIdentifier>{f8dd37b4-ab3e-401c-ba5f-4fa1e98f4534}</UniqueIdentifier>
     </Filter>
     <Filter Include="handler">
       <UniqueIdentifier>{94a44213-2fdc-4977-9e85-c11b159a60bb}</UniqueIdentifier>
@@ -46,6 +25,27 @@
     <Filter Include="internal\rpc\server">
       <UniqueIdentifier>{079d3f19-9baf-47e1-afdb-c0192239bba3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{e0ca9715-6da2-4d7e-a732-5d5b2046cabe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\TraceMsg">
+      <UniqueIdentifier>{05cfce68-a6f1-4571-9545-0fa3f62308bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\zookeeperclient">
+      <UniqueIdentifier>{e53de879-1a85-42c3-9930-04a37cffec0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\RedisClient">
+      <UniqueIdentifier>{4cae6b08-fca7-4eb2-8968-04dde5f576de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\Database">
+      <UniqueIdentifier>{492809ff-0706-4432-8388-9126293b80e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\MongoDB">
+      <UniqueIdentifier>{91738aba-0af3-41bd-baa3-552210224a2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\RedisLock">
+      <UniqueIdentifier>{5624dc91-93cc-4971-859b-e361735da572}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h">
@@ -54,66 +54,6 @@
     <ClInclude Include="..\..\..\Framework\game_router\Router.h" />
     <ClInclude Include="..\..\..\proto\ProxyServer.Message.pb.h">
       <Filter>pb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\Inc.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\IPFinder.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\Packet.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h">
-      <Filter>public\TraceMsg</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h">
-      <Filter>public\zookeeperclient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h">
-      <Filter>public\zookeeperclient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperlocker.h">
-      <Filter>public\zookeeperclient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h">
-      <Filter>public\zookeeperclient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
-      <Filter>public\RedisClient</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\IncMuduo.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\redisKeys.h">
-      <Filter>public\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\mgoOperation.h">
-      <Filter>public\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\mgoModel.h">
-      <Filter>public\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\mgoKeys.h">
-      <Filter>public\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\gameStruct.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\gameConst.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\errorCode.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\response.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
-      <Filter>public\MongoDB</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
-      <Filter>public\RedisLock</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h">
       <Filter>pb</Filter>
@@ -144,6 +84,66 @@
     <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\errorCode.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\gameConst.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\Inc.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\IncMuduo.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\IPFinder.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\Packet.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\gameStruct.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\response.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_tracemsg\TraceMsg.h">
+      <Filter>public\TraceMsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h">
+      <Filter>public\zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h">
+      <Filter>public\zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperlocker.h">
+      <Filter>public\zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h">
+      <Filter>public\zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
+      <Filter>public\RedisClient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoKeys.h">
+      <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoModel.h">
+      <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\mgoOperation.h">
+      <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\redisKeys.h">
+      <Filter>public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h">
+      <Filter>public\MongoDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
+      <Filter>public\RedisLock</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
@@ -153,51 +153,6 @@
     <ClCompile Include="..\..\..\Framework\game_router\main.cc" />
     <ClCompile Include="..\..\..\proto\ProxyServer.Message.pb.cc">
       <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\IPFinder.cpp">
-      <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\Packet.cc">
-      <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc">
-      <Filter>public\TraceMsg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp">
-      <Filter>public\zookeeperclient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp">
-      <Filter>public\zookeeperclient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp">
-      <Filter>public\zookeeperclient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.cc">
-      <Filter>public\zookeeperclient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
-      <Filter>public\RedisClient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\redisKeys.cc">
-      <Filter>public\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\mgoOperation.cc">
-      <Filter>public\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\mgoModel.cc">
-      <Filter>public\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\mgoKeys.cc">
-      <Filter>public\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\response.cc">
-      <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cc">
-      <Filter>public\MongoDB</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
-      <Filter>public\RedisLock</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
       <Filter>pb</Filter>
@@ -232,6 +187,51 @@
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
     <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc">
       <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\IPFinder.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\Packet.cc">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\response.cc">
+      <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_tracemsg\GetTraceMsg.cc">
+      <Filter>public\TraceMsg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.cc">
+      <Filter>public\zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
+      <Filter>public\RedisClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoKeys.cc">
+      <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoModel.cc">
+      <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\mgoOperation.cc">
+      <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\redisKeys.cc">
+      <Filter>public\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cc">
+      <Filter>public\MongoDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
+      <Filter>public\RedisLock</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

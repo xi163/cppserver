@@ -40,13 +40,13 @@
     <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcClients.h" />
     <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcContainer.h" />
     <ClInclude Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.h" />
+    <ClInclude Include="..\..\..\Framework\game_tracemsg\TraceMsg.h" />
     <ClInclude Include="..\..\..\proto\club.pb.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\game.pb.h" />
     <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h" />
     <ClInclude Include="..\..\..\proto\HallClubServer.Message.pb.h" />
     <ClInclude Include="..\..\..\proto\HallServer.Message.pb.h" />
-    <ClInclude Include="..\..\..\proto\node.pb.h" />
     <ClInclude Include="..\..\..\proto\room.pb.h" />
     <ClInclude Include="..\..\..\proto\table.pb.h" />
     <ClInclude Include="..\..\..\proto\user.pb.h" />
@@ -65,7 +65,6 @@
     <ClInclude Include="..\..\..\public\redisKeys.h" />
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
     <ClInclude Include="..\..\..\public\response.h" />
-    <ClInclude Include="..\..\..\public\TraceMsg\TraceMsg.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />
     <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperlocker.h" />
@@ -78,13 +77,13 @@
     <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcClients.cc" />
     <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcContainer.cc" />
     <ClCompile Include="..\..\..\Framework\game_hall\rpc\client\RpcService_c.cc" />
+    <ClCompile Include="..\..\..\Framework\game_tracemsg\GetTraceMsg.cc" />
     <ClCompile Include="..\..\..\proto\club.pb.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
     <ClCompile Include="..\..\..\proto\game.pb.cc" />
     <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc" />
     <ClCompile Include="..\..\..\proto\HallClubServer.Message.pb.cc" />
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc" />
-    <ClCompile Include="..\..\..\proto\node.pb.cc" />
     <ClCompile Include="..\..\..\proto\room.pb.cc" />
     <ClCompile Include="..\..\..\proto\table.pb.cc" />
     <ClCompile Include="..\..\..\proto\user.pb.cc" />
@@ -98,7 +97,6 @@
     <ClCompile Include="..\..\..\public\redisKeys.cc" />
     <ClCompile Include="..\..\..\public\RedisLock\redlock.cc" />
     <ClCompile Include="..\..\..\public\response.cc" />
-    <ClCompile Include="..\..\..\public\TraceMsg\GetTraceMsg.cc" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp" />
     <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp" />
@@ -162,7 +160,7 @@
       <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver/;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/public/TraceMsg;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/Framework/game_hall;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver/;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/Framework/game_hall;/home/andy/cppserver/Framework;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUDUO_STD_STRING</PreprocessorDefinitions>
       <AdditionalOptions>-pthread</AdditionalOptions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>

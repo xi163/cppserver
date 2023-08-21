@@ -144,23 +144,23 @@ namespace room {
 							//gameid
 							if (new_gameid) {
 								new_gameid = false;
-								info.add_infos()->set_gameid(it->first);
+								info.add_games()->set_gameid(it->first);
 							}
-							::club::game::info* gameinfo = info.mutable_infos(info.infos_size() - 1);
+							::club::game::info* gameinfo = info.mutable_games(info.games_size() - 1);
 							//roomid
 							if (new_roomid) {
 								new_roomid = false;
-								gameinfo->add_infos()->set_roomid(ir->first);
+								gameinfo->add_rooms()->set_roomid(ir->first);
 							}
-							::club::game::room::info* roominfo = gameinfo->mutable_infos(gameinfo->infos_size() - 1);
-							//nodeid
-							::club::game::room::node::info* nodeinfo = roominfo->add_infos();
-							nodeinfo->set_nodeid(*ix);//nodevalue
-							nodeinfo->set_tablecount(rsp->tablecount());//tablecount
+							::club::game::room::info* roominfo = gameinfo->mutable_rooms(gameinfo->rooms_size() - 1);
+							roominfo->set_tablecount(roominfo->tablecount() + rsp->tablecount());//tablecount
 							//tableinfos
-							for (int i = 0; i < rsp->infos_size(); ++i) {
-								::club::game::room::node::table::info* tableinfo = nodeinfo->add_infos();
-								tableinfo->CopyFrom(*rsp->mutable_infos(i));
+							for (int i = 0; i < rsp->tables_size(); ++i) {
+								::club::game::room::table::info* tableinfo = roominfo->add_tables();
+								tableinfo->CopyFrom(*rsp->mutable_tables(i));
+								if (tableinfo->users_size() > 0) {
+									tableinfo->set_nodeid(*ix);//nodevalue
+								}
 							}
 							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
@@ -188,17 +188,17 @@ namespace room {
 							//roomid
 							if (new_roomid) {
 								new_roomid = false;
-								info.add_infos()->set_roomid(ir->first);
+								info.add_rooms()->set_roomid(ir->first);
 							}
-							::club::game::room::info* roominfo = info.mutable_infos(info.infos_size() - 1);
-							//nodeid
-							::club::game::room::node::info* nodeinfo = roominfo->add_infos();
-							nodeinfo->set_nodeid(*ix);//nodevalue
-							nodeinfo->set_tablecount(rsp->tablecount());//tablecount
+							::club::game::room::info* roominfo = info.mutable_rooms(info.rooms_size() - 1);
+							roominfo->set_tablecount(roominfo->tablecount() + rsp->tablecount());//tablecount
 							//tableinfos
-							for (int i = 0; i < rsp->infos_size(); ++i) {
-								::club::game::room::node::table::info* tableinfo = nodeinfo->add_infos();
-								tableinfo->CopyFrom(*rsp->mutable_infos(i));
+							for (int i = 0; i < rsp->tables_size(); ++i) {
+								::club::game::room::table::info* tableinfo = roominfo->add_tables();
+								tableinfo->CopyFrom(*rsp->mutable_tables(i));
+								if (tableinfo->users_size() > 0) {
+									tableinfo->set_nodeid(*ix);//nodevalue
+								}
 							}
 							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
@@ -223,14 +223,14 @@ namespace room {
 						if (rsp) {
 							//roomid
 							info.set_roomid(roomId);
-							//nodeid
-							::club::game::room::node::info* nodeinfo = info.add_infos();
-							nodeinfo->set_nodeid(*ix);//nodevalue
-							nodeinfo->set_tablecount(rsp->tablecount());//tablecount
+							info.set_tablecount(info.tablecount() + rsp->tablecount());//tablecount
 							//tableinfos
 							for (int i = 0; i < rsp->infos_size(); ++i) {
-								::club::game::room::node::table::info* tableinfo = nodeinfo->add_infos();
-								tableinfo->CopyFrom(*rsp->mutable_infos(i));
+								::club::game::room::table::info* tableinfo = info.add_tables();
+								tableinfo->CopyFrom(*rsp->mutable_tables(i));
+								if (tableinfo->users_size() > 0) {
+									tableinfo->set_nodeid(*ix);//nodevalue
+								}
 							}
 							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}

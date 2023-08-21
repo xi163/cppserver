@@ -12,7 +12,6 @@
 #protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/Common.Message.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/user.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/table.proto
-protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/node.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/room.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/game.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/club.proto

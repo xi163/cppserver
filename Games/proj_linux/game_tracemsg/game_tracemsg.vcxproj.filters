@@ -29,9 +29,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\public\TraceMsg\TraceMsg.cc">
-      <Filter>TraceMsg</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\proto\GameServer.Message.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
@@ -43,6 +40,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
       <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_tracemsg\TraceMsg.cc">
+      <Filter>TraceMsg</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -7,7 +7,6 @@
 #include "club.pb.h"
 #include "game.pb.h"
 #include "room.pb.h"
-#include "node.pb.h"
 #include "table.pb.h"
 #include "user.pb.h"
 

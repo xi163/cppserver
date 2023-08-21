@@ -9,6 +9,6 @@ option py_generic_services = true;
 
 message info
 {
-    int64    clubId                      = 1;    // 俱乐部Id
-    repeated club.game.info infos        = 2;    // 有人的桌子 归属当前俱乐部Id
+    int64 clubId                  = 1; // 俱乐部Id
+    repeated club.game.info games = 2; // 有人的桌子 归属当前俱乐部Id
 }

@@ -1,5 +1,5 @@
 syntax = "proto3";
-package club.game.room.node.table.user;
+package club.game.room.table.user;
 
 // option cc_generic_services = true;
 option java_generic_services = true;

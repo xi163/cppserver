@@ -1,5 +1,5 @@
 syntax = "proto3";
-package club.game.room.node.table;
+package club.game.room.table;
 
 import "user.proto";
 
@@ -9,9 +9,10 @@ option py_generic_services = true;
 
 message info
 {
-    int32 tableId                                      = 1;
-	int32 gameStatus                                   = 2;
-    repeated club.game.room.node.table.user.info infos = 3;
-	int64 applyBankerScore                             = 4; // 百人上庄 金币数
-    int64 curBankerUserId                              = 5; // 当前庄家Id   -1:系统庄
+	string nodeId                                 = 1; // 有人的桌子带游戏节点Id
+    int32 tableId                                 = 2;
+	int32 gameStatus                              = 3;
+    repeated club.game.room.table.user.info users = 4;
+	int64 applyBankerScore                        = 5; // 百人上庄 金币数
+    int64 curBankerUserId                         = 6; // 当前庄家Id   -1:系统庄
 }

@@ -14,7 +14,7 @@
 #include "MongoDB/MongoDBClient.h"
 #include "RedisClient/RedisClient.h"
 #include "RedisLock/redlock.h"
-#include "TraceMsg/TraceMsg.h"
+#include "game_tracemsg/TraceMsg.h"
 
 #define CALLBACK_0(__selector__,__target__, ...) std::bind(&__selector__,__target__, ##__VA_ARGS__)
 #define CALLBACK_1(__selector__,__target__, ...) std::bind(&__selector__,__target__, std::placeholders::_1, ##__VA_ARGS__)

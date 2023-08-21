@@ -32,7 +32,7 @@ namespace rpc {
 			for (std::set<uint32_t>::iterator it = vec.begin(); it != vec.end(); ++it) {
 				std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(*it);
 				if (table) {
-					::club::game::room::node::table::info* tableInfo = rsp.add_infos();
+					::club::game::room::table::info* tableInfo = rsp.add_tables();
 					tableInfo->set_tableid(table->GetTableId());
 					tableInfo->set_gamestatus(table->GetGameStatus());
 					//userInfos
@@ -40,7 +40,7 @@ namespace rpc {
 					table->GetPlayers(items);
 					for (std::vector<std::shared_ptr<CPlayer>>::iterator it = items.begin(); it != items.end(); ++it) {
 						std::shared_ptr<CPlayer> player = *it;
-						::club::game::room::node::table::user::info* userInfo = tableInfo->add_infos();
+						::club::game::room::table::user::info* userInfo = tableInfo->add_users();
 						userInfo->set_userid(player->GetUserId());
 						userInfo->set_nickname(player->GetNickName());
 						userInfo->set_chairid(player->GetChairId());
