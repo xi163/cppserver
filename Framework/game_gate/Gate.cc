@@ -84,6 +84,7 @@ GateServ::~GateServ() {
 }
 
 void GateServ::Quit() {
+	gateClients_.closeAll();
 	hallClients_.closeAll();
 	gameClients_.closeAll();
 	gateRpcClients_.closeAll();

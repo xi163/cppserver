@@ -43,6 +43,7 @@ void GameServ::Quit() {
 	// 	for (size_t i = 0; i < logicThread_.size(); ++i) {
 	// 		logicThread_[i]->stop();
 	// 	}
+	threadTimer_->getLoop()->quit();
 	logicThread_->getLoop()->quit();
 	if (zkclient_) {
 		zkclient_->closeServer();
