@@ -959,7 +959,7 @@ void HallServ::cmd_get_game_server_message(
 						document{} << "userid" << int64_t{ pre_header_->userId } << "clubid" << b_int64{ reqdata.clubid() } << finalize, 1) > 0) {
 						if (!reqdata.servid().empty() && reqdata.tableid() >= 0) {
 							std::vector<std::string> vec;
-							boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
+							boost::algorithm::split(vec, reqdata.servid(), boost::is_any_of(":"));
 							if (vec.size() == 6 && room::nodes::validate_server(kClub, reqdata.gameid(), reqdata.roomid(), reqdata.servid(), reqdata.tableid(), reqdata.clubid())) {
 								ipport = reqdata.servid();
 							}
