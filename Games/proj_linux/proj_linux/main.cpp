@@ -1,7 +1,9 @@
 #include "Logger/src/log/Logger.h"
-#include "public/Inc.h"
+//#include "public/Inc.h"
 #include "Logger/src/Macro.h"
 #include "public/gameConst.h"
+#include <google/protobuf/message.h>
+#include "IncMuduo.h"
 
 void testcircular() {
 	boost::circular_buffer<int> cb(3);
@@ -159,17 +161,27 @@ class CPlayer : public IPlayer {
 public:
 	CPlayer() {}
 };
+
+//typedef ::std::shared_ptr<Message> MessagePtr;
+//typedef ::std::function<void(const ::google::protobuf::MessagePtr&)> ClientDoneCallback;
 int main() {
-	std::vector<std::shared_ptr<CPlayer>> items_;
-	std::shared_ptr<IPlayer>  target = items_[0];
-	std::shared_ptr<CPlayer> d = std::dynamic_pointer_cast<CPlayer>(target);
-	int arr[100] = { 0 };
-	for (int i = 0; i < 10; ++i) {
-		for (int k = 0; k < 10; ++k) {
-			_LOG_DEBUG("%d", i * 10 + k);
-		//	arr[(i * k + k] = i*k + k;//(k + 1) * i;
-		}
+	//muduo::net::RpcChannel::ClientDoneCallback done;
+	if (muduo::net::RpcChannel::ClientDoneCallback()) {
+		_LOG_DEBUG(" 有效");
 	}
+	else {
+		_LOG_DEBUG(" 空1");
+	}
+// 	std::vector<std::shared_ptr<CPlayer>> items_;
+// 	std::shared_ptr<IPlayer>  target = items_[0];
+// 	std::shared_ptr<CPlayer> d = std::dynamic_pointer_cast<CPlayer>(target);
+// 	int arr[100] = { 0 };
+// 	for (int i = 0; i < 10; ++i) {
+// 		for (int k = 0; k < 10; ++k) {
+// 			_LOG_DEBUG("%d", i * 10 + k);
+// 		//	arr[(i * k + k] = i*k + k;//(k + 1) * i;
+// 		}
+// 	}
 // 	for (int i = 0; i < 100; ++i) {
 // 	//	_LOG_DEBUG("%d", arr[i]);
 // 	}

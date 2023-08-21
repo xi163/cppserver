@@ -23,6 +23,7 @@ namespace room {
 		public:
 			void random_server(uint32_t gameId, uint32_t roomId, std::string& ipport);
 			void balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport);
+			bool validate_server(uint32_t gameId, uint32_t roomId, std::string const& ipport, uint32_t tableId, int64_t clubId);
 		public:
 			void get_club_room_info(int64_t clubId, ::club::info& info);
 			void get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info);
@@ -97,11 +98,14 @@ namespace room {
 							::Game::Rpc::NodeInfoReq req;
 							::Game::Rpc::NodeInfoRspPtr rsp = client.GetNodeInfo(req);
 							if (rsp) {
-								//_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
+								_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
 								rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));
 							}
+							else {
+								_LOG_ERROR("error");
+							}
 						}
-						int i = RANDOM().betweenInt(0, rooms.size() - 1).randInt_mt();
+						int i = rooms.size() > 0 ? RANDOM().betweenInt(0, rooms.size() - 1).randInt_mt() : 0;
 						int minLoads = 0;
 						for (int k = 0; k < rooms.size(); k++) {
 							_LOG_WARN("[%d] %s numOfLoads:%d", k, rooms[k].first.c_str(), rooms[k].second);
@@ -125,6 +129,28 @@ namespace room {
 					}
 				}
 			}
+		}
+
+		bool RoomList::validate_server(uint32_t gameId, uint32_t roomId, std::string const& ipport, uint32_t tableId, int64_t clubId) {
+			GameRoomNodes::const_iterator it = nodes_.find(gameId);
+			if (it != nodes_.end()) {
+				RoomNodes::const_iterator ir = it->second.find(roomId);
+				if (ir != it->second.end()) {
+					Nodes::const_iterator ix = ir->second.find(ipport);
+					if (ix != ir->second.end()) {
+						rpc::ClientConn conn;
+						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
+						rpc::client::Service client(conn, 3);
+						::Game::Rpc::TableInfoReq req;
+						req.set_tableid(tableId);
+						::Game::Rpc::TableInfoRspPtr rsp = client.GetTableInfo(req);
+						if (rsp) {
+							return rsp->clubid() > 0 && rsp->clubid() == clubId;
+						}
+					}
+				}
+			}
+			return false;
 		}
 
 		void RoomList::get_club_room_info(int64_t clubId, ::club::info& info) {
@@ -254,7 +280,11 @@ namespace room {
 		void balance_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport) {
 			game_serv_[mode].balance_server(gameId, roomId, ipport);
 		}
-
+		
+		bool validate_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string const& ipport, uint32_t tableId, int64_t clubId) {
+			return game_serv_[mode].validate_server(gameId, roomId, ipport, tableId, clubId);
+		}
+		
 		void get_club_room_info(GameMode mode, int64_t clubId, ::club::info& info) {
 			game_serv_[mode].get_club_room_info(clubId, info);
 		}

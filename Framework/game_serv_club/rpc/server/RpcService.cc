@@ -51,7 +51,7 @@ namespace rpc {
 				}
 			}
 			done(&rsp);
-			_LOG_WARN("\nrsp:%s", rsp.DebugString().c_str());
+			//_LOG_WARN("\nrsp:%s", rsp.DebugString().c_str());
 		}
 		void Service::NotifyUserScore(const ::Game::Rpc::UserScoreReqPtr& req,
 			const ::Game::Rpc::UserScoreRsp* responsePrototype,
@@ -67,6 +67,18 @@ namespace rpc {
 			//	//_LOG_ERROR("failed %lld.score: %lld", req->userid(), req->score());
 			//}
 			done(&rsp);
+		}
+		void Service::GetTableInfo(
+			const ::Game::Rpc::TableInfoReqPtr& req,
+			const ::Game::Rpc::TableInfoRsp* responsePrototype,
+			const muduo::net::RpcDoneCallback& done) {
+			::Game::Rpc::TableInfoRsp rsp;
+			std::shared_ptr<CTable> table =  CTableMgr::get_mutable_instance().Get(req->tableid());
+			if (table) {
+				rsp.set_clubid(table->GetClubId());
+			}
+			done(&rsp);
+			//_LOG_WARN("\nrsp:%s", rsp.DebugString().c_str());
 		}
 	}
 }

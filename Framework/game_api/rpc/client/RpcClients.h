@@ -5,6 +5,9 @@
 #include "public/IncMuduo.h"
 
 namespace rpc {
+	namespace client {
+		typedef muduo::net::RpcChannel::ClientDoneCallback Done;
+	}
 	class Connector;
 
 	class TcpClient :
@@ -45,7 +48,7 @@ namespace rpc {
 
 	typedef boost::tuple<std::string,
 		muduo::net::WeakTcpConnectionPtr,
-		muduo::net::RpcChannelPtr> ClientConn;
+		muduo::net::WeakRpcChannelPtr> ClientConn;
 	typedef std::vector<ClientConn> ClientConnList;
 
 	class Connector : muduo::noncopyable {

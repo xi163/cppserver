@@ -760,10 +760,10 @@ void GameServ::cmd_on_user_enter_room(
 			player->SetUserBaseInfo(userInfo);
 			std::shared_ptr<CTable> table;
 			if (reqdata.clubid() > 0) {
-				if (reqdata.tableid() >= 0) {
+				if (reqdata.tableid() >= 0) {//tableId >= 0
 					table = CTableMgr::get_mutable_instance().GetSuit(player, reqdata.clubid(), reqdata.tableid());
 				}
-				else {
+				else {//tableId == -1
 					table = CTableMgr::get_mutable_instance().New(reqdata.clubid());
 				}
 			}

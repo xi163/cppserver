@@ -19,6 +19,10 @@ namespace rpc {
 			virtual void GetRoomInfo(const ::Game::Rpc::RoomInfoReqPtr& req,
 				const ::Game::Rpc::RoomInfoRsp* responsePrototype,
 				const muduo::net::RpcDoneCallback& done);
+
+			virtual void GetTableInfo(const ::Game::Rpc::TableInfoReqPtr& req,
+				const ::Game::Rpc::TableInfoRsp* responsePrototype,
+				const muduo::net::RpcDoneCallback& done);
 		};
 	}
 }

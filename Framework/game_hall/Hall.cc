@@ -918,8 +918,9 @@ void HallServ::cmd_get_game_server_message(
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		rspdata.set_gameid(reqdata.gameid());
 		rspdata.set_roomid(reqdata.roomid());
-		rspdata.set_type(reqdata.type());
 		rspdata.set_clubid(reqdata.clubid());
+		rspdata.set_tableid(reqdata.tableid());
+		rspdata.set_type(reqdata.type());
 		uint32_t gameid = reqdata.gameid();
 		uint32_t roomid = reqdata.roomid();
 		int64_t userId = pre_header_->userId;
@@ -956,10 +957,24 @@ void HallServ::cmd_get_game_server_message(
 						mgoKeys::db::GAMEMAIN,
 						mgoKeys::tbl::GAME_CLUB_MEMBER,
 						document{} << "userid" << int64_t{ pre_header_->userId } << "clubid" << b_int64{ reqdata.clubid() } << finalize, 1) > 0) {
-						room::nodes::balance_server(kClub, gameid, roomid, ipport);
-						if (ipport.empty()) {
-							rspdata.set_retcode(ERROR_ENTERROOM_GAMENOTEXIST);
-							rspdata.set_errormsg("Game Server Not found!!!");
+						if (!reqdata.servid().empty() && reqdata.tableid() >= 0) {
+							std::vector<std::string> vec;
+							boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
+							if (vec.size() == 6 && room::nodes::validate_server(kClub, reqdata.gameid(), reqdata.roomid(), reqdata.servid(), reqdata.tableid(), reqdata.clubid())) {
+								ipport = reqdata.servid();
+							}
+							else {
+								rspdata.set_retcode(1);
+								rspdata.set_errormsg("Get Game Server IP Err: validate");
+							}
+						}
+						else {
+							rspdata.set_tableid(-1);//tableId == -1
+							room::nodes::balance_server(kClub, gameid, roomid, ipport);
+							if (ipport.empty()) {
+								rspdata.set_retcode(5);
+								rspdata.set_errormsg("Game Server Not found!!!");
+							}
 						}
 					}
 					else {

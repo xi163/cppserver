@@ -14,14 +14,18 @@ namespace rpc {
 				const ::Game::Rpc::NodeInfoReq& req);
 			virtual ::Game::Rpc::UserScoreRspPtr NotifyUserScore(
 				const ::Game::Rpc::UserScoreReq& req);
+			virtual ::Game::Rpc::RoomInfoRspPtr GetRoomInfo(
+				const ::Game::Rpc::RoomInfoReq& req);
 		private:
 			void doneNodeInfoRsp(const ::Game::Rpc::NodeInfoRspPtr& rsp);
+			void doneRoomInfoRsp(const ::Game::Rpc::RoomInfoRspPtr& rsp);
 			void doneUserScoreReq(const ::Game::Rpc::UserScoreRspPtr& rsp);
 		private:
 			ClientConn const& conn_;
 			utils::SpinLock lock_;
 		private:
 			::Game::Rpc::NodeInfoRspPtr ptrNodeInfoRsp_;
+			::Game::Rpc::RoomInfoRspPtr ptrRoomInfoRsp_;
 			::Game::Rpc::UserScoreRspPtr ptrUserScoreRsp_;
 		};
 	}

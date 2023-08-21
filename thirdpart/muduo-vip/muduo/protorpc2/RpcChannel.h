@@ -215,6 +215,7 @@ class RpcChannel : noncopyable
   const ServiceMap* services_;
 };
 typedef std::shared_ptr<RpcChannel> RpcChannelPtr; // FIXME: unique_ptr
+typedef std::weak_ptr<RpcChannel> WeakRpcChannelPtr;
 
 }
 }

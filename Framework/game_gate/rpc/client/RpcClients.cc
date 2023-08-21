@@ -62,13 +62,17 @@ namespace rpc {
 		conn->getLoop()->assertInLoopThread();
 
 		if (conn->connected()) {
-			owner_->onConnected(conn, shared_from_this());
 			//channel_.reset(new muduo::net::RpcChannel(conn));
- 			channel_->setConnection(conn);
+			channel_->setConnection(conn);
+			//client_.setMessageCallback(
+			//	std::bind(&muduo::net::RpcChannel::onMessage,
+			//		muduo::get_pointer(channel_),
+			//		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+			owner_->onConnected(conn, shared_from_this());
 		}
 		else {
-			owner_->onClosed(conn, client_.name());
 			//channel_.reset();
+			owner_->onClosed(conn, client_.name());
 		}
 	}
 
@@ -153,25 +157,25 @@ namespace rpc {
 				//client.second = it->second->connection();
 				client = boost::make_tuple<std::string,
 					muduo::net::WeakTcpConnectionPtr,
-					muduo::net::RpcChannelPtr>(it->first, it->second->connection(), it->second->channel());
+					muduo::net::WeakRpcChannelPtr>(it->first, it->second->connection(), it->second->channel());
 			}
 			else {
 #if 0
 				muduo::net::WeakTcpConnectionPtr weakConn;
-				muduo::net::RpcChannelPtr channel;
+				muduo::net::WeakRpcChannelPtr weakChannel;
 				client = boost::make_tuple<std::string,
 					muduo::net::WeakTcpConnectionPtr,
-					muduo::net::RpcChannelPtr>(it->first, weakConn, channel);
+					muduo::net::WeakRpcChannelPtr>(it->first, weakConn, weakChannel);
 #endif
 			}
 		}
 		else {
 #if 0
 			muduo::net::WeakTcpConnectionPtr weakConn;
-			muduo::net::RpcChannelPtr channel;
+			muduo::net::WeakRpcChannelPtr weakChannel;
 			client = boost::make_tuple<std::string,
 				muduo::net::WeakTcpConnectionPtr,
-				muduo::net::RpcChannelPtr>(name, weakConn, channel);
+				muduo::net::WeakRpcChannelPtr>(name, weakConn, weakChannel);
 #endif
 		}
 		bok = true;
@@ -188,15 +192,15 @@ namespace rpc {
 				//clients.emplace_back(ClientConn(it->first, it->second->connection(),it->second->channel()));
 				clients.emplace_back(boost::make_tuple<std::string,
 					muduo::net::WeakTcpConnectionPtr,
-					muduo::net::RpcChannelPtr>(it->first, it->second->connection(), it->second->channel()));
+					muduo::net::WeakRpcChannelPtr>(it->first, it->second->connection(), it->second->channel()));
 			}
 			else {
 #if 0
 				muduo::net::WeakTcpConnectionPtr weakConn;
-				muduo::net::RpcChannelPtr channel;
+				muduo::net::WeakRpcChannelPtr weakChannel;
 				clients.emplace_back(boost::make_tuple<std::string,
 					muduo::net::WeakTcpConnectionPtr,
-					muduo::net::RpcChannelPtr>(it->first, weakConn, channel));
+					muduo::net::WeakRpcChannelPtr>(it->first, weakConn, weakChannel));
 #endif
 			}
 		}
