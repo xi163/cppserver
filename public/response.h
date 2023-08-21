@@ -5,15 +5,6 @@
 #include "public/IncMuduo.h"
 
 namespace response {
-	/*
-	HTTP/1.1 400 Bad Request\r\n\r\n
-	HTTP/1.1 404 Not Found\r\n\r\n
-	HTTP/1.1 405 服务维护中\r\n\r\n
-	HTTP/1.1 500 IP访问限制\r\n\r\n
-	HTTP/1.1 504 权限不够\r\n\r\n
-	HTTP/1.1 505 timeout\r\n\r\n
-	HTTP/1.1 600 访问量限制(1500)\r\n\r\n
-	*/
 	namespace text {
 		void Result(muduo::net::http::IResponse::StatusCode code, std::string const& msg, muduo::net::HttpResponse& rsp);
 	}
