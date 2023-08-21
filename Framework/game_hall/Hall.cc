@@ -1317,15 +1317,41 @@ void HallServ::GetRoomInfoMessage_club(
 				if (reqdata.roomid() > 0) {
 					::club::game::room::info info;
 					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), reqdata.roomid(), info);
+					::club::info* clubinfo = rspdata.mutable_info();
+					clubinfo->set_clubid(reqdata.clubid());
+					::club::game::info* gameinfo = clubinfo->add_infos();
+					gameinfo->set_gameid(reqdata.gameid());
+					::club::game::room::info* roominfo = gameinfo->add_infos();
+					if (info.roomid() > 0) {
+						roominfo->CopyFrom(info);
+					}
+					else {
+						roominfo->set_roomid(reqdata.roomid());
+					}
 				}
 				else {
 					::club::game::info info;
 					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), info);
+					::club::info* clubinfo = rspdata.mutable_info();
+					clubinfo->set_clubid(reqdata.clubid());
+					::club::game::info* gameinfo = clubinfo->add_infos();
+					if (info.gameid() > 0) {
+						gameinfo->CopyFrom(info);
+					}
+					else {
+						gameinfo->set_gameid(reqdata.gameid());
+					}
 				}
 			}
 			else {
 				::club::info info;
 				room::nodes::get_club_room_info(kClub, reqdata.clubid(), info);
+				if (info.clubid() > 0) {
+					rspdata.mutable_info()->CopyFrom(info);
+				}
+				else {
+					rspdata.mutable_info()->set_clubid(reqdata.clubid());
+				}
 			}
 		}
 		send(conn, &rspdata,

@@ -3,7 +3,7 @@ syntax = "proto3";
 package ClubHallServer;
 
 import public "Game.Common.proto";
-
+import public "club.proto";
 
 // 获取俱乐部房间信息
 message GetRoomInfoMessage
@@ -18,38 +18,14 @@ message GetRoomInfoMessage
     int64  curTakeScore                     = 6;    // 梭哈、德州使用当前携带金币
     bool  bAutoSetScore                     = 7;    // 梭哈、德州 设置自动补充金币
 }
-message UserInfo
-{
-       int64   userId                      = 1;
-       string  nickName                    = 2;
-       int32   chairId                     = 3;
-       int32   headerId                    = 4;
-       int32   headboxId                   = 5;
-       string  headImgUrl                  = 6;
-}
-message TableInfo
-{
-    int64      clubId                      = 1;    // 俱乐部Id
-    int32      tableId                     = 2;
-    int32      gameStatus                  = 3;
-    repeated UserInfo   userInfo                    = 4;
-    int64      applyBankerScore            = 5;    // 百人上庄 金币数
-    int64      curBankerUserId             = 6;    // 当前庄家Id   -1:系统庄
-}
 message GetRoomInfoMessageResponse
 {
     Game.Common.Header header              = 1;    // 命令包头.
 
     int32      retCode                     = 2;
     string     errorMsg                    = 3;
-
-    int64      userId                      = 4;
-    int64      clubId                      = 5;    // 俱乐部Id   0-全部俱乐部时
-    int32      gameId                      = 6;    // 游戏Id
-    int32      roomId                      = 7;    // 房间Id
-    int32      tableCount                  = 8;    // 桌子数量  桌子Id [0,tableCount)
-
-    repeated TableInfo  tableInfos                  = 9;    // 有人的桌子
+  
+	club.info info                        = 4;
 }
 
 //获取分配的游戏服务器IP地址相关信息
