@@ -269,7 +269,7 @@ bool GameServ::InitServer() {
 		initTraceMessageID();
 		break;
 	}
-	if (mgo::LoadClubGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo_)) {
+	if (mgo::LoadGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo_)) {
 		return true;
 	}
 	_LOG_ERROR("error");
