@@ -18,8 +18,8 @@ namespace room {
 			void add(std::string const& name);
 			void remove(std::string const& name);
 		public:
-			void random_server(uint32_t gameId, uint32_t roomId, std::string& ipport);
-			void balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport);
+			void random_server(uint32_t gameId, uint32_t roomId, std::string& ipport, GameMode mode);
+			void balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport, GameMode mode);
 			bool validate_server(uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint32_t tableId, int64_t clubId);
 		public:
 			void get_club_room_info(int64_t clubId, ::club::info& info);
@@ -61,7 +61,7 @@ namespace room {
 			}
 		}
 
-		void RoomList::random_server(uint32_t gameId, uint32_t roomId, std::string& ipport) {
+		void RoomList::random_server(uint32_t gameId, uint32_t roomId, std::string& ipport, GameMode mode) {
 			ipport.clear();
 			READ_LOCK(mutex_);
 			GameRoomNodes::const_iterator it = nodes_.find(gameId);
@@ -78,7 +78,7 @@ namespace room {
 			}
 		}
 
-		void RoomList::balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport) {
+		void RoomList::balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport, GameMode mode) {
 			ipport.clear();
 			READ_LOCK(mutex_);
 			GameRoomNodes::const_iterator it = nodes_.find(gameId);
@@ -96,7 +96,17 @@ namespace room {
 							::Game::Rpc::NodeInfoRspPtr rsp = client.GetNodeInfo(req);
 							if (rsp) {
 								//_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
-								rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));
+								switch (mode) {
+								case kGoldCoin:
+								case kFriendRoom:
+									rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));
+									break;
+								case kClub:
+									if (rsp->tablecount() > 0) {
+										rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));
+									}
+									break;
+								}
 							}
 							else {
 								_LOG_ERROR("error");
@@ -202,11 +212,15 @@ namespace room {
 #endif
 								}
 							}
-							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
+							//_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
 					}
 				}
 			}
+			if (info.games_size() > 0) {
+				info.set_clubid(clubId);
+			}
+			_LOG_DEBUG("\n%s", info.DebugString().c_str());
 		}
 
 		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info) {
@@ -224,7 +238,7 @@ namespace room {
 						::Game::Rpc::RoomInfoRspPtr rsp = client.GetRoomInfo(req);
 						if (rsp) {
 							//gameid
-							info.set_gameid(gameId);
+							//info.set_gameid(gameId);
 							//roomid
 							if (new_roomid) {
 								new_roomid = false;
@@ -248,11 +262,15 @@ namespace room {
 #endif
 								}
 							}
-							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
+							//_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
 					}
 				}
 			}
+			if (info.rooms_size() > 0) {
+				info.set_gameid(gameId);
+			}
+			_LOG_DEBUG("\n%s", info.DebugString().c_str());
 		}
 
 		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info) {
@@ -288,11 +306,12 @@ namespace room {
 #endif
 								}
 							}
-							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
+							//_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
 					}
 				}
 			}
+			_LOG_DEBUG("\n%s", info.DebugString().c_str());
 		}
 
 		void add(GameMode mode, std::string const& name) {
@@ -304,17 +323,17 @@ namespace room {
 		}
 
 		void random_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport) {
-			game_serv_[mode].random_server(gameId, roomId, ipport);
+			game_serv_[mode].random_server(gameId, roomId, ipport, mode);
 		}
 
 		void balance_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport) {
-			game_serv_[mode].balance_server(gameId, roomId, ipport);
+			game_serv_[mode].balance_server(gameId, roomId, ipport, mode);
 		}
-		
+
 		bool validate_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint32_t tableId, int64_t clubId) {
 			return game_serv_[mode].validate_server(gameId, roomId, ipport, servId, tableId, clubId);
 		}
-		
+
 		void get_club_room_info(GameMode mode, int64_t clubId, ::club::info& info) {
 			game_serv_[mode].get_club_room_info(clubId, info);
 		}

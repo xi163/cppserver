@@ -98,6 +98,23 @@ std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
 }
 
 /// <summary>
+/// 返回桌子数量
+/// </summary>
+size_t CTableMgr::Count() {
+	return items_.size();
+}
+
+/// <summary>
+/// 返回空闲的桌子数量
+/// </summary>
+size_t CTableMgr::FreeCount() {
+	{
+		READ_LOCK(mutex_);
+		return freeItems_.size();
+	}
+}
+
+/// <summary>
 /// 返回有人的桌子数量
 /// </summary>
 size_t CTableMgr::UsedCount() {

@@ -16,6 +16,7 @@ message NodeInfoRsp {
 	string host = 2;
 	string domain = 3;
 	string NodeValue = 4;
+	uint32 tableCount = 5; //游戏服空闲桌子数
 }
 
 //用户积分

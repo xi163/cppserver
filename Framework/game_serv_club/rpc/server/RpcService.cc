@@ -18,6 +18,7 @@ namespace rpc {
 			::Game::Rpc::NodeInfoRsp rsp;
 			rsp.set_numofloads(gServer->numUsers_.get());
 			rsp.set_nodevalue(gServer->nodeValue_);
+			rsp.set_tablecount(CTableMgr::get_mutable_instance().FreeCount());
 			done(&rsp);
 			//_LOG_WARN("\nrsp:%s", rsp.DebugString().c_str());
 		}

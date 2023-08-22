@@ -29,6 +29,14 @@ public:
 	std::list<std::shared_ptr<CTable>> UsedTables();
 	void Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
 	/// <summary>
+	/// 返回桌子数量
+	/// </summary>
+	size_t Count();
+	/// <summary>
+	/// 返回空闲的桌子数量
+	/// </summary>
+	size_t FreeCount();
+	/// <summary>
 	/// 返回有人的桌子数量
 	/// </summary>
 	size_t UsedCount();
@@ -55,8 +63,8 @@ public:
 protected:
 	ITableContext* tableContext_;
 	std::vector<std::shared_ptr<CTable>> items_;//items_[tableId]
-	std::map<uint32_t, std::shared_ptr<CTable>> usedItems_;
 	std::list<std::shared_ptr<CTable>> freeItems_;
+	std::map<uint32_t, std::shared_ptr<CTable>> usedItems_;
 	mutable boost::shared_mutex mutex_;
 };
 
