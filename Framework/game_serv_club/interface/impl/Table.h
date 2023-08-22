@@ -1,7 +1,6 @@
 #ifndef INCLUDE_TABLE_H
 #define INCLUDE_TABLE_H
 
-#include "public/Inc.h"
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 

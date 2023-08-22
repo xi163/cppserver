@@ -621,29 +621,33 @@ void GameServ::cmd_on_user_enter_room(
 			player->setTrustee(false);
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
-				table->assertThisThread();
-				if (player->isOffline()) {
-					_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
-						table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
-						player->GetChairId(), player->GetUserId());
-				}
-				else {
-					_LOG_WARN("[%s][%d][%s] %d %d 异地登陆进房间",
-						table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
-						player->GetChairId(), player->GetUserId());
-				}
-				if (table->CanJoinTable(player)) {
-					table->OnUserEnterAction(player, pre_header_, header_);
-				}
-				else {
-					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-					DelContext(pre_header_->userId);
-					REDISCLIENT.DelOnlineInfo(pre_header_->userId);
-					SendGameErrorCode(conn,
-						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
-						::GameServer::SUB_S2C_ENTER_ROOM_RES,
-						ERROR_ENTERROOM_GAME_IS_END, "ERROR_ENTERROOM_GAME_IS_END", pre_header_, header_);
-				}
+				RunInLoop(table->GetLoop(), CALLBACK_0([&](BufferPtr buf) {
+					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+					packet::header_t const* header_ = packet::get_header(buf);
+					table->assertThisThread();
+					if (player->isOffline()) {
+						_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
+							table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
+							player->GetChairId(), player->GetUserId());
+					}
+					else {
+						_LOG_WARN("[%s][%d][%s] %d %d 异地登陆进房间",
+							table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
+							player->GetChairId(), player->GetUserId());
+					}
+					if (table->CanJoinTable(player)) {
+						table->OnUserEnterAction(player, pre_header_, header_);
+					}
+					else {
+						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+						DelContext(pre_header_->userId);
+						REDISCLIENT.DelOnlineInfo(pre_header_->userId);
+						SendGameErrorCode(conn,
+							::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
+							::GameServer::SUB_S2C_ENTER_ROOM_RES,
+							ERROR_ENTERROOM_GAME_IS_END, "ERROR_ENTERROOM_GAME_IS_END", pre_header_, header_);
+					}
+				}, buf));
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
@@ -738,22 +742,26 @@ void GameServ::cmd_on_user_enter_room(
 			player->SetUserBaseInfo(userInfo);
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
 			if (table) {
-				table->assertThisThread();
-				if (table->RoomSitChair(player, pre_header_, header_)) {
-				}
-				else {
-					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-					DelContext(pre_header_->userId);
-					REDISCLIENT.DelOnlineInfo(pre_header_->userId);
-					if (table->GetPlayerCount() == 0) {
-						CTableMgr::get_mutable_instance().Delete(table->GetTableId());
+				RunInLoop(table->GetLoop(), CALLBACK_0([&](BufferPtr buf) {
+					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+					packet::header_t const* header_ = packet::get_header(buf);
+					table->assertThisThread();
+					if (table->RoomSitChair(player, pre_header_, header_)) {
 					}
-					SendGameErrorCode(conn,
-						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
-						::GameServer::SUB_S2C_ENTER_ROOM_RES,
-						ERROR_ENTERROOM_TABLE_FULL,
-						"ERROR_ENTERROOM_TABLE_FULL", pre_header_, header_);
-				}
+					else {
+						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+						DelContext(pre_header_->userId);
+						REDISCLIENT.DelOnlineInfo(pre_header_->userId);
+						if (table->GetPlayerCount() == 0) {
+							CTableMgr::get_mutable_instance().Delete(table->GetTableId());
+						}
+						SendGameErrorCode(conn,
+							::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
+							::GameServer::SUB_S2C_ENTER_ROOM_RES,
+							ERROR_ENTERROOM_TABLE_FULL,
+							"ERROR_ENTERROOM_TABLE_FULL", pre_header_, header_);
+					}
+				}, buf));
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;

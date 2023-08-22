@@ -1,4 +1,5 @@
 
+#include "public/gameConst.h"
 #include "Robot.h"
 
 #include "TableMgr.h"

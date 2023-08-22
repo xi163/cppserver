@@ -1,7 +1,6 @@
 #ifndef INCLUDE_TABLEMGR_H
 #define INCLUDE_TABLEMGR_H
 
-#include "public/Inc.h"
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 #include "Packet.h"

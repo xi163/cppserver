@@ -2,8 +2,6 @@
 #define INCLUDE_TABLE_THREAD_H
 
 #include "Logger/src/Macro.h"
-#include "IncMuduo.h"
-
 #include "Packet.h"
 #include "ITableContext.h"
 

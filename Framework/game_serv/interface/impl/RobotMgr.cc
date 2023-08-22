@@ -1,4 +1,4 @@
-
+#include "public/Inc.h"
 #include "RobotMgr.h"
 #include "TableMgr.h"
 #include "Table.h"

@@ -1,5 +1,6 @@
 
 #include "PlayerMgr.h"
+#include "Logger/src/log/Logger.h"
 
 CPlayerMgr::CPlayerMgr() {
 }

@@ -1,6 +1,8 @@
 #ifndef INCLUDE_PACKET_H
 #define INCLUDE_PACKET_H
 
+#include "public/IncMuduo.h"
+
 typedef std::shared_ptr<muduo::net::Buffer> BufferPtr;
 
 #define SESSIONSZ  32

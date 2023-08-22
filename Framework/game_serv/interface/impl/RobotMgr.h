@@ -1,7 +1,7 @@
 #ifndef INCLUDE_ROBOTMGR_H
 #define INCLUDE_ROBOTMGR_H
 
-#include "public/Inc.h"
+#include "public/gameStruct.h"
 #include "Packet.h"
 #include "ITableContext.h"
 #include "Robot.h"

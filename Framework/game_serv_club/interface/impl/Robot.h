@@ -1,7 +1,7 @@
 #ifndef INCLUDE_ROBOT_H
 #define INCLUDE_ROBOT_H
 
-#include "public/Inc.h"
+#include "Logger/src/Macro.h"
 
 #include "Player.h"
 #include "IRobotDelegate.h"

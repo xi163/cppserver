@@ -1,7 +1,7 @@
 #ifndef INCLUDE_PLAYER_H
 #define INCLUDE_PLAYER_H
 
-#include "public/Inc.h" 
+#include "Logger/src/Macro.h"
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 
