@@ -12,7 +12,7 @@ LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, httpserver_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
-	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&LoginServ::threadInit, this), "EventLoopThreadTimer"))
+	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&LoginServ::threadInit, this), "EventLoopThreadTimer"))
 	, server_state_(kRunning)
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
@@ -47,7 +47,7 @@ LoginServ::~LoginServ() {
 }
 
 void LoginServ::Quit() {
-	threadTimer_->getLoop()->quit();
+	thisTimer_->getLoop()->quit();
 	gateRpcClients_.closeAll();
 	for (size_t i = 0; i < threadPool_.size(); ++i) {
 		threadPool_[i]->stop();
@@ -148,7 +148,7 @@ void LoginServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&LoginServ::registerZookeeper, this));
+	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&LoginServ::registerZookeeper, this));
 }
 
 bool LoginServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
@@ -207,7 +207,7 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
 	
-	threadTimer_->startLoop();
+	thisTimer_->startLoop();
 	
 	for (int i = 0; i < numWorkerThreads; ++i) {
 		std::shared_ptr<muduo::ThreadPool> threadPool = std::make_shared<muduo::ThreadPool>("ThreadPool:" + std::to_string(i));
@@ -237,7 +237,7 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	rpcserver_.start(true);
 	httpserver_.start(true);
 	
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&LoginServ::registerZookeeper, this));
+	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&LoginServ::registerZookeeper, this));
 	
 	//sleep(2);
 

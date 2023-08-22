@@ -213,7 +213,7 @@ public:
 	std::hash<std::string> hash_session_;
 	std::vector<Buckets> bucketsPool_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
-	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
+	std::shared_ptr<muduo::net::EventLoopThread> thisTimer_;
 	
 	std::map<std::string, std::set<int64_t>> mapHallUsers_;
 	mutable boost::shared_mutex mutexHallUsers_;

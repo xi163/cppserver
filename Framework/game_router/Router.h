@@ -286,7 +286,7 @@ public:
 	std::hash<std::string> hash_session_;
 	std::vector<Buckets> bucketsPool_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
-	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
+	std::shared_ptr<muduo::net::EventLoopThread> thisTimer_;
 	
 	//管理员挂维护/恢复服务
 	volatile long server_state_;

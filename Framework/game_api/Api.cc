@@ -12,7 +12,7 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, httpserver_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
-	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&ApiServ::threadInit, this), "EventLoopThreadTimer"))
+	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&ApiServ::threadInit, this), "EventLoopThreadTimer"))
 	, idleTimeout_(3)
 	, isdecrypt_(false)
 	, whiteListControl_(eApiCtrl::kClose)
@@ -58,7 +58,7 @@ ApiServ::~ApiServ() {
 
 void ApiServ::Quit() {
 	gateRpcClients_.closeAll();
-	threadTimer_->getLoop()->quit();
+	thisTimer_->getLoop()->quit();
 	for (size_t i = 0; i < threadPool_.size(); ++i) {
 		threadPool_[i]->stop();
 	}
@@ -158,7 +158,7 @@ void ApiServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&ApiServ::registerZookeeper, this));
+	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&ApiServ::registerZookeeper, this));
 }
 
 bool ApiServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
@@ -217,7 +217,7 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
 	
-	threadTimer_->startLoop();
+	thisTimer_->startLoop();
 	
 	for (int i = 0; i < numWorkerThreads; ++i) {
 		std::shared_ptr<muduo::ThreadPool> threadPool = std::make_shared<muduo::ThreadPool>("ThreadPool:" + std::to_string(i));
@@ -247,7 +247,7 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	rpcserver_.start(true);
 	httpserver_.start(true);
 	
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&ApiServ::registerZookeeper, this));
+	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&ApiServ::registerZookeeper, this));
 	
 	//sleep(2);
 
@@ -259,8 +259,8 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		(*it)->setContext(Buckets(*it, idleTimeout_, interval_));
 		(*it)->runAfter(interval_, std::bind(&Buckets::pop, &boost::any_cast<Buckets&>((*it)->getContext())));
 	}
-	threadTimer_->getLoop()->runAfter(3, std::bind(&ApiServ::refreshAgentInfo, this));
-	threadTimer_->getLoop()->runAfter(3, std::bind(&ApiServ::refreshWhiteList, this));
+	thisTimer_->getLoop()->runAfter(3, std::bind(&ApiServ::refreshAgentInfo, this));
+	thisTimer_->getLoop()->runAfter(3, std::bind(&ApiServ::refreshWhiteList, this));
 }
 
 void ApiServ::cmd_on_user_login(

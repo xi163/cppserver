@@ -24,7 +24,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	, idleTimeout_(3)
 	, maxConnections_(15000)
 	, server_state_(kRunning)
-	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&GateServ::threadInit, this), "EventLoopThreadTimer"))
+	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&GateServ::threadInit, this), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
@@ -88,7 +88,7 @@ void GateServ::Quit() {
 	hallClients_.closeAll();
 	gameClients_.closeAll();
 	gateRpcClients_.closeAll();
-	threadTimer_->getLoop()->quit();
+	thisTimer_->getLoop()->quit();
 	for (size_t i = 0; i < threadPool_.size(); ++i) {
 		threadPool_[i]->stop();
 	}
@@ -280,7 +280,7 @@ void GateServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
+	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
 }
 
 bool GateServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
@@ -296,7 +296,7 @@ bool GateServ::InitRedisCluster(std::string const& ipaddr, std::string const& pa
 	//跑马灯通告消息
 	redisClient_->subscribePublishMsg(1, OBJ_CALLBACK_1(this, &GateServ::onMarqueeNotify));
 	//redisClient_->subscribePublishMsg(0, [&](std::string const& msg) {
-	//	threadTimer_->getLoop()->runAfter(10, OBJ_CALLBACK_0(this, &GateServ::onLuckPushNotify, msg));
+	//	thisTimer_->getLoop()->runAfter(10, OBJ_CALLBACK_0(this, &GateServ::onLuckPushNotify, msg));
 	//	});
 	redisClient_->startSubThread();
 	return true;
@@ -354,7 +354,7 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
 	
-	threadTimer_->startLoop();
+	thisTimer_->startLoop();
 	
 	for (int i = 0; i < numWorkerThreads; ++i) {
 		std::shared_ptr<muduo::ThreadPool> threadPool = std::make_shared<muduo::ThreadPool>("ThreadPool:" + std::to_string(i));
@@ -386,7 +386,7 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	rpcserver_.start(true);
 	httpserver_.start(true);
 
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
+	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
 
 	//sleep(2);
 

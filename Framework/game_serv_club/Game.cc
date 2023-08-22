@@ -21,7 +21,8 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 	uint32_t gameId, uint32_t roomId)
 	: server_(loop, listenAddr, "tcpServer")
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
-	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "EventLoopThreadTimer"))
+	, thisThread_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "MainEventLoopThread"))
+	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "EventLoopThreadTimer"))
 	, ipFinder_("qqwry.dat")
 	, gameId_(gameId)
 	, roomId_(roomId) {
@@ -41,7 +42,8 @@ GameServ::~GameServ() {
 
 void GameServ::Quit() {
 	CTableMgr::get_mutable_instance().KickAll();
-	threadTimer_->getLoop()->quit();
+	thisThread_->getLoop()->quit();
+	thisTimer_->getLoop()->quit();
 	CTableThreadMgr::get_mutable_instance().quit();
 	if (zkclient_) {
 		zkclient_->closeServer();
@@ -216,7 +218,7 @@ void GameServ::registerZookeeper() {
 	if (ZNONODE == zkclient_->existsNode(nodePath_)) {
 		zkclient_->createNode(nodePath_, nodeValue_, true);
 	}
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
+	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
 }
 
 bool GameServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
@@ -285,7 +287,8 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::setThreadNum(numThreads);
 	muduo::net::ReactorSingleton::start();
 	
-	threadTimer_->startLoop();
+	thisThread_->startLoop();
+	thisTimer_->startLoop();
 	
 	numWorkerThreads = 2;
 	CTableThreadMgr::get_mutable_instance().setThreadNum(numWorkerThreads);
@@ -301,9 +304,9 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	server_.start(true);
 	rpcserver_.start(true);
 
-	threadTimer_->getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
-	//threadTimer_->getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
-	//threadTimer_->getLoop()->runAfter(30, std::bind(&GameServ::redis_refresh_room_player_nums, this));
+	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
+	//thisTimer_->getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
+	//thisTimer_->getLoop()->runAfter(30, std::bind(&GameServ::redis_refresh_room_player_nums, this));
 
 	CTableThreadMgr::get_mutable_instance().startCheckUserIn();
 }
@@ -331,7 +334,7 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
-		RunInLoop(threadTimer_->getLoop(),
+		RunInLoop(thisThread_->getLoop(),
 			std::bind(
 				&GameServ::asyncOfflineHandler,
 				this, conn->peerAddress().toIpPort()));
@@ -367,7 +370,7 @@ void GameServ::onMessage(
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
 			assert(header->crc == crc);
-			RunInLoop(threadTimer_->getLoop(),
+			RunInLoop(thisThread_->getLoop(),
 				std::bind(
 					&GameServ::asyncLogicHandler,
 					this,
@@ -452,11 +455,11 @@ void GameServ::asyncOfflineHandler(std::string const& ipPort) {
 				if (player) {
 					std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 					if (table) {
-						RunInLoop(table->GetLoop(), CALLBACK_0([&](std::shared_ptr<CPlayer> player) {
+						RunInLoop(table->GetLoop(), CALLBACK_0([=](std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
 							table->assertThisThread();
 							//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
 							table->OnUserOffline(player);
-						}, player));
+						}, table, player));
 					}
 				}
 			}
@@ -627,7 +630,7 @@ void GameServ::cmd_on_user_enter_room(
 			player->setTrustee(false);
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
-				RunInLoop(table->GetLoop(), CALLBACK_0([&](BufferPtr buf) {
+				RunInLoop(table->GetLoop(), CALLBACK_0([=](BufferPtr const& buf, std::shared_ptr<CTable>& table) {
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
 					table->assertThisThread();
@@ -653,7 +656,7 @@ void GameServ::cmd_on_user_enter_room(
 							::GameServer::SUB_S2C_ENTER_ROOM_RES,
 							ERROR_ENTERROOM_GAME_IS_END, "ERROR_ENTERROOM_GAME_IS_END", pre_header_, header_);
 					}
-				}, buf));
+				}, buf, table));
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
@@ -759,7 +762,7 @@ void GameServ::cmd_on_user_enter_room(
 				}
 			}
 			if (table) {
-				RunInLoop(table->GetLoop(), CALLBACK_0([&](BufferPtr buf) {
+				RunInLoop(table->GetLoop(), CALLBACK_0([=](BufferPtr const& buf, std::shared_ptr<CTable>& table) {
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
 					table->assertThisThread();
@@ -778,7 +781,7 @@ void GameServ::cmd_on_user_enter_room(
 							ERROR_ENTERROOM_TABLE_FULL,
 							"ERROR_ENTERROOM_TABLE_FULL", pre_header_, header_);
 					}
-				}, buf));
+				}, buf, table));
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
@@ -809,10 +812,10 @@ void GameServ::cmd_on_user_ready(
 		if (player) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
-				RunInLoop(table->GetLoop(), CALLBACK_0([&](std::shared_ptr<CPlayer> player) {
+				RunInLoop(table->GetLoop(), CALLBACK_0([=](std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
 					table->assertThisThread();
 					table->SetUserReady(player->GetChairId());
-				}, player));
+				}, table, player));
 				rspdata.set_retcode(0);
 				rspdata.set_errormsg("OK");
 			}
@@ -847,27 +850,27 @@ void GameServ::cmd_on_user_left_room(
 		if (player) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
-				RunInLoop(table->GetLoop(), CALLBACK_0([&](BufferPtr buf, std::shared_ptr<CPlayer> player) {
-					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
-					packet::header_t const* header_ = packet::get_header(buf);
-					table->assertThisThread();
-					//KickUser(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
-					if (table->CanLeftTable(pre_header_->userId)) {
-						if (table->OnUserLeft(player, true)) {
-							rspdata.set_retcode(0);
-							rspdata.set_errormsg("OK");
-						}
-						else {
-							rspdata.set_retcode(1);
-							rspdata.set_errormsg("OnUserLeft failed");
-						}
-					}
-					else {
-						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-						rspdata.set_retcode(2);
-						rspdata.set_errormsg("正在游戏中，不能离开");
-					}
-				}, buf, player));
+// 				RunInLoop(table->GetLoop(), CALLBACK_0([=](BufferPtr const& buf, std::shared_ptr<CPlayer>& player) {
+// 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+// 					packet::header_t const* header_ = packet::get_header(buf);
+// 					table->assertThisThread();
+// 					//KickUser(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
+// 					if (table->CanLeftTable(pre_header_->userId)) {
+// 						if (table->OnUserLeft(player, true)) {
+// 							rspdata.set_retcode(0);
+// 							rspdata.set_errormsg("OK");
+// 						}
+// 						else {
+// 							rspdata.set_retcode(1);
+// 							rspdata.set_errormsg("OnUserLeft failed");
+// 						}
+// 					}
+// 					else {
+// 						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+// 						rspdata.set_retcode(2);
+// 						rspdata.set_errormsg("正在游戏中，不能离开");
+// 					}
+// 				}, buf, player));
 			}
 			else {
 				rspdata.set_retcode(3);
@@ -902,10 +905,10 @@ void GameServ::cmd_on_user_offline(
 		}
 		std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 		if (table) {
-			RunInLoop(table->GetLoop(), CALLBACK_0([&](std::shared_ptr<CPlayer> player) {
+			RunInLoop(table->GetLoop(), CALLBACK_0([=](std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
 				table->assertThisThread();
 				table->OnUserOffline(player);
-			}, player));
+			}, table, player));
 		}
 		else {
 		}
@@ -926,12 +929,12 @@ void GameServ::cmd_on_game_message(
 		if (player) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
-				RunInLoop(table->GetLoop(), CALLBACK_0([&](BufferPtr buf, std::shared_ptr<CPlayer> player) {
+				RunInLoop(table->GetLoop(), CALLBACK_0([=](BufferPtr const& buf, std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
 					table->assertThisThread();
 					table->OnGameEvent(player->GetChairId(), header_->subId, data, len);
-				}, buf, player));
+				}, buf, table, player));
 			}
 		}
 	}
@@ -971,25 +974,26 @@ void GameServ::KickUser(int64_t userId, int32_t kickType) {
 #else
 	std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 	if (table) {
-		RunInLoop(table->GetLoop(), CALLBACK_0([&](std::shared_ptr<CPlayer> player) {
+		RunInLoop(table->GetLoop(), CALLBACK_0([=](std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
 			table->assertThisThread();
 			//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
 			table->OnUserOffline(player);
-		}, player));
+		}, table, player));
 	}
 #endif
 }
 
 TableContext GameServ::GetContext(int64_t userId) {
+	_LOG_ERROR("%d", userId);
 	TableContext ctx;
-	bool bok = false;
-	RunInLoop(threadTimer_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::GetContextInLoop, userId, std::ref(ctx), std::ref(bok)));
-	while (!bok);
+	bool ok = false;
+	RunInLoop(thisThread_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::GetContextInLoop, userId, std::ref(ctx), std::ref(ok)));
+	while (!ok);
 	return ctx;
 }
 
-void GameServ::GetContextInLoop(int64_t userId, TableContext& context, bool& bok) {
-	threadTimer_->getLoop()->assertInLoopThread();
+void GameServ::GetContextInLoop(int64_t userId, TableContext& context, bool& ok) {
+	thisThread_->getLoop()->assertInLoopThread();
 	std::string ipPort;
 	std::shared_ptr<gate_t> gate;
 	std::shared_ptr<packet::internal_prev_header_t> pre_header;
@@ -1016,21 +1020,22 @@ void GameServ::GetContextInLoop(int64_t userId, TableContext& context, bool& bok
 	}
 	//context = TableContext(weakConn, pre_header, header);
 	context = boost::make_tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>>(weakConn, pre_header, header);
+	ok = true;
 }
 
 void GameServ::AddContext(
 	const muduo::net::TcpConnectionPtr& conn,
 	packet::internal_prev_header_t const* pre_header_,
 	packet::header_t const* header_) {
-	RunInLoop(threadTimer_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::AddContextInLoop, conn, pre_header_, header_));
+	_LOG_ERROR("%d", pre_header_->userId);
+	RunInLoop(thisThread_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::AddContextInLoop, conn, pre_header_, header_));
 }
 
 void GameServ::AddContextInLoop(
 	const muduo::net::TcpConnectionPtr& conn,
 	packet::internal_prev_header_t const* pre_header_,
 	packet::header_t const* header_) {
-	threadTimer_->getLoop()->assertInLoopThread();
-	_LOG_ERROR("%d", pre_header_->userId);
+	thisThread_->getLoop()->assertInLoopThread();
 	{
 		//WRITE_LOCK(mutexUserGates_);
 		std::map<int64_t, std::shared_ptr<gate_t>>::iterator it = mapUserGates_.find(pre_header_->userId);
@@ -1085,12 +1090,12 @@ void GameServ::AddContextInLoop(
 }
 
 void GameServ::DelContext(int64_t userId) {
-	RunInLoop(threadTimer_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::DelContextInLoop, userId));
+	_LOG_ERROR("%d", userId);
+	RunInLoop(thisThread_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::DelContextInLoop, userId));
 }
 
 void GameServ::DelContextInLoop(int64_t userId) {
-	threadTimer_->getLoop()->assertInLoopThread();
-	_LOG_ERROR("%d", userId);
+	thisThread_->getLoop()->assertInLoopThread();
 	std::string ipPort;
 	{
 		//READ_LOCK(mutexUserGates_);

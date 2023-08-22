@@ -341,7 +341,7 @@ public:
 	muduo::AtomicInt32 numConnected_;
 	std::hash<std::string> hash_session_;
 	std::vector<std::shared_ptr<muduo::ThreadPool>> threadPool_;
-	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
+	std::shared_ptr<muduo::net::EventLoopThread> thisTimer_;
 	rpc::Connector gameRpcClients_;
 	rpc::Container rpcClients_[rpc::kMaxRpcTy];
 	CIpFinder ipFinder_;

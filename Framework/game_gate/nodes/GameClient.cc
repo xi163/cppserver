@@ -20,7 +20,7 @@ void GateServ::onGameConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
-		RunInLoop(threadTimer_->getLoop(),
+		RunInLoop(thisTimer_->getLoop(),
 			std::bind(
 				&GateServ::asyncGameOfflineHandler,
 				this, conn->peerAddress().toIpPort()));
