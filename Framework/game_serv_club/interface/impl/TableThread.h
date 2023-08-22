@@ -12,7 +12,7 @@ public:
 	CTableThread(muduo::net::EventLoop* loop, ITableContext* tableContext);
 	virtual ~CTableThread();
 public:
-	void add(uint32_t tableId);
+	void append(uint32_t tableId);
 	void startCheckUserIn();
 private:
 	bool enable();

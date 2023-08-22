@@ -16,7 +16,7 @@ CTableThread::CTableThread(muduo::net::EventLoop* loop, ITableContext* tableCont
 CTableThread::~CTableThread() {
 }
 
-void CTableThread::add(uint32_t tableId) {
+void CTableThread::append(uint32_t tableId) {
 	tableId_.emplace_back(tableId);
 }
 

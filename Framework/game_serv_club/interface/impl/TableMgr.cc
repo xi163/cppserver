@@ -1,4 +1,4 @@
- #include "ITableDelegate.h"
+#include "ITableDelegate.h"
 #include "TableMgr.h"
 #include "Table.h"
 #include "Player.h"
@@ -50,6 +50,7 @@ void CTableMgr::Init(ITableContext* tableContext) {
 	tableContext_ = tableContext;
 	CTable::ReadStorageScore(tableContext->GetRoomInfo());
 	for (uint32_t i = 0; i < tableContext->GetRoomInfo()->tableCount; ++i) {
+		//桌子逻辑线程
 		muduo::net::EventLoop* loop = CTableThreadMgr::get_mutable_instance().getNextLoop();
 		//创建子游戏桌子代理
 		std::shared_ptr<ITableDelegate> tableDelegate = creator();
@@ -66,7 +67,8 @@ void CTableMgr::Init(ITableContext* tableContext) {
 		table->Init(tableDelegate, state, tableContext->GetRoomInfo());
 		items_.emplace_back(table);
 		freeItems_.emplace_back(table);
-		boost::any_cast<LogicThreadPtr>(loop->getContext())->add(state.tableId);
+		//添加到桌子线程管理
+		boost::any_cast<LogicThreadPtr>(loop->getContext())->append(state.tableId);
 		//_LOG_DEBUG("%d:%s %d:%s tableId:%d stock:%ld",
 		//	tableContext->GetGameInfo()->gameId,
 		//	tableContext->GetGameInfo()->gameName.c_str(),
