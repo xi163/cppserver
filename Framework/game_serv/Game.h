@@ -149,6 +149,8 @@ public:
 	muduo::AtomicInt32 numUsers_;
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 	
+	muduo::net::EventLoop* tableThread_;
+	
 	std::map<std::string, muduo::net::WeakTcpConnectionPtr> mapGateConns_;
 	mutable boost::shared_mutex mutexGateConns_;
 	

@@ -292,7 +292,8 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	CTableThreadMgr::get_mutable_instance().start(std::bind(&GameServ::threadInit, this), this);
 	CTableMgr::get_mutable_instance().Init(this);
 	CRobotMgr::get_mutable_instance().Init(this);
-	
+	tableThread_ = CTableThreadMgr::get_mutable_instance().getNextLoop();
+
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
 
@@ -331,7 +332,7 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
-		RunInLoop(CTableThreadMgr::get_mutable_instance().getNextLoop(),
+		RunInLoop(tableThread_,
 			std::bind(
 				&GameServ::asyncOfflineHandler,
 				this, conn->peerAddress().toIpPort()));
@@ -367,7 +368,7 @@ void GameServ::onMessage(
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
 			assert(header->crc == crc);
-			RunInLoop(CTableThreadMgr::get_mutable_instance().getNextLoop(),
+			RunInLoop(tableThread_,
 				std::bind(
 					&GameServ::asyncLogicHandler,
 					this,
