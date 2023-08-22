@@ -1,7 +1,7 @@
 #include "RpcService.h"
 
-#include "TableMgr.h"
-#include "Player.h"
+#include "../../interface/impl/TableMgr.h"
+#include "../../interface/impl/Player.h"
 
 #include "table.pb.h"
 

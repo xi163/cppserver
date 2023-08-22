@@ -1,5 +1,7 @@
 #include "RpcService.h"
 
+#include "../../interface/impl/TableMgr.h"
+
 #include "../../Game.h"
 
 extern GameServ* gServer;

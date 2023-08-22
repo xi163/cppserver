@@ -41,6 +41,9 @@ void CRobotMgr::Init(ITableContext* tableContext) {
 	if (!tableContext->GetGameInfo() || !tableContext->GetRoomInfo()) {
 		return;
 	}
+	if (!tableContext->GetRoomInfo()->bEnableAndroid) {
+		return;
+	}
 	RobotDelegateCreator creator = LoadLibrary(tableContext->GetGameInfo()->serviceName);
 	if (!creator) {
 		exit(0);
