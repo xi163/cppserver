@@ -101,10 +101,10 @@ bool CTable::send(
     uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
-            TableContext tuple = tableContext_->GetContext(player->GetUserId());
-            muduo::net::WeakTcpConnectionPtr weakConn = tuple.get<0>();
-            std::shared_ptr<packet::internal_prev_header_t> pre_header = tuple.get<1>();
-            std::shared_ptr<packet::header_t> header = tuple.get<2>();
+            TableContext ctx = tableContext_->GetContext(player->GetUserId());
+            muduo::net::WeakTcpConnectionPtr weakConn = ctx.get<0>();
+            std::shared_ptr<packet::internal_prev_header_t> pre_header = ctx.get<1>();
+            std::shared_ptr<packet::header_t> header = ctx.get<2>();
             muduo::net::TcpConnectionPtr conn(weakConn.lock());
             if (conn) {
                 switch (v) {
@@ -135,10 +135,10 @@ bool CTable::send(
     uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
-            TableContext tuple = tableContext_->GetContext(player->GetUserId());
-            muduo::net::WeakTcpConnectionPtr weakConn = tuple.get<0>();
-            std::shared_ptr<packet::internal_prev_header_t> pre_header = tuple.get<1>();
-            std::shared_ptr<packet::header_t> header = tuple.get<2>();
+            TableContext ctx = tableContext_->GetContext(player->GetUserId());
+            muduo::net::WeakTcpConnectionPtr weakConn = ctx.get<0>();
+            std::shared_ptr<packet::internal_prev_header_t> pre_header = ctx.get<1>();
+            std::shared_ptr<packet::header_t> header = ctx.get<2>();
             muduo::net::TcpConnectionPtr conn(weakConn.lock());
             if (conn) {
                 switch (v) {
@@ -170,10 +170,10 @@ bool CTable::send(
     uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
-            TableContext tuple = tableContext_->GetContext(player->GetUserId());
-            muduo::net::WeakTcpConnectionPtr weakConn = tuple.get<0>();
-            std::shared_ptr<packet::internal_prev_header_t> pre_header = tuple.get<1>();
-            std::shared_ptr<packet::header_t> header = tuple.get<2>();
+            TableContext ctx = tableContext_->GetContext(player->GetUserId());
+            muduo::net::WeakTcpConnectionPtr weakConn = ctx.get<0>();
+            std::shared_ptr<packet::internal_prev_header_t> pre_header = ctx.get<1>();
+            std::shared_ptr<packet::header_t> header = ctx.get<2>();
             muduo::net::TcpConnectionPtr conn(weakConn.lock());
             if (conn) {
                 switch (v) {
@@ -205,10 +205,10 @@ bool CTable::send(
     uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
-            TableContext tuple = tableContext_->GetContext(player->GetUserId());
-            muduo::net::WeakTcpConnectionPtr weakConn = tuple.get<0>();
-            std::shared_ptr<packet::internal_prev_header_t> pre_header = tuple.get<1>();
-            std::shared_ptr<packet::header_t> header = tuple.get<2>();
+            TableContext ctx = tableContext_->GetContext(player->GetUserId());
+            muduo::net::WeakTcpConnectionPtr weakConn = ctx.get<0>();
+            std::shared_ptr<packet::internal_prev_header_t> pre_header = ctx.get<1>();
+            std::shared_ptr<packet::header_t> header = ctx.get<2>();
             muduo::net::TcpConnectionPtr conn(weakConn.lock());
             if (conn) {
                 switch (v) {
