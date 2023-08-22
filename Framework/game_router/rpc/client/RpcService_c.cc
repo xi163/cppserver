@@ -39,16 +39,16 @@ namespace rpc {
 			//if (!conn_.get<1>().expired()) {
 				
 				//lock()线程安全
-				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
-				if (c) {
-					muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
-					if (channel) {
-						channel->setConnection(c);
-						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
-						//stub.channel()->connection()->conn->shutdown();
-						//stub.channel()->connection()->conn->forceClose();
-					}
-				}
+// 				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+// 				if (c) {
+// 					muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
+// 					if (channel) {
+// 						channel->setConnection(c);
+// 						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
+// 						//stub.channel()->connection()->conn->shutdown();
+// 						//stub.channel()->connection()->conn->forceClose();
+// 					}
+// 				}
 			//}
 		}
 
@@ -84,16 +84,16 @@ namespace rpc {
 			//if (!conn_.get<1>().expired()) {
 				
 				//lock()线程安全
-				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
-				if (c) {
-					muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
-					if (channel) {
-						channel->setConnection(c);
-						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
-						//stub.channel()->connection()->conn->shutdown();
-						//stub.channel()->connection()->conn->forceClose();
-					}
-				}
+// 				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+// 				if (c) {
+// 					muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
+// 					if (channel) {
+// 						channel->setConnection(c);
+// 						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
+// 						//stub.channel()->connection()->conn->shutdown();
+// 						//stub.channel()->connection()->conn->forceClose();
+// 					}
+// 				}
 			//}
 		}
 		
@@ -128,16 +128,16 @@ namespace rpc {
 			//if (!conn_.get<1>().expired()) {
 				
 			//lock()线程安全
-				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
-				if (c) {
-					muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
-					if (channel) {
-						channel->setConnection(c);
-						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
-						//stub.channel()->connection()->conn->shutdown();
-						//stub.channel()->connection()->conn->forceClose();
-					}
-				}
+// 				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+// 				if (c) {
+// 					muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
+// 					if (channel) {
+// 						channel->setConnection(c);
+// 						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
+// 						//stub.channel()->connection()->conn->shutdown();
+// 						//stub.channel()->connection()->conn->forceClose();
+// 					}
+// 				}
 			//}
 		}
 
@@ -148,16 +148,16 @@ namespace rpc {
 			//if (!conn_.get<1>().expired()) {
 
 				//lock()线程安全
-			muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
-			if (c) {
-				muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
-				if (channel) {
-					channel->setConnection(c);
-					::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
-					stub.GetTableInfo(req, std::bind(&Service::doneTableInfoRsp, this, std::placeholders::_1));
-					lock_.wait();
+				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+				if (c) {
+					muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
+					if (channel) {
+						channel->setConnection(c);
+						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
+						stub.GetTableInfo(req, std::bind(&Service::doneTableInfoRsp, this, std::placeholders::_1));
+						lock_.wait();
+					}
 				}
-			}
 			//}
 			return ptrTableInfoRsp_;
 		}
@@ -171,17 +171,17 @@ namespace rpc {
 			//expired()非线程安全
 			//if (!conn_.get<1>().expired()) {
 
-			//lock()线程安全
-			muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
-			if (c) {
-				muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
-				if (channel) {
-					channel->setConnection(c);
-					::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
-					//stub.channel()->connection()->conn->shutdown();
-					//stub.channel()->connection()->conn->forceClose();
-				}
-			}
+				//lock()线程安全
+// 				muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+// 				if (c) {
+// 					muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
+// 					if (channel) {
+// 						channel->setConnection(c);
+// 						::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
+// 						//stub.channel()->connection()->conn->shutdown();
+// 						//stub.channel()->connection()->conn->forceClose();
+// 					}
+// 				}
 			//}
 		}
 	}

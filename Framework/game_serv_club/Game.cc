@@ -63,7 +63,7 @@ void GameServ::registerHandlers() {
 		= std::bind(&GameServ::cmd_keep_alive_ping, this,
 			std::placeholders::_1, std::placeholders::_2);
 	handlers_[packet::enword(
-		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER_CLUB,
+		::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 		::GameServer::SUBID::SUB_C2S_ENTER_ROOM_REQ)]
 		= std::bind(&GameServ::cmd_on_user_enter_room, this,
 			std::placeholders::_1, std::placeholders::_2);
@@ -761,10 +761,13 @@ void GameServ::cmd_on_user_enter_room(
 			player->SetUserBaseInfo(userInfo);
 			std::shared_ptr<CTable> table;
 			if (reqdata.clubid() > 0) {
-				if (reqdata.tableid() >= 0) {//tableId >= 0
+				if (!reqdata.servid().empty() &&
+					strncmp(
+						reqdata.servid().c_str(), nodeValue_.c_str(),
+						std::min(reqdata.servid().size(), nodeValue_.size())) == 0 && reqdata.tableid() >= 0) {
 					table = CTableMgr::get_mutable_instance().GetSuit(player, reqdata.clubid(), reqdata.tableid());
 				}
-				else {//tableId == -1
+				else {
 					table = CTableMgr::get_mutable_instance().New(reqdata.clubid());
 				}
 			}

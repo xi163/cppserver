@@ -911,11 +911,12 @@ void HallServ::cmd_get_game_server_message(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::HallServer::GetGameServerMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
+		rspdata.set_type(reqdata.type());
 		rspdata.set_gameid(reqdata.gameid());
 		rspdata.set_roomid(reqdata.roomid());
 		rspdata.set_clubid(reqdata.clubid());
 		rspdata.set_tableid(reqdata.tableid());
-		rspdata.set_type(reqdata.type());
+		rspdata.set_servid(reqdata.servid());
 		uint32_t gameid = reqdata.gameid();
 		uint32_t roomid = reqdata.roomid();
 		int64_t userId = pre_header_->userId;
@@ -961,7 +962,6 @@ void HallServ::cmd_get_game_server_message(
 							}
 						}
 						else {
-							rspdata.set_tableid(-1);//tableId == -1
 							room::nodes::balance_server(kClub, gameid, roomid, ipport);
 							if (ipport.empty()) {
 								rspdata.set_retcode(5);

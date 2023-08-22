@@ -160,17 +160,9 @@ message GetGameServerMessage
 	 int32                  type                    = 2; // 0-金币场 1-好友房 2-俱乐部
      uint32                 gameId                  = 3; // 游戏ID
      uint32                 roomId                  = 4; // 房间类型 初 中 高 房间
-	 string                 servId                  = 5;
+	 int64					clubId                  = 5;
 	 uint32                 tableId                 = 6;
-	 int64					clubId                  = 7;
-}
-
-message GetMatchServerMessage
-{
-     Game.Common.Header     header                  = 1;
-
-     uint32                 gameId                  = 2; // 游戏ID
-     uint32                 roomId                  = 3; // 房间类型 初 中 高 房间
+	 string                 servId                  = 7;
 }
 
 message GetGameServerMessageResponse
@@ -182,8 +174,9 @@ message GetGameServerMessageResponse
 	 uint32                 gameId                  = 4; // 游戏编号
      uint32                 roomId                  = 5; // 房间编号
 	 int64                  clubId                  = 6; // 俱乐部Id 金币场 好友房:0
-	 int32                  tableId                 = 7;
-	 int32                  type                    = 8; // 0-金币场 1-好友房 2-俱乐部
+	 uint32                 tableId                 = 7;
+	 string                 servId                  = 8;
+	 int32                  type                    = 9; // 0-金币场 1-好友房 2-俱乐部
 }
 
 
