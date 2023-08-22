@@ -162,16 +162,25 @@ public:
 	CPlayer() {}
 };
 
+void foo(int i) {
+}
 //typedef ::std::shared_ptr<Message> MessagePtr;
 //typedef ::std::function<void(const ::google::protobuf::MessagePtr&)> ClientDoneCallback;
 int main() {
 	//muduo::net::RpcChannel::ClientDoneCallback done;
+	
 	if (muduo::net::RpcChannel::ClientDoneCallback()) {
 		_LOG_DEBUG(" 有效");
 	}
 	else {
 		_LOG_DEBUG(" 空1");
 	}
+	void (*fn)(int) = foo;
+
+	typedef std::function<void(int)> f;
+	f fx;
+	fx = CALLBACK_0(fn, 1);
+	//fn1(8);
 // 	std::vector<std::shared_ptr<CPlayer>> items_;
 // 	std::shared_ptr<IPlayer>  target = items_[0];
 // 	std::shared_ptr<CPlayer> d = std::dynamic_pointer_cast<CPlayer>(target);

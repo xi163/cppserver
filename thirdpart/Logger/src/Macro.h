@@ -120,6 +120,20 @@ typedef std::chrono::system_clock::time_point time_point;
 #define read_lock(mutex) std::shared_lock<std::shared_mutex> guard(mutex)
 #define write_lock(mutex) std::unique_lock<std::shared_mutex> guard(mutex)
 
+#define CALLBACK_0(cb, ...) std::bind(cb, ##__VA_ARGS__)
+#define CALLBACK_1(cb, ...) std::bind(cb, std::placeholders::_1, ##__VA_ARGS__)
+#define CALLBACK_2(cb, ...) std::bind(cb, std::placeholders::_1, std::placeholders::_2, ##__VA_ARGS__)
+#define CALLBACK_3(cb, ...) std::bind(cb, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##__VA_ARGS__)
+#define CALLBACK_4(cb, ...) std::bind(cb, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, ##__VA_ARGS__)
+#define CALLBACK_5(cb, ...) std::bind(cb, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, ##__VA_ARGS__)
+
+#define OBJ_CALLBACK_0(obj, cb, ...) std::bind(cb, obj, ##__VA_ARGS__)
+#define OBJ_CALLBACK_1(obj, cb, ...) std::bind(cb, obj, std::placeholders::_1, ##__VA_ARGS__)
+#define OBJ_CALLBACK_2(obj, cb, ...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, ##__VA_ARGS__)
+#define OBJ_CALLBACK_3(obj, cb, ...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##__VA_ARGS__)
+#define OBJ_CALLBACK_4(obj, cb, ...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, ##__VA_ARGS__)
+#define OBJ_CALLBACK_5(obj, cb, ...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, ##__VA_ARGS__)
+
 #elif defined(_linux_)
 
 #include <unistd.h> //ssize_t
@@ -155,6 +169,20 @@ typedef std::chrono::system_clock::time_point time_point;
 
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
+
+#define CALLBACK_0(cb, args...) std::bind(cb, ##args)
+#define CALLBACK_1(cb, args...) std::bind(cb, std::placeholders::_1, ##args)
+#define CALLBACK_2(cb, args...) std::bind(cb, std::placeholders::_1, std::placeholders::_2, ##args)
+#define CALLBACK_3(cb, args...) std::bind(cb, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##args)
+#define CALLBACK_4(cb, args...) std::bind(cb, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, ##args)
+#define CALLBACK_5(cb, args...) std::bind(cb, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, ##args)
+
+#define OBJ_CALLBACK_0(obj, cb, args...) std::bind(cb, obj, ##args)
+#define OBJ_CALLBACK_1(obj, cb, args...) std::bind(cb, obj, std::placeholders::_1, ##args)
+#define OBJ_CALLBACK_2(obj, cb, args...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, ##args)
+#define OBJ_CALLBACK_3(obj, cb, args...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##args)
+#define OBJ_CALLBACK_4(obj, cb, args...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, ##args)
+#define OBJ_CALLBACK_5(obj, cb, args...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, ##args)
 
 #endif
 

@@ -54,6 +54,8 @@ using bsoncxx::types::b_binary;
 using bsoncxx::types::b_array;
 using bsoncxx::types::b_timestamp;
 
+#define MONGODBCLIENT MongoDBClient::ThreadLocalSingleton::instance()
+
 namespace MongoDBClient {
 
 	//@@ ThreadLocalSingleton 线程局部使用

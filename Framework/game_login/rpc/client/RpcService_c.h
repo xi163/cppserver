@@ -16,9 +16,12 @@ namespace rpc {
 				const ::Game::Rpc::UserScoreReq& req);
 			virtual ::Game::Rpc::RoomInfoRspPtr GetRoomInfo(
 				const ::Game::Rpc::RoomInfoReq& req);
+			virtual ::Game::Rpc::TableInfoRspPtr GetTableInfo(
+				const ::Game::Rpc::TableInfoReq& req);
 		private:
 			void doneNodeInfoRsp(const ::Game::Rpc::NodeInfoRspPtr& rsp);
 			void doneRoomInfoRsp(const ::Game::Rpc::RoomInfoRspPtr& rsp);
+			void doneTableInfoRsp(const ::Game::Rpc::TableInfoRspPtr& rsp);
 			void doneUserScoreReq(const ::Game::Rpc::UserScoreRspPtr& rsp);
 		private:
 			ClientConn const& conn_;
@@ -26,6 +29,7 @@ namespace rpc {
 		private:
 			::Game::Rpc::NodeInfoRspPtr ptrNodeInfoRsp_;
 			::Game::Rpc::RoomInfoRspPtr ptrRoomInfoRsp_;
+			::Game::Rpc::TableInfoRspPtr ptrTableInfoRsp_;
 			::Game::Rpc::UserScoreRspPtr ptrUserScoreRsp_;
 		};
 	}

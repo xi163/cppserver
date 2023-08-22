@@ -294,9 +294,9 @@ bool GateServ::InitRedisCluster(std::string const& ipaddr, std::string const& pa
 	//跨网关顶号处理(异地登陆)
 	redisClient_->subscribeUserLoginMessage(std::bind(&GateServ::onUserLoginNotify, this, std::placeholders::_1));
 	//跑马灯通告消息
-	redisClient_->subscribePublishMsg(1, CALLBACK_1(GateServ::onMarqueeNotify, this));
+	redisClient_->subscribePublishMsg(1, OBJ_CALLBACK_1(this, &GateServ::onMarqueeNotify));
 	//redisClient_->subscribePublishMsg(0, [&](std::string const& msg) {
-	//	threadTimer_->getLoop()->runAfter(10, CALLBACK_1(GateServ::onLuckPushNotify, this, msg));
+	//	threadTimer_->getLoop()->runAfter(10, OBJ_CALLBACK_0(this, &GateServ::onLuckPushNotify, msg));
 	//	});
 	redisClient_->startSubThread();
 	return true;

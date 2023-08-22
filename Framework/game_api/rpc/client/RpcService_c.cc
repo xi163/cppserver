@@ -140,5 +140,49 @@ namespace rpc {
 				}
 			//}
 		}
+
+		::Game::Rpc::TableInfoRspPtr Service::GetTableInfo(
+			const ::Game::Rpc::TableInfoReq& req) {
+
+			//expired()非线程安全
+			//if (!conn_.get<1>().expired()) {
+
+				//lock()线程安全
+			muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+			if (c) {
+				muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
+				if (channel) {
+					channel->setConnection(c);
+					::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
+					stub.GetTableInfo(req, std::bind(&Service::doneTableInfoRsp, this, std::placeholders::_1));
+					lock_.wait();
+				}
+			}
+			//}
+			return ptrTableInfoRsp_;
+		}
+
+		//FIXME: 声明 rpc::client::Service client(conn, 3) 临时对象
+		// 类对象成员函数done回调时类对象已经销毁 导致 done 访问内存地址无效 从而引发崩溃
+		void Service::doneTableInfoRsp(const ::Game::Rpc::TableInfoRspPtr& rsp) {
+			ptrTableInfoRsp_ = rsp;
+			lock_.notify();
+
+			//expired()非线程安全
+			//if (!conn_.get<1>().expired()) {
+
+			//lock()线程安全
+			muduo::net::TcpConnectionPtr c(conn_.get<1>().lock());
+			if (c) {
+				muduo::net::RpcChannelPtr channel(conn_.get<2>().lock());
+				if (channel) {
+					channel->setConnection(c);
+					::Game::Rpc::RpcService_Stub stub(muduo::get_pointer(channel));
+					//stub.channel()->connection()->conn->shutdown();
+					//stub.channel()->connection()->conn->forceClose();
+				}
+			}
+			//}
+		}
 	}
 }

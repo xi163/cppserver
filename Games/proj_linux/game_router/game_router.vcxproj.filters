@@ -144,6 +144,12 @@
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
       <Filter>public\RedisLock</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\proto\table.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\user.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
@@ -232,6 +238,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
       <Filter>public\RedisLock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\table.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\user.pb.cc">
+      <Filter>pb</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
