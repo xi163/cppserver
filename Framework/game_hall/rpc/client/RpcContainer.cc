@@ -3,13 +3,6 @@
 #include "Logger/src/log/Logger.h"
 #include "RoomNodes.h"
 
-#define _gameid(v) v[0].c_str()
-#define _roomid(v) v[1].c_str()
-#define _modeid(v) v[2].c_str()
-#define _gameip(v) v[3].c_str()
-#define _game_tcp_port(v) v[4].c_str()
-#define _game_rpc_port(v) v[5].c_str()
-
 namespace rpc {
 	void Container::add(std::vector<std::string> const& names, std::string const& exclude) {
 		{

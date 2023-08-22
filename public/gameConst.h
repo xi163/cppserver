@@ -28,6 +28,14 @@
 #define NotScore(a) ((a)<0.01f)
 #endif
 
+#define _game_servid(v)   v[0].c_str()
+#define _gameid(v)        v[1].c_str()
+#define _roomid(v)        v[2].c_str()
+#define _modeid(v)        v[3].c_str()
+#define _gameip(v)        v[4].c_str()
+#define _game_tcp_port(v) v[5].c_str()
+#define _game_rpc_port(v) v[6].c_str()
+
 enum GameEndTag
 {
 	GER_NORMAL = 0,

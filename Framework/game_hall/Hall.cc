@@ -138,12 +138,6 @@ void HallServ::registerHandlers() {
 		::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_ROOM_INFO_MESSAGE_REQ)]
 		= std::bind(&HallServ::GetRoomInfoMessage_club, this,
 			std::placeholders::_1, std::placeholders::_2);
-	// 获取游戏服务器IP
-	//handlers_[packet::enword(
-	//	::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
-	//	::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_GET_GAME_SERVER_MESSAGE_REQ)]
-	//	= std::bind(&HallServ::GetGameServerMessage_club, this,
-	//		std::placeholders::_1, std::placeholders::_2);
 	// 获取我的俱乐部
 	handlers_[packet::enword(
 		::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB,
@@ -743,7 +737,8 @@ void HallServ::cmd_on_user_login(
 							std::string uuid = utils::uuid::createUUID();
 							std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
 							REDISCLIENT.SetUserLoginInfo(userId, "dynamicPassword", passwd);
-
+							_LOG_ERROR("uuid:%s passwd:%s", uuid.c_str(), passwd.c_str());
+							
 							rspdata.set_userid(userId);
 							rspdata.set_account(account);
 							rspdata.set_agentid(agentId);
@@ -958,10 +953,7 @@ void HallServ::cmd_get_game_server_message(
 						mgoKeys::tbl::GAME_CLUB_MEMBER,
 						document{} << "userid" << int64_t{ pre_header_->userId } << "clubid" << b_int64{ reqdata.clubid() } << finalize, 1) > 0) {
 						if (!reqdata.servid().empty() && reqdata.tableid() >= 0) {
-							std::vector<std::string> vec;
-							boost::algorithm::split(vec, reqdata.servid(), boost::is_any_of(":"));
-							if (vec.size() == 6 && room::nodes::validate_server(kClub, reqdata.gameid(), reqdata.roomid(), reqdata.servid(), reqdata.tableid(), reqdata.clubid())) {
-								ipport = reqdata.servid();
+							if (room::nodes::validate_server(kClub, reqdata.gameid(), reqdata.roomid(), ipport, reqdata.servid(), reqdata.tableid(), reqdata.clubid())) {
 							}
 							else {
 								rspdata.set_retcode(1);
@@ -1374,65 +1366,6 @@ void HallServ::GetRoomInfoMessage_club(
 			pre_header_, header_);
 	}
 }
-
-// 获取游戏服务器IP
-// void HallServ::GetGameServerMessage_club(
-// 	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf) {
-// 	packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
-// 	packet::header_t const* header_ = packet::get_header(buf);
-// 	uint8_t const* msg = packet::get_msg(buf);
-// 	size_t msgLen = packet::get_msglen(buf);
-// 	::ClubHallServer::GetGameServerMessage reqdata;
-// 	if (reqdata.ParseFromArray(msg, msgLen)) {
-// 		::ClubHallServer::GetGameServerMessageResponse rspdata;
-// 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-// 		rspdata.set_retcode(1);
-// 		rspdata.set_errormsg("Unknown error.");
-// 		rspdata.set_gameid(reqdata.gameid());
-// 		rspdata.set_roomid(reqdata.roomid());
-// 		rspdata.set_clubid(reqdata.clubid());
-// 		uint32_t gameid = reqdata.gameid();
-// 		uint32_t roomid = reqdata.roomid();
-// 		int64_t userId = pre_header_->userId;
-// 		uint32_t gameid_ = 0, roomid_ = 0;
-// 		if (REDISCLIENT.GetOnlineInfo(userId, gameid_, roomid_)) {
-// 			if (gameid != gameid_ || roomid != roomid_) {
-// 				rspdata.set_retcode(ERROR_ENTERROOM_USERINGAME);
-// 				rspdata.set_errormsg("user in other game.");
-// 			}
-// 			else {
-// 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = 1;
-// 				rspdata.set_retcode(0);
-// 				rspdata.set_errormsg("Get Game Server IP OK.");
-// 			}
-// 		}
-// 		else {
-// 			//随机一个指定类型游戏节点
-// 			std::string ipport;
-// 			room::nodes::balance_server(kClub, gameid, roomid, ipport);
-// 			//可能ipport节点不可用，要求zk实时监控
-// 			if (!ipport.empty()) {
-// 				//redis更新玩家游戏节点
-// 				REDISCLIENT.SetOnlineInfoIP(userId, ipport);
-// 				//redis更新玩家游戏中
-// 				REDISCLIENT.SetOnlineInfo(userId, gameid, roomid);
-// 				rspdata.set_retcode(0);
-// 				rspdata.set_errormsg("Get Game Server IP OK.");
-// 				//通知网关服成功
-// 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = 1;
-// 			}
-// 			else {
-// 				//分配失败，清除游戏中状态
-// 				REDISCLIENT.DelOnlineInfo(userId);
-// 				rspdata.set_retcode(ERROR_ENTERROOM_GAMENOTEXIST);
-// 				rspdata.set_errormsg("Game Server Not found!!!");
-// 			}
-// 		}
-// 		send(conn, &rspdata,
-// 			::Game::Common::CLIENT_TO_HALL_CLUB_GET_GAME_SERVER_MESSAGE_RES,
-// 			pre_header_, header_);
-// 	}
-// }
 
 // 获取我的俱乐部
 void HallServ::GetMyClubHallMessage_club(

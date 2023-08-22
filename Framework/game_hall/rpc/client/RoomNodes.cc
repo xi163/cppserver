@@ -7,9 +7,6 @@
 
 extern HallServ* gServer;
 
-#define _gameid(v) v[0].c_str()
-#define _roomid(v) v[1].c_str()
-
 namespace room {
 	namespace nodes {
 
@@ -23,7 +20,7 @@ namespace room {
 		public:
 			void random_server(uint32_t gameId, uint32_t roomId, std::string& ipport);
 			void balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport);
-			bool validate_server(uint32_t gameId, uint32_t roomId, std::string const& ipport, uint32_t tableId, int64_t clubId);
+			bool validate_server(uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint32_t tableId, int64_t clubId);
 		public:
 			void get_club_room_info(int64_t clubId, ::club::info& info);
 			void get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info);
@@ -98,7 +95,7 @@ namespace room {
 							::Game::Rpc::NodeInfoReq req;
 							::Game::Rpc::NodeInfoRspPtr rsp = client.GetNodeInfo(req);
 							if (rsp) {
-								_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
+								//_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
 								rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));
 							}
 							else {
@@ -131,12 +128,18 @@ namespace room {
 			}
 		}
 
-		bool RoomList::validate_server(uint32_t gameId, uint32_t roomId, std::string const& ipport, uint32_t tableId, int64_t clubId) {
+		bool RoomList::validate_server(uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint32_t tableId, int64_t clubId) {
 			GameRoomNodes::const_iterator it = nodes_.find(gameId);
 			if (it != nodes_.end()) {
 				RoomNodes::const_iterator ir = it->second.find(roomId);
 				if (ir != it->second.end()) {
-					Nodes::const_iterator ix = ir->second.find(ipport);
+#if 0
+					Nodes::const_iterator ix = ir->second.find(servId);
+#else
+					Nodes::const_iterator ix = std::find_if(ir->second.begin(), ir->second.end(), [&](std::string const& val) -> bool {
+						return strncasecmp(val.c_str(), servId.c_str(), std::min(val.size(), servId.size())) == 0;
+						});
+#endif
 					if (ix != ir->second.end()) {
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
@@ -145,7 +148,10 @@ namespace room {
 						req.set_tableid(tableId);
 						::Game::Rpc::TableInfoRspPtr rsp = client.GetTableInfo(req);
 						if (rsp) {
-							return rsp->clubid() > 0 && rsp->clubid() == clubId;
+							if (rsp->clubid() > 0 && rsp->clubid() == clubId) {
+								ipport = *ix;
+								return true;
+							}
 						}
 					}
 				}
@@ -159,7 +165,7 @@ namespace room {
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
 					bool new_roomid = true;
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
-						_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, it->first, ir->first, ix->c_str());
+						//_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, it->first, ir->first, ix->c_str());
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
 						rpc::client::Service client(conn, 3);
@@ -181,11 +187,19 @@ namespace room {
 							::club::game::room::info* roominfo = gameinfo->mutable_rooms(gameinfo->rooms_size() - 1);
 							roominfo->set_tablecount(roominfo->tablecount() + rsp->tablecount());//tablecount
 							//tableinfos
+							std::vector<std::string> vec;
 							for (int i = 0; i < rsp->tables_size(); ++i) {
 								::club::game::room::table::info* tableinfo = roominfo->add_tables();
 								tableinfo->CopyFrom(*rsp->mutable_tables(i));
 								if (tableinfo->users_size() > 0) {
+#if 0
 									tableinfo->set_nodeid(*ix);//nodevalue
+#else
+									if (vec.empty()) {
+										boost::algorithm::split(vec, *ix, boost::is_any_of(":"));
+									}
+									tableinfo->set_nodeid(_game_servid(vec));
+#endif
 								}
 							}
 							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
@@ -201,7 +215,7 @@ namespace room {
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
 					bool new_roomid = true;
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
-						_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, ir->first, ix->c_str());
+						//_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, ir->first, ix->c_str());
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
 						rpc::client::Service client(conn, 3);
@@ -219,11 +233,19 @@ namespace room {
 							::club::game::room::info* roominfo = info.mutable_rooms(info.rooms_size() - 1);
 							roominfo->set_tablecount(roominfo->tablecount() + rsp->tablecount());//tablecount
 							//tableinfos
+							std::vector<std::string> vec;
 							for (int i = 0; i < rsp->tables_size(); ++i) {
 								::club::game::room::table::info* tableinfo = roominfo->add_tables();
 								tableinfo->CopyFrom(*rsp->mutable_tables(i));
 								if (tableinfo->users_size() > 0) {
+#if 0
 									tableinfo->set_nodeid(*ix);//nodevalue
+#else
+									if (vec.empty()) {
+										boost::algorithm::split(vec, *ix, boost::is_any_of(":"));
+									}
+									tableinfo->set_nodeid(_game_servid(vec));
+#endif
 								}
 							}
 							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
@@ -239,7 +261,7 @@ namespace room {
 				RoomNodes::const_iterator ir = it->second.find(roomId);
 				if (ir != it->second.end()) {
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
-						_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, roomId, ix->c_str());
+						//_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, roomId, ix->c_str());
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
 						rpc::client::Service client(conn, 3);
@@ -251,11 +273,19 @@ namespace room {
 							info.set_roomid(roomId);
 							info.set_tablecount(info.tablecount() + rsp->tablecount());//tablecount
 							//tableinfos
+							std::vector<std::string> vec;
 							for (int i = 0; i < rsp->tables_size(); ++i) {
 								::club::game::room::table::info* tableinfo = info.add_tables();
 								tableinfo->CopyFrom(*rsp->mutable_tables(i));
 								if (tableinfo->users_size() > 0) {
+#if 0
 									tableinfo->set_nodeid(*ix);//nodevalue
+#else
+									if (vec.empty()) {
+										boost::algorithm::split(vec, *ix, boost::is_any_of(":"));
+									}
+									tableinfo->set_nodeid(_game_servid(vec));
+#endif
 								}
 							}
 							_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
@@ -281,8 +311,8 @@ namespace room {
 			game_serv_[mode].balance_server(gameId, roomId, ipport);
 		}
 		
-		bool validate_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string const& ipport, uint32_t tableId, int64_t clubId) {
-			return game_serv_[mode].validate_server(gameId, roomId, ipport, tableId, clubId);
+		bool validate_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint32_t tableId, int64_t clubId) {
+			return game_serv_[mode].validate_server(gameId, roomId, ipport, servId, tableId, clubId);
 		}
 		
 		void get_club_room_info(GameMode mode, int64_t clubId, ::club::info& info) {

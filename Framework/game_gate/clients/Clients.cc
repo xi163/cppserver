@@ -139,7 +139,13 @@ void Connector::getInLoop(std::string const& name, ClientConn& client, bool& bok
 
 	loop_->assertInLoopThread();
 
+#if 0
 	TcpClientMap::const_iterator it = clients_.find(name);
+#else
+	TcpClientMap::const_iterator it = std::find_if(clients_.begin(), clients_.end(), [&](TcpClientPair const& kv) -> bool {
+		return strncmp(kv.first.c_str(), name.c_str(), std::min(kv.first.size(), name.size())) == 0;
+		});
+#endif
 	if (it != clients_.end()) {
 		if (it->second->connection() &&
 			it->second->connection()->connected()) {
@@ -223,7 +229,13 @@ void Connector::checkInLoop(std::string const& name, bool exist) {
 
 	loop_->assertInLoopThread();
 
+#if 0
 	TcpClientMap::const_iterator it = clients_.find(name);
+#else
+	TcpClientMap::const_iterator it = std::find_if(clients_.begin(), clients_.end(), [&](TcpClientPair const& kv) -> bool {
+		return strncmp(kv.first.c_str(), name.c_str(), std::min(kv.first.size(), name.size())) == 0;
+		});
+#endif
 	if (it == clients_.end()) {
 		//name不存在
 		if (exist) {
@@ -254,7 +266,13 @@ void Connector::existInLoop(std::string const& name, bool& exist, bool& bok) {
 
 	loop_->assertInLoopThread();
 
+#if 0
 	TcpClientMap::const_iterator it = clients_.find(name);
+#else
+	TcpClientMap::const_iterator it = std::find_if(clients_.begin(), clients_.end(), [&](TcpClientPair const& kv) -> bool {
+		return strncmp(kv.first.c_str(), name.c_str(), std::min(kv.first.size(), name.size())) == 0;
+		});
+#endif
 	exist = (it != clients_.end());
 	bok = true;
 }
@@ -345,7 +363,13 @@ void Connector::removeInLoop(std::string const& name, bool lazy) {
 
 	loop_->assertInLoopThread();
 
+#if 0
 	TcpClientMap::const_iterator it = clients_.find(name);
+#else
+	TcpClientMap::const_iterator it = std::find_if(clients_.begin(), clients_.end(), [&](TcpClientPair const& kv) -> bool {
+		return strncmp(kv.first.c_str(), name.c_str(), std::min(kv.first.size(), name.size())) == 0;
+		});
+#endif
 	if (it != clients_.end()) {
 		//连接已经无效直接删除
 		if (!it->second->connection() ||

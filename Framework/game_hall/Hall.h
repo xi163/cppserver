@@ -192,9 +192,6 @@ private:
 	// 获取俱乐部房间信息
 	void GetRoomInfoMessage_club(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
-	// 获取游戏服务器IP
-	//void GetGameServerMessage_club(
-	//	const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	// 获取我的俱乐部
 	void GetMyClubHallMessage_club(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);

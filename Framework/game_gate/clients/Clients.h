@@ -48,6 +48,7 @@ class Connector : muduo::noncopyable {
 public:
 	friend class TcpClient;
 public:
+	typedef std::pair<std::string, TcpClientPtr> TcpClientPair;
 	typedef std::map<std::string, TcpClientPtr> TcpClientMap;
 public:
 	Connector(muduo::net::EventLoop* loop);
