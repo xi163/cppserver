@@ -114,7 +114,7 @@ void GameServ::onZookeeperConnected() {
 	//if (ZNONODE == zkclient_->existsNode("/GAME/game_servInvalid"))
 	//	zkclient_->createNode("/GAME/game_servInvalid", "game_servInvalid", true);
 	{
-		nodeValue_ += utils::random::charStr(8, rTy::UpperCharNumber);
+		nodeValue_ += utils::random::charStr(16, rTy::UpperCharNumber);
 		nodeValue_ += ":" + std::to_string(gameId_);
 		nodeValue_ += ":" + std::to_string(roomId_);
 		nodeValue_ += ":" + std::to_string(kGoldCoin);
