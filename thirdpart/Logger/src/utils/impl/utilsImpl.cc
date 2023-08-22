@@ -38,6 +38,20 @@ static void cacheTid() {
 
 namespace utils {
 	
+	int _numCPU() {
+#if _windows_
+		SYSTEM_INFO sysInfo;
+		::GetSystemInfo(&sysInfo);
+		int all = sysInfo.dwNumberOfProcessors;
+#else
+		//获取当前系统的所有CPU核数，包含禁用的
+		int all = sysconf(_SC_NPROCESSORS_CONF);//sysconf(_SC_NPROCS_CONF) get_nprocs_conf()
+		//获取当前系统的可用CPU核数
+		int enable = sysconf(_SC_NPROCESSORS_ONLN);//sysconf(_SC_NPROCS_ONLN) get_nprocs()
+#endif
+		return all;
+	}
+
 	std::string _gettid() {
 #ifdef _windows_
 		std::ostringstream oss;

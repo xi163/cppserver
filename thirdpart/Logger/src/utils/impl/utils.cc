@@ -21,6 +21,11 @@
 
 namespace utils {
 	
+	int numCPU() {
+		AUTHORIZATION_CHECK_I;
+		return utils::_numCPU();
+	}
+	
 	/*tid_t*/std::string gettid() {
 		AUTHORIZATION_CHECK_S;
 		return utils::_gettid();

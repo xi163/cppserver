@@ -6,7 +6,9 @@
 #define __CODE__ utils::_format_s(_PARAM_)
 
 namespace utils {
-
+	
+	int _numCPU();
+	
 	std::string _format_s(char const* file, int line, char const* func);
 
 	namespace uuid {

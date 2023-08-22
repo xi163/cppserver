@@ -31,7 +31,9 @@
 #define _CODE_ utils::format_s(_PARAM_)
 
 namespace utils {
-
+	
+	int numCPU();
+	
 	std::string format_s(char const* file, int line, char const* func);
 
 	namespace uuid {

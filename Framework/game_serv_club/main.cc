@@ -107,6 +107,9 @@ int main(int argc, char* argv[]) {
 	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
 	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
 	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);
+	if (numWorkerThreads == 0) {
+		numWorkerThreads = utils::numCPU();
+	}
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \
@@ -135,7 +138,7 @@ int main(int argc, char* argv[]) {
 		if (server.InitServer()) {
 			//utils::registerSignalHandler(SIGINT, StopService);
 			utils::registerSignalHandler(SIGTERM, StopService);
-			server.Start(numThreads, numWorkerThreads, kMaxQueueSize);
+			server.Start(numThreads, std::min(numWorkerThreads, utils::numCPU()), kMaxQueueSize);
 			gServer = &server;
 			loop.loop();
 		}
