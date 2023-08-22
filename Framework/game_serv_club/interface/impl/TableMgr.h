@@ -27,7 +27,7 @@ public:
 	CTableMgr();
 	virtual ~CTableMgr();
 	std::list<std::shared_ptr<CTable>> UsedTables();
-	void Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
+	void Init(ITableContext* tableContext);
 	/// <summary>
 	/// 返回桌子数量
 	/// </summary>
@@ -43,7 +43,7 @@ public:
 	/// <summary>
 	/// 返回指定俱乐部桌子
 	/// </summary>
-	void Get(int64_t clubId, std::set<uint32_t>& vec);
+	void Get(int64_t clubId, std::set<uint32_t>& tableId);
 	std::shared_ptr<CTable> Get(uint32_t tableId);
 	std::shared_ptr<CTable> GetSuit(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint32_t tableId);
 	/// <summary>

@@ -42,6 +42,7 @@
     <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\RobotMgr.h" />
     <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\Table.h" />
     <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\TableMgr.h" />
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\TableThread.h" />
     <ClInclude Include="..\..\..\Framework\game_serv\interface\IPlayer.h" />
     <ClInclude Include="..\..\..\Framework\game_serv\interface\IReplayRecord.h" />
     <ClInclude Include="..\..\..\Framework\game_serv\interface\IRobotDelegate.h" />
@@ -84,6 +85,7 @@
     <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\RobotMgr.cc" />
     <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\Table.cc" />
     <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\TableMgr.cc" />
+    <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\TableThread.cc" />
     <ClCompile Include="..\..\..\Framework\game_serv\main.cc" />
     <ClCompile Include="..\..\..\Framework\game_serv\rpc\server\RpcService.cc" />
     <ClCompile Include="..\..\..\Framework\game_tracemsg\GetTraceMsg.cc" />

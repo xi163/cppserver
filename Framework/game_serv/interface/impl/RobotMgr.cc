@@ -132,10 +132,17 @@ void CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, Rob
 	}
 }
 
+bool CRobotMgr::Empty() {
+	{
+		READ_LOCK(mutex_);
+		return freeItems_.empty();
+	}
+}
+
 std::shared_ptr<CRobot> CRobotMgr::Pick() {
 	std::shared_ptr<CRobot> robot;
 	{
-		//WRITE_LOCK(mutex_);
+		WRITE_LOCK(mutex_);
 		if (!freeItems_.empty()) {
 			robot = freeItems_.front();
 			freeItems_.pop_front();
@@ -144,7 +151,7 @@ std::shared_ptr<CRobot> CRobotMgr::Pick() {
 	if (robot) {
 		robot->Reset();
 		{
-			//WRITE_LOCK(mutex_);
+			WRITE_LOCK(mutex_);
 			items_[robot->GetUserId()] = robot;
 		}
 	}
@@ -153,7 +160,7 @@ std::shared_ptr<CRobot> CRobotMgr::Pick() {
 
 void CRobotMgr::Delete(int64_t userId) {
 	{
-		//WRITE_LOCK(mutex_);
+		WRITE_LOCK(mutex_);
 		std::map<int64_t, std::shared_ptr<CRobot>>::iterator it = items_.find(userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CRobot> robot = it->second;
@@ -254,7 +261,7 @@ void CRobotMgr::OnTimerCheckIn() {
 #if 0
 							robotDelegate->Init(table, robot);
 #else
-							robotDelegate->SetTable(it);
+							robotDelegate->SetTable(table);
 #endif
 						}
 						//更新DB机器人状态
@@ -294,7 +301,7 @@ void CRobotMgr::OnTimerCheckIn() {
 #if 0
 							robotDelegate->Init(table, robot);
 #else
-							robotDelegate->SetTable(it);
+							robotDelegate->SetTable(table);
 #endif
 						}
 						//更新DB机器人状态

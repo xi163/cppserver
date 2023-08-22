@@ -16,7 +16,7 @@
 #define ThisTableId		(table_->GetTableId())
 #define ThisRoomId		(table_->GetRoomInfo()->roomId)
 #define ThisRoomName	(table_->GetRoomInfo()->roomName)
-#define ThisThreadTimer	(table_->GetLoopThread()->getLoop())
+#define ThisThreadTimer	(table_->getLoop())
 
 #define ThisChairId		(robot_->GetChairId())
 #define ThisUserId		(robot_->GetUserId())

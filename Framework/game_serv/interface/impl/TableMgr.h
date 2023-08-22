@@ -27,7 +27,7 @@ public:
 	CTableMgr();
 	virtual ~CTableMgr();
 	std::list<std::shared_ptr<CTable>> UsedTables();
-	void Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
+	void Init(ITableContext* tableContext);
 	/// <summary>
 	/// 返回桌子数量
 	/// </summary>

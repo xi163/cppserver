@@ -45,7 +45,6 @@ public:
 	void threadInit();
 	bool InitServer();
 	void Start(int numThreads, int numWorkerThreads, int maxSize);
-	bool enable();
 private:
 	void onConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onMessage(
@@ -149,9 +148,6 @@ public:
 	muduo::AtomicInt32 numConnected_;
 	muduo::AtomicInt32 numUsers_;
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
-	//桌子逻辑线程/定时器
-	std::shared_ptr<muduo::net::EventLoopThread> logicThread_;
-	//std::shared_ptr<muduo::net::EventLoopThreadPool> logicThread_;
 	
 	std::map<std::string, muduo::net::WeakTcpConnectionPtr> mapGateConns_;
 	mutable boost::shared_mutex mutexGateConns_;

@@ -11,6 +11,7 @@ public:
 	CRobotMgr();
 	virtual ~CRobotMgr();
 	void Init(ITableContext* tableContext);
+	bool Empty();
 	std::shared_ptr<CRobot> Pick();
 	void Delete(int64_t userId);
 	void OnTimerCheckIn();

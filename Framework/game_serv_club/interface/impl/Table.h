@@ -15,7 +15,7 @@
 
 class CTable : public ITable/*, public IReplayRecord*/ {
 public:
-	CTable();
+	CTable(muduo::net::EventLoop* loop, ITableContext* tableContext);
 	virtual ~CTable();
 	virtual void Reset();
 	bool send(
@@ -36,16 +36,14 @@ public:
 		std::shared_ptr<IPlayer> const& player,
 		::google::protobuf::Message* msg,
 		uint8_t subId, bool v = false, int flag = 0);
-	virtual void Init(std::shared_ptr<ITableDelegate>& tableDelegate,
-		TableState& tableState, tagGameRoomInfo* roomInfo,
-		std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext);
+	virtual void Init(std::shared_ptr<ITableDelegate>& tableDelegate, TableState& tableState, tagGameRoomInfo* roomInfo);
 	virtual uint32_t GetTableId();
 	virtual int64_t GetClubId();
 	virtual void SetClubId(int64_t clubId);
 	virtual void GetTableInfo(TableState& tableState);
 	virtual void GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items);
 	virtual void GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& bok);
-	virtual std::shared_ptr<muduo::net::EventLoopThread> GetLoopThread();
+	virtual muduo::net::EventLoop* GetLoop();
 	virtual void assertThisThread();
 	virtual std::string const& ServId();
 	virtual std::string NewRoundId();
@@ -127,7 +125,7 @@ public:
 	ITableContext* tableContext_;
 	std::vector<std::shared_ptr<CPlayer>> items_;//items_[chairId]
 	std::shared_ptr<ITableDelegate> tableDelegate_;
-	std::shared_ptr<muduo::net::EventLoopThread> logicThread_;//桌子逻辑线程/定时器
+	muduo::net::EventLoop* loop_;//桌子逻辑线程/定时器
 public:
 	static std::atomic_llong curStorage_; //系统当前库存
 	static double lowStorage_;//系统最小库存，系统输分不得低于库存下限，否则赢分

@@ -3,6 +3,8 @@
 #include "Table.h"
 #include "Player.h"
 
+#include "TableThread.h"
+
 static TableDelegateCreator LoadLibrary(std::string const& serviceName) {
 	std::string dllPath = boost::filesystem::initial_path<boost::filesystem::path>().string();
 	dllPath.append("/");
@@ -37,7 +39,7 @@ CTableMgr::~CTableMgr() {
 	freeItems_.clear();
 }
 
-void CTableMgr::Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) {
+void CTableMgr::Init(ITableContext* tableContext) {
 	if (!tableContext->GetGameInfo() || !tableContext->GetRoomInfo()) {
 		return;
 	}
@@ -48,10 +50,11 @@ void CTableMgr::Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, 
 	tableContext_ = tableContext;
 	CTable::ReadStorageScore(tableContext->GetRoomInfo());
 	for (uint32_t i = 0; i < tableContext->GetRoomInfo()->tableCount; ++i) {
+		muduo::net::EventLoop* loop = CTableThreadMgr::get_mutable_instance().getNextLoop();
 		//创建子游戏桌子代理
 		std::shared_ptr<ITableDelegate> tableDelegate = creator();
 		//创建桌子
-		std::shared_ptr<CTable> table(new CTable());
+		std::shared_ptr<CTable> table(new CTable(loop, tableContext));
 		if (!table || !tableDelegate) {
 			_LOG_ERROR("table = %d Failed", i);
 			break;
@@ -60,9 +63,10 @@ void CTableMgr::Init(std::shared_ptr<muduo::net::EventLoopThread>& logicThread, 
 		state.tableId = i;
 		state.locked = false;
 		state.lookon = false;
-		table->Init(tableDelegate, state, tableContext->GetRoomInfo(), logicThread, tableContext);
+		table->Init(tableDelegate, state, tableContext->GetRoomInfo());
 		items_.emplace_back(table);
 		freeItems_.emplace_back(table);
+		boost::any_cast<LogicThreadPtr>(loop->getContext())->add(state.tableId);
 		//_LOG_DEBUG("%d:%s %d:%s tableId:%d stock:%ld",
 		//	tableContext->GetGameInfo()->gameId,
 		//	tableContext->GetGameInfo()->gameName.c_str(),
@@ -127,12 +131,12 @@ size_t CTableMgr::UsedCount() {
 /// <summary>
 /// 返回指定俱乐部桌子
 /// </summary>
-void CTableMgr::Get(int64_t clubId, std::set<uint32_t>& vec) {
+void CTableMgr::Get(int64_t clubId, std::set<uint32_t>& tableId) {
 	if (clubId > INVALID_CLUB) {
 		READ_LOCK(mutex_);
 		for (std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.begin(); it != usedItems_.end(); ++it) {
 			if (clubId == it->second->GetClubId()) {
-				vec.insert(it->second->GetTableId());
+				tableId.insert(it->second->GetTableId());
 			}
 		}
 	}

@@ -20,12 +20,12 @@ int CTable::sysReduceRatio_(0);
 int CTable::sysChangeCardRatio_(0);
 
 
-CTable::CTable()
-    : tableDelegate_(NULL)
+CTable::CTable(muduo::net::EventLoop* loop, ITableContext* tableContext)
+    : loop_(CHECK_NOTNULL(loop))
+    , tableDelegate_(NULL)
     , roomInfo_(NULL)
     , clubId_(INVALID_CLUB)
-    , tableContext_(NULL)
-    , logicThread_(NULL)
+    , tableContext_(CHECK_NOTNULL(tableContext))
     , status_(GAME_STATUS_INIT) {
     items_.clear();
     memset(&tableState_, 0, sizeof(tableState_));
@@ -48,7 +48,7 @@ void CTable::Reset() {
 
 void CTable::GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items) {
 	bool bok = false;
-	QueueInLoop(logicThread_->getLoop(),
+	QueueInLoop(loop_,
 		std::bind(&CTable::GetPlayersInLoop, this, std::ref(items), std::ref(bok)));
 	while (!bok);
 }
@@ -63,12 +63,8 @@ void CTable::GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool
 	bok = true;
 }
 
-void CTable::Init(std::shared_ptr<ITableDelegate>& tableDelegate,
-    TableState& tableState, tagGameRoomInfo* roomInfo,
-    std::shared_ptr<muduo::net::EventLoopThread>& logicThread, ITableContext* tableContext) {
+void CTable::Init(std::shared_ptr<ITableDelegate>& tableDelegate, TableState& tableState, tagGameRoomInfo* roomInfo) {
     roomInfo_ = roomInfo;
-    logicThread_ = logicThread;
-    tableContext_ = tableContext;
     tableState_ = tableState;
     items_.resize(roomInfo_->maxPlayerNum);
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
@@ -448,12 +444,12 @@ void  CTable::SetClubId(int64_t clubId) {
     clubId_ = clubId;
 }
 
-std::shared_ptr<muduo::net::EventLoopThread> CTable::GetLoopThread() {
-    return logicThread_;
+muduo::net::EventLoop* CTable::GetLoop() {
+    return loop_;
 }
 
 void CTable::assertThisThread() {
-    logicThread_->getLoop()->assertInLoopThread();
+    loop_->assertInLoopThread();
 }
 
 bool CTable::DismissGame() {

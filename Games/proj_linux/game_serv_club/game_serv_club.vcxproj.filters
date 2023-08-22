@@ -163,6 +163,9 @@
     <ClInclude Include="..\..\..\Framework\game_tracemsg\TraceMsg.h">
       <Filter>public\TraceMsg</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv_club\interface\impl\TableThread.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -253,6 +256,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_tracemsg\GetTraceMsg.cc">
       <Filter>public\TraceMsg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv_club\interface\impl\TableThread.cc">
+      <Filter>interface\impl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

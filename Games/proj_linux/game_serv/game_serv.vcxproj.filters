@@ -160,6 +160,9 @@
     <ClInclude Include="..\..\..\proto\user.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Framework\game_serv\interface\impl\TableThread.h">
+      <Filter>interface\impl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc">
@@ -247,6 +250,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\proto\user.pb.cc">
       <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_serv\interface\impl\TableThread.cc">
+      <Filter>interface\impl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

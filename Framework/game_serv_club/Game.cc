@@ -3,6 +3,7 @@
 #include "RobotMgr.h"
 #include "PlayerMgr.h"
 #include "TableMgr.h"
+#include "TableThread.h"
 
 #include "proto/Game.Common.pb.h"
 #include "proto/GameServer.Message.pb.h"
@@ -21,10 +22,10 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 	: server_(loop, listenAddr, "tcpServer")
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, threadTimer_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "EventLoopThreadTimer"))
-	, logicThread_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "GameLogicEventLoopThread"))
 	, ipFinder_("qqwry.dat")
 	, gameId_(gameId)
 	, roomId_(roomId) {
+	CTableThreadMgr::get_mutable_instance().Init(loop, "TableThreadPool");
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
 	rpcserver_.registerService(&rpcservice_);
@@ -40,11 +41,8 @@ GameServ::~GameServ() {
 
 void GameServ::Quit() {
 	CTableMgr::get_mutable_instance().KickAll();
-	// 	for (size_t i = 0; i < logicThread_.size(); ++i) {
-	// 		logicThread_[i]->stop();
-	// 	}
 	threadTimer_->getLoop()->quit();
-	logicThread_->getLoop()->quit();
+	CTableThreadMgr::get_mutable_instance().quit();
 	if (zkclient_) {
 		zkclient_->closeServer();
 	}
@@ -277,12 +275,6 @@ bool GameServ::InitServer() {
 		break;
 	}
 	if (mgo::LoadClubGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo_)) {
-		CTableMgr::get_mutable_instance().Init(logicThread_, this);
-		if (enable()) {
-			CRobotMgr::get_mutable_instance().Init(this);
-		}
-		else {
-		}
 		return true;
 	}
 	_LOG_ERROR("error");
@@ -294,12 +286,17 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	muduo::net::ReactorSingleton::start();
 	
 	threadTimer_->startLoop();
-	logicThread_->startLoop();
-
+	
+	numWorkerThreads = 1;
+	CTableThreadMgr::get_mutable_instance().setThreadNum(numWorkerThreads);
+	CTableThreadMgr::get_mutable_instance().start(std::bind(&GameServ::threadInit, this), this);
+	CTableMgr::get_mutable_instance().Init(this);
+	CRobotMgr::get_mutable_instance().Init(this);
+	
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
 
-	_LOG_WARN("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), roomId_, getModeStr(kClub).c_str(), numThreads, 1);
+	_LOG_WARN("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), roomId_, getModeStr(kClub).c_str(), numThreads, numWorkerThreads);
 
 	server_.start(true);
 	rpcserver_.start(true);
@@ -308,23 +305,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	//threadTimer_->getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
 	//threadTimer_->getLoop()->runAfter(30, std::bind(&GameServ::redis_refresh_room_player_nums, this));
 
-	if (enable()) {
-		switch (gameInfo_.gameType) {
-		case GameType_BaiRen: {
-			logicThread_->getLoop()->runEvery(3.0, std::bind(&CRobotMgr::OnTimerCheckIn, &CRobotMgr::get_mutable_instance()));
-			auto player = std::make_shared<CPlayer>();
-			CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
-			break;
-		}
-		case GameType_Confrontation:
-			logicThread_->getLoop()->runEvery(0.1f, std::bind(&CRobotMgr::OnTimerCheckIn, &CRobotMgr::get_mutable_instance()));
-			break;
-		}
-	}
-}
-
-bool GameServ::enable() {
-	return roomInfo_.bEnableAndroid;
+	CTableThreadMgr::get_mutable_instance().startCheckUserIn();
 }
 
 void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
@@ -350,7 +331,7 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
-		RunInLoop(logicThread_->getLoop(),
+		RunInLoop(CTableThreadMgr::get_mutable_instance().getNextLoop(),
 			std::bind(
 				&GameServ::asyncOfflineHandler,
 				this, conn->peerAddress().toIpPort()));
@@ -386,7 +367,7 @@ void GameServ::onMessage(
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
 			assert(header->crc == crc);
-			RunInLoop(logicThread_->getLoop(),
+			RunInLoop(CTableThreadMgr::get_mutable_instance().getNextLoop(),
 				std::bind(
 					&GameServ::asyncLogicHandler,
 					this,

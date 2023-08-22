@@ -25,7 +25,7 @@
 #define ThisGameId		(table_->GetRoomInfo()->gameId)
 #define ThisRoomId		(table_->GetRoomInfo()->roomId)
 #define ThisRoomName	(table_->GetRoomInfo()->roomName)
-#define ThisThreadTimer	(table_->GetLoopThread()->getLoop())
+#define ThisThreadTimer	(table_->getLoop())
 
 #define EnterMinScore (table_->GetRoomInfo()->enterMinScore)//进入最小分
 #define EnterMaxScore (table_->GetRoomInfo()->enterMaxScore)//进入最大分
