@@ -760,9 +760,17 @@ void GameServ::cmd_on_user_enter_room(
 				if (table->RoomSitChair(player, pre_header_, header_)) {
 				}
 				else {
+					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+					DelContext(pre_header_->userId);
+					REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 					if (table->GetPlayerCount() == 0) {
 						CTableMgr::get_mutable_instance().Delete(table->GetTableId());
 					}
+					SendGameErrorCode(conn,
+						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
+						::GameServer::SUB_S2C_ENTER_ROOM_RES,
+						ERROR_ENTERROOM_TABLE_FULL,
+						"ERROR_ENTERROOM_TABLE_FULL", pre_header_, header_);
 				}
 			}
 			else {
