@@ -453,9 +453,11 @@ void GameServ::asyncOfflineHandler(std::string const& ipPort) {
 				if (player) {
 					std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 					if (table) {
-						table->assertThisThread();
-						//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
-						table->OnUserOffline(player);
+						RunInLoop(table->GetLoop(), CALLBACK_0([&](std::shared_ptr<CPlayer> player) {
+							table->assertThisThread();
+							//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
+							table->OnUserOffline(player);
+						}, player));
 					}
 				}
 			}
@@ -808,8 +810,10 @@ void GameServ::cmd_on_user_ready(
 		if (player) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
-				table->assertThisThread();
-				table->SetUserReady(player->GetChairId());
+				RunInLoop(table->GetLoop(), CALLBACK_0([&](std::shared_ptr<CPlayer> player) {
+					table->assertThisThread();
+					table->SetUserReady(player->GetChairId());
+				}, player));
 				rspdata.set_retcode(0);
 				rspdata.set_errormsg("OK");
 			}
@@ -844,23 +848,27 @@ void GameServ::cmd_on_user_left_room(
 		if (player) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
-				table->assertThisThread();
-				//KickUser(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
-				if (table->CanLeftTable(pre_header_->userId)) {
-					if (table->OnUserLeft(player, true)) {
-						rspdata.set_retcode(0);
-						rspdata.set_errormsg("OK");
+				RunInLoop(table->GetLoop(), CALLBACK_0([&](BufferPtr buf, std::shared_ptr<CPlayer> player) {
+					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+					packet::header_t const* header_ = packet::get_header(buf);
+					table->assertThisThread();
+					//KickUser(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
+					if (table->CanLeftTable(pre_header_->userId)) {
+						if (table->OnUserLeft(player, true)) {
+							rspdata.set_retcode(0);
+							rspdata.set_errormsg("OK");
+						}
+						else {
+							rspdata.set_retcode(1);
+							rspdata.set_errormsg("OnUserLeft failed");
+						}
 					}
 					else {
-						rspdata.set_retcode(1);
-						rspdata.set_errormsg("OnUserLeft failed");
+						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
+						rspdata.set_retcode(2);
+						rspdata.set_errormsg("正在游戏中，不能离开");
 					}
-				}
-				else {
-					const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-					rspdata.set_retcode(2);
-					rspdata.set_errormsg("正在游戏中，不能离开");
-				}
+				}, buf, player));
 			}
 			else {
 				rspdata.set_retcode(3);
@@ -895,8 +903,10 @@ void GameServ::cmd_on_user_offline(
 		}
 		std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 		if (table) {
-			table->assertThisThread();
-			table->OnUserOffline(player);
+			RunInLoop(table->GetLoop(), CALLBACK_0([&](std::shared_ptr<CPlayer> player) {
+				table->assertThisThread();
+				table->OnUserOffline(player);
+			}, player));
 		}
 		else {
 		}
@@ -917,8 +927,12 @@ void GameServ::cmd_on_game_message(
 		if (player) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
-				table->assertThisThread();
-				table->OnGameEvent(player->GetChairId(), header_->subId, data, len);
+				RunInLoop(table->GetLoop(), CALLBACK_0([&](BufferPtr buf, std::shared_ptr<CPlayer> player) {
+					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
+					packet::header_t const* header_ = packet::get_header(buf);
+					table->assertThisThread();
+					table->OnGameEvent(player->GetChairId(), header_->subId, data, len);
+				}, buf, player));
 			}
 		}
 	}
@@ -958,9 +972,11 @@ void GameServ::KickUser(int64_t userId, int32_t kickType) {
 #else
 	std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 	if (table) {
-		table->assertThisThread();
-		//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
-		table->OnUserOffline(player);
+		RunInLoop(table->GetLoop(), CALLBACK_0([&](std::shared_ptr<CPlayer> player) {
+			table->assertThisThread();
+			//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
+			table->OnUserOffline(player);
+		}, player));
 	}
 #endif
 }
