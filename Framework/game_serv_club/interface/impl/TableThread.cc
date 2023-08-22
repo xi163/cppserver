@@ -1,10 +1,10 @@
+#include "Logger/src/log/Logger.h"
+#include "public/gameConst.h"
+
 #include "TableThread.h"
 #include "TableMgr.h"
 #include "Table.h"
 #include "RobotMgr.h"
-
-
-#include "public/gameConst.h"
 
 CTableThread::CTableThread(muduo::net::EventLoop* loop, ITableContext* tableContext)
 	: loop_(CHECK_NOTNULL(loop))

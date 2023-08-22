@@ -1,7 +1,7 @@
 #ifndef INCLUDE_IROBOTDELEGATE_H
 #define INCLUDE_IROBOTDELEGATE_H
 
-#include "public/Inc.h"
+#include "Logger/src/Macro.h"
 
 class ITable;
 class IPlayer;

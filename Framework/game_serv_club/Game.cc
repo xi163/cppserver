@@ -287,13 +287,12 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	
 	threadTimer_->startLoop();
 	
-	numWorkerThreads = 1;
+	numWorkerThreads = 2;
 	CTableThreadMgr::get_mutable_instance().setThreadNum(numWorkerThreads);
 	CTableThreadMgr::get_mutable_instance().start(std::bind(&GameServ::threadInit, this), this);
 	CTableMgr::get_mutable_instance().Init(this);
 	CRobotMgr::get_mutable_instance().Init(this);
-	tableThread_ = CTableThreadMgr::get_mutable_instance().getNextLoop();
-
+	
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
 
@@ -332,7 +331,7 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
-		RunInLoop(tableThread_,
+		RunInLoop(threadTimer_->getLoop(),
 			std::bind(
 				&GameServ::asyncOfflineHandler,
 				this, conn->peerAddress().toIpPort()));
@@ -368,7 +367,7 @@ void GameServ::onMessage(
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
 			assert(header->crc == crc);
-			RunInLoop(tableThread_,
+			RunInLoop(threadTimer_->getLoop(),
 				std::bind(
 					&GameServ::asyncLogicHandler,
 					this,
@@ -954,7 +953,7 @@ void GameServ::KickUser(int64_t userId, int32_t kickType) {
 #if 0
 	packet::internal_prev_header_t pre_header;
 	memset(&pre_header, 0, packet::kPrevHeaderLen);
-	boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> ctx = GetContext(userId);
+	TableContext ctx = GetContext(userId);
 	std::shared_ptr<packet::internal_prev_header_t> pre_header_ = ctx.get<1>();
 	if (!pre_header_) {
 		return;
@@ -981,7 +980,16 @@ void GameServ::KickUser(int64_t userId, int32_t kickType) {
 #endif
 }
 
-boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> GameServ::GetContext(int64_t userId) {
+TableContext GameServ::GetContext(int64_t userId) {
+	TableContext ctx;
+	bool bok = false;
+	RunInLoop(threadTimer_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::GetContextInLoop, userId, std::ref(ctx), std::ref(bok)));
+	while (!bok);
+	return ctx;
+}
+
+void GameServ::GetContextInLoop(int64_t userId, TableContext& context, bool& bok) {
+	threadTimer_->getLoop()->assertInLoopThread();
 	std::string ipPort;
 	std::shared_ptr<gate_t> gate;
 	std::shared_ptr<packet::internal_prev_header_t> pre_header;
@@ -1006,13 +1014,22 @@ boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_
 			}
 		}
 	}
-	return boost::make_tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>>(weakConn, pre_header, header);
+	//context = TableContext(weakConn, pre_header, header);
+	context = boost::make_tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>>(weakConn, pre_header, header);
 }
 
 void GameServ::AddContext(
 	const muduo::net::TcpConnectionPtr& conn,
 	packet::internal_prev_header_t const* pre_header_,
 	packet::header_t const* header_) {
+	RunInLoop(threadTimer_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::AddContextInLoop, conn, pre_header_, header_));
+}
+
+void GameServ::AddContextInLoop(
+	const muduo::net::TcpConnectionPtr& conn,
+	packet::internal_prev_header_t const* pre_header_,
+	packet::header_t const* header_) {
+	threadTimer_->getLoop()->assertInLoopThread();
 	_LOG_ERROR("%d", pre_header_->userId);
 	{
 		//WRITE_LOCK(mutexUserGates_);
@@ -1068,6 +1085,11 @@ void GameServ::AddContext(
 }
 
 void GameServ::DelContext(int64_t userId) {
+	RunInLoop(threadTimer_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::DelContextInLoop, userId));
+}
+
+void GameServ::DelContextInLoop(int64_t userId) {
+	threadTimer_->getLoop()->assertInLoopThread();
 	_LOG_ERROR("%d", userId);
 	std::string ipPort;
 	{

@@ -99,7 +99,7 @@ bool CTable::send(
     uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
-            boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> tuple = tableContext_->GetContext(player->GetUserId());
+            TableContext tuple = tableContext_->GetContext(player->GetUserId());
             muduo::net::WeakTcpConnectionPtr weakConn = tuple.get<0>();
             std::shared_ptr<packet::internal_prev_header_t> pre_header = tuple.get<1>();
             std::shared_ptr<packet::header_t> header = tuple.get<2>();
@@ -133,7 +133,7 @@ bool CTable::send(
     uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
-            boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> tuple = tableContext_->GetContext(player->GetUserId());
+            TableContext tuple = tableContext_->GetContext(player->GetUserId());
             muduo::net::WeakTcpConnectionPtr weakConn = tuple.get<0>();
             std::shared_ptr<packet::internal_prev_header_t> pre_header = tuple.get<1>();
             std::shared_ptr<packet::header_t> header = tuple.get<2>();
@@ -168,7 +168,7 @@ bool CTable::send(
     uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
-            boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> tuple = tableContext_->GetContext(player->GetUserId());
+            TableContext tuple = tableContext_->GetContext(player->GetUserId());
             muduo::net::WeakTcpConnectionPtr weakConn = tuple.get<0>();
             std::shared_ptr<packet::internal_prev_header_t> pre_header = tuple.get<1>();
             std::shared_ptr<packet::header_t> header = tuple.get<2>();
@@ -203,7 +203,7 @@ bool CTable::send(
     uint8_t subId, bool v, int flag) {
     if (player && player->Valid()) {
         if (!player->IsRobot()) {
-            boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> tuple = tableContext_->GetContext(player->GetUserId());
+            TableContext tuple = tableContext_->GetContext(player->GetUserId());
             muduo::net::WeakTcpConnectionPtr weakConn = tuple.get<0>();
             std::shared_ptr<packet::internal_prev_header_t> pre_header = tuple.get<1>();
             std::shared_ptr<packet::header_t> header = tuple.get<2>();

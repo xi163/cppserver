@@ -1,3 +1,5 @@
+#include "Logger/src/log/Logger.h"
+
 #include "ITableDelegate.h"
 #include "TableMgr.h"
 #include "Table.h"

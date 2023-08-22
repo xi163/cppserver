@@ -13,7 +13,7 @@ CPlayerMgr::~CPlayerMgr() {
 std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 	{
 		READ_LOCK(mutex_);
-		assert(items_->find(userId) == items_.end());
+		assert(items_.find(userId) == items_.end());
 	}
 	std::shared_ptr<CPlayer> player;
 	bool empty = false; {

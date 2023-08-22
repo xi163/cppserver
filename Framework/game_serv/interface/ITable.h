@@ -1,7 +1,7 @@
 #ifndef INCLUDE_ITALBE_H
 #define INCLUDE_ITALBE_H
 
-#include "public/Inc.h"
+#include "Logger/src/Macro.h"
 
 #include "IReplayRecord.h"
 

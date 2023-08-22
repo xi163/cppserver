@@ -104,12 +104,18 @@ public:
 	tagGameRoomInfo* GetRoomInfo() { return &roomInfo_; }
 	std::string const& ServId() { return nodeValue_; }
 	void KickUser(int64_t userId, int32_t kickType);
-	boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> GetContext(int64_t userId);
+	TableContext GetContext(int64_t userId);
+	void GetContextInLoop(int64_t userId, TableContext& context, bool& bok);
 	void AddContext(
 		const muduo::net::TcpConnectionPtr& conn,
 		packet::internal_prev_header_t const* pre_header_,
 		packet::header_t const* header_);
+	void AddContextInLoop(
+		const muduo::net::TcpConnectionPtr& conn,
+		packet::internal_prev_header_t const* pre_header_,
+		packet::header_t const* header_);
 	void DelContext(int64_t userId);
+	void DelContextInLoop(int64_t userId);
 	bool IsStopped() { return false; }
 public:
 	bool SendGameErrorCode(
@@ -149,7 +155,7 @@ public:
 	muduo::AtomicInt32 numUsers_;
 	std::shared_ptr<muduo::net::EventLoopThread> threadTimer_;
 	
-	muduo::net::EventLoop* tableThread_;
+	//muduo::net::EventLoop* tableThread_;
 	
 	std::map<std::string, muduo::net::WeakTcpConnectionPtr> mapGateConns_;
 	mutable boost::shared_mutex mutexGateConns_;

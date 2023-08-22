@@ -1,7 +1,8 @@
 #ifndef INCLUDE_ITABLECONTEXT_H
 #define INCLUDE_ITABLECONTEXT_H
 
-#include "public/Inc.h"
+#include "Logger/src/Macro.h"
+#include <google/protobuf/message.h>
 
 namespace packet {
 	struct internal_prev_header_t;
@@ -11,13 +12,18 @@ namespace packet {
 struct tagGameInfo;
 struct tagGameRoomInfo;
 
+typedef boost::tuple<
+	muduo::net::WeakTcpConnectionPtr,
+	std::shared_ptr<packet::internal_prev_header_t>,
+	std::shared_ptr<packet::header_t>> TableContext;
+
 class ITableContext {
 public:
 	virtual tagGameInfo* GetGameInfo() = 0;
 	virtual tagGameRoomInfo* GetRoomInfo() = 0;
 	virtual std::string const& ServId() = 0;
 	virtual void KickUser(int64_t userId, int32_t kickType) = 0;
-	virtual boost::tuple<muduo::net::WeakTcpConnectionPtr, std::shared_ptr<packet::internal_prev_header_t>, std::shared_ptr<packet::header_t>> GetContext(int64_t userId) = 0;
+	virtual TableContext GetContext(int64_t userId) = 0;
 	virtual void DelContext(int64_t userId) = 0;
 	virtual bool IsStopped() = 0;
 	virtual void send(

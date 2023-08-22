@@ -1,7 +1,7 @@
 #ifndef INCLUDE_ITABLEDELEGATE_H
 #define INCLUDE_ITABLEDELEGATE_H
 
-#include "public/Inc.h"
+#include "Logger/src/Macro.h"
 
 class ITable;
 class IPlayer;
