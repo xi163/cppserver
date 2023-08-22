@@ -138,7 +138,7 @@ int main(int argc, char* argv[]) {
 		if (server.InitServer()) {
 			//utils::registerSignalHandler(SIGINT, StopService);
 			utils::registerSignalHandler(SIGTERM, StopService);
-			server.Start(numThreads, std::min(numWorkerThreads, utils::numCPU()), kMaxQueueSize);
+			server.Start(numThreads, std::min<int>(numWorkerThreads, utils::numCPU()), kMaxQueueSize);
 			gServer = &server;
 			loop.loop();
 		}

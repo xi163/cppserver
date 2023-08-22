@@ -285,7 +285,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	thisThread_->startLoop();
 	thisTimer_->startLoop();
 	
-	numWorkerThreads = std::min(numWorkerThreads, roomInfo_.tableCount);
+	numWorkerThreads = std::min<int>(numWorkerThreads, roomInfo_.tableCount);
 	CTableThreadMgr::get_mutable_instance().setThreadNum(numWorkerThreads);
 	CTableThreadMgr::get_mutable_instance().start(std::bind(&GameServ::threadInit, this), this);
 	CTableMgr::get_mutable_instance().Init(this);
