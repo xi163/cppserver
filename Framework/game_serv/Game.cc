@@ -365,6 +365,20 @@ void GameServ::onMessage(
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
 			assert(header->crc == crc);
+#if 0
+			std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
+			if (player) {
+				std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
+				if (table) {
+					RunInLoop(table->GetLoop(),
+						std::bind(
+							&GameServ::asyncLogicHandler,
+							this,
+							muduo::net::WeakTcpConnectionPtr(conn), buffer, receiveTime));
+					continue;
+				}
+			}
+#endif
 			RunInLoop(thisThread_->getLoop(),
 				std::bind(
 					&GameServ::asyncLogicHandler,
