@@ -148,10 +148,7 @@ std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& playe
 		if (tableId < items_.size()) {
 			std::shared_ptr<CTable> table = items_[tableId];
 			do {
-				if (table->GetPlayerCount() >= table->GetMaxPlayerCount()) {
-					break;
-				}
-				if (table->CanJoinTable(player)) {
+				if (!table->CanJoinTable(player, INVALID_TABLE)) {
 					break;
 				}
 				return table;
@@ -169,7 +166,7 @@ std::shared_ptr<CTable> CTableMgr::Find(uint32_t tableId) {
 		READ_LOCK(mutex_);
 		std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
 		if (it != usedItems_.end()) {
-			if (it->second->GetPlayerCount() < it->second->GetMaxPlayerCount()) {
+			if (!it->second->Full()) {
 				return it->second;
 			}
 		}
@@ -191,13 +188,7 @@ std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& play
 	}
 	for (auto it : usedItems) {
 		std::shared_ptr<CTable> table = it;
-		if (INVALID_TABLE == ignoreTableId || ignoreTableId == table->GetTableId()) {
-			continue;
-		}
-		if (table->GetPlayerCount() >= table->GetMaxPlayerCount()) {
-			continue;
-		}
-		if (table->CanJoinTable(player)) {
+		if (table->CanJoinTable(player, ignoreTableId)) {
 			return table;
 		}
 	}
@@ -210,7 +201,7 @@ std::shared_ptr<CTable> CTableMgr::New() {
 		if (!freeItems_.empty()) {
 			std::shared_ptr<CTable> table = freeItems_.front();
 			freeItems_.pop_front();
-			table->Reset();
+			//table->Reset();
 			usedItems_[table->GetTableId()] = table;
 			return table;
 		}
@@ -279,15 +270,18 @@ void CTableMgr::KickAll() {
 		for (auto it : usedItems) {
 			std::shared_ptr<CTable> table = std::dynamic_pointer_cast<CTable>(it);
 			if (table) {
-				table->SetGameStatus(kStopped);
-				table->DismissGame();
-				for (int i = 0; i < roomInfo->maxPlayerNum; ++i) {
-					std::shared_ptr<CPlayer> player = table->items_[i];
-					if (player) {
-						table->OnUserOffline(player);
+				RunInLoop(table->GetLoop(), CALLBACK_0([=](std::shared_ptr<CTable>& table) {
+					table->assertThisThread();
+					table->SetGameStatus(kStopped);
+					table->DismissGame();
+					for (int i = 0; i < table->roomInfo_->maxPlayerNum; ++i) {
+						std::shared_ptr<CPlayer> player = table->items_[i];
+						if (player) {
+							table->OnUserOffline(player);
+						}
 					}
-				}
-				//table->ClearTableUser(INVALID_TABLE, false, false);
+					//table->ClearTableUser(INVALID_TABLE, false, false);
+				}, table));
 			}
 		}
 	}

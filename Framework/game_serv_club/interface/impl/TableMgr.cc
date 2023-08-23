@@ -162,14 +162,7 @@ std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& playe
 		if (tableId < items_.size()) {
 			std::shared_ptr<CTable> table = items_[tableId];
 			do {
-				if (table->GetClubId() <= INVALID_CLUB || table->GetClubId() != clubId) {
-					_LOG_ERROR("clubId:%d tableId:%d table.clubId:%d", clubId, tableId, table->GetClubId());
-					break;
-				}
-				if (table->GetPlayerCount() >= table->GetMaxPlayerCount()) {
-					break;
-				}
-				if (table->CanJoinTable(player)) {
+				if (!table->CanJoinTable(player, clubId)) {
 					break;
 				}
 				return table;
@@ -187,14 +180,13 @@ std::shared_ptr<CTable> CTableMgr::Find(uint32_t tableId) {
 		READ_LOCK(mutex_);
 		std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
 		if (it != usedItems_.end()) {
-			if (it->second->GetPlayerCount() < it->second->GetMaxPlayerCount()) {
+			if (!it->second->Full()) {
 				return it->second;
 			}
 		}
 	}
 	return std::shared_ptr<CTable>();
 }
-
 
 /// <summary>
 /// 查找能进的桌子，没有则取空闲桌子
@@ -209,16 +201,7 @@ std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& play
 	}
 	for (auto it : usedItems) {
 		std::shared_ptr<CTable> table = it;
-		if (INVALID_TABLE == ignoreTableId || ignoreTableId == table->GetTableId()) {
-			continue;
-		}
-		if (table->GetClubId() == INVALID_CLUB || table->GetClubId() != clubId) {
-			continue;
-		}
-		if (table->GetPlayerCount() >= table->GetMaxPlayerCount()) {
-			continue;
-		}
-		if (table->CanJoinTable(player)) {
+		if (table->CanJoinTable(player, clubId, ignoreTableId)) {
 			return table;
 		}
 	}
@@ -231,7 +214,6 @@ std::shared_ptr<CTable> CTableMgr::New(int64_t clubId) {
 		if (!freeItems_.empty()) {
 			std::shared_ptr<CTable> table = freeItems_.front();
 			freeItems_.pop_front();
-			table->Reset();
 			table->SetClubId(clubId);
 			usedItems_[table->GetTableId()] = table;
 			return table;
@@ -248,7 +230,6 @@ void CTableMgr::Delete(uint32_t tableId) {
 			std::shared_ptr<CTable>& table = it->second;
 			usedItems_.erase(it);
 			table->Reset();
-			table->SetClubId(INVALID_CLUB);
 			freeItems_.emplace_back(table);
 		}
 	}
@@ -302,15 +283,18 @@ void CTableMgr::KickAll() {
 		for (auto it : usedItems) {
 			std::shared_ptr<CTable> table = std::dynamic_pointer_cast<CTable>(it);
 			if (table) {
-				table->SetGameStatus(kStopped);
-				table->DismissGame();
-				for (int i = 0; i < roomInfo->maxPlayerNum; ++i) {
-					std::shared_ptr<CPlayer> player = table->items_[i];
-					if (player) {
-						table->OnUserOffline(player);
+				RunInLoop(table->GetLoop(), CALLBACK_0([=](std::shared_ptr<CTable>& table) {
+					table->assertThisThread();
+					table->SetGameStatus(kStopped);
+					table->DismissGame();
+					for (int i = 0; i < table->roomInfo_->maxPlayerNum; ++i) {
+						std::shared_ptr<CPlayer> player = table->items_[i];
+						if (player) {
+							table->OnUserOffline(player);
+						}
 					}
-				}
-				//table->ClearTableUser(INVALID_TABLE, false, false);
+					//table->ClearTableUser(INVALID_TABLE, false, false);
+				}, table));
 			}
 		}
 	}

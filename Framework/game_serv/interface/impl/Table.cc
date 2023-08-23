@@ -36,6 +36,12 @@ CTable::~CTable() {
 }
 
 void CTable::Reset() {
+	bool ok = false;
+	QueueInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::ResetInLoop, std::ref(ok)));
+	while (!ok);
+}
+
+void CTable::ResetInLoop(bool& ok) {
     if (tableDelegate_) {
         tableDelegate_->Reposition();
     }
@@ -43,23 +49,35 @@ void CTable::Reset() {
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         items_[i] = std::shared_ptr<CPlayer>();
     }
+    ok = true;
 }
 
 void CTable::GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items) {
-	bool bok = false;
-	QueueInLoop(loop_,
-		std::bind(&CTable::GetPlayersInLoop, this, std::ref(items), std::ref(bok)));
-	while (!bok);
+	bool ok = false;
+	QueueInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::GetPlayersInLoop, std::ref(items), std::ref(ok)));
+	while (!ok);
 }
 
-void CTable::GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& bok) {
+void CTable::GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& ok) {
 	for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
 		std::shared_ptr<CPlayer> player = items_[i];
 		if (player && player->Valid()) {
 			items.emplace_back(player);
 		}
 	}
-	bok = true;
+	ok = true;
+}
+
+bool CTable::Full() {
+	bool rc = false, ok = false;
+	RunInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::Full, std::ref(rc), std::ref(ok)));
+    while (!ok);
+	return rc;
+}
+
+void CTable::FullInLoop(bool& rc, bool& ok) {
+    rc = GetPlayerCount() >= GetMaxPlayerCount();
+    ok = true;
 }
 
 void CTable::Init(std::shared_ptr<ITableDelegate>& tableDelegate, TableState& tableState, tagGameRoomInfo* roomInfo) {
@@ -519,6 +537,28 @@ bool CTable::CanJoinTable(std::shared_ptr<CPlayer> const& player) {
         return false;
     }
     return tableDelegate_->CanJoinTable(player);
+}
+
+bool CTable::CanJoinTable(std::shared_ptr<CPlayer> const& player, uint32_t ignoreTableId) {
+    bool rc = false, ok = false;
+    RunInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::CanJoinTableInLoop, player, std::ref(rc), std::ref(ok)));
+    while (!ok);
+    return rc;
+}
+
+void CTable::CanJoinTableInLoop(std::shared_ptr<CPlayer> const& player, uint32_t ignoreTableId, bool& rc, bool& ok) {
+    do {
+		if (INVALID_TABLE != ignoreTableId && ignoreTableId == GetTableId()) {
+			rc = false;
+			break;
+		}
+		if (GetPlayerCount() >= GetMaxPlayerCount()) {
+			rc = false;
+            break;
+		}
+		rc = CanJoinTable(player);
+    } while (0);
+    ok = true;
 }
 
 bool CTable::CanLeftTable(int64_t userId) {

@@ -88,11 +88,11 @@ protected:
 
 	void connectionCallback(const muduo::net::TcpConnectionPtr& conn);
 
-	void countInLoop(size_t& size, bool& bok);
+	void countInLoop(size_t& size, bool& ok);
 	void checkInLoop(std::string const& name, bool exist);
-	void existInLoop(std::string const& name, bool& exist, bool& bok);
-	void getInLoop(std::string const& name, ClientConn& client, bool& bok);
-	void getAllInLoop(ClientConnList& clients, bool& bok);
+	void existInLoop(std::string const& name, bool& exist, bool& ok);
+	void getInLoop(std::string const& name, ClientConn& client, bool& ok);
+	void getAllInLoop(ClientConnList& clients, bool& ok);
 	void removeInLoop(std::string const& name, bool lazy);
 	void cleanupInLoop();
 	void closeAllInLoop();

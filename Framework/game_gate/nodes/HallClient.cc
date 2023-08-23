@@ -289,7 +289,7 @@ void GateServ::sendHallMessage(
 			//异步获取全部有效大厅连接
 			clients_[containTy::kHallTy].clients_->getAll(clients);
 			if (clients.size() > 0) {
-				bool bok = false;
+				bool ok = false;
 				std::map<std::string, bool> repairs;
 				do {
 					int index = randomHall_.betweenInt(0, clients.size() - 1).randInt_mt();
@@ -347,7 +347,7 @@ void GateServ::sendHallMessage(
 		//异步获取全部有效大厅连接
 		clients_[containTy::kHallTy].clients_->getAll(clients);
 		if (clients.size() > 0) {
-			bool bok = false;
+			bool ok = false;
 			std::map<std::string, bool> repairs;
 			do {
 				int index = randomHall_.betweenInt(0, clients.size() - 1).randInt_mt();

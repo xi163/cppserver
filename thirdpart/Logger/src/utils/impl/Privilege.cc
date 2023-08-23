@@ -47,7 +47,7 @@ namespace utils {
 #if defined(_windows_)
 		std::wstring wpath = utils::_str2ws(path);
 		std::wstring wusername = utils::_str2ws(username);
-		BOOL bok = TRUE;
+		BOOL ok = true;
 		EXPLICIT_ACCESS ea = { 0 };
 		PACL pNewDacl = NULL;
 		PACL pOldDacl = NULL;
@@ -60,7 +60,7 @@ namespace utils {
 					SE_FILE_OBJECT,
 					DACL_SECURITY_INFORMATION,
 					NULL, NULL, &pOldDacl, NULL, NULL)) {
-				bok = FALSE;
+				ok = FALSE;
 				break;
 			}
 
@@ -78,7 +78,7 @@ namespace utils {
 				&ea,
 				pOldDacl,
 				&pNewDacl)) {
-				bok = FALSE;
+				ok = FALSE;
 				break;
 			}
 			// 设置文件(夹)安全对象的DACL列表
@@ -88,7 +88,7 @@ namespace utils {
 					SE_FILE_OBJECT,
 					DACL_SECURITY_INFORMATION,
 					NULL, NULL, pNewDacl, NULL)) {
-				bok = FALSE;
+				ok = FALSE;
 			}
 		} while (0);
 
@@ -96,7 +96,7 @@ namespace utils {
 			::LocalFree(pNewDacl);
 		}
 
-		return bok == TRUE;
+		return ok == TRUE;
 #else
 		return false;
 #endif

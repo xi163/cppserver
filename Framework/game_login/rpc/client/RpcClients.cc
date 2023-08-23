@@ -109,43 +109,43 @@ namespace rpc {
 	}
 
 	bool Connector::exists(std::string const& name) /*const*/ {
-		bool bok = false;
+		bool ok = false;
 		bool exist = false;
 		QueueInLoop(loop_,
-			std::bind(&Connector::existInLoop, this, name, std::ref(exist), std::ref(bok)));
+			std::bind(&Connector::existInLoop, this, name, std::ref(exist), std::ref(ok)));
 		//spin lock until asynchronous return
-		while (!bok);
+		while (!ok);
 		return exist;
 	}
 
 	size_t const Connector::count() /*const*/ {
-		bool bok = false;
+		bool ok = false;
 		size_t size = 0;
 		QueueInLoop(loop_,
-			std::bind(&Connector::countInLoop, this, std::ref(size), std::ref(bok)));
+			std::bind(&Connector::countInLoop, this, std::ref(size), std::ref(ok)));
 		//spin lock until asynchronous return
-		while (!bok);
+		while (!ok);
 		return size;
 	}
 
 	void Connector::get(std::string const& name, ClientConn& client) {
-		bool bok = false;
+		bool ok = false;
 		QueueInLoop(loop_,
-			std::bind(&Connector::getInLoop, this, name, std::ref(client), std::ref(bok)));
+			std::bind(&Connector::getInLoop, this, name, std::ref(client), std::ref(ok)));
 		//spin lock until asynchronous return
-		while (!bok);
+		while (!ok);
 	}
 
 	void Connector::getAll(ClientConnList& clients) {
 		assert(clients.size() == 0);
-		bool bok = false;
+		bool ok = false;
 		QueueInLoop(loop_,
-			std::bind(&Connector::getAllInLoop, this, std::ref(clients), std::ref(bok)));
+			std::bind(&Connector::getAllInLoop, this, std::ref(clients), std::ref(ok)));
 		//spin lock until asynchronous return
-		while (!bok);
+		while (!ok);
 	}
 
-	void Connector::getInLoop(std::string const& name, ClientConn& client, bool& bok) {
+	void Connector::getInLoop(std::string const& name, ClientConn& client, bool& ok) {
 
 		loop_->assertInLoopThread();
 #if 0
@@ -183,10 +183,10 @@ namespace rpc {
 				muduo::net::WeakRpcChannelPtr>(name, weakConn, weakChannel);
 #endif
 		}
-		bok = true;
+		ok = true;
 	}
 
-	void Connector::getAllInLoop(ClientConnList& clients, bool& bok) {
+	void Connector::getAllInLoop(ClientConnList& clients, bool& ok) {
 
 		loop_->assertInLoopThread();
 
@@ -209,7 +209,7 @@ namespace rpc {
 #endif
 			}
 		}
-		bok = true;
+		ok = true;
 	}
 
 	void Connector::addInLoop(
@@ -255,12 +255,12 @@ namespace rpc {
 		}
 	}
 
-	void Connector::countInLoop(size_t& size, bool& bok) {
+	void Connector::countInLoop(size_t& size, bool& ok) {
 
 		loop_->assertInLoopThread();
 
 		size = clients_.size();
-		bok = true;
+		ok = true;
 	}
 
 	void Connector::checkInLoop(std::string const& name, bool exist) {
@@ -299,7 +299,7 @@ namespace rpc {
 		}
 	}
 
-	void Connector::existInLoop(std::string const& name, bool& exist, bool& bok) {
+	void Connector::existInLoop(std::string const& name, bool& exist, bool& ok) {
 
 		loop_->assertInLoopThread();
 
@@ -311,7 +311,7 @@ namespace rpc {
 			});
 #endif
 		exist = (it != clients_.end());
-		bok = true;
+		ok = true;
 	}
 
 	void Connector::closeAll() {

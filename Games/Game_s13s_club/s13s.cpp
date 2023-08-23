@@ -6293,7 +6293,7 @@ namespace S13S {
 	void CGameLogic::GetLeftCards(uint8_t const* src, int len,
 		dundata_t const* duns, uint8_t *cpy, int& cpylen) {
 		cpylen = 0;
-		bool bok = false;
+		bool ok = false;
 		//遍历一副手牌查找当前牌
 		for (int i = 0; i < len; ++i) {
 		next:
@@ -6307,7 +6307,7 @@ namespace S13S {
 				for (int c = 0; c < duns[j].c; ++c) {
 					if (src[i] == duns[j].cards[c]) {
 						//src[i]在duns[j]中存在了
-						bok = true;
+						ok = true;
 						goto next;
 					}
 				}

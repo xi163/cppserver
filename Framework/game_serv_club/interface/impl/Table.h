@@ -17,6 +17,7 @@ public:
 	CTable(muduo::net::EventLoop* loop, ITableContext* tableContext);
 	virtual ~CTable();
 	virtual void Reset();
+	virtual void ResetInLoop(bool& ok);
 	bool send(
 		std::shared_ptr<IPlayer> const& player,
 		uint8_t const* msg, size_t len,
@@ -41,7 +42,9 @@ public:
 	virtual void SetClubId(int64_t clubId);
 	virtual void GetTableInfo(TableState& tableState);
 	virtual void GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items);
-	virtual void GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& bok);
+	virtual void GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& ok);
+	virtual bool Full();
+	virtual void FullInLoop(bool& rc, bool& ok);
 	virtual muduo::net::EventLoop* GetLoop();
 	virtual void assertThisThread();
 	virtual std::string const& ServId();
@@ -64,6 +67,8 @@ public:
 	//关闭页面
 	virtual bool OnUserOffline(std::shared_ptr<CPlayer> const& player);
 	virtual bool CanJoinTable(std::shared_ptr<CPlayer> const& player);
+	virtual bool CanJoinTable(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint32_t ignoreTableId = INVALID_TABLE);
+	virtual void CanJoinTableInLoop(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint32_t ignoreTableId, bool& rc, bool& ok);
 	virtual bool CanLeftTable(int64_t userId);
 	virtual uint32_t GetPlayerCount();
 	virtual uint32_t GetPlayerCount(bool includeRobot);

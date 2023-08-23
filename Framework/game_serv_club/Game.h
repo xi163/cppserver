@@ -105,7 +105,7 @@ public:
 	std::string const& ServId() { return nodeValue_; }
 	void KickUser(int64_t userId, int32_t kickType);
 	TableContext GetContext(int64_t userId);
-	void GetContextInLoop(int64_t userId, TableContext& context, bool& bok);
+	void GetContextInLoop(int64_t userId, TableContext& context, bool& ok);
 	void AddContext(
 		const muduo::net::TcpConnectionPtr& conn,
 		packet::internal_prev_header_t const* pre_header_,

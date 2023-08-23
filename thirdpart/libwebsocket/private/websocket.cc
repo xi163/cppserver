@@ -2118,7 +2118,7 @@ namespace muduo {
 				//控制帧，完整websocket消息体(body)
 				//IBytesBufferPtr controlBuffer = controlMessage.getMessageBuffer();
 
-				bool bok = true;
+				bool ok = true;
 				do {
 					//消息帧类型
 					switch (header.opcode)
@@ -2234,7 +2234,7 @@ namespace muduo {
 					}
 					}
 				} while (0);
-				return bok;
+				return ok;
 			}
 
 			static int parse_frame_ReadExtendedPayloadlenU16(
@@ -2304,7 +2304,7 @@ namespace muduo {
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
 				websocket::header_t& header = extended_header.get_header();
-				bool bok = true;
+				bool ok = true;
 				do {
 					//之前解析基础协议头/帧头(header) header_t，uint16_t
 					assert(context.getWebsocketStep() == websocket::StepE::ReadFrameHeader);
@@ -2354,7 +2354,7 @@ namespace muduo {
 					}
 					}
 				} while (0);
-				return bok;
+				return ok;
 			}
 
 			//	解析基础协议头/帧头(header)
