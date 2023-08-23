@@ -298,7 +298,7 @@ void GateServ::sendHallMessage(
 					muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 					if (hallConn) {
 						//判断节点是否维护中
-						if (bok = !clients_[containTy::kHallTy].isRepairing(clientConn.first)) {
+						if (ok = !clients_[containTy::kHallTy].isRepairing(clientConn.first)) {
 							//账号已经登陆，但登陆大厅维护中，重新指定账号登陆大厅
 							entryContext.setClientConn(containTy::kHallTy, clientConn);
 							if (buf) {
@@ -323,7 +323,7 @@ void GateServ::sendHallMessage(
 							}
 						}
 					}
-				} while (!bok && repairs.size() != clients.size());
+				} while (!ok && repairs.size() != clients.size());
 			}
 			else {
 				packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
@@ -357,7 +357,7 @@ void GateServ::sendHallMessage(
 				if (hallConn) {
 					assert(hallConn->connected());
 					//判断节点是否维护中
-					if (bok = !clients_[containTy::kHallTy].isRepairing(clientConn.first)) {
+					if (ok = !clients_[containTy::kHallTy].isRepairing(clientConn.first)) {
 						if (entryContext.getUserId() > 0) {
 							//账号已经登陆，但登陆大厅失效了，重新指定账号登陆大厅
 							entryContext.setClientConn(containTy::kHallTy, clientConn);
@@ -384,7 +384,7 @@ void GateServ::sendHallMessage(
 						}
 					}
 				}
-			} while (!bok && repairs.size() != clients.size());
+			} while (!ok && repairs.size() != clients.size());
 		}
 		else {
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);

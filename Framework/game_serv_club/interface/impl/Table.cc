@@ -37,44 +37,44 @@ CTable::~CTable() {
 }
 
 void CTable::Reset() {
-	bool ok = false;
-	QueueInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::ResetInLoop, std::ref(ok)));
-	while (!ok);
+    bool ok = false;
+    QueueInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::ResetInLoop, std::ref(ok)));
+    while (!ok);
 }
 
 void CTable::ResetInLoop(bool& ok) {
-	clubId_ = INVALID_CLUB;
-	if (tableDelegate_) {
-		tableDelegate_->Reposition();
-	}
-	status_ = GAME_STATUS_INIT;
-	for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-		items_[i] = std::shared_ptr<CPlayer>();
-	}
+    clubId_ = INVALID_CLUB;
+    if (tableDelegate_) {
+        tableDelegate_->Reposition();
+    }
+    status_ = GAME_STATUS_INIT;
+    for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
+        items_[i] = std::shared_ptr<CPlayer>();
+    }
     ok = true;
 }
 
 void CTable::GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items) {
-	bool ok = false;
-	QueueInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::GetPlayersInLoop, std::ref(items), std::ref(ok)));
-	while (!ok);
+    bool ok = false;
+    QueueInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::GetPlayersInLoop, std::ref(items), std::ref(ok)));
+    while (!ok);
 }
 
 void CTable::GetPlayersInLoop(std::vector<std::shared_ptr<CPlayer>>& items, bool& ok) {
-	for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
-		std::shared_ptr<CPlayer> player = items_[i];
-		if (player && player->Valid()) {
-			items.emplace_back(player);
-		}
-	}
-	ok = true;
+    for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
+        std::shared_ptr<CPlayer> player = items_[i];
+        if (player && player->Valid()) {
+            items.emplace_back(player);
+        }
+    }
+    ok = true;
 }
 
 bool CTable::Full() {
-	bool rc = false, ok = false;
-	RunInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::Full, std::ref(rc), std::ref(ok)));
+    bool rc = false, ok = false;
+    RunInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::FullInLoop, std::ref(rc), std::ref(ok)));
     while (!ok);
-	return rc;
+    return rc;
 }
 
 void CTable::FullInLoop(bool& rc, bool& ok) {
@@ -109,7 +109,7 @@ std::string CTable::NewRoundId() {
 }
 
 std::string CTable::GetRoundId() {
-	return tableDelegate_->GetRoundId();
+    return tableDelegate_->GetRoundId();
 }
 
 bool CTable::send(
@@ -126,13 +126,13 @@ bool CTable::send(
             muduo::net::TcpConnectionPtr conn(weakConn.lock());
             if (conn) {
                 switch (v) {
-				case true: {
-					int old = const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok;
-					const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = flag;
-					tableContext_->send(conn, msg, len, mainId, subId, pre_header.get(), header.get());
-					const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = old;
+                case true: {
+                    int old = const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok;
+                    const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = flag;
+                    tableContext_->send(conn, msg, len, mainId, subId, pre_header.get(), header.get());
+                    const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = old;
                     break;
-				}
+                }
                 default:
                     tableContext_->send(conn, msg, len, mainId, subId, pre_header.get(), header.get());
                     break;
@@ -161,15 +161,15 @@ bool CTable::send(
             if (conn) {
                 switch (v) {
                 case true: {
-					int old = const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok;
-					const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = flag;
-					tableContext_->send(conn, msg, len, subId, pre_header.get(), header.get());
-					const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = old;
+                    int old = const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok;
+                    const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = flag;
+                    tableContext_->send(conn, msg, len, subId, pre_header.get(), header.get());
+                    const_cast<packet::internal_prev_header_t*>(pre_header.get())->ok = old;
                     break;
                 }
                 default:
                     tableContext_->send(conn, msg, len, subId, pre_header.get(), header.get());
-                    break;   
+                    break;
                 }
                 return true;
             }
@@ -374,25 +374,25 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
                 int64_t userId = player->GetUserId();
                 switch (sendErrCode) {
                 case 0: {
-					::GameServer::MSG_S2C_UserEnterMessageResponse msg;
-					msg.mutable_header()->set_sign(HEADER_SIGN);
-					msg.set_retcode(sendErrCode);
-					msg.set_errormsg("游戏结束,您已被清理");
-					send(player, &msg,
-						Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-						GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+                    ::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+                    msg.mutable_header()->set_sign(HEADER_SIGN);
+                    msg.set_retcode(sendErrCode);
+                    msg.set_errormsg("游戏结束,您已被清理");
+                    send(player, &msg,
+                        Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+                        GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
                     break;
                 }
-				default: {
-					::GameServer::MSG_S2C_UserEnterMessageResponse msg;
-					msg.mutable_header()->set_sign(HEADER_SIGN);
-					msg.set_retcode(sendErrCode);
-					msg.set_errormsg("游戏结束,您已被清理");
-					send(player, &msg,
-						Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-						GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+                default: {
+                    ::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+                    msg.mutable_header()->set_sign(HEADER_SIGN);
+                    msg.set_retcode(sendErrCode);
+                    msg.set_errormsg("游戏结束,您已被清理");
+                    send(player, &msg,
+                        Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+                        GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
                     break;
-				}
+                }
                 }
                 if (!OnUserStandup(player, sendState, sendToSelf)) {
                     _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
@@ -410,28 +410,28 @@ void CTable::ClearTableUser(uint32_t chairId, bool sendState, bool sendToSelf, u
         std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             int64_t userId = player->GetUserId();
-			switch (sendErrCode) {
-			case 0: {
-				::GameServer::MSG_S2C_UserEnterMessageResponse msg;
-				msg.mutable_header()->set_sign(HEADER_SIGN);
-				msg.set_retcode(sendErrCode);
-				msg.set_errormsg("游戏结束,您已被清理");
-				send(player, &msg,
-					Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-					GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
-				break;
-			}
-			default: {
-				::GameServer::MSG_S2C_UserEnterMessageResponse msg;
-				msg.mutable_header()->set_sign(HEADER_SIGN);
-				msg.set_retcode(sendErrCode);
-				msg.set_errormsg("游戏结束,您已被清理");
-				send(player, &msg,
-					Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-					GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
-				break;
-			}
-			}
+            switch (sendErrCode) {
+            case 0: {
+                ::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+                msg.mutable_header()->set_sign(HEADER_SIGN);
+                msg.set_retcode(sendErrCode);
+                msg.set_errormsg("游戏结束,您已被清理");
+                send(player, &msg,
+                    Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+                    GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+                break;
+            }
+            default: {
+                ::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+                msg.mutable_header()->set_sign(HEADER_SIGN);
+                msg.set_retcode(sendErrCode);
+                msg.set_errormsg("游戏结束,您已被清理");
+                send(player, &msg,
+                    Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+                    GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+                break;
+            }
+            }
             if (!OnUserStandup(player, sendState, sendToSelf)) {
                 _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
             }
@@ -493,12 +493,12 @@ std::shared_ptr<IPlayer> CTable::GetChairPlayer(uint32_t chairId) {
 }
 
 std::shared_ptr<IPlayer> CTable::GetPlayer(int64_t userId) {
-    //     for (std::vector<std::shared_ptr<IPlayer>>::iterator it = items_.begin();
-    //         it != items_.end(); ++it) {
-    //         if (*it && (*it)->GetUserId() == userId) {
-    //             return *it;
-    //         }
-    //     }
+//     for (std::vector<std::shared_ptr<IPlayer>>::iterator it = items_.begin();
+//         it != items_.end(); ++it) {
+//         if (*it && (*it)->GetUserId() == userId) {
+//             return *it;
+//         }
+//     }
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         std::shared_ptr<CPlayer> player = items_[i];
         if (player && player->GetUserId() == userId) {
@@ -537,9 +537,9 @@ std::string CTable::StrGameStatus() {
         return "END";
     }
     if (status_ >= GAME_STATUS_START && status_ < GAME_STATUS_END) {
-		return "START";
-	}
-	return "";
+        return "START";
+    }
+    return "";
 }
 
 bool CTable::CanJoinTable(std::shared_ptr<CPlayer> const& player) {
@@ -551,26 +551,26 @@ bool CTable::CanJoinTable(std::shared_ptr<CPlayer> const& player) {
 
 bool CTable::CanJoinTable(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint32_t ignoreTableId) {
     bool rc = false, ok = false;
-    RunInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::CanJoinTableInLoop, player, clubId, std::ref(rc), std::ref(ok)));
+    RunInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::CanJoinTableInLoop, player, clubId, ignoreTableId, std::ref(rc), std::ref(ok)));
     while (!ok);
     return rc;
 }
 
 void CTable::CanJoinTableInLoop(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint32_t ignoreTableId, bool& rc, bool& ok) {
     do {
-		if (INVALID_TABLE != ignoreTableId && ignoreTableId == GetTableId()) {
-			rc = false;
-			break;
-		}
-		if (clubId_ <= INVALID_CLUB || clubId_ != clubId) {
-			rc = false;
+        if (INVALID_TABLE != ignoreTableId && ignoreTableId == GetTableId()) {
+            rc = false;
             break;
-		}
-		if (GetPlayerCount() >= GetMaxPlayerCount()) {
-			rc = false;
+        }
+        if (clubId_ <= INVALID_CLUB || clubId_ != clubId) {
+            rc = false;
             break;
-		}
-		rc = CanJoinTable(player);
+        }
+        if (GetPlayerCount() >= GetMaxPlayerCount()) {
+            rc = false;
+            break;
+        }
+        rc = CanJoinTable(player);
     } while (0);
     ok = true;
 }
@@ -614,18 +614,18 @@ bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf)
     if (!player->IsRobot()) {
         _LOG_INFO("%d 点击离开按钮", player->GetUserId());
     }
-    //	if (status_ >= GAME_STATUS_START && status_ < GAME_STATUS_END) {
-            //tableContext_->DelContext(player->GetUserId());
+//	if (status_ >= GAME_STATUS_START && status_ < GAME_STATUS_END) {
+    //tableContext_->DelContext(player->GetUserId());
     player->setOffline();
     player->setTrustee(true);
     //BroadcastUserStatus(player, sendToSelf);
     return tableDelegate_->OnUserLeft(player->GetUserId(), false);
-    //	}
-    // 	if (tableDelegate_->OnUserLeft(player->GetUserId(), false)) {
-    // 		OnUserStandup(player, true, sendToSelf);
-    // 		return true;
-    // 	}
-    // 	return false;
+//	}
+// 	if (tableDelegate_->OnUserLeft(player->GetUserId(), false)) {
+// 		OnUserStandup(player, true, sendToSelf);
+// 		return true;
+// 	}
+// 	return false;
 }
 
 //关闭页面
@@ -764,9 +764,9 @@ bool CTable::CheckGameStart() {
             return false;
         }
     }
-    // 	if (playerCount >= tableContext_->GetGameInfo()->MIN_GAME_PLAYER) {
-    // 		return true;
-    // 	}
+// 	if (playerCount >= tableContext_->GetGameInfo()->MIN_GAME_PLAYER) {
+// 		return true;
+// 	}
     return false;
 }
 
