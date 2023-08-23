@@ -866,10 +866,6 @@ void GameServ::cmd_on_user_left_room(
 	::GameServer::MSG_C2S_UserLeftMessage reqdata;
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::GameServer::MSG_C2S_UserLeftMessageResponse rspdata;
-		rspdata.mutable_header()->CopyFrom(reqdata.header());
-		rspdata.set_gameid(reqdata.gameid());
-		rspdata.set_roomid(reqdata.roomid());
-		rspdata.set_type(reqdata.type());
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
@@ -909,12 +905,18 @@ void GameServ::cmd_on_user_left_room(
 				}, reqdata.gameid(), reqdata.roomid(), reqdata.type(), conn, buf, player));
 				return;
 			}
-			else {
-				rspdata.set_retcode(3);
-				rspdata.set_errormsg("OnUserLeft find table failed");
-			}
+			rspdata.mutable_header()->CopyFrom(reqdata.header());
+			rspdata.set_gameid(reqdata.gameid());
+			rspdata.set_roomid(reqdata.roomid());
+			rspdata.set_type(reqdata.type());
+			rspdata.set_retcode(3);
+			rspdata.set_errormsg("OnUserLeft find table failed");
 		}
 		else {
+			rspdata.mutable_header()->CopyFrom(reqdata.header());
+			rspdata.set_gameid(reqdata.gameid());
+			rspdata.set_roomid(reqdata.roomid());
+			rspdata.set_type(reqdata.type());
 			rspdata.set_retcode(4);
 			rspdata.set_errormsg("OnUserLeft find user failed");
 		}
