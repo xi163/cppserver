@@ -9,8 +9,8 @@ typedef std::shared_ptr<muduo::net::Buffer> BufferPtr;
 #define AESKEYSZ   16
 #define SERVIDSZ   50
 
-#define HEADER_SIGN          (0x5F5F)
-#define PROTO_BUF_SIGN       (0xF5F5F5F5)
+#define HEADER_SIGN   0x5F5F
+#define PROTOBUF_SIGN 0xF5F5F5F5
 
 namespace packet {
 

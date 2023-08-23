@@ -5,22 +5,19 @@
 
 #define MIN_SYS_USER_ID 1000
 
-#define HEADER_SIGN		0x5F5F
-#define PROTOBUF_SIGN	0xF5F5F5F5
-
 #define INVALID_TABLE	0xFFFF
 #define INVALID_CHAIR	0xFFFF
 #define INVALID_CARD	0xFFFF
 #define INVALID_CLUB    0
 
-#define KICK_NULL         0x0
-#define KICK_GS           0x01
-#define KICK_HALL         0x02
-#define KICK_CLOSEONLY    0x04
-#define KICK_LEAVEGS      0x08
-#define KICK_REPLACE      0x10
+#define KICK_NULL       0x0
+#define KICK_GS         0x01
+#define KICK_HALL       0x02
+#define KICK_CLOSEONLY  0x04
+#define KICK_LEAVEGS    0x08
+#define KICK_REPLACE    0x10
 
-#define REDIS_CUR_STOCKS        "stocks"    //当前库存Key
+#define REDIS_CUR_STOCKS "stocks"    //当前库存Key
 
 #define COIN_RATE 100 //金币比率
 

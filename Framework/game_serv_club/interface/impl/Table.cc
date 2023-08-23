@@ -288,7 +288,7 @@ bool CTable::SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId,
     uint8_t mainId = Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC;
     if (!player->IsRobot()) {
         ::GameServer::MSG_CSC_Passageway pass;
-        pass.mutable_header()->set_sign(PROTO_BUF_SIGN);
+        pass.mutable_header()->set_sign(PROTOBUF_SIGN);
         pass.set_passdata(data, len);
         return send(player, &pass, mainId, subId);
     }

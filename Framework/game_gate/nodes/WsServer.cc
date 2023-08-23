@@ -322,7 +322,7 @@ BufferPtr GateServ::packKickGameUserMsg() {
 
 BufferPtr GateServ::packNotifyFailedMsg(uint8_t mainId, uint8_t subId) {
 	::Game::Common::ProxyNotifyFailedMessage msg;
-	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
+	msg.mutable_header()->set_sign(PROTOBUF_SIGN);
 	msg.set_mainid(mainId);
 	msg.set_subid(subId);
 	msg.set_msg("请求服务不可用");
@@ -339,7 +339,7 @@ BufferPtr GateServ::packNotifyFailedMsg(uint8_t mainId, uint8_t subId) {
 
 BufferPtr GateServ::packOrderScoreMsg(int16_t userid, int64_t score) {
 	::Game::Common::ProxyNotifyOrderScoreMessage msg;
-	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
+	msg.mutable_header()->set_sign(PROTOBUF_SIGN);
 	msg.set_userid(userid);
 	msg.set_score(score);
 
@@ -355,7 +355,7 @@ BufferPtr GateServ::packOrderScoreMsg(int16_t userid, int64_t score) {
 
 BufferPtr GateServ::packClientShutdownMsg(int64_t userid, int status) {
 	::Game::Common::ProxyNotifyShutDownUserClientMessage msg;
-	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
+	msg.mutable_header()->set_sign(PROTOBUF_SIGN);
 	msg.set_userid(userid);
 	msg.set_status(status);
 	msg.set_msg("异地登陆被强制踢下线");
@@ -374,7 +374,7 @@ BufferPtr GateServ::packNoticeMsg(
 	int32_t agentid, std::string const& title,
 	std::string const& content, int msgtype) {
 	::ProxyServer::Message::NotifyNoticeMessageFromProxyServerMessage msg;
-	msg.mutable_header()->set_sign(PROTO_BUF_SIGN);
+	msg.mutable_header()->set_sign(PROTOBUF_SIGN);
 	msg.add_agentid(agentid);
 	msg.set_title(title.c_str());
 	msg.set_message(content);
