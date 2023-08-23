@@ -644,7 +644,6 @@ void GameServ::cmd_on_user_enter_room(
 					BufferPtr const& buf, std::shared_ptr<CTable>& table) {
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
-					table->assertThisThread();
 					if (player->isOffline()) {
 						_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
 							table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
@@ -655,6 +654,7 @@ void GameServ::cmd_on_user_enter_room(
 							table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
 							player->GetChairId(), player->GetUserId());
 					}
+					table->assertThisThread();
 					if (table->CanJoinTable(player)) {
 						table->OnUserEnterAction(player, pre_header_, header_);
 					}
