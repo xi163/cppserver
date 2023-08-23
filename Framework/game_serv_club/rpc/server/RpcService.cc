@@ -28,9 +28,9 @@ namespace rpc {
 			::Game::Rpc::RoomInfoRsp rsp;
 			rsp.set_tablecount(gServer->roomInfo_.tableCount - (uint16_t)CTableMgr::get_mutable_instance().UsedCount());
 			//tableInfos
-			std::set<uint32_t> vec;
+			std::set<uint16_t> vec;
 			CTableMgr::get_mutable_instance().Get(req->clubid(), vec);
-			for (std::set<uint32_t>::iterator it = vec.begin(); it != vec.end(); ++it) {
+			for (std::set<uint16_t>::iterator it = vec.begin(); it != vec.end(); ++it) {
 				std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(*it);
 				if (table) {
 					::club::game::room::table::info* tableInfo = rsp.add_tables();
