@@ -10,16 +10,12 @@ class CRobotMgr : public boost::serialization::singleton<CRobotMgr> {
 public:
 	CRobotMgr();
 	virtual ~CRobotMgr();
-	void Init(ITableContext* tableContext);
+	bool Init(ITableContext* tableContext);
 	bool Empty();
 	std::shared_ptr<CRobot> Pick();
 	void Delete(int64_t userId);
-	void OnTimerCheckIn();
-	void Hourtimer(tagGameRoomInfo* roomInfo);
 private:
-	void load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, RobotDelegateCreator creator);
-	int64_t randScore(tagGameRoomInfo* roomInfo, int64_t minScore, int64_t maxScore);
-	int randomOnce(int32_t need, int N = 3);
+	bool load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, RobotDelegateCreator creator);
 protected:
 	std::map<int64_t, std::shared_ptr<CRobot>> items_;
 	std::list<std::shared_ptr<CRobot>> freeItems_;

@@ -105,6 +105,20 @@ std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
 	return usedItems;
 }
 
+std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables(std::vector<uint32_t>& tableId) {
+	std::list<std::shared_ptr<CTable>> usedItems;
+	{
+		READ_LOCK(mutex_);
+		for (int i = 0; i < tableId.size(); ++i) {
+			std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId[i]);
+			if (it != usedItems_.end()) {
+				usedItems.emplace_back(it->second);
+			}
+		}
+	}
+	return usedItems;
+}
+
 /// <summary>
 /// 返回桌子数量
 /// </summary>

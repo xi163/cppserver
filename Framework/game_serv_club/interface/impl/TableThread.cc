@@ -25,8 +25,6 @@ void CTableThread::startCheckUserIn() {
 		switch (tableContext_->GetGameInfo()->gameType) {
 		case GameType_BaiRen: {
 			loop_->runEvery(3.0, std::bind(&CTableThread::checkUserIn, this));
-			std::shared_ptr<CPlayer> player = std::make_shared<CPlayer>();
-			CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
 			break;
 		}
 		case GameType_Confrontation:
@@ -81,8 +79,9 @@ void CTableThread::checkUserIn() {
 		_LOG_ERROR("机器人没有库存了");
 		return;
 	}
-	for (int i = 0; i < tableId_.size(); ++i) {
-		std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(tableId_[i]);
+	std::list<std::shared_ptr<CTable>> tables = CTableMgr::get_mutable_instance().UsedTables(tableId_);
+	for (auto it : tables) {
+		std::shared_ptr<CTable>& table = it;
 		if (table) {
 			if (table->roomInfo_->serverStatus == kStopped) {
 				continue;
@@ -253,6 +252,18 @@ void CTableThreadMgr::start(const muduo::net::EventLoopThreadPool::ThreadInitCal
 }
 
 void CTableThreadMgr::startCheckUserIn() {
+	switch (tableContext->GetGameInfo()->gameType) {
+	case GameType_BaiRen: {
+		std::shared_ptr<CPlayer> player = std::make_shared<CPlayer>();
+		CTableMgr::get_mutable_instance().FindSuit(player, INVALID_TABLE);
+		break;
+	}
+	case GameType_Confrontation:
+		break;
+	}
+	if (CRobotMgr::get_mutable_instance().Empty()) {
+		return;
+	}
 	std::vector<muduo::net::EventLoop*> loops = pool_->getAllLoops();
 	for (std::vector<muduo::net::EventLoop*>::const_iterator it = loops.begin(); it != loops.end(); ++it) {
 		boost::any_cast<LogicThreadPtr>((*it)->getContext())->startCheckUserIn();

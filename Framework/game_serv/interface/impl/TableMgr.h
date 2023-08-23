@@ -26,6 +26,7 @@ public:
 	CTableMgr();
 	virtual ~CTableMgr();
 	std::list<std::shared_ptr<CTable>> UsedTables();
+	std::list<std::shared_ptr<CTable>> UsedTables(std::vector<uint32_t>& tableId);
 	void Init(ITableContext* tableContext);
 	/// <summary>
 	/// 返回桌子数量
