@@ -38,7 +38,7 @@ CTable::~CTable() {
 
 void CTable::Reset() {
     bool ok = false;
-    QueueInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::ResetInLoop, std::ref(ok)));
+    RunInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::ResetInLoop, std::ref(ok)));
     while (!ok);
 }
 
@@ -56,7 +56,7 @@ void CTable::ResetInLoop(bool& ok) {
 
 void CTable::GetPlayers(std::vector<std::shared_ptr<CPlayer>>& items) {
     bool ok = false;
-    QueueInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::GetPlayersInLoop, std::ref(items), std::ref(ok)));
+    RunInLoop(loop_, OBJ_CALLBACK_0(this, &CTable::GetPlayersInLoop, std::ref(items), std::ref(ok)));
     while (!ok);
 }
 
