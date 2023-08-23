@@ -10,7 +10,7 @@ public:
 	CTableThread(muduo::net::EventLoop* loop, ITableContext* tableContext);
 	virtual ~CTableThread();
 public:
-	void append(uint32_t tableId);
+	void append(uint16_t tableId);
 	void startCheckUserIn();
 private:
 	bool enable();
@@ -22,7 +22,7 @@ private:
 protected:
 	STD::Weight weight_;
 	double_t percentage_;
-	std::vector<uint32_t> tableId_;
+	std::vector<uint16_t> tableId_;
 	muduo::net::EventLoop* loop_;
 	ITableContext* tableContext_;
 };

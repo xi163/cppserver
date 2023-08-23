@@ -66,7 +66,7 @@ void CRobot::setReady() {
 	if (INVALID_TABLE != tableId_) {
 		std::shared_ptr<ITable> table = CTableMgr::get_mutable_instance().Get(tableId_);
 		if (table) {
-			uint32_t chairId = GetChairId();
+			uint16_t chairId = GetChairId();
 			table->SetUserReady(chairId);
 		}
 		else {

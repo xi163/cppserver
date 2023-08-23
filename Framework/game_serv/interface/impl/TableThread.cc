@@ -16,7 +16,7 @@ CTableThread::CTableThread(muduo::net::EventLoop* loop, ITableContext* tableCont
 CTableThread::~CTableThread() {
 }
 
-void CTableThread::append(uint32_t tableId) {
+void CTableThread::append(uint16_t tableId) {
 	tableId_.emplace_back(tableId);
 }
 
@@ -90,12 +90,12 @@ void CTableThread::checkUserIn() {
 				continue;
 			}
 			table->assertThisThread();
-			uint32_t realCount = 0, robotCount = 0;
+			size_t realCount = 0, robotCount = 0;
 			table->GetPlayerCount(realCount, robotCount);
-			uint32_t playerCount = realCount + robotCount;
-			uint32_t MaxPlayer = table->roomInfo_->maxPlayerNum;
-			uint32_t MinPlayer = table->roomInfo_->minPlayerNum;
-			int32_t maxRobotCount = table->roomInfo_->maxAndroidCount;
+			size_t playerCount = realCount + robotCount;
+			size_t MaxPlayer = table->roomInfo_->maxPlayerNum;
+			size_t MinPlayer = table->roomInfo_->minPlayerNum;
+			size_t maxRobotCount = table->roomInfo_->maxAndroidCount;
 			switch (table->tableContext_->GetGameInfo()->gameType) {
 			case GameType_BaiRen: {
 				//隔段时间计算机器人波动系数
@@ -105,7 +105,8 @@ void CTableThread::checkUserIn() {
 				if (table->roomInfo_->realChangeAndroid > 0) {
 					maxRobotCount -= (int)realCount / table->roomInfo_->realChangeAndroid;
 				}
-				std::shared_ptr<CRobot> robot = std::make_shared<CRobot>();
+				std::shared_ptr<CRobot> robot = std::make_shared<CRobot>();//ctor
+				//std::shared_ptr<CRobot> robot = std::shared_ptr<CRobot>();//null
 				if (!table->CanJoinTable(robot)) {
 					continue;
 				}
@@ -148,7 +149,8 @@ void CTableThread::checkUserIn() {
 				}
 				//对战游戏匹配前3.6秒都必须等待玩家加入桌子，禁入机器人，定时器到时空缺的机器人一次性填补
 				//如果定时器触发前，真实玩家都齐了，秒开
-				std::shared_ptr<CRobot> robot = std::make_shared<CRobot>();
+				std::shared_ptr<CRobot> robot = std::make_shared<CRobot>();//ctor
+				//std::shared_ptr<CRobot> robot = std::shared_ptr<CRobot>();//null
 				if (!table->CanJoinTable(robot)) {
 					continue;
 				}

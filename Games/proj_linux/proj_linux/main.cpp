@@ -5,6 +5,8 @@
 #include <google/protobuf/message.h>
 #include "IncMuduo.h"
 
+//#include "RpcClients.h"
+
 void testcircular() {
 	boost::circular_buffer<int> cb(3);
 	_LOG_INFO("cap:%d size:%d", cb.capacity(), cb.size());
@@ -159,14 +161,47 @@ public:
 
 class CPlayer : public IPlayer {
 public:
-	CPlayer() {}
+	CPlayer() {
+		name = "hello,world";
+	}
+
+	std::string name;
 };
 
 void foo(int i) {
 }
+
+typedef boost::tuple<std::string,
+	muduo::net::WeakTcpConnectionPtr,
+	muduo::net::TcpConnectionPtr> ClientConn;
+
 //typedef ::std::shared_ptr<Message> MessagePtr;
 //typedef ::std::function<void(const ::google::protobuf::MessagePtr&)> ClientDoneCallback;
 int main() {
+	
+	ClientConn conn;
+	if (conn.get<0>().empty()) {
+		_LOG_DEBUG(" ok");
+	}
+	else {
+		_LOG_DEBUG(" 空1");
+	}
+	if (conn.get<1>().lock()) {
+		_LOG_DEBUG(" ok");
+	}
+	else {
+		_LOG_DEBUG(" 空1");
+	}
+	if (conn.get<2>()) {
+		_LOG_DEBUG(" ok");
+	}
+	else {
+		_LOG_DEBUG(" 空1");
+	}
+	std::shared_ptr<CPlayer> p = std::make_shared<CPlayer>();
+	std::shared_ptr<CPlayer> p2 = std::shared_ptr<CPlayer>();
+	_LOG_DEBUG("%s", p->name.c_str());
+	_LOG_DEBUG("%s", p2->name.c_str());
 	//muduo::net::RpcChannel::ClientDoneCallback done;
 	
 	if (muduo::net::RpcChannel::ClientDoneCallback()) {

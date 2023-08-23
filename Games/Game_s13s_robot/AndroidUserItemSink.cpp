@@ -158,7 +158,7 @@ bool CRobot::OnGameMessage(uint8_t subId, uint8_t const* data, size_t len) {
 }
 
 //随机思考时间
-double CRobot::CalcWaitSeconds(uint32_t chairId, int32_t delay, bool isinit) {
+double CRobot::CalcWaitSeconds(uint16_t chairId, int32_t delay, bool isinit) {
 	int j = 0;
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		if (!table_->ExistUser(i)) {
@@ -178,7 +178,7 @@ double CRobot::CalcWaitSeconds(uint32_t chairId, int32_t delay, bool isinit) {
 }
 
 //随机思考时间(极速房)
-double CRobot::CalcWaitSecondsSpeed(uint32_t chairId, int32_t delay, bool isinit) {
+double CRobot::CalcWaitSecondsSpeed(uint16_t chairId, int32_t delay, bool isinit) {
 	int j = 0;
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		if (!table_->ExistUser(i)) {

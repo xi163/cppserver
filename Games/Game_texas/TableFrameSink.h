@@ -177,11 +177,11 @@ public:
 	//游戏开始
 	virtual void OnGameStart();
 	//游戏结束
-	virtual bool OnGameConclude(uint32_t chairId, uint8_t flags);
+	virtual bool OnGameConclude(uint16_t chairId, uint8_t flags);
 	//发送场景
-	virtual bool OnGameScene(uint32_t chairId, bool lookon);
+	virtual bool OnGameScene(uint16_t chairId, bool lookon);
 	//游戏消息
-	virtual bool OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len);
+	virtual bool OnGameMessage(uint16_t chairId, uint8_t subId, uint8_t const* data, size_t len);
 	//用户进入
 	virtual bool OnUserEnter(int64_t userId, bool lookon);
 	//用户准备
@@ -200,7 +200,7 @@ public:
 	virtual void Reposition();
 private:
 	int randomMaxAndroidCount();
-	void BroadcastTakeScore(uint32_t chairId, int64_t userId);
+	void BroadcastTakeScore(uint16_t chairId, int64_t userId);
 	//计算机器人税收
 	int64_t CalculateAndroidRevenue(int64_t score);
     //清理游戏数据
@@ -249,15 +249,15 @@ private:
 	bool hasOperate(int k, eOperate opcode);
 	//判断是否梭哈
 	bool hasAllIn();
-	bool hasAllIn(uint32_t chairId);
+	bool hasAllIn(uint16_t chairId);
 	//能否过牌操作
-	bool canPassScore(uint32_t chairId);
+	bool canPassScore(uint16_t chairId);
 	//能否跟注操作
-	bool canFollowScore(uint32_t chairId);
+	bool canFollowScore(uint16_t chairId);
 	//能否加注操作
-	bool canAddScore(uint32_t chairId);
+	bool canAddScore(uint16_t chairId);
 	//能否梭哈操作
-	bool canAllIn(uint32_t chairId);
+	bool canAllIn(uint16_t chairId);
 	//可操作玩家数
 	int canOptPlayerCount();
 	//剩余游戏人数
@@ -269,7 +269,7 @@ private:
 	//下一个操作用户，从小盲注开始查找
 	uint32_t GetNextUserBySmallBlindUser();
 	//最近一轮加注分
-	int64_t GetLastAddScore(uint32_t chairId);
+	int64_t GetLastAddScore(uint16_t chairId);
 	//最近一轮
 	int LastTurn();
 	//有效当前轮
@@ -277,38 +277,38 @@ private:
 	//筹码表可加注筹码范围[minIndex, maxIndex]
 	bool GetCurrentAddRange(int64_t minAddScore, int64_t userScore, int& minIndex, int& maxIndex, int64_t& deltaScore);
 	//最小加注分
-	int64_t MinAddScore(uint32_t chairId);
+	int64_t MinAddScore(uint16_t chairId);
 	//当前跟注分
-	int64_t CurrentFollowScore(uint32_t chairId);
+	int64_t CurrentFollowScore(uint16_t chairId);
 	//跟注参照用户
-	void updateReferenceUser(uint32_t chairId, eOperate op);
+	void updateReferenceUser(uint16_t chairId, eOperate op);
 	//加注递增量
-	void updateDeltaAddScore(uint32_t chairId, int64_t addScore, eOperate op);
+	void updateDeltaAddScore(uint16_t chairId, int64_t addScore, eOperate op);
 	//计算主(底)池，边池
-	void updateMainSidePots(uint32_t chairId = INVALID_CHAIR, int64_t addScore = 0);
+	void updateMainSidePots(uint16_t chairId = INVALID_CHAIR, int64_t addScore = 0);
 	void updateMainSidePots(std::map<int, pot_t>& pots);
 	//积分转换成筹码
-	void addScoreToChips(uint32_t chairId, int64_t score, std::map<int, int64_t>& chips);
+	void addScoreToChips(uint16_t chairId, int64_t score, std::map<int, int64_t>& chips);
 	//结算筹码
 	void settleChips(int64_t score, std::map<int, int64_t>& chips);
 private:
 	//等待操作定时器
 	void OnTimerWaitingOver();
 	//操作错误通知消息
-	void SendNotify(uint32_t chairId, int opcode, std::string const& errmsg);
+	void SendNotify(uint16_t chairId, int opcode, std::string const& errmsg);
 	//新一轮开始发牌
 	void SendCard(int left);
 	void SendCardOnTimer(int left);
 	//用户过牌
-	bool OnUserPassScore(uint32_t chairId);
+	bool OnUserPassScore(uint16_t chairId);
 	//用户梭哈
-	bool OnUserAllIn(uint32_t chairId);
+	bool OnUserAllIn(uint16_t chairId);
 	//用户跟注/加注
-	bool OnUserAddScore(uint32_t chairId, int opValue, int64_t addScore);
+	bool OnUserAddScore(uint16_t chairId, int opValue, int64_t addScore);
 	//用户弃牌
-	bool OnUserGiveUp(uint32_t chairId, bool timeout = false);
+	bool OnUserGiveUp(uint16_t chairId, bool timeout = false);
 	//用户看牌
-	bool OnUserLookCard(uint32_t chairId);
+	bool OnUserLookCard(uint16_t chairId);
 protected:
 	//打印真人游戏局log
 	bool writeRealLog_;
@@ -367,7 +367,7 @@ protected:
 	//主(底)池：只有一个 边池：可能没有或很多个
 	std::map<int, pot_t> pots_, potsT_, showPots_;
 	//struct opInfo_t {
-	//	uint32_t chairId;
+	//	uint16_t chairId;
 	//	eOperate op;
 	//	int64_t score_;
 	//};
@@ -451,7 +451,7 @@ private:
 			IsOfficial = false;
 			isLeave = false;
 		}
-		uint32_t chairId;
+		uint16_t chairId;
 		int64_t userId;
 		uint8_t headerId;
 		std::string nickName;
@@ -472,7 +472,7 @@ private:
 	};
 	typedef std::map<int64_t, userinfo_t> UserInfoList;
 	UserInfoList userinfos_;
-	inline int64_t GetUserId(uint32_t chairId) {
+	inline int64_t GetUserId(uint16_t chairId) {
 		for (UserInfoList::const_iterator it = userinfos_.begin();
 			it != userinfos_.end(); ++it) {
 			if (it->second.chairId == chairId) {

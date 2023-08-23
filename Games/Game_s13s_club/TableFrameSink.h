@@ -93,11 +93,11 @@ public:
     //游戏开始
     virtual void OnGameStart();
     //游戏结束
-    virtual bool OnGameConclude(uint32_t chairId, uint8_t flags);
+    virtual bool OnGameConclude(uint16_t chairId, uint8_t flags);
     //发送场景
-    virtual bool OnGameScene(uint32_t chairId, bool lookon);
+    virtual bool OnGameScene(uint16_t chairId, bool lookon);
     //游戏消息
-    virtual bool OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len);
+    virtual bool OnGameMessage(uint16_t chairId, uint8_t subId, uint8_t const* data, size_t len);
     //用户进入
     virtual bool OnUserEnter(int64_t userId, bool lookon);
     //用户准备
@@ -125,7 +125,7 @@ private:
 	//理牌
 	void OnTimerGroupCard();
 	//定牌
-	void OnUserSelect(uint32_t chairId, int groupIndex, bool timeout = false);
+	void OnUserSelect(uint16_t chairId, int groupIndex, bool timeout = false);
 	//摊牌
 	void OnTimerOpenCard();
 	//结束/下一局

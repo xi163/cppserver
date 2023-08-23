@@ -20,7 +20,7 @@ namespace room {
 		public:
 			void random_server(uint32_t gameId, uint32_t roomId, std::string& ipport, GameMode mode);
 			void balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport, GameMode mode);
-			bool validate_server(uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint32_t tableId, int64_t clubId);
+			bool validate_server(uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint16_t tableId, int64_t clubId);
 		public:
 			void get_club_room_info(int64_t clubId, ::club::info& info);
 			void get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info);
@@ -138,7 +138,7 @@ namespace room {
 			}
 		}
 
-		bool RoomList::validate_server(uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint32_t tableId, int64_t clubId) {
+		bool RoomList::validate_server(uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint16_t tableId, int64_t clubId) {
 			GameRoomNodes::const_iterator it = nodes_.find(gameId);
 			if (it != nodes_.end()) {
 				RoomNodes::const_iterator ir = it->second.find(roomId);
@@ -330,7 +330,7 @@ namespace room {
 			game_serv_[mode].balance_server(gameId, roomId, ipport, mode);
 		}
 
-		bool validate_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint32_t tableId, int64_t clubId) {
+		bool validate_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint16_t tableId, int64_t clubId) {
 			return game_serv_[mode].validate_server(gameId, roomId, ipport, servId, tableId, clubId);
 		}
 

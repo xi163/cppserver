@@ -252,7 +252,7 @@ namespace TEXAS {
 			std::vector<uint8_t> cards_;
 			//手牌/桌面牌索引
 			std::vector<int> vec[2];
-			uint32_t chairID;
+			uint16_t chairId;
 		};
 	public:
 		//枚举牌型测试

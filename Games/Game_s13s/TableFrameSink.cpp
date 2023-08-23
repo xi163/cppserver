@@ -152,8 +152,10 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 	if (table_->GetPlayerCount() >= GAME_PLAYER) {
 		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
 		if (userItem && userItem->GetChairId() == player->GetChairId()) {//断线重连可以进
+			_LOG_ERROR("....%d", player->GetUserId());
 			return true;
 		}
+		_LOG_ERROR("....%d", player->GetUserId());
 		return false;
 	}
 	if (player->GetUserId() == -1) { //new android enter
@@ -163,33 +165,40 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		//游戏开始了机器人新玩家不准进入
 		if (table_->GetGameStatus() >= GAME_STATUS_START) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 1";
+			_LOG_ERROR("....%d", player->GetUserId());
 			return false;
 		}
 		//匹配真人时间或没有真人玩家，机器人不准进入
 		if (totalMatchSeconds_ < timeoutMatchSeconds_ || table_->GetRealPlayerCount() < 1) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 2";
+			_LOG_ERROR("....%d", player->GetUserId());
 			return false;
 		}
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " " << table_->GetRobotPlayerCount() << "<" << maxAndroid_ << " true 1";
 		//根据房间机器人配置来决定补充多少机器人
+		_LOG_ERROR("....%d  bool=%d", player->GetUserId(), table_->GetRobotPlayerCount() < maxAndroid_);
 		return table_->GetRobotPlayerCount() < maxAndroid_;
 	}
-	else if (player->GetUserId() == 0) { //new real user enter
+	else if (player->GetTableId() == INVALID_CHAIR) { //new real user enter
 		//游戏开始了真人新玩家不准进入
 		if (table_->GetGameStatus() >= GAME_STATUS_START) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 3";
+			_LOG_ERROR("....%d", player->GetUserId());
 			return false;
 		}
+		_LOG_ERROR("....%d", player->GetUserId());
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 2";
 		return true;
 	}
-	else if (player->GetUserId() >= MIN_SYS_USER_ID) {//断线重连
+	else {//断线重连
 		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
 		if (userItem) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 3";
+			_LOG_ERROR("....%d", player->GetUserId());
 			return true;
 		}
 	}
+	_LOG_ERROR("....%d", player->GetUserId());
 	//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 4";
 	return false;
 }
@@ -199,7 +208,7 @@ bool CGameTable::CanLeftTable(int64_t userId) {
 	if (!player) {
 		return true;
 	}
-	uint32_t chairId = player->GetChairId();
+	uint16_t chairId = player->GetChairId();
 	if (/*table_->GetGameStatus()*/gameStatus_ < GAME_STATUS_START ||
 		/*table_->GetGameStatus()*/gameStatus_ >= GAME_STATUS_END ||
 		!bPlaying_[chairId]) {
@@ -222,7 +231,7 @@ bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
 	assert(player->GetChairId() >= 0);
 	assert(player->GetChairId() < GAME_PLAYER);
 	bool isAndroid = player->IsRobot();
-	uint32_t chairId = player->GetChairId();
+	uint16_t chairId = player->GetChairId();
 	//游戏未开始/已结束/非参与玩家
 	if (/*table_->GetGameStatus()*/gameStatus_ < GAME_STATUS_START ||
 		/*table_->GetGameStatus()*/gameStatus_ >= GAME_STATUS_END ||
@@ -785,7 +794,7 @@ void CGameTable::OnGameStart() {
 	IsTrustee();
 }
 
-bool CGameTable::OnGameScene(uint32_t chairId, bool lookon) {
+bool CGameTable::OnGameScene(uint16_t chairId, bool lookon) {
 	_LOG_INFO("tableID[%d][%s][%s] chairId[%d]",
 		table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), chairId);
 	assert(chairId >= 0);
@@ -1062,7 +1071,7 @@ void CGameTable::OnTimerGroupCard() {
 }
 
 //定牌
-void CGameTable::OnUserSelect(uint32_t chairId, int groupIndex, bool timeout) {
+void CGameTable::OnUserSelect(uint16_t chairId, int groupIndex, bool timeout) {
 	//玩家已经确认过牌型
 	if (phandInfos_[chairId]->HasSelected()) {
 		return;
@@ -1108,7 +1117,7 @@ void CGameTable::OnUserSelect(uint32_t chairId, int groupIndex, bool timeout) {
 	std::string content = rspdata.SerializeAsString();
 	table_->SendTableData(INVALID_CHAIR, s13s::SUB_S_MAKESUREDUNHANDTY, (uint8_t*)content.data(), content.size());
 	//检查是否都确认牌型了
-	uint32_t userCount = 0;
+	size_t userCount = 0;
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		if (bPlaying_[i]) {
 			++userCount;
@@ -1302,7 +1311,7 @@ static std::string StringSubId(uint8_t subId) {
 	}
 }
 
-bool CGameTable::OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len) {
+bool CGameTable::OnGameMessage(uint16_t chairId, uint8_t subId, uint8_t const* data, size_t len) {
 	if (chairId == INVALID_CHAIR || !bPlaying_[chairId]) {
 		return false;
 	}
@@ -3412,7 +3421,7 @@ void CGameTable::StartCompareCards() {
 	}
 }
 
-bool CGameTable::OnGameConclude(uint32_t chairId, uint8_t flags) {
+bool CGameTable::OnGameConclude(uint16_t chairId, uint8_t flags) {
 // 	for (int i = 0; i < GAME_PLAYER; ++i) {
 // 		std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i);
 // 		if (player && !player->IsRobot()) {

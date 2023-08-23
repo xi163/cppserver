@@ -355,7 +355,7 @@ bool CGameTable::CanLeftTable(int64_t userId) {
 	if (!userItem) {
 		return true;
 	}
-	uint32_t chairId = userItem->GetChairId();
+	uint16_t chairId = userItem->GetChairId();
 	if (/*table_->GetGameStatus()*/gameStatus_ < GAME_STATUS_START ||
 		/*table_->GetGameStatus()*/gameStatus_ >= GAME_STATUS_END ||
 		!bPlaying_[chairId] || isGiveup_[chairId]) {
@@ -378,7 +378,7 @@ bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
 	assert(player->GetChairId() >= 0);
 	assert(player->GetChairId() < GAME_PLAYER);
 	bool isAndroid = player->IsRobot();
-	uint32_t chairId = player->GetChairId();
+	uint16_t chairId = player->GetChairId();
 	//游戏未开始/已结束/非参与玩家
 	if (/*table_->GetGameStatus()*/gameStatus_ < GAME_STATUS_START ||
 		/*table_->GetGameStatus()*/gameStatus_ >= GAME_STATUS_END ||
@@ -1233,7 +1233,7 @@ bool CGameTable::hasAllIn() {
 }
 
 //判断是否梭哈
-bool CGameTable::hasAllIn(uint32_t chairId) {
+bool CGameTable::hasAllIn(uint16_t chairId) {
 	if (allInTurn_[chairId] >= 0) {
 		assert(allInTurn_[chairId] < MAX_ROUND);
 		assert(operate_[allInTurn_[chairId]][chairId] == OP_ALLIN);
@@ -1244,19 +1244,19 @@ bool CGameTable::hasAllIn(uint32_t chairId) {
 }
 
 //能否过牌操作
-bool CGameTable::canPassScore(uint32_t chairId) {
+bool CGameTable::canPassScore(uint16_t chairId) {
 	int64_t followScore = CurrentFollowScore(chairId);
 	return followScore == 0;
 }
 
 //能否跟注操作
-bool CGameTable::canFollowScore(uint32_t chairId) {
+bool CGameTable::canFollowScore(uint16_t chairId) {
 	int64_t followScore = CurrentFollowScore(chairId);
 	return followScore > 0 && (followScore + tableScore_[chairId]) < takeScore_[chairId];
 }
 
 //能否加注操作
-bool CGameTable::canAddScore(uint32_t chairId) {
+bool CGameTable::canAddScore(uint16_t chairId) {
 #if 0
 	if (hasOperate(CurrentTurn(), OP_ALLIN)) {
 		return false;
@@ -1271,7 +1271,7 @@ bool CGameTable::canAddScore(uint32_t chairId) {
 }
 
 //能否梭哈操作
-bool CGameTable::canAllIn(uint32_t chairId) {
+bool CGameTable::canAllIn(uint16_t chairId) {
 	int64_t takeScore = takeScore_[chairId] - tableScore_[chairId];
 	return takeScore > 0/* && !canFollowScore(chairId) && !canAddScore(chairId)*/;
 }
@@ -1405,7 +1405,7 @@ uint32_t CGameTable::GetNextUserBySmallBlindUser() {
 }
 
 //最近一轮加注分
-int64_t CGameTable::GetLastAddScore(uint32_t chairId) {
+int64_t CGameTable::GetLastAddScore(uint16_t chairId) {
 	return addScore_[LastTurn()][chairId];
 }
 
@@ -1473,7 +1473,7 @@ restart:
 }
 
 //最小加注分
-int64_t CGameTable::MinAddScore(uint32_t chairId) {
+int64_t CGameTable::MinAddScore(uint16_t chairId) {
 	assert(deltaAddScore_ > 0);
 // 	LOG(INFO) << __FUNCTION__ << "\n"
 // 		<< " referenceUser_=" << referenceUser_
@@ -1487,7 +1487,7 @@ int64_t CGameTable::MinAddScore(uint32_t chairId) {
 }
 
 //当前跟注分
-int64_t CGameTable::CurrentFollowScore(uint32_t chairId) {
+int64_t CGameTable::CurrentFollowScore(uint16_t chairId) {
 	if (referenceUser_ != INVALID_CHAIR) {
 // 		LOG(INFO) << __FUNCTION__ << "\n"
 // 			<< " referenceUser_=" << referenceUser_
@@ -1502,7 +1502,7 @@ int64_t CGameTable::CurrentFollowScore(uint32_t chairId) {
 }
 
 //跟注参照用户
-void CGameTable::updateReferenceUser(uint32_t chairId, eOperate op) {
+void CGameTable::updateReferenceUser(uint16_t chairId, eOperate op) {
 	switch (op) {
 	case OP_INVALID:
 		if (referenceUser_ == INVALID_CHAIR) {
@@ -1582,7 +1582,7 @@ void CGameTable::updateReferenceUser(uint32_t chairId, eOperate op) {
 }
 
 //加注递增量
-void CGameTable::updateDeltaAddScore(uint32_t chairId, int64_t addScore, eOperate op) {
+void CGameTable::updateDeltaAddScore(uint16_t chairId, int64_t addScore, eOperate op) {
 	switch (op) {
 	case OP_INVALID: {
 		if (addScore > 0) {
@@ -1648,7 +1648,7 @@ void CGameTable::updateDeltaAddScore(uint32_t chairId, int64_t addScore, eOperat
 }
 
 //计算主(底)池，边池
-void CGameTable::updateMainSidePots(uint32_t chairId, int64_t addScore) {
+void CGameTable::updateMainSidePots(uint16_t chairId, int64_t addScore) {
 	if (isNewTurn_) {
 		updateMainSidePots(pots_);
 		updateMainSidePots(potsT_);
@@ -1833,7 +1833,7 @@ void CGameTable::updateMainSidePots(std::map<int, pot_t>& pots) {
 }
 
 //积分转换成筹码
-void CGameTable::addScoreToChips(uint32_t chairId, int64_t score, std::map<int, int64_t>& chips) {
+void CGameTable::addScoreToChips(uint16_t chairId, int64_t score, std::map<int, int64_t>& chips) {
 	//
 	// 	1,2,5,
 	// 	10,20,50,
@@ -1984,7 +1984,7 @@ void CGameTable::OnTimerWaitingOver() {
 }
 
 //操作错误通知消息
-void CGameTable::SendNotify(uint32_t chairId, int opcode, std::string const& errmsg) {
+void CGameTable::SendNotify(uint16_t chairId, int opcode, std::string const& errmsg) {
 	texas::CMD_S_Operate_Notify  notify;
 	notify.set_opcode(opcode);
 	notify.set_errmsg(errmsg);
@@ -2104,7 +2104,7 @@ void CGameTable::SendCardOnTimer(int left) {
 }
 
 //用户过牌
-bool CGameTable::OnUserPassScore(uint32_t chairId) {
+bool CGameTable::OnUserPassScore(uint16_t chairId) {
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
 	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
@@ -2192,7 +2192,7 @@ bool CGameTable::OnUserPassScore(uint32_t chairId) {
 }
 
 //用户梭哈
-bool CGameTable::OnUserAllIn(uint32_t chairId) {
+bool CGameTable::OnUserAllIn(uint16_t chairId) {
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s] 第[%d]轮 [%d]梭哈!",
 	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
@@ -2306,7 +2306,7 @@ bool CGameTable::OnUserAllIn(uint32_t chairId) {
 }
 
 //用户跟注/加注
-bool CGameTable::OnUserAddScore(uint32_t chairId, int opValue, int64_t addScore) {
+bool CGameTable::OnUserAddScore(uint16_t chairId, int opValue, int64_t addScore) {
 	char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
 	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
@@ -2500,7 +2500,7 @@ bool CGameTable::OnUserAddScore(uint32_t chairId, int opValue, int64_t addScore)
 }
 
 //用户弃牌
-bool CGameTable::OnUserGiveUp(uint32_t chairId, bool timeout) {
+bool CGameTable::OnUserGiveUp(uint16_t chairId, bool timeout) {
 	std::shared_ptr<IPlayer> userItem = table_->GetChairPlayer(chairId);
 	if (userItem && !userItem->IsRobot()) {
 		table_->RefreshRechargeScore(userItem);
@@ -2674,7 +2674,7 @@ bool CGameTable::OnUserGiveUp(uint32_t chairId, bool timeout) {
 }
 
 //用户看牌
-bool CGameTable::OnUserLookCard(uint32_t chairId) {
+bool CGameTable::OnUserLookCard(uint16_t chairId) {
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
 	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
@@ -2713,7 +2713,7 @@ bool CGameTable::OnUserLookCard(uint32_t chairId) {
 	return true;
 }
 
-bool CGameTable::OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len) {
+bool CGameTable::OnGameMessage(uint16_t chairId, uint8_t subId, uint8_t const* data, size_t len) {
 	if (chairId == INVALID_CHAIR || chairId >= GAME_PLAYER || currentUser_ == INVALID_CHAIR) {
 		return false;
 	}
@@ -2914,7 +2914,7 @@ bool CGameTable::OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* d
 }
 
 //发送场景
-bool CGameTable::OnGameScene(uint32_t chairId, bool lookon) {
+bool CGameTable::OnGameScene(uint16_t chairId, bool lookon) {
 	//char msg[1024];
 	//snprintf(msg, sizeof(msg), " --- *** tableID[%d][%s][%s][%d] chairId[%d]",
 	//	table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(), currentTurn_ + 1, chairId);
@@ -3097,7 +3097,7 @@ bool CGameTable::OnGameScene(uint32_t chairId, bool lookon) {
 	return true;
 }
 
-void CGameTable::BroadcastTakeScore(uint32_t chairId, int64_t userId) {
+void CGameTable::BroadcastTakeScore(uint16_t chairId, int64_t userId) {
 	texas::CMD_S_BroadcastTakeScore rspdata;
 	rspdata.set_chairid(chairId);
 	rspdata.set_userid(userId);
@@ -3129,7 +3129,7 @@ int64_t CGameTable::CalculateAndroidRevenue(int64_t score)
 }
 
 //游戏结束
-bool CGameTable::OnGameConclude(uint32_t chairId, uint8_t flags)
+bool CGameTable::OnGameConclude(uint16_t chairId, uint8_t flags)
 {
 	for (int i = 0; i < GAME_PLAYER; ++i) {
 		std::shared_ptr<IPlayer> player = table_->GetChairPlayer(i);

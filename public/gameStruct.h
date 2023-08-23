@@ -151,7 +151,7 @@ struct tagGameClubInfo {
 
 struct TableState
 {
-	uint32_t    tableId;
+	uint16_t    tableId;
 	uint8_t		locked;
 	uint8_t		lookon;
 };

@@ -92,7 +92,7 @@ public:
 	virtual tagAndroidStrategyParam* GetAndroidStrategy() { return NULL; }
 protected:
 	//随机等待时间
-	double randWaitSeconds(uint32_t chairId, int32_t delay = 0, int32_t wTimeLeft = -1);
+	double randWaitSeconds(uint16_t chairId, int32_t delay = 0, int32_t wTimeLeft = -1);
 	//等待操作定时器
 	void onTimerWaitingOver();
 	//离开桌子定时器
@@ -254,7 +254,7 @@ private:
 		return isAndroidUser_[currentWinUser_] || isSystemUser_[currentWinUser_];
 	}
 	//随机加注分
-	inline int64_t RandomAddScore(uint32_t chairId) {
+	inline int64_t RandomAddScore(uint16_t chairId) {
 		assert(chairId == currentUser_);
 		assert(can_[OP_ADD]);
 		assert(minAddScore_ >= FloorScore);

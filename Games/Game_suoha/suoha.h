@@ -241,7 +241,7 @@ namespace SUOHA {
 			HandTy ty_;
 			//构成牌型的牌
 			std::vector<uint8_t> cards_;
-			uint32_t chairID;
+			uint16_t chairId;
 		};
 	public:
 		//枚举牌型测试

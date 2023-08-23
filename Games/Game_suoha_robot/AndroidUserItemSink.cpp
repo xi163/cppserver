@@ -4660,7 +4660,7 @@ void CAndroidUserItemSink::waitingOperate(int32_t delay, int32_t wTimeLeft)
 }
 
 //随机等待时间
-double CAndroidUserItemSink::randWaitSeconds(uint32_t chairId, int32_t delay, int32_t wTimeLeft) {
+double CAndroidUserItemSink::randWaitSeconds(uint16_t chairId, int32_t delay, int32_t wTimeLeft) {
 	assert(currentOp_ != OP_INVALID);
 	if (!isLooked_[currentTurn_][ThisChairId] && (currentOp_ == OP_ALLIN || currentOp_ == OP_GIVEUP)) {
 		//assert(dtLookCard_[ThisChairId] > 0);

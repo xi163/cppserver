@@ -19,9 +19,9 @@ public:
 	virtual bool OnUserReady(int64_t userId, bool lookon) = 0;
 	virtual bool OnUserLeft(int64_t userId, bool lookon) = 0;
 	virtual void OnGameStart() = 0;
-	virtual bool OnGameConclude(uint32_t chairId, uint8_t flags) = 0;
-	virtual bool OnGameScene(uint32_t chairId, bool lookon) = 0;
-	virtual bool OnGameMessage(uint32_t chairId, uint8_t subId, uint8_t const* data, size_t len) = 0;
+	virtual bool OnGameConclude(uint16_t chairId, uint8_t flags) = 0;
+	virtual bool OnGameScene(uint16_t chairId, bool lookon) = 0;
+	virtual bool OnGameMessage(uint16_t chairId, uint8_t subId, uint8_t const* data, size_t len) = 0;
 };
 
 typedef std::shared_ptr<ITableDelegate>(*TableDelegateCreator)(void);

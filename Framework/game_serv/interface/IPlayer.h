@@ -30,10 +30,10 @@ public:
 	virtual uint8_t GetHeadboxId() = 0;
 	virtual uint8_t GetVip() = 0;
 	virtual std::string GetHeadImgUrl() = 0;
-	virtual uint32_t GetTableId() = 0;
-	virtual void SetTableId(uint32_t tableId) = 0;
-	virtual uint32_t GetChairId() = 0;
-	virtual void SetChairId(uint32_t chairId) = 0;
+	virtual uint16_t GetTableId() = 0;
+	virtual void SetTableId(uint16_t tableId) = 0;
+	virtual uint16_t GetChairId() = 0;
+	virtual void SetChairId(uint16_t chairId) = 0;
 	virtual int64_t GetUserScore() = 0;
 	virtual void SetUserScore(int64_t userScore) = 0;
 	virtual void SetCurTakeScore(int64_t score) = 0;

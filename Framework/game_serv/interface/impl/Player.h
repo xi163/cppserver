@@ -32,10 +32,10 @@ public:
 	virtual inline uint8_t GetHeadboxId() { return 0; }
 	virtual inline uint8_t GetVip() { return 0; }
 	virtual inline std::string GetHeadImgUrl() { return ""; }
-	virtual inline uint32_t GetTableId() { return tableId_; }
-	virtual inline void SetTableId(uint32_t tableId) { tableId_ = tableId; }
-	virtual inline uint32_t GetChairId() { return chairId_; }
-	virtual inline void SetChairId(uint32_t chairId) { chairId_ = chairId; }
+	virtual inline uint16_t GetTableId() { return tableId_; }
+	virtual inline void SetTableId(uint16_t tableId) { tableId_ = tableId; }
+	virtual inline uint16_t GetChairId() { return chairId_; }
+	virtual inline void SetChairId(uint16_t chairId) { chairId_ = chairId; }
 	virtual inline int64_t GetUserScore() { return baseInfo_.userScore; }
 	virtual inline void SetUserScore(int64_t userScore) { baseInfo_.userScore = userScore; }
 	virtual inline void SetCurTakeScore(int64_t score) { }
@@ -64,8 +64,8 @@ public:
 	virtual inline bool getTrustee() { return trustee_; }
 protected:
 	bool official_;//官方账号
-	uint32_t tableId_;//桌子ID
-	uint32_t chairId_;//座位ID
+	uint16_t tableId_;//桌子ID
+	uint16_t chairId_;//座位ID
 	uint8_t status_; //玩家状态
 	bool trustee_;//托管状态
 	UserBaseInfo baseInfo_;//基础数据

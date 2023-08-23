@@ -41,9 +41,9 @@ public:
 	virtual tagAndroidStrategyParam* GetStrategy() { return strategy_; }
 protected:
 	//随机思考时间
-	double CalcWaitSeconds(uint32_t chairId, int32_t delay = 0, bool isinit = false);
+	double CalcWaitSeconds(uint16_t chairId, int32_t delay = 0, bool isinit = false);
 	//随机思考时间(极速房)
-	double CalcWaitSecondsSpeed(uint32_t chairId, int32_t delay = 0, bool isinit = false);
+	double CalcWaitSecondsSpeed(uint16_t chairId, int32_t delay = 0, bool isinit = false);
 	//思考定时器
 	void ThinkingTimerOver();
 	//清理所有定时器

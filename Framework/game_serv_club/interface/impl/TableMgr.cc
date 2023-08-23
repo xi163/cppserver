@@ -51,7 +51,7 @@ void CTableMgr::Init(ITableContext* tableContext) {
 	}
 	tableContext_ = tableContext;
 	CTable::ReadStorageScore(tableContext->GetRoomInfo());
-	for (uint32_t i = 0; i < tableContext->GetRoomInfo()->tableCount; ++i) {
+	for (uint16_t i = 0; i < tableContext->GetRoomInfo()->tableCount; ++i) {
 		//桌子逻辑线程
 		muduo::net::EventLoop* loop = CTableThreadMgr::get_mutable_instance().getNextLoop();
 		//创建子游戏桌子代理
@@ -93,11 +93,11 @@ std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
 #if 0
 		std::transform(usedItems_.begin(), usedItems_.end(),
 			std::back_inserter(usedItems),
-			std::bind(&std::map<uint32_t, std::shared_ptr<CTable>>::value_type::second, std::placeholders::_1));
+			std::bind(&std::map<uint16_t, std::shared_ptr<CTable>>::value_type::second, std::placeholders::_1));
 #elif 0
 		std::transform(usedItems_.begin(), usedItems_.end(), std::back_inserter(usedItems), second(usedItems_));
 #else
-		std::transform(usedItems_.begin(), usedItems_.end(), std::back_inserter(usedItems), [](std::pair<uint32_t, std::shared_ptr<CTable>> const& p) {
+		std::transform(usedItems_.begin(), usedItems_.end(), std::back_inserter(usedItems), [](std::pair<uint16_t, std::shared_ptr<CTable>> const& p) {
 			return p.second;
 			});
 #endif
@@ -105,12 +105,12 @@ std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
 	return usedItems;
 }
 
-std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables(std::vector<uint32_t>& tableId) {
+std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables(std::vector<uint16_t>& tableId) {
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
 		READ_LOCK(mutex_);
 		for (int i = 0; i < tableId.size(); ++i) {
-			std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId[i]);
+			std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId[i]);
 			if (it != usedItems_.end()) {
 				usedItems.emplace_back(it->second);
 			}
@@ -149,10 +149,10 @@ size_t CTableMgr::UsedCount() {
 /// <summary>
 /// 返回指定俱乐部桌子
 /// </summary>
-void CTableMgr::Get(int64_t clubId, std::set<uint32_t>& tableId) {
+void CTableMgr::Get(int64_t clubId, std::set<uint16_t>& tableId) {
 	if (clubId > INVALID_CLUB) {
 		READ_LOCK(mutex_);
-		for (std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.begin(); it != usedItems_.end(); ++it) {
+		for (std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = usedItems_.begin(); it != usedItems_.end(); ++it) {
 			if (clubId == it->second->GetClubId()) {
 				tableId.insert(it->second->GetTableId());
 			}
@@ -160,7 +160,7 @@ void CTableMgr::Get(int64_t clubId, std::set<uint32_t>& tableId) {
 	}
 }
 
-std::shared_ptr<CTable> CTableMgr::Get(uint32_t tableId) {
+std::shared_ptr<CTable> CTableMgr::Get(uint16_t tableId) {
 	{
 		//READ_LOCK(mutex_);
 		if (tableId < items_.size()) {
@@ -170,7 +170,7 @@ std::shared_ptr<CTable> CTableMgr::Get(uint32_t tableId) {
 	return std::shared_ptr<CTable>();
 }
 
-std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint32_t tableId) {
+std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint16_t tableId) {
 	{
 		//READ_LOCK(mutex_);
 		if (tableId < items_.size()) {
@@ -189,10 +189,10 @@ std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& playe
 /// <summary>
 /// 返回指定桌子，前提是桌子未满
 /// </summary>
-std::shared_ptr<CTable> CTableMgr::Find(uint32_t tableId) {
+std::shared_ptr<CTable> CTableMgr::Find(uint16_t tableId) {
 	{
 		READ_LOCK(mutex_);
-		std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
+		std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
 		if (it != usedItems_.end()) {
 			if (!it->second->Full()) {
 				return it->second;
@@ -205,17 +205,17 @@ std::shared_ptr<CTable> CTableMgr::Find(uint32_t tableId) {
 /// <summary>
 /// 查找能进的桌子，没有则取空闲桌子
 /// </summary>
-std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint32_t ignoreTableId) {
+std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint16_t excludeId) {
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
 		READ_LOCK(mutex_);
-		std::transform(usedItems_.begin(), usedItems_.end(), std::back_inserter(usedItems), [](std::pair<uint32_t, std::shared_ptr<CTable>> const& p) {
+		std::transform(usedItems_.begin(), usedItems_.end(), std::back_inserter(usedItems), [](std::pair<uint16_t, std::shared_ptr<CTable>> const& p) {
 			return p.second;
 			});
 	}
 	for (auto it : usedItems) {
 		std::shared_ptr<CTable> table = it;
-		if (table->CanJoinTable(player, clubId, ignoreTableId)) {
+		if (table->CanJoinTable(player, clubId, excludeId)) {
 			return table;
 		}
 	}
@@ -236,10 +236,10 @@ std::shared_ptr<CTable> CTableMgr::New(int64_t clubId) {
 	return std::shared_ptr<CTable>();
 }
 
-void CTableMgr::Delete(uint32_t tableId) {
+void CTableMgr::Delete(uint16_t tableId) {
 	{
 		WRITE_LOCK(mutex_);
-		std::map<uint32_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
+		std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
 		if (it != usedItems_.end()) {
 			std::shared_ptr<CTable>& table = it->second;
 			usedItems_.erase(it);
@@ -290,7 +290,7 @@ void CTableMgr::KickAll() {
 		std::list<std::shared_ptr<CTable>> usedItems;
 		{
 			READ_LOCK(mutex_);
-			std::transform(usedItems_.begin(), usedItems_.end(), std::back_inserter(usedItems), [](std::pair<uint32_t, std::shared_ptr<CTable>> const& p) {
+			std::transform(usedItems_.begin(), usedItems_.end(), std::back_inserter(usedItems), [](std::pair<uint16_t, std::shared_ptr<CTable>> const& p) {
 				return p.second;
 				});
 		}
