@@ -1,3 +1,4 @@
+#include "mgoKeys.h"
 #include "mgoOperation.h"
 #include "RobotMgr.h"
 
@@ -37,16 +38,16 @@ CRobotMgr::~CRobotMgr() {
 
 bool CRobotMgr::Init(ITableContext* tableContext) {
 	if (!tableContext->GetGameInfo() || !tableContext->GetRoomInfo()) {
-		return;
+		return false;
 	}
 	if (!tableContext->GetRoomInfo()->bEnableAndroid) {
-		return;
+		return false;
 	}
 	RobotDelegateCreator creator = LoadLibrary(tableContext->GetGameInfo()->serviceName);
 	if (!creator) {
 		exit(0);
 	}
-	load(tableContext->GetRoomInfo(), tableContext, creator);
+	return load(tableContext->GetRoomInfo(), tableContext, creator);
 }
 
 bool CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, RobotDelegateCreator creator) {
@@ -59,7 +60,7 @@ bool CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, Rob
 		if (!result) {
 			return false;
 		}
-		document::view view = result->view();
+		bsoncxx::document::view view = result->view();
 		//_LOG_DEBUG(to_json(view).c_str());
 		roomInfo->robotStrategy_.gameId = view["gameid"].get_int32();
 		roomInfo->robotStrategy_.roomId = view["roomid"].get_int32();
@@ -86,20 +87,20 @@ bool CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, Rob
 		for (auto& view : cursor) {
 			//_LOG_WARN(to_json(view).c_str());
 			UserBaseInfo userInfo;
-			userInfo.userId = doc["userId"].get_int64();
-			userInfo.account = doc["account"].get_utf8().value.to_string();
-			userInfo.nickName = doc["nickName"].get_utf8().value.to_string();
-			userInfo.headId = doc["headId"].get_int32();
-			//doc["enterTime"].get_utf8().value.to_string();
-			//doc["leaveTime"].get_utf8().value.to_string();
-			//userInfo.takeMinScore = doc["minScore"].get_int64();
-			//userInfo.takeMaxScore = doc["maxScore"].get_int64();
+			userInfo.userId = view["userId"].get_int64();
+			userInfo.account = view["account"].get_utf8().value.to_string();
+			userInfo.nickName = view["nickName"].get_utf8().value.to_string();
+			userInfo.headId = view["headId"].get_int32();
+			//view["enterTime"].get_utf8().value.to_string();
+			//view["leaveTime"].get_utf8().value.to_string();
+			//userInfo.takeMinScore = view["minScore"].get_int64();
+			//userInfo.takeMaxScore = view["maxScore"].get_int64();
 			userInfo.takeMinScore = roomInfo->robotStrategy_.minScore;
 			userInfo.takeMaxScore = roomInfo->robotStrategy_.maxScore;
 			userInfo.userScore = 0;
 			userInfo.agentId = 0;
 			userInfo.status = 0;
-			userInfo.location = doc["location"].get_utf8().value.to_string();
+			userInfo.location = view["location"].get_utf8().value.to_string();
 			//创建子游戏机器人代理
 			std::shared_ptr<IRobotDelegate> robotDelegate = creator();
 			//创建机器人

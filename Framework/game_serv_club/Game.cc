@@ -308,7 +308,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	//thisTimer_->getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
 	//thisTimer_->getLoop()->runAfter(30, std::bind(&GameServ::redis_refresh_room_player_nums, this));
 
-	CTableThreadMgr::get_mutable_instance().startCheckUserIn();
+	CTableThreadMgr::get_mutable_instance().startCheckUserIn(this);
 }
 
 void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {

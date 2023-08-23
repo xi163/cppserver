@@ -43,7 +43,7 @@ public:
 
 	void start(const muduo::net::EventLoopThreadPool::ThreadInitCallback& cb, ITableContext* tableContext);
 
-	void startCheckUserIn();
+	void startCheckUserIn(ITableContext* tableContext);
 	
 	void quit();
 

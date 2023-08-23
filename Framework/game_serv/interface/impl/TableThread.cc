@@ -251,7 +251,7 @@ void CTableThreadMgr::start(const muduo::net::EventLoopThreadPool::ThreadInitCal
 	}
 }
 
-void CTableThreadMgr::startCheckUserIn() {
+void CTableThreadMgr::startCheckUserIn(ITableContext* tableContext) {
 	switch (tableContext->GetGameInfo()->gameType) {
 	case GameType_BaiRen: {
 		std::shared_ptr<CPlayer> player = std::make_shared<CPlayer>();
