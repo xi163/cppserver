@@ -201,7 +201,6 @@ std::shared_ptr<CTable> CTableMgr::New() {
 		if (!freeItems_.empty()) {
 			std::shared_ptr<CTable> table = freeItems_.front();
 			freeItems_.pop_front();
-			//table->Reset();
 			usedItems_[table->GetTableId()] = table;
 			return table;
 		}
