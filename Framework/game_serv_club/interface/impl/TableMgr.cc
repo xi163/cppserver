@@ -162,7 +162,7 @@ std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& playe
 		if (tableId < items_.size()) {
 			std::shared_ptr<CTable> table = items_[tableId];
 			do {
-				if (!table->CanJoinTable(player, clubId)) {
+				if (!table->CanJoinTable(player, clubId, INVALID_TABLE)) {
 					break;
 				}
 				return table;
