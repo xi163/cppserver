@@ -6297,8 +6297,8 @@ namespace S13S {
 		//遍历一副手牌查找当前牌
 		for (int i = 0; i < len; ++i) {
 		next:
-			if (bok) {
-				bok = false;
+			if (ok) {
+				ok = false;
 				continue;
 			}
 			//遍历每一墩牌
