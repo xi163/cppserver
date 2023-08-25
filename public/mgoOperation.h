@@ -9,91 +9,6 @@
 
 namespace mgo {
 	
-	using namespace mongocxx;
-	using namespace bsoncxx;
-	
-	namespace opt {
-		
-		int getErrCode(std::string const& errmsg);
-		
-		int64_t Count(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& where);
-
-		int64_t Count(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& where,
-			int64_t limit);
-		
-		optional<result::insert_one> InsertOne(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& view);
-
-		optional<result::insert_many> Insert(
-			std::string const& dbname,
-			std::string const& tblname,
-			std::vector<document::view_or_value> const& views);
-		
-		optional<result::delete_result> DeleteOne(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& where);
-
-		optional<result::delete_result> Delete(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& where);
-		
-		optional<result::update> UpdateOne(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& update,
-			document::view_or_value const& where);
-		
-		optional<result::update> Update(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& update,
-			document::view_or_value const& where);
-		
-		optional<document::value> FindOne(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& select,
-			document::view_or_value const& where);
-		
-		mongocxx::cursor Find(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& select,
-			document::view_or_value const& where);
-		
-		optional<document::value> FindOneAndUpdate(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& select,
-			document::view_or_value const& update,
-			document::view_or_value const& where);
-		
-		optional<document::value> FindOneAndReplace(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& select,
-			document::view_or_value const& replace,
-			document::view_or_value const& where);
-		
-		optional<document::value> FindOneAndDelete(
-			std::string const& dbname,
-			std::string const& tblname,
-			document::view_or_value const& select,
-			document::view_or_value const& where);
-
-	
-	} // namespace opt
-	
 	int64_t NewAutoId(
 		document::view_or_value const& select,
 		document::view_or_value const& update,
@@ -154,14 +69,14 @@ namespace mgo {
 		document::view_or_value const& select,
 		document::view_or_value const& where);
 	
-	//´´½¨¾ãÀÖ²¿
+	//åˆ›å»ºä¿±ä¹éƒ¨
 	Msg const& CreateClub(
 		int64_t userId,
 		std::string const& clubName,
 		int32_t ratio, int32_t autopartnerratio,
 		UserClubInfo& info);
 
-	//´úÀí·¢ÆğÈËÑûÇë¼ÓÈë¾ãÀÖ²¿
+	//ä»£ç†å‘èµ·äººé‚€è¯·åŠ å…¥ä¿±ä¹éƒ¨
 	Msg const& InviteJoinClub(
 		int64_t clubId,
 		int64_t promoterId,
@@ -169,16 +84,16 @@ namespace mgo {
 		int32_t status,
 		int32_t ratio = 0, int32_t autopartnerratio = 0);
 	
-	//ÓÃ»§Í¨¹ıÑûÇëÂë¼ÓÈë¾ãÀÖ²¿
+	//ç”¨æˆ·é€šè¿‡é‚€è¯·ç åŠ å…¥ä¿±ä¹éƒ¨
 	Msg const& JoinClub(
 		int64_t& clubId,
 		int32_t invitationCode,
 		int64_t userId);
 	
-	//ÓÃ»§ÍË³ö¾ãÀÖ²¿
+	//ç”¨æˆ·é€€å‡ºä¿±ä¹éƒ¨
 	Msg const& ExitClub(int64_t userId, int64_t clubId);
 	
-	//´úÀí·¢ÆğÈË¿ª³ı¾ãÀÖ²¿³ÉÔ±
+	//ä»£ç†å‘èµ·äººå¼€é™¤ä¿±ä¹éƒ¨æˆå‘˜
 	Msg const& FireClubUser(int64_t clubId, int64_t promoterId, int64_t userId);
 	
 	bool LoadGameClubInfos(
@@ -191,17 +106,21 @@ namespace mgo {
 	bool LoadGameRoomInfos(
 		::HallServer::GetGameMessageResponse& gameinfos);
 	
+	bool LoadClubGamevisibility(
+		std::map<uint32_t, std::set<int64_t>>& mapGamevisibility,
+		std::map<int64_t, std::set<uint32_t>>& mapClubvisibility);
+	
 	bool LoadGameClubRoomInfos(
 		::HallServer::GetGameMessageResponse& gameinfos);
 
-	//½ğ±Ò³¡
+	//é‡‘å¸åœº
 	bool LoadGameRoomInfo(
 		uint32_t gameid, uint32_t roomid,
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_);
 	bool LoadGameRoomInfos(
 		uint32_t gameid,
 		tagGameInfo& gameInfo_, std::vector<tagGameRoomInfo>& roomInfos_);
-	//¾ãÀÖ²¿
+	//ä¿±ä¹éƒ¨
 	bool LoadClubGameRoomInfo(
 		uint32_t gameid, uint32_t roomid,
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_);

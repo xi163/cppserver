@@ -11,7 +11,7 @@
 
 #include "zookeeperclient/zookeeperclient.h"
 #include "zookeeperclient/zookeeperlocker.h"
-#include "MongoDB/MongoDBClient.h"
+#include "MongoDB/MongoDBOperation.h"
 #include "RedisClient/RedisClient.h"
 #include "RedisLock/redlock.h"
 #include "game_tracemsg/TraceMsg.h"

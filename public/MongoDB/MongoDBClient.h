@@ -1,6 +1,15 @@
 #ifndef INCLUDE_MONGODB_CLIENT_H
 #define INCLUDE_MONGODB_CLIENT_H
 
+#include <mongocxx/exception/authentication_exception.hpp>
+#include <mongocxx/exception/bulk_write_exception.hpp>
+#include <mongocxx/exception/gridfs_exception.hpp>
+#include <mongocxx/exception/operation_exception.hpp>
+#include <mongocxx/exception/logic_error.hpp>
+#include <mongocxx/exception/query_exception.hpp>
+#include <mongocxx/exception/write_exception.hpp>
+#include <mongocxx/exception/exception.hpp>
+
 #include <bsoncxx/exception/exception.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/builder/basic/document.hpp>
@@ -56,20 +65,78 @@ using bsoncxx::types::b_timestamp;
 
 #define MONGODBCLIENT MongoDBClient::ThreadLocalSingleton::instance()
 
-namespace MongoDBClient {
+#define MGO_TRY() \
+	try {\
 
-	//@@ ThreadLocalSingleton 线程局部使用
+#define MGO_CATCH() } \
+	catch (const mongocxx::authentication_exception& e) { \
+		_LOG_ERROR(e.what()); \
+	} \
+	catch (const mongocxx::bulk_write_exception& e) { \
+		_LOG_ERROR(e.what()); \
+	} \
+	catch (const mongocxx::gridfs_exception& e) { \
+		_LOG_ERROR(e.what()); \
+	} \
+	catch (const mongocxx::operation_exception& e) { \
+		_LOG_ERROR(e.what()); \
+	} \
+	catch (const mongocxx::logic_error& e) { \
+		_LOG_ERROR(e.what()); \
+	} \
+	catch (const mongocxx::query_exception& e) { \
+		_LOG_ERROR(e.what()); \
+	} \
+	catch (const mongocxx::write_exception& e) { \
+		_LOG_ERROR(e.what()); \
+	} \
+	catch (const mongocxx::exception& e) { \
+		_LOG_ERROR(e.what()); \
+		switch (mgo::opt::getErrCode(e.what())) { \
+		case 11000: \
+			break; \
+		default: \
+			break; \
+		} \
+	} \
+	catch (const bsoncxx::exception& e) { \
+		_LOG_ERROR(e.what()); \
+		switch (mgo::opt::getErrCode(e.what())) { \
+		case 11000: \
+			break; \
+		default: \
+			break; \
+		} \
+	} \
+	catch (const std::exception& e) { \
+		_LOG_ERROR(e.what()); \
+	} \
+	catch (...) { \
+	} \
+
+namespace MongoDBClient {
+	
+	void initialize(std::string const& url);
+	
+	mongocxx::client_session start_session();
+	
+	//@@ 线程局部使用
 	class ThreadLocalSingleton : boost::noncopyable {
 	public:
 		ThreadLocalSingleton() = delete;
 		~ThreadLocalSingleton() = delete;
 		//instance
-		static mongocxx::client& instance() {
-			if (!s_value_) {
-				s_value_ = new mongocxx::client(mongocxx::uri{ s_mongoDBConntionString_ }, s_options_);
-				s_deleter_.set(s_value_);
+		static inline mongocxx::client& instance() {
+			if (__builtin_expect(s_value_ == 0, 0)) {
+				setvalue();
 			}
 			return *s_value_;
+		}
+		static inline void setvalue() {
+			if (!s_value_) {
+				s_value_ = new mongocxx::client(mongocxx::uri{ s_uri_ }, s_options_);
+				s_deleter_.set(s_value_);
+			}
 		}
 		//reset() 抛连接断开异常时调用
 		static void reset() {
@@ -81,7 +148,7 @@ namespace MongoDBClient {
 			return s_value_;
 		}
 		//setUri
-		static void setUri(std::string const& mongoDBStr) { s_mongoDBConntionString_ = mongoDBStr; }
+		static void setUri(std::string const& url) { s_uri_ = url; }
 		//setOption
 		static void setOption(mongocxx::options::client options) { s_options_ = options; }
 	private:
@@ -117,8 +184,8 @@ namespace MongoDBClient {
 		//ThreadLocal
 		static __thread mongocxx::client* s_value_;
 		static Deleter s_deleter_;
-		//mongoDB
-		static std::string s_mongoDBConntionString_;
+		//MongoDB
+		static std::string s_uri_;
 		static mongocxx::options::client s_options_;
 	};
 

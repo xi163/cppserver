@@ -145,6 +145,9 @@
     <ClInclude Include="..\..\..\public\RedisLock\redlock.h">
       <Filter>public\RedisLock</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\MongoDB\MongoDBOperation.h">
+      <Filter>public\MongoDB</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
@@ -232,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\RedisLock\redlock.cc">
       <Filter>public\RedisLock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBOperation.cc">
+      <Filter>public\MongoDB</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

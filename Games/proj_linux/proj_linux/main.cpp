@@ -1,175 +1,24 @@
-#include "Logger/src/log/Logger.h"
+#include "Logger/src/utils/utils.h"
 //#include "public/Inc.h"
-#include "Logger/src/Macro.h"
 #include "public/gameConst.h"
 #include <google/protobuf/message.h>
 #include "IncMuduo.h"
 
-//#include "RpcClients.h"
-
-void testcircular() {
-	boost::circular_buffer<int> cb(3);
-	_LOG_INFO("cap:%d size:%d", cb.capacity(), cb.size());
-	cb.resize(3);
-	_LOG_INFO("cap:%d size:%d", cb.capacity(), cb.size());
-	cb.push_back(1);
-	cb.push_back(2);
-	cb.push_back(3);
-	for (int i = 0; i < cb.size(); ++i) {
-		_LOG_INFO("%d", cb[i]);
-	}
-	std::cout << std::endl;
-	//此时容量已满，下面新的push_back操作将在头部覆盖一个元素
-	cb.push_back(4);
-	for (int i = 0; i < cb.size(); ++i) {
-		_LOG_INFO("%d", cb[i]);
-	}
-	std::cout << std::endl;
-	//下面的push_front操作将在尾部覆盖一个元素
-	cb.push_front(5);
-	for (int i = 0; i < cb.size(); ++i)
-	{
-		_LOG_INFO("%d", cb[i]);
-	}
-}
-
-void hmset(std::string key, STD::generic_map& m) {
-	std::string cmd = "HMSET " + key;
-	for (STD::generic_map::iterator it = m.begin(); it != m.end(); ++it)
-	{
-		std::string field = it->first;
-		std::string value = it->second.as_string();
-		if (value.length())
-		{
-			_LOG_ERROR("[%s]=%s", field.c_str(), value.c_str());
-			//value = string_replace(value, " ", "_");
-			_LOG_ERROR("[%s]=%s", field.c_str(), value.c_str());
-			cmd += " ";
-			cmd += field;
-			cmd += " ";
-			cmd += value;
-		}
-	}
-	_LOG_ERROR("cmd = %s", cmd.c_str());
-}
-void AddLogoutLog(
-	STD::time_point const& loginTime,
-	STD::time_point const& now) {
-	_LOG_ERROR("delta1: %d", (now - loginTime).to_sec());
-}
+// static_assert
+// //#include "RpcClients.h"
+// assert()
+// void assert_check(bool expr, char const* file, int line, char const* func, char const* format, ...) {
+// //	LOG()
+// }
+// #define _LOG_ASSERT(expr, msg) \
+// switch(expr){ \
+// 	case false: \
+// 	_LOG_FATAL("%s",msg)
+// }\
+// 
 
 
 
-
-
-static class RoomList {
-public:
-	void add(std::string const& name);
-	void remove(std::string const& name);
-	void random_server(uint32_t roomid, std::string& ipport);
-	void balance_server(uint32_t roomid, std::string& ipport);
-private:
-	std::map<int, std::set<std::string>> nodes_;
-	mutable boost::shared_mutex mutex_;
-}game_serv_[kClub + 1];
-
-void RoomList::add(std::string const& name) {
-	std::vector<std::string> vec;
-	boost::algorithm::split(vec, name, boost::is_any_of(":"));
-	WRITE_LOCK(mutex_);
-	std::set<std::string>& room = nodes_[stoi(vec[0])];
-	room.insert(name);
-}
-
-void RoomList::remove(std::string const& name) {
-// 	std::vector<std::string> vec;
-// 	boost::algorithm::split(vec, name, boost::is_any_of(":"));
-// 	WRITE_LOCK(mutex_);
-// 	std::map<int, std::set<std::string>>::iterator it = nodes_.find(stoi(vec[0]));
-// 	if (it != nodes_.end()) {
-// 		std::set<std::string>::iterator ir = it->second.find(name);
-// 		if (ir != it->second.end()) {
-// 			it->second.erase(ir);
-// 			if (it->second.empty()) {
-// 				nodes_.erase(it);
-// 			}
-// 		}
-// 	}
-}
-
-void RoomList::random_server(uint32_t roomid, std::string& ipport) {
-// 	ipport.clear();
-// 	READ_LOCK(mutex_);
-// 	std::map<int, std::set<std::string>>::iterator it = nodes_.find(roomid);
-// 	if (it != nodes_.end()) {
-// 		if (!it->second.empty()) {
-// 			std::vector<std::string> rooms;
-// 			std::copy(it->second.begin(), it->second.end(), std::back_inserter(rooms));
-// 			int index = RANDOM().betweenInt(0, rooms.size() - 1).randInt_mt();
-// 			ipport = rooms[index];
-// 		}
-// 	}
-}
-
-void RoomList::balance_server(uint32_t roomid, std::string& ipport) {
-// 	std::map<int, std::set<std::string>>::iterator it = nodes_.find(roomid);
-// 	if (it != nodes_.end()) {
-// 		if (!it->second.empty()) {
-// 			std::vector<std::pair<std::string, int>> rooms;
-// 			std::set<std::string>& ref = it->second;
-// 			for (std::set<std::string>::iterator it = ref.begin(); it != ref.end(); ++it) {
-// 				rpc::ClientConn conn;
-// 				gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*it, conn);
-// 				rpc::client::Service client(conn, 3);
-// 				::Game::Rpc::NodeInfoReq req;
-// 				::Game::Rpc::NodeInfoRspPtr rsp = client.GetNodeInfo(req);
-// 				if (rsp) {
-// 					//_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
-// 					rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));
-// 				}
-// 			}
-// 			int i = 0;
-// 			int minLoads = 0;
-// 			for (int k = 0; k < rooms.size(); k++) {
-// 				_LOG_WARN("[%d] %s numOfLoads:%d", k, rooms[k].first.c_str(), rooms[k].second);
-// 				switch (k) {
-// 				case 0:
-// 					i = k;
-// 					minLoads = rooms[k].second;
-// 					break;
-// 				default:
-// 					if (minLoads > rooms[k].second) {
-// 						i = k;
-// 						minLoads = rooms[k].second;
-// 					}
-// 					break;
-// 				}
-// 			}
-// 			if (rooms.size() > 0) {
-// 				_LOG_DEBUG(">>> [%d] %s numOfLoads:%d", i, rooms[i].first.c_str(), rooms[i].second);
-// 				ipport = rooms[i].first;
-// 			}
-// 		}
-// 	}
-}
-
-class IPlayer {
-public:
-	IPlayer() {}
-	virtual ~IPlayer() {}
-};
-
-class CPlayer : public IPlayer {
-public:
-	CPlayer() {
-		name = "hello,world";
-	}
-
-	std::string name;
-};
-
-void foo(int i) {
-}
 
 typedef boost::tuple<std::string,
 	muduo::net::WeakTcpConnectionPtr,
@@ -178,43 +27,47 @@ typedef boost::tuple<std::string,
 //typedef ::std::shared_ptr<Message> MessagePtr;
 //typedef ::std::function<void(const ::google::protobuf::MessagePtr&)> ClientDoneCallback;
 int main() {
-	
-	ClientConn conn;
-	if (conn.get<0>().empty()) {
-		_LOG_DEBUG(" ok");
-	}
-	else {
-		_LOG_DEBUG(" 空1");
-	}
-	if (conn.get<1>().lock()) {
-		_LOG_DEBUG(" ok");
-	}
-	else {
-		_LOG_DEBUG(" 空1");
-	}
-	if (conn.get<2>()) {
-		_LOG_DEBUG(" ok");
-	}
-	else {
-		_LOG_DEBUG(" 空1");
-	}
-	std::shared_ptr<CPlayer> p = std::make_shared<CPlayer>();
-	std::shared_ptr<CPlayer> p2 = std::shared_ptr<CPlayer>();
-	_LOG_DEBUG("%s", p->name.c_str());
-	_LOG_DEBUG("%s", p2->name.c_str());
-	//muduo::net::RpcChannel::ClientDoneCallback done;
-	
-	if (muduo::net::RpcChannel::ClientDoneCallback()) {
-		_LOG_DEBUG(" 有效");
-	}
-	else {
-		_LOG_DEBUG(" 空1");
-	}
-	void (*fn)(int) = foo;
-
-	typedef std::function<void(int)> f;
-	f fx;
-	fx = CALLBACK_0(fn, 1);
+	int n = 1;
+	//_ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
+	//_ASSERT_S(n == 0, "");
+	//_ASSERT_S(n == 0);
+	_ASSERT_V(n == 0, "断言错误 n=%d a=%d 操 ..............", n, 5);
+// 	ClientConn conn;
+// 	if (conn.get<0>().empty()) {
+// 		_LOG_DEBUG(" ok");
+// 	}
+// 	else {
+// 		_LOG_DEBUG(" 空1");
+// 	}
+// 	if (conn.get<1>().lock()) {
+// 		_LOG_DEBUG(" ok");
+// 	}
+// 	else {
+// 		_LOG_DEBUG(" 空1");
+// 	}
+// 	if (conn.get<2>()) {
+// 		_LOG_DEBUG(" ok");
+// 	}
+// 	else {
+// 		_LOG_DEBUG(" 空1");
+// 	}
+// 	std::shared_ptr<CPlayer> p = std::make_shared<CPlayer>();
+// 	std::shared_ptr<CPlayer> p2 = std::shared_ptr<CPlayer>();
+// 	_LOG_DEBUG("%s", p->name.c_str());
+// 	_LOG_DEBUG("%s", p2->name.c_str());
+// 	//muduo::net::RpcChannel::ClientDoneCallback done;
+// 	
+// 	if (muduo::net::RpcChannel::ClientDoneCallback()) {
+// 		_LOG_DEBUG(" 有效");
+// 	}
+// 	else {
+// 		_LOG_DEBUG(" 空1");
+// 	}
+// 	void (*fn)(int) = foo;
+// 
+// 	typedef std::function<void(int)> f;
+// 	f fx;
+// 	fx = CALLBACK_0(fn, 1);
 	//fn1(8);
 // 	std::vector<std::shared_ptr<CPlayer>> items_;
 // 	std::shared_ptr<IPlayer>  target = items_[0];

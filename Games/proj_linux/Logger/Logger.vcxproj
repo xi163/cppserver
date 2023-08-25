@@ -75,6 +75,8 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\timer\timer.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\time\time.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\track\MemTrack.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\Assert.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\assertImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.h" />

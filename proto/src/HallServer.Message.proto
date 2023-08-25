@@ -59,7 +59,8 @@ message GameMessage
      uint32                 gameType                = 4;  // 0-百人场  1-对战类
      uint32                 gameIsHot               = 5;  // 火爆 0 -正常 1-火爆 2-新
      int32                  gameStatus              = 6;  // 游戏状态 -1:关停 0:暂未开放 1：正常开启  2：敬请期待
-     repeated GameRoomMessage  gameRoomMsg          = 7;
+	 repeated GameRoomMessage  gameRoomMsg          = 7;
+	 int32                  gamePrivate             = 8;  // 俱乐部模式 开放 私有-针对指定俱乐部可见
 }
 
 message GetGameMessage

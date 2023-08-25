@@ -233,24 +233,14 @@ bool RouterServ::InitRedisCluster(std::string const& ipaddr, std::string const& 
 }
 
 bool RouterServ::InitMongoDB(std::string const& url) {
-	//http://mongocxx.org/mongocxx-v3/tutorial/
-	_LOG_INFO("%s", url.c_str());
-	mongocxx::instance instance{};
-	//mongoDBUrl_ = url;
-	//http://mongocxx.org/mongocxx-v3/tutorial/
-	//mongodb://admin:6pd1SieBLfOAr5Po@192.168.0.171:37017,192.168.0.172:37017,192.168.0.173:37017/?connect=replicaSet;slaveOk=true&w=1&readpreference=secondaryPreferred&maxPoolSize=50000&waitQueueMultiple=5
-	MongoDBClient::ThreadLocalSingleton::setUri(url);
+	MongoDBClient::initialize(url);
 	return true;
 }
-
-static __thread mongocxx::database* dbgamemain_;
 
 void RouterServ::threadInit() {
 	if (!REDISCLIENT.initRedisCluster(redisIpaddr_, redisPasswd_)) {
 		_LOG_FATAL("initRedisCluster error");
 	}
-	static __thread mongocxx::database db = MONGODBCLIENT["gamemain"];
-	dbgamemain_ = &db;
 	std::string s;
 	for (std::vector<std::string>::const_iterator it = redlockVec_.begin();
 		it != redlockVec_.end(); ++it) {

@@ -22,6 +22,7 @@ namespace mgoKeys {
 
 		static char const* GAME_CLUB = "game_club";
 		static char const* GAME_CLUB_MEMBER = "game_club_user";
+		static char const* GAME_CLUB_VISIBLE = "game_club_visible";
 
 		static char const* GAMEUSER = "game_user";
 		static char const* AGENTINFO = "proxy_info";
