@@ -392,30 +392,22 @@ bool HallServ::InitRedisCluster(std::string const& ipaddr, std::string const& pa
 	redisIpaddr_ = ipaddr;
 	redisPasswd_ = passwd;
 	redisClient_->subscribeRefreshConfigMessage(
-		std::bind(&HallServ::on_refresh_game_config, this, std::placeholders::_1));
+		CALLBACK_1([&](std::string msg) {
+			loadGameRoomInfos();
+		}));
 	redisClient_->startSubThread();
 	return true;
 }
 
 bool HallServ::InitMongoDB(std::string const& url) {
-	//http://mongocxx.org/mongocxx-v3/tutorial/
-	_LOG_INFO("%s", url.c_str());
-	mongocxx::instance instance{};
-	//mongoDBUrl_ = url;
-	//http://mongocxx.org/mongocxx-v3/tutorial/
-	//mongodb://admin:6pd1SieBLfOAr5Po@192.168.0.171:37017,192.168.0.172:37017,192.168.0.173:37017/?connect=replicaSet;slaveOk=true&w=1&readpreference=secondaryPreferred&maxPoolSize=50000&waitQueueMultiple=5
-	MongoDBClient::ThreadLocalSingleton::setUri(url);
+	MongoDBClient::initialize(url);
 	return true;
 }
-
-static __thread mongocxx::database* dbgamemain_;
 
 void HallServ::threadInit() {
 	if (!REDISCLIENT.initRedisCluster(redisIpaddr_, redisPasswd_)) {
 		_LOG_FATAL("initRedisCluster error");
 	}
-	static __thread mongocxx::database db = MONGODBCLIENT["gamemain"];
-	dbgamemain_ = &db;
 	std::string s;
 	for (std::vector<std::string>::const_iterator it = redlockVec_.begin();
 		it != redlockVec_.end(); ++it) {
@@ -458,9 +450,11 @@ void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 
 	server_.start(true);
 
-	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&HallServ::registerZookeeper, this));
-	thisTimer_->getLoop()->runAfter(3.0f, std::bind(&HallServ::db_refresh_game_room_info, this));
-	thisTimer_->getLoop()->runAfter(30, std::bind(&HallServ::redis_refresh_room_player_nums, this));
+	thisTimer_->getLoop()->runAfter(5.0f, OBJ_CALLBACK_0(this, &HallServ::registerZookeeper));
+	thisTimer_->getLoop()->runEvery(3.0f, CALLBACK_0([&]() {
+		loadGameRoomInfos();
+	}));
+	thisTimer_->getLoop()->runEvery(3.0f, OBJ_CALLBACK_0(this, &HallServ::redis_refresh_room_player_nums));
 }
 
 void HallServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
@@ -843,14 +837,62 @@ void HallServ::cmd_get_game_info(
 		::HallServer::GetGameMessageResponse rspdata;
 		switch (reqdata.type()) {
 		case GameMode::kGoldCoin:
-		case GameMode::kFriendRoom:
-		case GameMode::kClub: {
+		case GameMode::kFriendRoom: {
 			READ_LOCK(gameinfo_mutex_);
 			rspdata.CopyFrom(gameinfo_[reqdata.type()]);
-			rspdata.mutable_header()->CopyFrom(reqdata.header());
+			rspdata.mutable_header()->set_sign(PROTOBUF_SIGN);
 			rspdata.set_type(reqdata.type());
 			rspdata.set_retcode(0);
 			rspdata.set_errormsg("Get Game Message OK!");
+			break;
+		}
+		case GameMode::kClub: {
+			std::set<uint32_t> vec;
+			{
+				READ_LOCK(mutexGamevisibility_);
+				std::map<int64_t, std::set<uint32_t>>::const_iterator it = mapClubvisibility_.find(reqdata.clubid());
+				if (it != mapClubvisibility_.end()) {
+					//std::copy(it->second.begin(), it->second.end(), vec.begin());
+					for (std::set<uint32_t>::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
+						vec.insert(*ir);
+					}
+				}
+			}
+			for (std::set<uint32_t>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+				//_LOG_INFO("%d 对俱乐部 %d 可见", *it, reqdata.clubid());
+			}
+			if (vec.empty()) {
+				//_LOG_ERROR("无private游戏对俱乐部 %d 可见", reqdata.clubid());
+			}
+			READ_LOCK(gameinfo_mutex_);
+			rspdata.mutable_header()->set_sign(PROTOBUF_SIGN);
+			rspdata.set_type(reqdata.type());
+			rspdata.set_retcode(0);
+			rspdata.set_errormsg("Get Game Message OK!");
+			if (gameinfo_[reqdata.type()].gamemessage_size() == 0) {
+				_LOG_ERROR("%s 游戏列表为空", getModeStr(reqdata.type()).c_str());
+			}
+			for (int i = 0; i < gameinfo_[reqdata.type()].gamemessage_size(); ++i) {
+				switch (gameinfo_[reqdata.type()].gamemessage(i).gameprivate()) {
+					//0-全部可见 1-私有 针对指定俱乐部可见
+				case 0:
+					rspdata.add_gamemessage()->CopyFrom(gameinfo_[reqdata.type()].gamemessage(i));
+					break;
+				default:
+				case 1: {
+					
+					std::set<uint32_t>::const_iterator it = vec.find(gameinfo_[reqdata.type()].gamemessage(i).gameid());
+					if (it != vec.end()) {
+						//_LOG_WARN("%d 对俱乐部 %d 可见", gameinfo_[reqdata.type()].gamemessage(i).gameid(), reqdata.clubid());
+						rspdata.add_gamemessage()->CopyFrom(gameinfo_[reqdata.type()].gamemessage(i));
+					}
+					else {
+						//_LOG_ERROR("%d 对俱乐部 %d 不可见", gameinfo_[reqdata.type()].gamemessage(i).gameid(), reqdata.clubid());
+					}
+					break;
+				}
+				}
+			}
 			break;
 		}
 		default:
@@ -1241,24 +1283,26 @@ void HallServ::cmd_get_task_award(
 	size_t msgLen = packet::get_msglen(buf);
 }
 
-void HallServ::db_refresh_game_room_info() {
+void HallServ::loadGameRoomInfos() {
 	MY_TRY()
-	int index = RANDOM().betweenInt(0, threadPool_.size() - 1).randInt_re();
+		int index = RANDOM().betweenInt(0, threadPool_.size() - 1).randInt_re();
 	if (index >= 0 && index < threadPool_.size()) {
-		threadPool_[index]->run(std::bind(&HallServ::db_update_game_room_info, this));
+		threadPool_[index]->run(CALLBACK_0([&]() {
+			{
+				WRITE_LOCK(mutexGamevisibility_);
+				mgo::LoadClubGamevisibility(mapGamevisibility_, mapClubvisibility_);
+			}
+			{
+				WRITE_LOCK(gameinfo_mutex_);
+				mgo::LoadGameRoomInfos(gameinfo_[kGoldCoin]);
+				mgo::LoadGameClubRoomInfos(gameinfo_[kClub]);
+			}
+			
+		}));
 	}
 	MY_CATCH()
 }
 
-void HallServ::db_update_game_room_info() {
-	WRITE_LOCK(gameinfo_mutex_);
-	gameinfo_[kGoldCoin].clear_header();
-	gameinfo_[kGoldCoin].clear_gamemessage();
-	mgo::LoadGameRoomInfos(gameinfo_[kGoldCoin]);
-	gameinfo_[kClub].clear_header();
-	gameinfo_[kClub].clear_gamemessage();
-	mgo::LoadGameClubRoomInfos(gameinfo_[kClub]);
-}
 
 void HallServ::redis_refresh_room_player_nums() {
 	static STD::Random r(0, threadPool_.size() - 1);
@@ -1300,10 +1344,6 @@ void HallServ::redis_update_room_player_nums() {
 // 	catch (std::exception& e) {
 // 		_LOG_ERROR(e.what());
 // 	}
-}
-
-void HallServ::on_refresh_game_config(std::string msg) {
-	db_refresh_game_room_info();
 }
 
 //===================俱乐部==================

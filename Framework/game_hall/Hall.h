@@ -309,14 +309,10 @@ private:
 	*/
 
 public:
-	//db刷新所有游戏房间信息
-	void db_refresh_game_room_info();
-	void db_update_game_room_info();
+	void loadGameRoomInfos();
 	//redis刷新所有房间游戏人数
 	void redis_refresh_room_player_nums();
 	void redis_update_room_player_nums();
-	//redis通知刷新游戏房间配置
-	void on_refresh_game_config(std::string msg);
 public:
 	std::shared_ptr<ZookeeperClient> zkclient_;
 	std::string nodePath_, nodeValue_, invalidNodePath_;
@@ -327,6 +323,9 @@ public:
 	std::vector<std::string> redlockVec_;
 	std::string mongoDBUrl_;
 private:
+	std::map<int64_t, std::set<uint32_t>> mapClubvisibility_;
+	std::map<uint32_t, std::set<int64_t>> mapGamevisibility_;
+	mutable boost::shared_mutex mutexGamevisibility_;
 	//所有游戏房间信息
 	::HallServer::GetGameMessageResponse gameinfo_[kClub+1];
 	mutable boost::shared_mutex gameinfo_mutex_;

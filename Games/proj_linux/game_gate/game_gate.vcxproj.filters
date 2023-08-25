@@ -147,6 +147,9 @@
     <ClInclude Include="..\..\..\proto\user.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\MongoDB\MongoDBOperation.h">
+      <Filter>public\MongoDB</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Framework\game_gate\main.cc" />
@@ -253,6 +256,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\proto\user.pb.cc">
       <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBOperation.cc">
+      <Filter>public\MongoDB</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

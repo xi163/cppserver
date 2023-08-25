@@ -473,7 +473,7 @@ namespace mgo {
 			mgoKeys::tbl::GAME_CLUB_MEMBER,
 			select, where);
 		for (auto& view : cursor) {
-			_LOG_WARN(to_json(view).c_str());
+			//_LOG_WARN(to_json(view).c_str());
 			UserClubInfo info;
 			if (view["userid"]) {
 				switch (view["userid"].type()) {
@@ -1600,7 +1600,7 @@ namespace mgo {
 			mgoKeys::tbl::GAME_KIND,
 			{}, {});
 		for (auto& view : cursor) {
-			_LOG_WARN(to_json(view).c_str());
+			//_LOG_WARN(to_json(view).c_str());
 			::HallServer::GameMessage* gameinfo_ = gameinfos.add_gamemessage();
 			gameinfo_->set_gameid(view["gameid"].get_int32());
 			gameinfo_->set_gamename(view["gamename"].get_utf8().value.to_string());
@@ -1655,9 +1655,9 @@ namespace mgo {
 			builder::stream::document{} << "_id" << 0 << "gameid" << 1 << "clubid" << 1 << finalize,
 			builder::stream::document{} << "status" << b_int32{ 1 } << finalize,
 			CALLBACK_1([&](mongocxx::cursor const& cursor) {
-				auto& cur = const_cast<mongocxx::cursor&>(cursor);
-				for (auto const& view : cur) {
-					_LOG_WARN(to_json(view).c_str());
+				auto& cursor_ = const_cast<mongocxx::cursor&>(cursor);
+				for (auto const& view : cursor_) {
+					//_LOG_WARN(to_json(view).c_str());
 					uint32_t gameId = 0;
 					uint32_t clubId = 0;
 					if (view["gameid"]) {
@@ -1707,9 +1707,9 @@ namespace mgo {
 			builder::stream::document{} << "_id" << 0 << finalize,
 			builder::stream::document{} << finalize,
 			CALLBACK_1([&](mongocxx::cursor const& cursor) {
-				auto& cur = const_cast<mongocxx::cursor&>(cursor);
-				for (auto const& view : cur) {
-					_LOG_WARN(to_json(view).c_str());
+				auto& cursor_ = const_cast<mongocxx::cursor&>(cursor);
+				for (auto const& view : cursor_) {
+					//_LOG_WARN(to_json(view).c_str());
 					::HallServer::GameMessage* gameinfo_ = gameinfos.add_gamemessage();
 					gameinfo_->set_gameid(view["gameid"].get_int32());
 					gameinfo_->set_gamename(view["gamename"].get_utf8().value.to_string());

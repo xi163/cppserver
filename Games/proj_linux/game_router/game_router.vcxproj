@@ -62,6 +62,7 @@
     <ClInclude Include="..\..\..\public\mgoModel.h" />
     <ClInclude Include="..\..\..\public\mgoOperation.h" />
     <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h" />
+    <ClInclude Include="..\..\..\public\MongoDB\MongoDBOperation.h" />
     <ClInclude Include="..\..\..\public\Packet.h" />
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\redisKeys.h" />
@@ -97,6 +98,7 @@
     <ClCompile Include="..\..\..\public\mgoModel.cc" />
     <ClCompile Include="..\..\..\public\mgoOperation.cc" />
     <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cc" />
+    <ClCompile Include="..\..\..\public\MongoDB\MongoDBOperation.cc" />
     <ClCompile Include="..\..\..\public\Packet.cc" />
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />
     <ClCompile Include="..\..\..\public\redisKeys.cc" />
