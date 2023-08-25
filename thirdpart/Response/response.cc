@@ -160,7 +160,7 @@ namespace response {
 				<< "<xs:body>"
 				<< "<xs:method>" << req.methodString() << "</xs:method>"
 				<< "<xs:path>" << req.path() << "</xs:path>"
-				<< "<xs:query>" << req.query()/*utils::HTML::Encode(req.query())*/ << "</xs:query>"
+				<< "<xs:query>" << utils::HTML::Encode(req.query()) << "</xs:query>" //库依赖项链接顺序 libResponse.a 在 libLogger.a 之前
 				<< "</xs:body>"
 				<< "</xs:root>";
 			rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
