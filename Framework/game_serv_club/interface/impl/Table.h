@@ -4,7 +4,7 @@
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 
-#include "Packet.h"
+#include "Packet/Packet.h"
 #include "ITableContext.h"
 #include "ITable.h"
 #include "ITableDelegate.h"

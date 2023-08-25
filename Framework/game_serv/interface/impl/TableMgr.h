@@ -3,7 +3,7 @@
 
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
-#include "Packet.h"
+#include "Packet/Packet.h"
 
 #include "Table.h"
 #include "ITableContext.h"

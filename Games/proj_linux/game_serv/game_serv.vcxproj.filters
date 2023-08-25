@@ -97,9 +97,6 @@
     <ClInclude Include="..\..\..\public\IPFinder.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\Packet.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\gameStruct.h">
       <Filter>public</Filter>
     </ClInclude>
@@ -168,9 +165,6 @@
       <Filter>pb</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\IPFinder.cpp">
-      <Filter>public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\Packet.cc">
       <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\response.cc">

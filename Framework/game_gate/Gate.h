@@ -4,7 +4,7 @@
 #include "public/Inc.h"
 #include "public/gameConst.h"
 
-#include "Packet.h"
+#include "Packet/Packet.h"
 
 #include "Entities.h"
 

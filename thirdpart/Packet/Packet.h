@@ -1,6 +1,7 @@
 #ifndef INCLUDE_PACKET_H
 #define INCLUDE_PACKET_H
 
+#include "Logger/src/Macro.h"
 #include "public/IncMuduo.h"
 
 typedef std::shared_ptr<muduo::net::Buffer> BufferPtr;
