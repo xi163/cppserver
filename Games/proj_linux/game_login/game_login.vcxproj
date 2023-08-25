@@ -63,7 +63,6 @@
     <ClInclude Include="..\..\..\public\mgoOperation.h" />
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\redisKeys.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Framework\game_gate\clients\Clients.cc" />

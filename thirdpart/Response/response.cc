@@ -5,11 +5,11 @@
 /*
 HTTP/1.1 400 Bad Request\r\n\r\n
 HTTP/1.1 404 Not Found\r\n\r\n
-HTTP/1.1 405 ·şÎñÎ¬»¤ÖĞ\r\n\r\n
-HTTP/1.1 500 IP·ÃÎÊÏŞÖÆ\r\n\r\n
-HTTP/1.1 504 È¨ÏŞ²»¹»\r\n\r\n
+HTTP/1.1 405 æœåŠ¡ç»´æŠ¤ä¸­\r\n\r\n
+HTTP/1.1 500 IPè®¿é—®é™åˆ¶\r\n\r\n
+HTTP/1.1 504 æƒé™ä¸å¤Ÿ\r\n\r\n
 HTTP/1.1 505 timeout\r\n\r\n
-HTTP/1.1 600 ·ÃÎÊÁ¿ÏŞÖÆ(1500)\r\n\r\n
+HTTP/1.1 600 è®¿é—®é‡é™åˆ¶(1500)\r\n\r\n
 */
 namespace response {
 	namespace text {
