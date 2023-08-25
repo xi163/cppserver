@@ -109,9 +109,6 @@
     <ClInclude Include="..\..\..\public\errorCode.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\response.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Framework\game_serv_club\rpc\server\RpcService.h">
       <Filter>rpc\server</Filter>
     </ClInclude>
@@ -178,9 +175,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\redisKeys.cc">
       <Filter>public\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\response.cc">
-      <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Framework\game_serv_club\rpc\server\RpcService.cc">
       <Filter>rpc\server</Filter>

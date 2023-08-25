@@ -1,5 +1,5 @@
 #include "EntryPtr.h"
-#include "public/response.h"
+#include "Response/response.h"
 
 static inline void onIdleTimeout(const muduo::net::TcpConnectionPtr& conn, Entry::TypeE ty) {
 	switch (ty) {
