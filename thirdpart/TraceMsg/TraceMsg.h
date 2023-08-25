@@ -1,5 +1,7 @@
-#ifndef INCLUDE_TRACEMSG_H
-#define INCLUDE_TRACEMSG_H
+#ifndef INCLUDE_GETTRACEMSG_H
+#define INCLUDE_GETTRACEMSG_H
+
+#include "Logger/src/log/Logger.h"
 
 #define TraceMessageID(mainId, subId) { \
 	std::string s; \

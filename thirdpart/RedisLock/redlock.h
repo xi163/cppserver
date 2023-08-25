@@ -31,6 +31,8 @@
 #ifndef __redlock__
 #define __redlock__
 
+#include "Logger/src/Macro.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

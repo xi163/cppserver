@@ -1,31 +1,27 @@
-#include "public/Inc.h"
+#include "Logger/src/utils/utils.h"
 
-#include "zookeeperclientutils.h"
-
-#include <algorithm>
-
+#include "zookeeperclient/zookeeperclientutils.h"
 
 ZookeeperClientUtils::ZookeeperClientUtils()
 {
 
 }
 
-
-void ZookeeperClientUtils::printString(const string & name)
+void ZookeeperClientUtils::printString(const std::string & name)
 {
 //    auto logger = spdlog::get(getGlobalLogName());
 //    logger->info("{} ",name);
  //   cout<<"{ "<<name<<" }"<<endl;
 }
 
-void ZookeeperClientUtils::printStringPair(const pair<string, string> &stringPair)
+void ZookeeperClientUtils::printStringPair(const std::pair<std::string, std::string> &stringPair)
 {
 //    auto logger = spdlog::get(getGlobalLogName());
 //    logger->info("{}:{}",stringPair.first,stringPair.second);
  //   cout<<"{ "<<stringPair.first<<" }:"<<"{ "<<stringPair.second<<" }"<<endl;
 }
 
-void ZookeeperClientUtils::transStringVector2VectorString(const String_vector &children, vector<string> &vecString)
+void ZookeeperClientUtils::transStringVector2VectorString(const String_vector &children, std::vector<std::string> &vecString)
 {
     for (int i = 0; i < children.count; i++)
     {
@@ -33,18 +29,18 @@ void ZookeeperClientUtils::transStringVector2VectorString(const String_vector &c
     }
 }
 
-void ZookeeperClientUtils::printPathList(const vector<string> &pathVector)
+void ZookeeperClientUtils::printPathList(const std::vector<std::string> &pathVector)
 {
     for_each(pathVector.begin(), pathVector.end(), ZookeeperClientUtils::printString);
 }
 
-void ZookeeperClientUtils::printPathValueList(const map<string, string> &pathValueMap)
+void ZookeeperClientUtils::printPathValueList(const std::map<std::string, std::string> &pathValueMap)
 {
     for_each(pathValueMap.begin(), pathValueMap.end(), ZookeeperClientUtils::printStringPair);
 }
 
 
-void ZookeeperClientUtils::transACLVector2VectorACL(const ACL_vector &aclVec, vector<ACL> &vectorACL)
+void ZookeeperClientUtils::transACLVector2VectorACL(const ACL_vector &aclVec, std::vector<ACL> &vectorACL)
 {
     for (int i = 0; i < aclVec.count; i++)
     {
@@ -52,7 +48,7 @@ void ZookeeperClientUtils::transACLVector2VectorACL(const ACL_vector &aclVec, ve
     }
 }
 
-const string ZookeeperClientUtils::watcherEventType2String(int type)
+const std::string ZookeeperClientUtils::watcherEventType2String(int type)
 {
     switch(type)
     {
@@ -75,7 +71,7 @@ const string ZookeeperClientUtils::watcherEventType2String(int type)
 }
 
 
-const string ZookeeperClientUtils::state2String(int state)
+const std::string ZookeeperClientUtils::state2String(int state)
 {
     switch(state)
     {

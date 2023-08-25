@@ -1,16 +1,8 @@
-#include "public/Inc.h"
+#include "Logger/src/utils/utils.h"
 
-#include "zookeeperlocker.h"
+#include "zookeeperclient/zookeeperlocker.h"
 
-
-
-
-using namespace std;
-
-
-ZookeeperLocker::ZookeeperLocker()
-{
-
+ZookeeperLocker::ZookeeperLocker() {
 }
 
 ZookeeperLocker::~ZookeeperLocker()

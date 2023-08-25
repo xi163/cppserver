@@ -18,8 +18,8 @@
 #ifndef ZOOKEEPER_LOCK_H_
 #define ZOOKEEPER_LOCK_H_
 
+#include "Logger/src/Macro.h"
 #include <zookeeper/zookeeper.h>
-#include <pthread.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -157,7 +157,7 @@ ZOOAPI int zkr_lock_isowner(zkr_lock_mutex_t *mutex);
 
 /**
  * \brief return the id for this mutex
- * this mutex retunrns the id string 
+ * this mutex retunrns the id std::string 
  * \param mutex the mutex
  * \return the id for this mutex
  */

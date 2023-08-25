@@ -52,12 +52,12 @@ int Order(
 		int64_t userId = 0;
 #endif
 		std::string sType = req.getHeader(ContentType);
-		if (sType.find(ContentType_Text) != string::npos) {
+		if (sType.find(ContentType_Text) != std::string::npos) {
 		}
-		else if (sType.find(ContentType_Json) != string::npos) {
+		else if (sType.find(ContentType_Json) != std::string::npos) {
 
 		}
-		else if (sType.find(ContentType_Xml) != string::npos) {
+		else if (sType.find(ContentType_Xml) != std::string::npos) {
 
 		}
 		HttpParams params;
@@ -376,12 +376,12 @@ int Order(
 	}
 	case muduo::net::HttpRequest::kPost: {
 		std::string sType = req.getHeader(ContentType);
-		if (sType.find(ContentType_Text) != string::npos) {
+		if (sType.find(ContentType_Text) != std::string::npos) {
 
 		}
-		else if (sType.find(ContentType_Json) != string::npos) {
+		else if (sType.find(ContentType_Json) != std::string::npos) {
 		}
-		else if (sType.find(ContentType_Xml) != string::npos) {
+		else if (sType.find(ContentType_Xml) != std::string::npos) {
 
 		}
 		break;

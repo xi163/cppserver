@@ -51,15 +51,12 @@ namespace packet {
 		uint32_t clientIp;           //用户IP
 		uint8_t  session[SESSIONSZ]; //用户会话
 		uint8_t  aeskey[AESKEYSZ];   //AES_KEY
-#if 1
 		uint8_t  servId[SERVIDSZ];   //来自节点ID
-#endif
 		uint16_t checksum;           //校验和CHKSUM
 	};
 
 #pragma pack()
 
-	//@@
 	static const size_t kHeaderLen = sizeof(header_t);
 	static const size_t kPrevHeaderLen = sizeof(internal_prev_header_t);
 	static const size_t kMaxPacketSZ = 60 * 1024;
@@ -67,9 +64,7 @@ namespace packet {
 
 	static const size_t kSessionSZ = sizeof(((internal_prev_header_t*)0)->session);
 	static const size_t kAesKeySZ = sizeof(((internal_prev_header_t*)0)->aeskey);
-#if 1
 	static const size_t kServIdSZ = sizeof(((internal_prev_header_t*)0)->servId);
-#endif
 
 	//enword
 	static inline int enword(int mainId, int subId) {
@@ -87,7 +82,7 @@ namespace packet {
 	}
 
 	//getCheckSum 计算校验和
-	static uint16_t getCheckSum(uint8_t const* header, size_t size) {
+	static inline uint16_t getCheckSum(uint8_t const* header, size_t size) {
 		uint16_t sum = 0;
 		uint16_t const* ptr = (uint16_t const*)header;
 		for (size_t i = 0; i < size / 2; ++i) {
@@ -102,7 +97,7 @@ namespace packet {
 	}
 
 	//setCheckSum 计算校验和
-	static void setCheckSum(internal_prev_header_t* header) {
+	static inline void setCheckSum(internal_prev_header_t* header) {
 		uint16_t sum = 0;
 		uint16_t* ptr = (uint16_t*)header;
 		for (size_t i = 0; i < kPrevHeaderLen / 2 - 1; ++i) {
@@ -116,7 +111,7 @@ namespace packet {
 	}
 
 	//checkCheckSum 计算校验和
-	static bool checkCheckSum(internal_prev_header_t const* header) {
+	static inline bool checkCheckSum(internal_prev_header_t const* header) {
 		uint16_t sum = 0;
 		uint16_t const* ptr = (uint16_t const*)header;
 		for (size_t i = 0; i < kPrevHeaderLen / 2 - 1; ++i) {
@@ -145,9 +140,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 1
 		std::string const& servid,
-#endif
 		char const* data, size_t len);
 	
 	BufferPtr packMessage(
@@ -156,9 +149,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 1
 		std::string const& servid,
-#endif
 		char const* data, size_t len);
 
 	//pack data[len] to buffer with packet::internal_prev_header_t & packet::header_t
@@ -169,9 +160,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 1
 		std::string const& servid,
-#endif
 		int mainId, int subId,
 		char const* data, size_t len);
 	
@@ -181,9 +170,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 1
 		std::string const& servid,
-#endif
 		int mainId, int subId,
 		char const* data, size_t len);
 
@@ -195,9 +182,7 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 1
 		std::string const& servid,
-#endif
 		int mainId, int subId,
 		::google::protobuf::Message* data);
 
@@ -207,34 +192,32 @@ namespace packet {
 		std::string const& aeskey,
 		uint32_t clientip,
 		int16_t kicking,
-#if 1
 		std::string const& servid,
-#endif
 		int mainId, int subId,
 		::google::protobuf::Message* data);
 
-	static internal_prev_header_t const* get_pre_header(BufferPtr const& buf) {
+	static inline internal_prev_header_t const* get_pre_header(BufferPtr const& buf) {
 		return (internal_prev_header_t const*)buf->peek();
 	}
 	
-	static header_t const* get_header(BufferPtr const& buf) {
+	static inline header_t const* get_header(BufferPtr const& buf) {
 		return (header_t const*)(buf->peek() + kPrevHeaderLen);
 	}
 	
-	static uint8_t const* get_msg(BufferPtr const& buf) {
+	static inline uint8_t const* get_msg(BufferPtr const& buf) {
 		return (uint8_t const*)buf->peek() + kPrevHeaderLen + kHeaderLen;
 	}
 
-	static uint8_t const* get_msg(header_t const* header) {
+	static inline uint8_t const* get_msg(header_t const* header) {
 		return (uint8_t const*)header + kHeaderLen;
 	}
 	
-	static size_t get_msglen(BufferPtr const& buf) {
+	static inline size_t get_msglen(BufferPtr const& buf) {
 		//return ((header_t const*)(buf->peek() + kPrevHeaderLen))->len - kHeaderLen;
 		return ((header_t const*)(buf->peek() + kPrevHeaderLen))->realsize;
 	}
 
-	static size_t get_msglen(header_t const* header) {
+	static inline size_t get_msglen(header_t const* header) {
 		//return header->len - kHeaderLen;
 		return header->realsize;
 	}

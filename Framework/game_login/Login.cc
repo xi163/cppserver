@@ -107,9 +107,9 @@ void LoginServ::onZookeeperConnected() {
 		names,
 		std::bind(
 			&LoginServ::onGateWatcher, this,
-			placeholders::_1, std::placeholders::_2,
-			placeholders::_3, std::placeholders::_4,
-			placeholders::_5), this)) {
+			std::placeholders::_1, std::placeholders::_2,
+			std::placeholders::_3, std::placeholders::_4,
+			std::placeholders::_5), this)) {
 		std::string s;
 		for (std::string const& name : names) {
 			s += "\n" + name;
@@ -128,9 +128,9 @@ void LoginServ::onGateWatcher(int type, int state,
 		names,
 		std::bind(
 			&LoginServ::onGateWatcher, this,
-			placeholders::_1, std::placeholders::_2,
-			placeholders::_3, std::placeholders::_4,
-			placeholders::_5), this)) {
+			std::placeholders::_1, std::placeholders::_2,
+			std::placeholders::_3, std::placeholders::_4,
+			std::placeholders::_5), this)) {
 		std::string s;
 		for (std::string const& name : names) {
 			s += "\n" + name;

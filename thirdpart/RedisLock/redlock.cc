@@ -28,9 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "public/Inc.h"
+#include "Logger/src/utils/utils.h"
 
-#include "redlock.h"
+#include "RedisLock/redlock.h"
 
 /* Turn the plain C strings into Sds strings */
 static char **convertToSds(int count, char** args) {

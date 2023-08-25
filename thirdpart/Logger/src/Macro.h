@@ -163,6 +163,10 @@ typedef std::chrono::system_clock::time_point time_point;
 #include <arpa/inet.h>
 #include <linux/if.h>
 //#include <net/if.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <sys/utsname.h>
+#include <pwd.h>
 
 #define __FUNC__ __func__
 #define INVALID_HANDLE_VALUE (-1)

@@ -139,9 +139,9 @@ void GameServ::onZookeeperConnected() {
 			names,
 			std::bind(
 				&GameServ::onGateWatcher, this,
-				placeholders::_1, std::placeholders::_2,
-				placeholders::_3, std::placeholders::_4,
-				placeholders::_5), this)) {
+				std::placeholders::_1, std::placeholders::_2,
+				std::placeholders::_3, std::placeholders::_4,
+				std::placeholders::_5), this)) {
 			std::string s;
 			for (std::string const& name : names) {
 				s += "\n" + name;
@@ -156,9 +156,9 @@ void GameServ::onZookeeperConnected() {
 			names,
 			std::bind(
 				&GameServ::onHallWatcher, this,
-				placeholders::_1, std::placeholders::_2,
-				placeholders::_3, std::placeholders::_4,
-				placeholders::_5), this)) {
+				std::placeholders::_1, std::placeholders::_2,
+				std::placeholders::_3, std::placeholders::_4,
+				std::placeholders::_5), this)) {
 			std::string s;
 			for (std::string const& name : names) {
 				s += "\n" + name;
@@ -178,9 +178,9 @@ void GameServ::onGateWatcher(
 		names,
 		std::bind(
 			&GameServ::onGateWatcher, this,
-			placeholders::_1, std::placeholders::_2,
-			placeholders::_3, std::placeholders::_4,
-			placeholders::_5), this)) {
+			std::placeholders::_1, std::placeholders::_2,
+			std::placeholders::_3, std::placeholders::_4,
+			std::placeholders::_5), this)) {
 		std::string s;
 		for (std::string const& name : names) {
 			s += "\n" + name;
@@ -190,7 +190,7 @@ void GameServ::onGateWatcher(
 }
 
 void GameServ::onHallWatcher(int type, int state,
-	const shared_ptr<ZookeeperClient>& zkClientPtr,
+	const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 	const std::string& path, void* context) {
 	std::vector<std::string> names;
 	if (ZOK == zkclient_->getClildren(
@@ -198,9 +198,9 @@ void GameServ::onHallWatcher(int type, int state,
 		names,
 		std::bind(
 			&GameServ::onHallWatcher, this,
-			placeholders::_1, std::placeholders::_2,
-			placeholders::_3, std::placeholders::_4,
-			placeholders::_5), this)) {
+			std::placeholders::_1, std::placeholders::_2,
+			std::placeholders::_3, std::placeholders::_4,
+			std::placeholders::_5), this)) {
 		std::string s;
 		for (std::string const& name : names) {
 			s += "\n" + name;

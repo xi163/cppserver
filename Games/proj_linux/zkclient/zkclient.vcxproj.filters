@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="zookeeperclient">
+      <UniqueIdentifier>{aba94c35-001b-4f3c-93e0-28b972ecbca8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zoo_lock.cc">
+      <Filter>zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclient.cpp">
+      <Filter>zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclientutils.cpp">
+      <Filter>zookeeperclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperlocker.cpp">
+      <Filter>zookeeperclient</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\thirdpart\zookeeperclient\zoo_lock.h">
+      <Filter>zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\zookeeperclient\zookeeperclient.h">
+      <Filter>zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\zookeeperclient\zookeeperclientutils.h">
+      <Filter>zookeeperclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\zookeeperclient\zookeeperlocker.h">
+      <Filter>zookeeperclient</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

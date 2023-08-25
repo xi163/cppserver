@@ -14,7 +14,7 @@
 #include "MongoDB/MongoDBOperation.h"
 #include "RedisClient/RedisClient.h"
 #include "RedisLock/redlock.h"
-#include "game_tracemsg/TraceMsg.h"
+#include "TraceMsg/TraceMsg.h"
 
 #define REDISCLIENT muduo::ThreadLocalSingleton<RedisClient>::instance()
 

@@ -243,7 +243,7 @@ void GateServ::asyncHttpHandler(const muduo::net::WeakTcpConnectionPtr& weakConn
 		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 		muduo::net::HttpContext& httpContext = boost::any_cast<muduo::net::HttpContext&>(entryContext.getContext());
 		assert(httpContext.gotAll());
-		const string& connection = httpContext.request().getHeader("Connection");
+		const std::string& connection = httpContext.request().getHeader("Connection");
 		bool close = (connection == "close") ||
 			(httpContext.request().getVersion() == muduo::net::HttpRequest::kHttp10 && connection != "Keep-Alive");
 		muduo::net::HttpResponse rsp(close);
@@ -286,7 +286,7 @@ void GateServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
 
 static std::string getRequestStr(muduo::net::HttpRequest const& req) {
 	std::string headers;
-	for (std::map<string, string>::const_iterator it = req.headers().begin();
+	for (std::map<std::string, std::string>::const_iterator it = req.headers().begin();
 		it != req.headers().end(); ++it) {
 		headers += it->first + ": " + it->second + "\n";
 	}

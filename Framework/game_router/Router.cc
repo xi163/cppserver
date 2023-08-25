@@ -102,9 +102,9 @@ void RouterServ::onZookeeperConnected() {
 			names,
 			std::bind(
 				&RouterServ::onLoginWatcher, this,
-				placeholders::_1, std::placeholders::_2,
-				placeholders::_3, std::placeholders::_4,
-				placeholders::_5), this)) {
+				std::placeholders::_1, std::placeholders::_2,
+				std::placeholders::_3, std::placeholders::_4,
+				std::placeholders::_5), this)) {
 			std::string s;
 			for (std::string const& name : names) {
 				s += "\n" + name;
@@ -120,9 +120,9 @@ void RouterServ::onZookeeperConnected() {
 			names,
 			std::bind(
 				&RouterServ::onApiWatcher, this,
-				placeholders::_1, std::placeholders::_2,
-				placeholders::_3, std::placeholders::_4,
-				placeholders::_5), this)) {
+				std::placeholders::_1, std::placeholders::_2,
+				std::placeholders::_3, std::placeholders::_4,
+				std::placeholders::_5), this)) {
 			std::string s;
 			for (std::string const& name : names) {
 				s += "\n" + name;
@@ -138,9 +138,9 @@ void RouterServ::onZookeeperConnected() {
 			names,
 			std::bind(
 				&RouterServ::onGateWatcher, this,
-				placeholders::_1, std::placeholders::_2,
-				placeholders::_3, std::placeholders::_4,
-				placeholders::_5), this)) {
+				std::placeholders::_1, std::placeholders::_2,
+				std::placeholders::_3, std::placeholders::_4,
+				std::placeholders::_5), this)) {
 			std::string s;
 			for (std::string const& name : names) {
 				s += "\n" + name;
@@ -161,9 +161,9 @@ void RouterServ::onLoginWatcher(
 		names,
 		std::bind(
 			&RouterServ::onLoginWatcher, this,
-			placeholders::_1, std::placeholders::_2,
-			placeholders::_3, std::placeholders::_4,
-			placeholders::_5), this)) {
+			std::placeholders::_1, std::placeholders::_2,
+			std::placeholders::_3, std::placeholders::_4,
+			std::placeholders::_5), this)) {
 		std::string s;
 		for (std::string const& name : names) {
 			s += "\n" + name;
@@ -183,9 +183,9 @@ void RouterServ::onApiWatcher(
 		names,
 		std::bind(
 			&RouterServ::onApiWatcher, this,
-			placeholders::_1, std::placeholders::_2,
-			placeholders::_3, std::placeholders::_4,
-			placeholders::_5), this)) {
+			std::placeholders::_1, std::placeholders::_2,
+			std::placeholders::_3, std::placeholders::_4,
+			std::placeholders::_5), this)) {
 		std::string s;
 		for (std::string const& name : names) {
 			s += "\n" + name;
@@ -204,9 +204,9 @@ void RouterServ::onGateWatcher(int type, int state,
 		names,
 		std::bind(
 			&RouterServ::onGateWatcher, this,
-			placeholders::_1, std::placeholders::_2,
-			placeholders::_3, std::placeholders::_4,
-			placeholders::_5), this)) {
+			std::placeholders::_1, std::placeholders::_2,
+			std::placeholders::_3, std::placeholders::_4,
+			std::placeholders::_5), this)) {
 		std::string s;
 		for (std::string const& name : names) {
 			s += "\n" + name;

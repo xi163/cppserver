@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
 	}
 	std::string config = "game_serv_club";
 	if (argc == 4) {
-		int id = stoi(argv[3]);
+		int id = std::stoi(argv[3]);
 		config += "_" + std::to_string(id);
 	}
 	utils::setrlimit();

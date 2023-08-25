@@ -31,7 +31,7 @@ public:
 		const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 		const std::string& path, void* context);
 	void onGameWatcher(int type, int state,
-		const shared_ptr<ZookeeperClient>& zkClientPtr,
+		const std::shared_ptr<ZookeeperClient>& zkClientPtr,
 		const std::string& path, void* context);
 	void registerZookeeper();
 	bool InitRedisCluster(std::string const& ipaddr, std::string const& passwd);

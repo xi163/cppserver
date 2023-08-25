@@ -62,22 +62,22 @@ int Router(
 	switch (req.method()) {
 	case muduo::net::HttpRequest::kGet: {
 		std::string sType = req.getHeader(ContentType);
-		if (sType.find(ContentType_Text) != string::npos) {
+		if (sType.find(ContentType_Text) != std::string::npos) {
 		}
-		else if (sType.find(ContentType_Json) != string::npos) {
+		else if (sType.find(ContentType_Json) != std::string::npos) {
 
 		}
-		else if (sType.find(ContentType_Xml) != string::npos) {
+		else if (sType.find(ContentType_Xml) != std::string::npos) {
 
 		}
 		break;
 	}
 	case muduo::net::HttpRequest::kPost: {
 		std::string sType = req.getHeader(ContentType);
-		if (sType.find(ContentType_Text) != string::npos) {
+		if (sType.find(ContentType_Text) != std::string::npos) {
 
 		}
-		else if (sType.find(ContentType_Json) != string::npos) {
+		else if (sType.find(ContentType_Json) != std::string::npos) {
 			try {
 				boost::property_tree::ptree pt;
 				{
@@ -136,7 +136,7 @@ int Router(
 				return response::json::Result(ERR_GameHandleParamsError, rsp);
 			}
 		}
-		else if (sType.find(ContentType_Xml) != string::npos) {
+		else if (sType.find(ContentType_Xml) != std::string::npos) {
 
 		}
 		break;

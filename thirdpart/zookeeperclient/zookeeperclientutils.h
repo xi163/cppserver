@@ -1,15 +1,8 @@
 #ifndef INCLUDE_ZKCLIENTUTILS_H
 #define INCLUDE_ZKCLIENTUTILS_H
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <map>
+#include "Logger/src/Macro.h"
 #include <zookeeper/zookeeper.h>
-
-
-using namespace std;
-
 
 //摘自zookeeper源文件 zk_adptor.h
 /* zookeeper event type constants */
@@ -44,17 +37,17 @@ public:
     ZookeeperClientUtils();
 
 
-    static void printString(const string &name);
-    static void printStringPair(const pair<string, string> &stringPair);
+    static void printString(const std::string &name);
+    static void printStringPair(const std::pair<std::string, std::string> &stringPair);
 
-    static void transStringVector2VectorString(const String_vector &children, vector<string> &vecString);
-    static void printPathList(const vector<string> &nodeNameVector);
-    static void printPathValueList(const map<string, string> &pathValueMap);
+    static void transStringVector2VectorString(const String_vector &children, std::vector<std::string> &vecString);
+    static void printPathList(const std::vector<std::string> &nodeNameVector);
+    static void printPathValueList(const std::map<std::string, std::string> &pathValueMap);
 
-    static void transACLVector2VectorACL(const ACL_vector &childs, vector<ACL> &vectorACL);
+    static void transACLVector2VectorACL(const ACL_vector &childs, std::vector<ACL> &vectorACL);
 
-    static const string watcherEventType2String(int type);
-    static const string state2String(int state);
+    static const std::string watcherEventType2String(int type);
+    static const std::string state2String(int state);
 
 
 };

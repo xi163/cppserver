@@ -16,29 +16,10 @@
  * limitations under the License.
  */
 
-#include "public/Inc.h"
+#include "Logger/src/utils/utils.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <limits.h>
-#include "zoo_lock.h"
-#include <stdbool.h>
-#ifdef HAVE_SYS_UTSNAME_H
-#include <sys/utsname.h>
-#endif
-
-#ifdef HAVE_GETPWUID_R
-#include <pwd.h>
-#endif
-
-
+#include "zookeeperclient/zoo_lock.h"
 #include <zookeeper/zookeeper_log.h>
-
-
 
 #define IF_DEBUG(x) if (logLevel==ZOO_LOG_LEVEL_DEBUG) {x;}
 

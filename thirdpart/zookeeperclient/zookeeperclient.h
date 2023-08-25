@@ -1,71 +1,58 @@
 #ifndef INCLUDE_ZKCLIENT_H
 #define INCLUDE_ZKCLIENT_H
 
+#include "Logger/src/Macro.h"
 #include "zookeeper/zookeeper.h"
-
-#include <memory>
-#include <string>
-#include <mutex>
-#include <atomic>
-#include <vector>
-#include <functional>
-#include <condition_variable>
-
-
-
-using namespace std;
-
 
 class ZookeeperClient;
 
 static const int IGNORE_VERSION = -1;
 static const int MAX_BUFF_LEN = 1024;
 
-
-typedef function<void()> ConnectedWatcherHandler;
+typedef std::function<void()> ConnectedWatcherHandler;
 /**
  * watcher handler
  */
-typedef function<void (int type, int state, const shared_ptr<ZookeeperClient> &zkClientPtr,
+typedef std::function<void (int type, int state, const std::shared_ptr<ZookeeperClient> &zkClientPtr,
                        void *context)>  SessionWatcherHandler;
 
-typedef function<void (int type, int state, const shared_ptr<ZookeeperClient> &zkClientPtr,
-                       const string &path, void *context)>  ExistsNodeWatcherHandler;
+typedef std::function<void (int type, int state, const std::shared_ptr<ZookeeperClient> &zkClientPtr,
+                       const std::string &path, void *context)>  ExistsNodeWatcherHandler;
 
-typedef function<void (int type, int state, const shared_ptr<ZookeeperClient> &zkClientPtr,
-                       const string &path, void *context)>  GetNodeWatcherHandler;
+typedef std::function<void (int type, int state, const std::shared_ptr<ZookeeperClient> &zkClientPtr,
+                       const std::string &path, void *context)>  GetNodeWatcherHandler;
 
-//typedef function<void (int type, int state, const shared_ptr<ZookeeperClient> &zkClientPtr,
-//                       const string &path, const string &value, void *context)>  CreateNodeWatcherHandler;
+//typedef std::function<void (int type, int state, const std::shared_ptr<ZookeeperClient> &zkClientPtr,
+//                       const std::string &path, const std::string &value, void *context)>  CreateNodeWatcherHandler;
 
-//typedef function<void (int type, int state, const shared_ptr<ZookeeperClient> &zkClientPtr,
-//                       const string &path, void *context)>  DeleteNodeWatcherHandler;
+//typedef std::function<void (int type, int state, const std::shared_ptr<ZookeeperClient> &zkClientPtr,
+//                       const std::string &path, void *context)>  DeleteNodeWatcherHandler;
 
-//typedef function<void (int type, int state, const shared_ptr<ZookeeperClient> &zkClientPtr,
-//                       const string &path, void *context)> NodeChangeWatcherHandler;
+//typedef std::function<void (int type, int state, const std::shared_ptr<ZookeeperClient> &zkClientPtr,
+//                       const std::string &path, void *context)> NodeChangeWatcherHandler;
 
-typedef function<void (int type, int state, const shared_ptr<ZookeeperClient> &zkClientPtr,
-                       const string &path, void *context)> GetChildrenWatcherHandler;
+typedef std::function<void (int type, int state, const std::shared_ptr<ZookeeperClient> &zkClientPtr,
+                       const std::string &path, void *context)> GetChildrenWatcherHandler;
 
 
 /**
  * completion function
  */
-typedef function<void (int rc, const char *value, const void *data)> StringCompletionHandler;
+typedef std::function<void (int rc, const char *value, const void *data)> StringCompletionHandler;
 
-typedef function<void (int rc, const void *data)> VoidCompletionHandler;
+typedef std::function<void (int rc, const void *data)> VoidCompletionHandler;
 
-typedef function<void (int rc, const struct Stat *stat, const void *data)> StatCompletionHandler;
+typedef std::function<void (int rc, const struct Stat *stat, const void *data)> StatCompletionHandler;
 
-typedef function<void (int rc, const char *value, int value_len,
+typedef std::function<void (int rc, const char *value, int value_len,
                        const struct Stat *stat, const void *data)> DataCompletionHandler;
 
-typedef function<void (int rc,const struct String_vector *strings, const void *data)> StringsCompletionHandler ;
+typedef std::function<void (int rc,const struct String_vector *strings, const void *data)> StringsCompletionHandler ;
 
-typedef function<void (int rc,const struct String_vector *strings,
+typedef std::function<void (int rc,const struct String_vector *strings,
                        const struct Stat *stat,const void *data)> StringsStatCompletionHandler;
 
-typedef function<void (int rc, struct ACL_vector *acl,struct Stat *stat, const void *data)> AclCompletionHandler;
+typedef std::function<void (int rc, struct ACL_vector *acl,struct Stat *stat, const void *data)> AclCompletionHandler;
 
 
 
@@ -75,16 +62,16 @@ typedef function<void (int rc, struct ACL_vector *acl,struct Stat *stat, const v
 class ZkWatcherOperateContext
 {
 public:
-    ZkWatcherOperateContext(const string &path, void *context, const shared_ptr<ZookeeperClient> &zkClientPtr)
+    ZkWatcherOperateContext(const std::string &path, void *context, const std::shared_ptr<ZookeeperClient> &zkClientPtr)
     {
         m_path = path;
         m_context = context;
         m_zkClientPtr = zkClientPtr;
     }
 
-    string m_path;
+    std::string m_path;
     void *m_context;
-    shared_ptr<ZookeeperClient> m_zkClientPtr;
+    std::shared_ptr<ZookeeperClient> m_zkClientPtr;
 
     SessionWatcherHandler m_sessionWatcherHandler;
     ExistsNodeWatcherHandler m_existsNodeWatcherHandler;
@@ -99,16 +86,16 @@ public:
 class ZkAsyncCompletionContext
 {
 public:
-    ZkAsyncCompletionContext(const string &path, void *context, const shared_ptr<ZookeeperClient> &zkClientPtr)
+    ZkAsyncCompletionContext(const std::string &path, void *context, const std::shared_ptr<ZookeeperClient> &zkClientPtr)
     {
         m_path = path;
         m_context = context;
         m_zkClientPtr = zkClientPtr;
     }
 
-    string m_path;
+    std::string m_path;
     void *m_context;
-    shared_ptr<ZookeeperClient> m_zkClientPtr;
+    std::shared_ptr<ZookeeperClient> m_zkClientPtr;
 
     StringCompletionHandler m_stringCompletionHandler;
     DataCompletionHandler m_dataCompletionHandler;
@@ -121,7 +108,7 @@ public:
 
 
 
-class ZookeeperClient : public enable_shared_from_this<ZookeeperClient>
+class ZookeeperClient : public std::enable_shared_from_this<ZookeeperClient>
 {
 public:
 //    ZookeeperClient(const ZookeeperClient &) = delete;
@@ -134,7 +121,7 @@ public:
      * @param handler  session handler defined by yourself
      * @param timeout default 3000 ms
      */
-    ZookeeperClient(const string &server, int timeout = 30000, bool debug = false);
+    ZookeeperClient(const std::string &server, int timeout = 30000, bool debug = false);
 
     /**
      * 释放资源
@@ -146,7 +133,7 @@ public:
      * set server ips
      */
 
-    void setServerIP(const string &server, int timeout = 30000, bool debug = false);
+    void setServerIP(const std::string &server, int timeout = 30000, bool debug = false);
 
     /**
      * 连接服务端
@@ -193,7 +180,7 @@ public:
      * @param watch 0-不启用监视  1-启用连接的默认监视
      * @return 返回结果  成功ZOK
      */
-    int getNodeValue(const string &path, string &value, int &version);
+    int getNodeValue(const std::string &path, std::string &value, int &version);
 
     /**
      * 带watcher的getValue(注意:结点不存在的情况,watcher不起作用)
@@ -204,7 +191,7 @@ public:
      * @param context 上下文
      * @return 返回结果  成功ZOK
      */
-    int getNodeValueWithWatcher(const string &path, string &value, int &version,
+    int getNodeValueWithWatcher(const std::string &path, std::string &value, int &version,
                                 GetNodeWatcherHandler getNodeWatcherHandler = nullptr, void *context = nullptr);
 
     /**
@@ -213,7 +200,7 @@ public:
      * @param vectorACL ACL权限列表
      * @return 返回结果  成功ZOK
      */
-    int getNodeACL(const string &path, vector<ACL> &vectorACL);
+    int getNodeACL(const std::string &path, std::vector<ACL> &vectorACL);
 
     /**
      * 设置结点数据
@@ -222,7 +209,7 @@ public:
      * @param version 结点版本  -1表示不校验版本,其他表示验证版本，版本正确才能正确修改
      * @return 返回结果  成功ZOK
      */
-    int setNodeValue(const string &path, const string &value, int version = IGNORE_VERSION,
+    int setNodeValue(const std::string &path, const std::string &value, int version = IGNORE_VERSION,
                      struct Stat *stat = nullptr);
 
     /**
@@ -231,7 +218,7 @@ public:
      * @param stat 支持返回结点的Stat信息
      * @return 返回结果  成功ZOK
      */
-    int existsNode(const string &path, struct Stat *stat = nullptr);
+    int existsNode(const std::string &path, struct Stat *stat = nullptr);
 
     /**
      * 带监视的exists的实现
@@ -240,7 +227,7 @@ public:
      * @param context  传入自行定义的session handler
      * @return 返回结果  成功ZOK
      */
-    int existsNodeWithWatch(const string &path, ExistsNodeWatcherHandler existsNodeWatcherHandler = nullptr, void *context = nullptr);
+    int existsNodeWithWatch(const std::string &path, ExistsNodeWatcherHandler existsNodeWatcherHandler = nullptr, void *context = nullptr);
 
     /**
      * 创建结点(支持创建临时结点/永久结点或序列结点)
@@ -250,7 +237,7 @@ public:
      * @param isSequnce 是否序列结点
      * @return 返回结果  成功ZOK
      */
-    int createNode(const string &path, const string &value, bool isTemp = false, bool isSequence = false);
+    int createNode(const std::string &path, const std::string &value, bool isTemp = false, bool isSequence = false);
 
     /**
      * 删除结点
@@ -258,7 +245,7 @@ public:
      * @param version  结点版本 -1表示不校验版本,其他表示验证版本，版本正确才能正确删除
      * @return 返回结果  成功ZOK
      */
-    int deleteNode(const string &path, int version = IGNORE_VERSION);
+    int deleteNode(const std::string &path, int version = IGNORE_VERSION);
 
     /**
      * 获取结点的子结点(like ls)
@@ -268,7 +255,7 @@ public:
      * @param watcher 当defaultWatcher传false时,需要传
      * @return 返回结果  成功ZOK
      */
-    int getClildren(const string &path, vector<string> &childrenVec,
+    int getClildren(const std::string &path, std::vector<std::string> &childrenVec,
                     GetChildrenWatcherHandler getChildrenNodeWatcherHandler = nullptr, void *context = nullptr);
 
     /**
@@ -277,7 +264,7 @@ public:
      * @param childVec 子结点列表
      * @return 返回结果  成功ZOK
      */
-    int getClildrenNoWatch(const string &path, vector<string> &childrenVec);
+    int getClildrenNoWatch(const std::string &path, std::vector<std::string> &childrenVec);
 
 
     /**
@@ -294,7 +281,7 @@ public:
      * @param context 上下文信息
      * @return 返回结果  成功ZOK,其他失败
      */
-    int asyncCreateNode(const string &path, const string &value,
+    int asyncCreateNode(const std::string &path, const std::string &value,
                         StringCompletionHandler handler = nullptr, void *context = nullptr,
                         bool isTemp = false, bool isSequence = false);
     /**
@@ -305,7 +292,7 @@ public:
      * @param context 上下文信息
      * @return 返回结果  成功ZOK,其他失败
      */
-    int asyncDeleteNode(const string &path, int version = IGNORE_VERSION,
+    int asyncDeleteNode(const std::string &path, int version = IGNORE_VERSION,
                         VoidCompletionHandler handler = nullptr, void *context = nullptr);
 
     /**
@@ -313,7 +300,7 @@ public:
      * @param path 结点路径
      * @return 返回结果  成功ZOK,其他失败
      */
-    int asyncGetNodeValue(const string &path, DataCompletionHandler handler = nullptr, void *context = nullptr);
+    int asyncGetNodeValue(const std::string &path, DataCompletionHandler handler = nullptr, void *context = nullptr);
 
     /**
      * 异步获取结点数据(带监视器版本)
@@ -326,7 +313,7 @@ public:
      * @param completionContext 异步完成处理器上下文
      * @return 返回结果  成功ZOK,其他失败
      */
-    int asyncGetNodeValueWithWatcher(const string &path,
+    int asyncGetNodeValueWithWatcher(const std::string &path,
                                      GetNodeWatcherHandler watchHandler = nullptr, void *watchContext = nullptr,
                                      DataCompletionHandler completionHandler = nullptr, void *completionContext = nullptr);
     /**
@@ -338,7 +325,7 @@ public:
      * @param context 异步完成处理器上下文
      * @return 成功ZOK,其他失败
      */
-    int asyncSetNodeValue(const string &path, const string &value, int version = IGNORE_VERSION,
+    int asyncSetNodeValue(const std::string &path, const std::string &value, int version = IGNORE_VERSION,
                           StatCompletionHandler handler = nullptr, void *context = nullptr);
 
     /**
@@ -348,7 +335,7 @@ public:
      * @param context 异步完成处理器上下文
      * @return 成功ZOK,其他失败
      */
-    int asyncGetChildren(const string &path, StringsCompletionHandler handler = nullptr, void *context = nullptr);
+    int asyncGetChildren(const std::string &path, StringsCompletionHandler handler = nullptr, void *context = nullptr);
 
     /**
      * 异步获取子节点信息(带监视)
@@ -359,7 +346,7 @@ public:
      * @param completionContext 异步完成处理器上下文
      * @return 成功ZOK,其他失败
      */
-    int asyncGetChildrenWithWatcher(const string &path,
+    int asyncGetChildrenWithWatcher(const std::string &path,
                                     GetChildrenWatcherHandler watchHandler = nullptr, void *watchContext = nullptr,
                                     StringsCompletionHandler completionHandler = nullptr, void *completionContext = nullptr);
 
@@ -370,7 +357,7 @@ public:
      * @param context 异步完成处理器上下文
      * @return 成功ZOK,其他失败
      */
-    int asyncGetChildren2(const string &path, StringsStatCompletionHandler handler = nullptr, void *context = nullptr);
+    int asyncGetChildren2(const std::string &path, StringsStatCompletionHandler handler = nullptr, void *context = nullptr);
 
     /**
      * 异步获取子节点信息(带监视,支持带stat版本处理器)
@@ -381,7 +368,7 @@ public:
      * @param completionContext 异步完成处理器上下文
      * @return 成功ZOK,其他失败
      */
-    int asyncGetChildren2WithWatcher(const string &path,
+    int asyncGetChildren2WithWatcher(const std::string &path,
                                      GetChildrenWatcherHandler watchHandler = nullptr, void *watchContext = nullptr,
                                      StringsStatCompletionHandler completionHandler = nullptr, void *completionContext = nullptr);
 
@@ -392,7 +379,7 @@ public:
      * @param context 异步完成处理器上下文
      * @return 成功ZOK,其他失败
      */
-    int asyncGetNodeACL(const string &path, AclCompletionHandler handler = nullptr, void *context = nullptr);
+    int asyncGetNodeACL(const std::string &path, AclCompletionHandler handler = nullptr, void *context = nullptr);
 
     /**
      * 异步设置结点ACL信息
@@ -403,7 +390,7 @@ public:
      * @param context 异步完成处理器上下文
      * @return 成功ZOK,其他失败
      */
-    int asyncSetNodeACL(const string &path, ACL_vector *aclVector, int version = IGNORE_VERSION,
+    int asyncSetNodeACL(const std::string &path, ACL_vector *aclVector, int version = IGNORE_VERSION,
                         VoidCompletionHandler handler = nullptr, void *context = nullptr);
     /*
      *	zoo_async
@@ -430,7 +417,7 @@ private:
 
 
 private:
-    void connectingSessionWatcher(int type, int state, const shared_ptr<ZookeeperClient> &zkClientPtr, void *context);
+    void connectingSessionWatcher(int type, int state, const std::shared_ptr<ZookeeperClient> &zkClientPtr, void *context);
 
 
 public:
@@ -441,23 +428,23 @@ private:
 
 private:
     zhandle_t *m_zkHandle = nullptr;
-    atomic<int>  m_session_state;
+    std::atomic<int>  m_session_state;
     int m_session_timeout;
-    string server_;
+    std::string server_;
 
 //    SessionWatcherHandler m_sessionWatcherHandler;
 
-    mutex m_connect_mutex;
-    condition_variable m_connect_cond;
+    std::mutex m_connect_mutex;
+    std::condition_variable m_connect_cond;
 
-//    std::boost::shared_ptr<spdlog::logger> logger_ = spdlog::get(getGlobalLogName());
+//    std::boost::std::shared_ptr<spdlog::logger> logger_ = spdlog::get(getGlobalLogName());
 
 };
 
 class  zkLockGuard
 {
  public:
-  explicit zkLockGuard(shared_ptr<ZookeeperClient> zkClient,const string& nodePath,const string& value)
+  explicit zkLockGuard(std::shared_ptr<ZookeeperClient> zkClient,const std::string& nodePath,const std::string& value)
     : path(nodePath)
     , zk(zkClient)
   {
@@ -471,8 +458,8 @@ private:
     zkLockGuard(const zkLockGuard&);
     const zkLockGuard& operator =(const zkLockGuard&);
  private:
-  string path;
-  shared_ptr<ZookeeperClient> zk;
+  std::string path;
+  std::shared_ptr<ZookeeperClient> zk;
 };
 
 #endif

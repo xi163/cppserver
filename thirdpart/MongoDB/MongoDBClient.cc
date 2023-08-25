@@ -1,6 +1,6 @@
 #include "Logger/src/log/Logger.h"
 
-#include "MongoDBClient.h"
+#include "MongoDB/MongoDBClient.h"
 
 namespace MongoDBClient {
 

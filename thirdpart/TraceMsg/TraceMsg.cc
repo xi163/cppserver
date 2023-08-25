@@ -1,6 +1,6 @@
-#include "public/Inc.h"
+#include "Logger/src/utils/utils.h"
 
-#include "TraceMsg.h"
+#include "TraceMsg/TraceMsg.h"
 
 #define NameStrMessageID "strMessageID"
 #define NameFmtMessageID "fmtMessageID"

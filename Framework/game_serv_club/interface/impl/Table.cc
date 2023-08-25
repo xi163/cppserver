@@ -1346,7 +1346,7 @@ bool CTable::UpdateUserScoreToDB(int64_t userId, tagScoreInfo* pScoreInfo) {
         << "score" << pScoreInfo->addScore << close_document
         << finalize);
     int64_t result = 0;
-    std::string key = REDIS_SCORE_PREFIX + to_string(userId);
+    std::string key = REDIS_SCORE_PREFIX + std::to_string(userId);
     bool res = REDISCLIENT.hincrby(key, REDIS_WINSCORE, pScoreInfo->addScore, &result);
     if (res)
     {
@@ -1810,7 +1810,7 @@ bool CTable::AddUserGameLogToDB(tagSpecialScoreInfo* scoreInfo, std::string& str
 //{
 //    bool result = false;
 //   // int repeatCount = 10;//重试10次后放弃存储
-//   // std::string lockStr = to_string(::getpid());
+//   // std::string lockStr = std::to_string(::getpid());
 //   // do
 //   // {
 //   //     int ret = REDISCLIENT.setnxCmd(eRedisKey::str_lockId_jp_2, lockStr, 2);
@@ -1904,7 +1904,7 @@ bool CTable::WriteGameChangeStorage(int64_t changeStockScore) {
         << "rooms.$.totalstock" << changeStockScore << close_document
         << finalize);
     int64_t newStock;
-    bool res = REDISCLIENT.hincrby(REDIS_CUR_STOCKS, to_string(roomInfo_->roomId), changeStockScore, &newStock);
+    bool res = REDISCLIENT.hincrby(REDIS_CUR_STOCKS, std::to_string(roomInfo_->roomId), changeStockScore, &newStock);
     if (res)
     {
         //LOG_INFO << "Stock Changed From : "<< changeStockScore <<" + " << (int64_t)roomInfo_->totalStock << "=" << (int64_t)newStock;

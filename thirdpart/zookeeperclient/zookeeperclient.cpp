@@ -1,18 +1,9 @@
-#include "public/Inc.h"
-
-#include "zookeeperclient.h"
-
-#include <string>
-//#define NDEBUG  1
-#include <assert.h>
-#include <cstring>
-#include <functional>
-#include <stdarg.h>
+#include "Logger/src/utils/utils.h"
 
 #include <zookeeper/zookeeper.h>
-#include "zookeeperclientutils.h"
 
-using namespace std;
+#include "zookeeperclient/zookeeperclient.h"
+#include "zookeeperclient/zookeeperclientutils.h"
 
 // void logzk(const char* fmt,...)
 // {
@@ -29,7 +20,7 @@ using namespace std;
 //     snprintf(sztime, sizeof(sztime), "%4d%02d%02d %02d:%02d:%02d ",
 //         tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
 //         tm->tm_hour, tm->tm_min, tm->tm_sec);
-//     string content = sztime;
+//     std::string content = sztime;
 //     content += buf;
 //     content += "\n";
 //     // try to write the special log content.
@@ -48,7 +39,7 @@ ZookeeperClient::ZookeeperClient()
     m_session_state = ZOO_CONNECTING_STATE;
 }
 
-ZookeeperClient::ZookeeperClient(const string &server, int timeout, bool debug)
+ZookeeperClient::ZookeeperClient(const std::string &server, int timeout, bool debug)
 {
 //    cout<<"{ "<<__FUNCTION__<<" }"<<endl;
     //_LOG_DEBUG("ZookeeperClient::ZookeeperClient(%s,%d,%d)",server.c_str(),timeout,debug);
@@ -69,7 +60,7 @@ ZookeeperClient::~ZookeeperClient()
     closeServer();
 }
 
-void ZookeeperClient::setServerIP(const string &server, int timeout, bool debug )
+void ZookeeperClient::setServerIP(const std::string &server, int timeout, bool debug )
 {
     server_ = server;
     m_session_timeout = timeout;
@@ -82,14 +73,14 @@ void ZookeeperClient::SetConnectedWatcherHandler(ConnectedWatcherHandler handler
 }
 
 void ZookeeperClient::connectingSessionWatcher(int type, int state,
-                                               const shared_ptr<ZookeeperClient> &zkClientPtr, void *context)
+                                               const std::shared_ptr<ZookeeperClient> &zkClientPtr, void *context)
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
     //_LOG_DEBUG("ZookeeperClient::connectingSessionWatcher()");
 
     if(ZOO_SESSION_EVENT == type)
     {
-        unique_lock<mutex> lock(m_connect_mutex);
+        std::unique_lock<std::mutex> lock(m_connect_mutex);
         m_session_state = state;
         // 连接建立，记录协商后的会话过期时间，唤醒connectServer函数(只有第一次有实际作用)
 
@@ -104,9 +95,9 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
         }else if(ZOO_EXPIRED_SESSION_STATE == state)  // 会话过期，唤醒init函数
         {
 //            closeServer();
-            cout<<"*******************{ "<<__FUNCTION__<<" }*******************"<<endl;
-            cout<<"*******************Zookeeper connectingSessionWatcher ZOO_EXPIRED_SESSION_STATE*******************"<<endl;
-            cout<<"*******************Zookeeper ReconnectServer *******************"<<endl<<endl<<endl<<endl<<endl<<endl;
+           // cout<<"*******************{ "<<__FUNCTION__<<" }*******************"<<endl;
+           // cout<<"*******************Zookeeper connectingSessionWatcher ZOO_EXPIRED_SESSION_STATE*******************"<<endl;
+           // cout<<"*******************Zookeeper ReconnectServer *******************"<<endl<<endl<<endl<<endl<<endl<<endl;
             reConnectServer();
         }else if(ZOO_AUTH_FAILED_STATE == state) // 认证失败
         {
@@ -163,7 +154,7 @@ bool ZookeeperClient::reConnectServer()
     return connectServer();
 }
 
-int ZookeeperClient::getNodeValue(const string &path,string &value, int &version)
+int ZookeeperClient::getNodeValue(const std::string &path,std::string &value, int &version)
 {
     char buffer[MAX_BUFF_LEN];
     int length = sizeof(buffer);
@@ -179,7 +170,7 @@ int ZookeeperClient::getNodeValue(const string &path,string &value, int &version
     return result;
 }
 
-int ZookeeperClient::getNodeValueWithWatcher(const string &path,string &value, int &version,
+int ZookeeperClient::getNodeValueWithWatcher(const std::string &path,std::string &value, int &version,
         GetNodeWatcherHandler getNodeWatcherHandler, void *context)
 {
     char buffer[MAX_BUFF_LEN];
@@ -199,7 +190,7 @@ int ZookeeperClient::getNodeValueWithWatcher(const string &path,string &value, i
     return result;
 }
 
-int ZookeeperClient::getNodeACL(const string &path, vector<ACL> &vectorACL)
+int ZookeeperClient::getNodeACL(const std::string &path, std::vector<ACL> &vectorACL)
 {
     ACL_vector aclVector;
     int result  = zoo_get_acl(m_zkHandle, path.c_str(), &aclVector, 0);
@@ -212,14 +203,14 @@ int ZookeeperClient::getNodeACL(const string &path, vector<ACL> &vectorACL)
     return result;
 }
 
-int ZookeeperClient::setNodeValue(const string &path,
-        const string &value, int version, struct Stat * stat)
+int ZookeeperClient::setNodeValue(const std::string &path,
+        const std::string &value, int version, struct Stat * stat)
 {
     int result = zoo_set2(m_zkHandle, path.c_str(), value.c_str(), value.length(), version, stat);
     return result;
 }
 
-int ZookeeperClient::existsNode(const string &path, struct Stat *stat)
+int ZookeeperClient::existsNode(const std::string &path, struct Stat *stat)
 {
     if (!m_zkHandle) {
         _LOG_DEBUG("ZookeeperClient::existsNode, but zkhandle=NULL,reconnect...");
@@ -236,7 +227,7 @@ int ZookeeperClient::existsNode(const string &path, struct Stat *stat)
     return result;
 }
 
-int ZookeeperClient::existsNodeWithWatch(const string &path, ExistsNodeWatcherHandler existsNodeWatcherHandler, void *context)
+int ZookeeperClient::existsNodeWithWatch(const std::string &path, ExistsNodeWatcherHandler existsNodeWatcherHandler, void *context)
 {
     ZkWatcherOperateContext * watchContext = new ZkWatcherOperateContext(path, context, shared_from_this());
     watchContext->m_existsNodeWatcherHandler = existsNodeWatcherHandler;
@@ -245,7 +236,7 @@ int ZookeeperClient::existsNodeWithWatch(const string &path, ExistsNodeWatcherHa
     return result;
 }
 
-int ZookeeperClient::createNode(const string &path, const string &value, bool isTemp, bool isSequence)
+int ZookeeperClient::createNode(const std::string &path, const std::string &value, bool isTemp, bool isSequence)
 {
     int flag = 0;
     if(isTemp)
@@ -258,7 +249,7 @@ int ZookeeperClient::createNode(const string &path, const string &value, bool is
     return result;
 }
 
-int ZookeeperClient::deleteNode(const string &path, int version)
+int ZookeeperClient::deleteNode(const std::string &path, int version)
 {
     int result = zoo_delete(m_zkHandle, path.c_str(), version);
     return result;//== ZOK || result == ZNONODE;删除成功或者结点不存在，都认为是删除成功
@@ -275,7 +266,7 @@ int ZookeeperClient::getConnectStatus()
 //    connectStatus_ = connectStatus;
 //}
 
-int ZookeeperClient::getClildren(const string &path, vector<string> &childrenVec,
+int ZookeeperClient::getClildren(const std::string &path, std::vector<std::string> &childrenVec,
         GetChildrenWatcherHandler getChildrenNodeWatcherHandler, void *context)
 {
     ZkWatcherOperateContext *watchContext = new ZkWatcherOperateContext(path, context, shared_from_this());
@@ -294,7 +285,7 @@ int ZookeeperClient::getClildren(const string &path, vector<string> &childrenVec
     return result;
 }
 
-int ZookeeperClient::getClildrenNoWatch(const string &path, vector<string> &childrenVec)
+int ZookeeperClient::getClildrenNoWatch(const std::string &path, std::vector<std::string> &childrenVec)
 {
     String_vector stringVec;
     int result = zoo_get_children(m_zkHandle, path.c_str(), false, &stringVec);
@@ -315,7 +306,7 @@ void ZookeeperClient::sessionWatcher(zhandle_t *zh, int type, int state, const c
 
 //  cout<<"[sessionWatcher] type:{"<<ZookeeperClientUtils::watcherEventType2String(type)<<"} ,state:{"<<ZookeeperClientUtils::state2String(state)<<"}";
 
-    string strtype = ZookeeperClientUtils::watcherEventType2String(type);
+    std::string strtype = ZookeeperClientUtils::watcherEventType2String(type);
     //_LOG_DEBUG("ZookeeperClient::sessionWatcher(zh=%x,type=%s,state=%d)",zh,strtype.c_str(),state);
 
     ZkWatcherOperateContext *context = (ZkWatcherOperateContext *)watcherCtx;
@@ -473,7 +464,7 @@ void ZookeeperClient::asyncSetNodeACLHandler(int rc, const void *data)
 
 /*********************************************************************************************************/
 //异步API函数封装
-int ZookeeperClient::asyncCreateNode(const string &path,const string &value,
+int ZookeeperClient::asyncCreateNode(const std::string &path,const std::string &value,
         StringCompletionHandler handler, void * context, bool isTemp ,bool isSequence)
 {
     int flag = 0;
@@ -492,7 +483,7 @@ int ZookeeperClient::asyncCreateNode(const string &path,const string &value,
     return result;
 }
 
-int ZookeeperClient::asyncDeleteNode(const string &path,int version,
+int ZookeeperClient::asyncDeleteNode(const std::string &path,int version,
         VoidCompletionHandler handler, void * context)
 {
 //    logger_->info("asyncDeleteNode path[{}]",path);
@@ -503,7 +494,7 @@ int ZookeeperClient::asyncDeleteNode(const string &path,int version,
     return result;
 }
 
-int ZookeeperClient::asyncGetNodeValue(const string &path, DataCompletionHandler handler, void *context )
+int ZookeeperClient::asyncGetNodeValue(const std::string &path, DataCompletionHandler handler, void *context )
 {
 //    logger_->info("asyncGetNodeValueWithWatcher path[{}]",path);
     ZkAsyncCompletionContext *completionContext = new ZkAsyncCompletionContext(path, context, shared_from_this());
@@ -512,7 +503,7 @@ int ZookeeperClient::asyncGetNodeValue(const string &path, DataCompletionHandler
     return result;
 }
 
-int ZookeeperClient::asyncGetNodeValueWithWatcher(const string &path,
+int ZookeeperClient::asyncGetNodeValueWithWatcher(const std::string &path,
         GetNodeWatcherHandler watchHandler, void *watchContext, DataCompletionHandler completionHandler, void *completionContext)
 {
 //    logger_->info("asyncGetNodeValueWithWatcher path[{}],value[{}]",path,value);
@@ -527,7 +518,7 @@ int ZookeeperClient::asyncGetNodeValueWithWatcher(const string &path,
     return result;
 }
 
-int ZookeeperClient::asyncSetNodeValue(const string &path, const string &value, int version,
+int ZookeeperClient::asyncSetNodeValue(const std::string &path, const std::string &value, int version,
         StatCompletionHandler handler, void *context)
 {
 //    logger_->info("asyncSetNodeValue path[{}],value[{}]",path,value);
@@ -539,7 +530,7 @@ int ZookeeperClient::asyncSetNodeValue(const string &path, const string &value, 
     return result;
 }
 
-int ZookeeperClient::asyncGetChildren(const string &path, StringsCompletionHandler handler, void *context)
+int ZookeeperClient::asyncGetChildren(const std::string &path, StringsCompletionHandler handler, void *context)
 {
 //    logger_->info("asyncGetChildren path[{}]",path);
     ZkAsyncCompletionContext *completionContext = new ZkAsyncCompletionContext(path, context, shared_from_this());
@@ -548,7 +539,7 @@ int ZookeeperClient::asyncGetChildren(const string &path, StringsCompletionHandl
     return result;
 }
 
-int ZookeeperClient::asyncGetChildrenWithWatcher(const string &path, GetChildrenWatcherHandler watchHandler,
+int ZookeeperClient::asyncGetChildrenWithWatcher(const std::string &path, GetChildrenWatcherHandler watchHandler,
         void *watchContext, StringsCompletionHandler completionHandler, void *context)
 {
 //    logger_->info("asyncGetChildrenWithWatcher path[{}]",path);
@@ -563,7 +554,7 @@ int ZookeeperClient::asyncGetChildrenWithWatcher(const string &path, GetChildren
     return result;
 }
 
-int ZookeeperClient::asyncGetChildren2(const string &path, StringsStatCompletionHandler handler, void *context)
+int ZookeeperClient::asyncGetChildren2(const std::string &path, StringsStatCompletionHandler handler, void *context)
 {
 //    logger_->info("asyncGetChildren2 path[{}]",path);
     ZkAsyncCompletionContext *completionContext = new ZkAsyncCompletionContext(path, context, shared_from_this());
@@ -573,7 +564,7 @@ int ZookeeperClient::asyncGetChildren2(const string &path, StringsStatCompletion
     return result;
 }
 
-int ZookeeperClient::asyncGetChildren2WithWatcher(const string &path, GetChildrenWatcherHandler watchHandler,
+int ZookeeperClient::asyncGetChildren2WithWatcher(const std::string &path, GetChildrenWatcherHandler watchHandler,
         void *watchContext, StringsStatCompletionHandler completionHandler, void *completionContext)
 {
 //    logger_->info("asyncGetChildren2WithWatcher path[{}]",path);
@@ -588,7 +579,7 @@ int ZookeeperClient::asyncGetChildren2WithWatcher(const string &path, GetChildre
     return result;
 }
 
-int ZookeeperClient::asyncGetNodeACL(const string &path, AclCompletionHandler handler, void *context )
+int ZookeeperClient::asyncGetNodeACL(const std::string &path, AclCompletionHandler handler, void *context )
 {
 //    logger_->info("asyncGetNodeACL path[{}]",path);
     ZkAsyncCompletionContext *completionContext = new ZkAsyncCompletionContext(path, context, shared_from_this());
@@ -598,7 +589,7 @@ int ZookeeperClient::asyncGetNodeACL(const string &path, AclCompletionHandler ha
     return result;
 }
 
-int ZookeeperClient::asyncSetNodeACL(const string &path, ACL_vector *aclVector, int version,
+int ZookeeperClient::asyncSetNodeACL(const std::string &path, ACL_vector *aclVector, int version,
         VoidCompletionHandler handler,void *context)
 {
 //    logger_->info("asyncSetNodeACL path[{}]",path);

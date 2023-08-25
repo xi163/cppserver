@@ -54,7 +54,7 @@ namespace redis
             if(val.empty())
                 return 0;
             else
-                return (stoi(val));
+                return (std::stoi(val));
 		}
 
         unsigned int asUInt()
@@ -104,7 +104,7 @@ namespace redis
 
 		RedisValItem& operator=(long double value)
 		{
-			val = to_string(value);
+			val = std::to_string(value);
 			return *this;
 		}
 
@@ -197,7 +197,7 @@ public:
     //推送公共消息
     void pushPublishMsg(int msgId,std::string msg);
     //订阅公共消息
-    void subscribePublishMsg(int msgId,function<void(std::string)> func);
+    void subscribePublishMsg(int msgId, std::function<void(std::string)> func);
     // List 操作
 //     bool lremCmd(eRedisKey keyId, int count, std::string value);
 //     bool rpopCmd(eRedisKey keyId,std::string &lastElement);
@@ -281,46 +281,46 @@ public:
 
     //================Message Publish Subscribe============
     void publishRechargeScoreMessage(std::string msg);
-    void subscribeRechargeScoreMessage(function<void(std::string)> func);
+    void subscribeRechargeScoreMessage(std::function<void(std::string)> func);
 
     void publishRechargeScoreToProxyMessage(std::string msg);
-    void subscribeRechargeScoreToProxyMessage(function<void(std::string)> func);
+    void subscribeRechargeScoreToProxyMessage(std::function<void(std::string)> func);
 
     void publishRechargeScoreToGameServerMessage(std::string msg);
-    void subscribeRechargeScoreToGameServerMessage(function<void(std::string)> func);
+    void subscribeRechargeScoreToGameServerMessage(std::function<void(std::string)> func);
 
     void publishExchangeScoreMessage(std::string msg);
-    void subscribeExchangeScoreMessage(function<void(std::string)> func);
+    void subscribeExchangeScoreMessage(std::function<void(std::string)> func);
 
     void publishExchangeScoreToProxyMessage(std::string msg);
-    void subscribeExchangeScoreToProxyMessage(function<void(std::string)> func);
+    void subscribeExchangeScoreToProxyMessage(std::function<void(std::string)> func);
 
     void publishExchangeScoreToGameServerMessage(std::string msg);
-    void subscribeExchangeScoreToGameServerMessage(function<void(std::string)> func);
+    void subscribeExchangeScoreToGameServerMessage(std::function<void(std::string)> func);
 
     void publishUserLoginMessage(std::string msg);
-    void subscribeUserLoginMessage(function<void(std::string)> func);
+    void subscribeUserLoginMessage(std::function<void(std::string)> func);
 
     void publishUserKillBossMessage(std::string msg);
-    void subscribeUserKillBossMessage(function<void(std::string)> func);
+    void subscribeUserKillBossMessage(std::function<void(std::string)> func);
 
     void publishNewChatMessage(std::string msg);
-    void subscribeNewChatMessage(function<void(std::string)> func);
+    void subscribeNewChatMessage(std::function<void(std::string)> func);
 
     void publishNewMailMessage(std::string msg);
-    void subscribeNewMailMessage(function<void(std::string)> func);
+    void subscribeNewMailMessage(std::function<void(std::string)> func);
 
     void publishNoticeMessage(std::string msg);
-    void subscribeNoticeMessage(function<void(std::string)> func);
+    void subscribeNoticeMessage(std::function<void(std::string)> func);
 
     void publishStopGameServerMessage(std::string msg);
-    void subscribeStopGameServerMessage(function<void(std::string)> func);
+    void subscribeStopGameServerMessage(std::function<void(std::string)> func);
 
     void publishRefreashConfigMessage(std::string msg);
-    void subscribeRefreshConfigMessage(function<void(std::string)> func);
+    void subscribeRefreshConfigMessage(std::function<void(std::string)> func);
 
     void publishOrderScoreMessage(std::string msg);
-    void subsreibeOrderScoreMessage(function<void(std::string)> func);
+    void subsreibeOrderScoreMessage(std::function<void(std::string)> func);
 
     void unsubscribe();
     void getSubMessage();
@@ -337,8 +337,8 @@ public:
     bool POPSQL(std::string &sql, int timeOut);
     bool BlackListHget(std::string key, std::string keyson,redis::RedisValue& values,std::map<std::string,int16_t> &usermap);
 private:
-    shared_ptr<thread> m_redis_pub_sub_thread;
-    std::map<std::string, function<void(std::string)> > m_sub_func_map;
+    std::shared_ptr<std::thread> m_redis_pub_sub_thread;
+    std::map<std::string, std::function<void(std::string)> > m_sub_func_map;
 
 private:
 #if USE_REDIS_CLUSTER

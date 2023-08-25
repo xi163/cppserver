@@ -50,7 +50,6 @@
     <ClInclude Include="..\..\..\Framework\game_serv_club\interface\ITableContext.h" />
     <ClInclude Include="..\..\..\Framework\game_serv_club\interface\ITableDelegate.h" />
     <ClInclude Include="..\..\..\Framework\game_serv_club\rpc\server\RpcService.h" />
-    <ClInclude Include="..\..\..\Framework\game_tracemsg\TraceMsg.h" />
     <ClInclude Include="..\..\..\proto\Game.Common.pb.h" />
     <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h" />
     <ClInclude Include="..\..\..\proto\GameClubServer.Message.pb.h" />
@@ -66,18 +65,11 @@
     <ClInclude Include="..\..\..\public\mgoKeys.h" />
     <ClInclude Include="..\..\..\public\mgoModel.h" />
     <ClInclude Include="..\..\..\public\mgoOperation.h" />
-    <ClInclude Include="..\..\..\public\MongoDB\MongoDBClient.h" />
-    <ClInclude Include="..\..\..\public\MongoDB\MongoDBOperation.h" />
     <ClInclude Include="..\..\..\public\Packet.h" />
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\redisKeys.h" />
     <ClInclude Include="..\..\..\public\gameStruct.h" />
-    <ClInclude Include="..\..\..\public\RedisLock\redlock.h" />
     <ClInclude Include="..\..\..\public\response.h" />
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclient.h" />
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperclientutils.h" />
-    <ClInclude Include="..\..\..\public\zookeeperclient\zookeeperlocker.h" />
-    <ClInclude Include="..\..\..\public\zookeeperclient\zoo_lock.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Framework\game_serv_club\Game.cc" />
@@ -90,7 +82,6 @@
     <ClCompile Include="..\..\..\Framework\game_serv_club\interface\impl\TableThread.cc" />
     <ClCompile Include="..\..\..\Framework\game_serv_club\main.cc" />
     <ClCompile Include="..\..\..\Framework\game_serv_club\rpc\server\RpcService.cc" />
-    <ClCompile Include="..\..\..\Framework\game_tracemsg\GetTraceMsg.cc" />
     <ClCompile Include="..\..\..\proto\Game.Common.pb.cc" />
     <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc" />
     <ClCompile Include="..\..\..\proto\GameClubServer.Message.pb.cc" />
@@ -102,17 +93,10 @@
     <ClCompile Include="..\..\..\public\mgoKeys.cc" />
     <ClCompile Include="..\..\..\public\mgoModel.cc" />
     <ClCompile Include="..\..\..\public\mgoOperation.cc" />
-    <ClCompile Include="..\..\..\public\MongoDB\MongoDBClient.cc" />
-    <ClCompile Include="..\..\..\public\MongoDB\MongoDBOperation.cc" />
     <ClCompile Include="..\..\..\public\Packet.cc" />
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />
     <ClCompile Include="..\..\..\public\redisKeys.cc" />
-    <ClCompile Include="..\..\..\public\RedisLock\redlock.cc" />
     <ClCompile Include="..\..\..\public\response.cc" />
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclient.cpp" />
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperclientutils.cpp" />
-    <ClCompile Include="..\..\..\public\zookeeperclient\zookeeperlocker.cpp" />
-    <ClCompile Include="..\..\..\public\zookeeperclient\zoo_lock.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C5E59773-98C0-4D1E-963B-EA387F91B3A9}</ProjectGuid>
@@ -167,7 +151,7 @@
     <Link />
     <ClCompile />
     <Link>
-      <LibraryDependencies>muduo-vip;websocket;protobuf;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;pthread;rt;m;z;dl;snappy;crypto;ssl;bson-1.0;mongoc-1.0;bsoncxx;mongocxx;hiredis_vip;zookeeper_mt;Logger</LibraryDependencies>
+      <LibraryDependencies>muduo-vip;websocket;protobuf;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;pthread;rt;m;z;dl;snappy;crypto;ssl;bson-1.0;mongoc-1.0;bsoncxx;mongocxx;hiredis_vip;zookeeper_mt;Logger;MongoDB;RedLock;TraceMsg;zkclient</LibraryDependencies>
       <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
