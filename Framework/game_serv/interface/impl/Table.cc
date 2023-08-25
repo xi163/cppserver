@@ -10,7 +10,7 @@
 #include "proto/GameServer.Message.pb.h"
 #include "proto/Game.Common.pb.h"
 
-atomic_llong  CTable::curStorage_(0);
+std::atomic_llong  CTable::curStorage_(0);
 double CTable::lowStorage_(0);
 double CTable::highStorage_(0);
 double CTable::secondLowStorage_(0);
@@ -98,7 +98,7 @@ std::string const& CTable::ServId() {
 std::string CTable::NewRoundId() {
     //roomid-timestamp-pid-tableid-rand
     std::string strRoundId = std::to_string(roomInfo_->roomId) + "-";
-    int64_t seconds = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    int64_t seconds = std::chrono::duration_cast<std::chrono::seconds>(NOW().time_since_epoch()).count();
     strRoundId += std::to_string(seconds) + "-";
     strRoundId += std::to_string(::getpid()) + "-";
     strRoundId += std::to_string(GetTableId()) + "-";
@@ -1150,7 +1150,7 @@ bool CTable::WriteUserScore(tagScoreInfo* pScoreInfo, size_t nCount, std::string
 //     auto insert_value = bsoncxx::builder::stream::document{}
 //             << "userid" << player->GetUserId()
 //             << "account" << player->GetAccount()
-//             << "optime" << bsoncxx::types::b_date(std::chrono::system_clock::now())
+//             << "optime" << bsoncxx::types::b_date(NOW())
 //             << "opaccount" << "GameServer"
 //             << "score" << (int32_t)player->GetUserScore()
 //             << "rate" << info.weight
@@ -1453,7 +1453,7 @@ bool CTable::AddUserGameInfoToDB(UserBaseInfo& userBaseInfo, tagScoreInfo* score
         << "revenue" << scoreInfo->revenue
         << "isandroid" << bAndroidUser
         << "gamestarttime" << bsoncxx::types::b_date(scoreInfo->startTime)
-        << "gameendtime" << bsoncxx::types::b_date(chrono::system_clock::now());
+        << "gameendtime" << bsoncxx::types::b_date(NOW());
 
     auto doc = after_array << bsoncxx::builder::stream::finalize;
 
@@ -1527,7 +1527,7 @@ bool CTable::AddUserGameInfoToDB(tagSpecialScoreInfo* scoreInfo, std::string& st
         << "revenue" << scoreInfo->revenue
         << "isandroid" << bAndroidUser
         << "gamestarttime" << bsoncxx::types::b_date(scoreInfo->startTime)
-        << "gameendtime" << bsoncxx::types::b_date(chrono::system_clock::now());
+        << "gameendtime" << bsoncxx::types::b_date(NOW());
 
     auto doc = after_array << bsoncxx::builder::stream::finalize;
 
@@ -1560,7 +1560,7 @@ bool CTable::AddScoreChangeRecordToDB(UserBaseInfo& userBaseInfo, int64_t source
         << "changemoney" << addScore
         << "beforechange" << sourceScore
         << "afterchange" << targetScore
-        << "logdate" << bsoncxx::types::b_date(chrono::system_clock::now())
+        << "logdate" << bsoncxx::types::b_date(NOW())
         << bsoncxx::builder::stream::finalize;
 
     //LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
@@ -1597,7 +1597,7 @@ bool CTable::AddScoreChangeRecordToDB(tagSpecialScoreInfo* scoreInfo) {
         << "changemoney" << scoreInfo->addScore
         << "beforechange" << scoreInfo->beforeScore
         << "afterchange" << scoreInfo->beforeScore + scoreInfo->addScore
-        << "logdate" << bsoncxx::types::b_date(chrono::system_clock::now())
+        << "logdate" << bsoncxx::types::b_date(NOW())
         << bsoncxx::builder::stream::finalize;
 
     //LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
@@ -1631,7 +1631,7 @@ bool CTable::AddUserGameLogToDB(UserBaseInfo& userBaseInfo, tagScoreInfo* scoreI
         << "roomid" << (int32_t)roomInfo_->roomId
         << "winscore" << scoreInfo->addScore
         << "revenue" << scoreInfo->revenue
-        << "logdate" << bsoncxx::types::b_date(chrono::system_clock::now())
+        << "logdate" << bsoncxx::types::b_date(NOW())
         << bsoncxx::builder::stream::finalize;
 
     //LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
@@ -1669,7 +1669,7 @@ bool CTable::AddUserGameLogToDB(tagSpecialScoreInfo* scoreInfo, std::string& str
         << "roomid" << (int32_t)roomInfo_->roomId
         << "winscore" << scoreInfo->addScore
         << "revenue" << scoreInfo->revenue
-        << "logdate" << bsoncxx::types::b_date(chrono::system_clock::now())
+        << "logdate" << bsoncxx::types::b_date(NOW())
         << bsoncxx::builder::stream::finalize;
 
     //LOG_DEBUG << "Insert Document:"<<bsoncxx::to_json(insert_value);
@@ -1948,7 +1948,7 @@ bool CTable::SaveReplayDetailBlob(tagGameReplay& replay) {
     auto insert_value = builder
         //<< "gameid" << replay.gameid
         << "gameinfoid" << replay.gameinfoid
-        << "timestamp" << bsoncxx::types::b_date{ std::chrono::system_clock::now() }
+        << "timestamp" << bsoncxx::types::b_date{ NOW() }
         << "roomname" << replay.roomname
         << "cellscore" << replay.cellscore
         << "detail" << bsoncxx::types::b_binary{ bsoncxx::binary_sub_type::k_binary, uint32_t(replay.detailsData.size()), reinterpret_cast<uint8_t const*>(replay.detailsData.data()) }
@@ -2016,7 +2016,7 @@ bool CTable::SaveReplayDetailJson(tagGameReplay& replay) {
     auto insert_value = builder
         //<< "gameid" << replay.gameid
         << "gameinfoid" << replay.gameinfoid
-        << "timestamp" << bsoncxx::types::b_date{ std::chrono::system_clock::now() }
+        << "timestamp" << bsoncxx::types::b_date{ NOW() }
         << "roomname" << replay.roomname
         << "cellscore" << replay.cellscore
         << "detail" << std::move(replay.detailsData)
