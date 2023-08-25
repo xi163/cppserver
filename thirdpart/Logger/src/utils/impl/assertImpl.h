@@ -30,10 +30,7 @@
 	#ifdef NDEBUG
 		#define __ASSERT_V(expr, fmt,...) __ASSERT_VOID_CAST (0)
 	#else
-		#define __ASSERT_V(expr, fmt,...) \
-		  (expr) \
-		   ? __ASSERT_VOID_CAST (0) \
-		   : __LOG(PARAM_FATAL, F_DETAIL|F_SYNC, fmt, ##__VA_ARGS__); __LOG_WAIT(); std::abort()
+		#define __ASSERT_V(expr, fmt,...) __ASSERT_S(expr, utils::_sprintf(fmt, ##__VA_ARGS__).c_str())
 	#endif
 
 #else
@@ -41,10 +38,7 @@
 	#ifdef NDEBUG
 		#define __ASSERT_V(expr, args...) __ASSERT_VOID_CAST (0)
 	#else
-		#define __ASSERT_V(expr, args...) \
-		  (expr) \
-		   ? __ASSERT_VOID_CAST (0) \
-		   : __LOG(PARAM_FATAL, F_DETAIL|F_SYNC, ##args); __LOG_WAIT(); std::abort()
+		#define __ASSERT_V(expr, args...) __ASSERT_S(expr, utils::_sprintf(NULL, ##args).c_str())
 	#endif
 
 #endif

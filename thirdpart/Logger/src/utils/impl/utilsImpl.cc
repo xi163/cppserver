@@ -62,7 +62,21 @@ namespace utils {
 		return std::to_string(t_cachedTid);
 #endif
 	}
-
+	
+	std::string _sprintf(char _, char const* format, ...) {
+		char buf[BUFSZ] = { 0 };
+		va_list ap;
+		va_start(ap, format);
+#ifdef _windows_
+		size_t n = vsnprintf_s(buf, BUFSZ, _TRUNCATE, format, ap);
+#else
+		size_t n = vsnprintf(buf, BUFSZ, format, ap);
+#endif
+		va_end(ap);
+		(void)n;
+		return buf;
+	}
+	
 	std::string _sprintf(char const* format, ...) {
 		char buf[BUFSZ] = { 0 };
 		va_list ap;

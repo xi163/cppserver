@@ -15,6 +15,8 @@ namespace utils {
 		std::string _createUUID();
 	}
 	
+	std::string _sprintf(char _, char const* format, ...);
+	
 	std::string _sprintf(char const* format, ...);
 
 	std::string _buffer2HexStr(uint8_t const* buf, size_t len);

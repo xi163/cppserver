@@ -31,6 +31,21 @@ namespace utils {
 		return utils::_gettid();
 	}
 	
+	std::string sprintf(char _, char const* format, ...) {
+		AUTHORIZATION_CHECK_S;
+		char buf[BUFSZ] = { 0 };
+		va_list ap;
+		va_start(ap, format);
+#ifdef _windows_
+		size_t n = vsnprintf_s(buf, BUFSZ, _TRUNCATE, format, ap);
+#else
+		size_t n = vsnprintf(buf, BUFSZ, format, ap);
+#endif
+		va_end(ap);
+		(void)n;
+		return buf;
+	}
+	
 	std::string sprintf(char const* format, ...) {
 		AUTHORIZATION_CHECK_S;
 		char buf[BUFSZ] = { 0 };
