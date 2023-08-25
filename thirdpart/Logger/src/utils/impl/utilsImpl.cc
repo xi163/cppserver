@@ -2,8 +2,6 @@
 #include "gettimeofday.h"
 #include "../../rand/impl/StdRandomImpl.h"
 
-#define MAXBUFSZ 1024
-
 #ifdef _windows_
 //#include <DbgHelp.h>
 #include <ImageHlp.h>
@@ -66,18 +64,22 @@ namespace utils {
 	}
 
 	std::string _sprintf(char const* format, ...) {
-		char buf[MAXBUFSZ] = { 0 };
+		char buf[BUFSZ] = { 0 };
 		va_list ap;
 		va_start(ap, format);
-		size_t n = vsnprintf(buf, sizeof buf, format, ap);
+#ifdef _windows_
+		size_t n = vsnprintf_s(buf, BUFSZ, _TRUNCATE, format, ap);
+#else
+		size_t n = vsnprintf(buf, BUFSZ, format, ap);
+#endif
 		va_end(ap);
 		(void)n;
 		return buf;
 	}
 	
 	std::string _format_s(char const* file, int line, char const* func) {
-		char buf[MAXBUFSZ] = { 0 };
-		snprintf(buf, MAXBUFSZ, "%s:%d] %s",
+		char buf[BUFSZ] = { 0 };
+		snprintf(buf, BUFSZ, "%s:%d] %s",
 			utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
 		return buf;
 	}
@@ -660,14 +662,14 @@ namespace utils {
 		int sockfd;
 		struct ifconf conf;
 		struct ifreq* ifr;
-		char buf[MAXBUFSZ] = { 0 };
+		char buf[BUFSZ] = { 0 };
 		int num;
 		int i;
 		sockfd = ::socket(PF_INET, SOCK_DGRAM, 0);
 		if (sockfd < 0) {
 			return -1;
 		}
-		conf.ifc_len = MAXBUFSZ;
+		conf.ifc_len = BUFSZ;
 		conf.ifc_buf = buf;
 		if (::ioctl(sockfd, SIOCGIFCONF, &conf) < 0) {
 			::close(sockfd);

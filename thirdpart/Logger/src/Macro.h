@@ -12,6 +12,8 @@
 #define _apple_
 #endif
 
+#define BUFSZ 1024
+
 #if 0
 
 #define MY_PST (-8)
@@ -67,6 +69,8 @@
 //#include <curl/curl.h>
 
 //被 *.c 文件包含会有问题
+#include <cassert>
+#include <cstring>
 #include <exception>
 #include <stdexcept>
 #include <algorithm>

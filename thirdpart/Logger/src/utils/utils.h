@@ -3,6 +3,8 @@
 
 #include "Logger/src/Macro.h"
 
+#include "Logger/src/utils/Assert.h"
+
 #include "Logger/src/excp/excp.h"
 
 #include "Logger/src/log/Logger.h"

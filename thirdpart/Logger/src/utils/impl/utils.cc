@@ -33,11 +33,17 @@ namespace utils {
 	
 	std::string sprintf(char const* format, ...) {
 		AUTHORIZATION_CHECK_S;
+		char buf[BUFSZ] = { 0 };
 		va_list ap;
 		va_start(ap, format);
-		std::string s = utils::_sprintf(format, ap);
+#ifdef _windows_
+		size_t n = vsnprintf_s(buf, BUFSZ, _TRUNCATE, format, ap);
+#else
+		size_t n = vsnprintf(buf, BUFSZ, format, ap);
+#endif
 		va_end(ap);
-		return s;
+		(void)n;
+		return buf;
 	}
 
 	std::string format_s(char const* file, int line, char const* func) {
