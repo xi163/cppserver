@@ -187,7 +187,6 @@ namespace mgo {
 						std::string insert_id = oid.to_string();
 						//_LOG_DEBUG(insert_id.c_str());
 						return !insert_id.empty();
-
 					}
 				}
 			}
@@ -240,7 +239,6 @@ namespace mgo {
 						std::string insert_id = oid.to_string();
 						//_LOG_DEBUG(insert_id.c_str());
 						return !insert_id.empty();
-
 					}
 				}
 			}
