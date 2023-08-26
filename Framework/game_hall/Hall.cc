@@ -869,9 +869,9 @@ void HallServ::cmd_get_game_info(
 			rspdata.set_type(reqdata.type());
 			rspdata.set_retcode(0);
 			rspdata.set_errormsg("Get Game Message OK!");
-			if (gameinfo_[reqdata.type()].gamemessage_size() == 0) {
-				_LOG_ERROR("%s 游戏列表为空", getModeStr(reqdata.type()).c_str());
-			}
+			//if (gameinfo_[reqdata.type()].gamemessage_size() == 0) {
+			//	_LOG_ERROR("%s 游戏列表为空", getModeStr(reqdata.type()).c_str());
+			//}
 			for (int i = 0; i < gameinfo_[reqdata.type()].gamemessage_size(); ++i) {
 				switch (gameinfo_[reqdata.type()].gamemessage(i).gameprivate()) {
 					//0-全部可见 1-私有 针对指定俱乐部可见
@@ -880,7 +880,6 @@ void HallServ::cmd_get_game_info(
 					break;
 				default:
 				case 1: {
-					
 					std::set<uint32_t>::const_iterator it = vec.find(gameinfo_[reqdata.type()].gamemessage(i).gameid());
 					if (it != vec.end()) {
 						//_LOG_WARN("%d 对俱乐部 %d 可见", gameinfo_[reqdata.type()].gamemessage(i).gameid(), reqdata.clubid());
