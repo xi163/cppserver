@@ -1588,7 +1588,190 @@ namespace mgo {
 		MGO_CATCH();
 		return ERR_FireClub_InsideError;
 	}
-
+	
+	//设置是否开启自动成为合伙人
+	Msg const& SetAutoBecomePartner(int64_t userId, int64_t clubId, int32_t autopartnerratio) {
+		MGO_TRY();
+		{
+			int32_t userStatus = 0;
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "status" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize);
+			if (!result) {
+				return ERR_OptClub_NotInClubOrClubNotExist;
+			}
+			document::view view = result->view();
+			if (view["status"]) {
+				switch (view["status"].type()) {
+				case bsoncxx::type::k_int64:
+					userStatus = view["status"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					userStatus = view["status"].get_int32();
+					break;
+				}
+			}
+			//非盟主操作
+			if (userStatus < 3) {
+				return ERR_OptClub_OperationPermissionsErr;
+			}
+		}
+		{
+			//非管理员操作
+			int32_t permission = Authorization::kGuest;
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAMEUSER,
+				builder::stream::document{} << "privilege" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+			if (!result) {
+				return ERR_OptClub_OperationPermissionsErrAdmin;
+			}
+			document::view view = result->view();
+			if (view["privilege"]) {
+				switch (view["privilege"].type()) {
+				case bsoncxx::type::k_int64:
+					permission = view["privilege"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					permission = view["privilege"].get_int32();
+					break;
+				}
+			}
+			if (permission < Authorization::kAdmin) {
+				return ERR_OptClub_OperationPermissionsErrAdmin;
+			}
+		}
+		//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+		//只有会员无效
+		if (autopartnerratio < -1 ||
+			autopartnerratio > 100) {
+			return ERR_OptClub_ParameterError;
+		}
+		{	
+			auto result = opt::UpdateOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB,
+				builder::stream::document{}
+				<< "$set" << open_document << "autopartnerratio" << b_int32{ autopartnerratio } << "updatetime" << b_date{ NOW() } << close_document
+				<< finalize,
+				builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);
+			if (!result || result->modified_count() == 0) {
+				return ERR_OptClub_InsideError;
+			}
+		}
+		return Ok;
+		MGO_CATCH();
+		return ERR_OptClub_InsideError;
+	}
+	
+	//成为合伙人
+	Msg const& BecomePartner(int64_t userId, int64_t clubId, int64_t memberId, int32_t ratio) {
+		MGO_TRY();
+		{
+			int32_t userStatus = 0;
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "status" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize);
+			if (!result) {
+				return ERR_OptClub_NotInClubOrClubNotExist;
+			}
+			document::view view = result->view();
+			if (view["status"]) {
+				switch (view["status"].type()) {
+				case bsoncxx::type::k_int64:
+					userStatus = view["status"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					userStatus = view["status"].get_int32();
+					break;
+				}
+			}
+			//非盟主操作
+			if (userStatus < 3) {
+				return ERR_OptClub_OperationPermissionsErr;
+			}
+		}
+		{
+			//非管理员操作
+			int32_t permission = Authorization::kGuest;
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAMEUSER,
+				builder::stream::document{} << "privilege" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+			if (!result) {
+				return ERR_OptClub_OperationPermissionsErrAdmin;
+			}
+			document::view view = result->view();
+			if (view["privilege"]) {
+				switch (view["privilege"].type()) {
+				case bsoncxx::type::k_int64:
+					permission = view["privilege"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					permission = view["privilege"].get_int32();
+					break;
+				}
+			}
+			if (permission < Authorization::kAdmin) {
+				return ERR_OptClub_OperationPermissionsErrAdmin;
+			}
+		}
+		if (ratio <= 0 || ratio > 100) {
+			return ERR_OptClub_ParameterError;
+		}
+		if (GetUserId(
+			builder::stream::document{} << "userid" << 1 << finalize,
+			builder::stream::document{} << "userid" << b_int64{ memberId } << finalize) <= 0) {
+			return ERR_OptClub_InvitedUserNotExist;
+		}
+		{
+			int32_t userStatus = 0;
+			auto result = opt::FindOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "status" << 1 << "ratio" << 1 << finalize,
+				builder::stream::document{} << "userid" << b_int64{ memberId } << "clubid" << b_int64{ clubId } << finalize);
+			if (!result) {
+				return ERR_OptClub_MemberNotInClubOrClubNotExist;
+			}
+			document::view view = result->view();
+			if (view["status"]) {
+				switch (view["status"].type()) {
+				case bsoncxx::type::k_int64:
+					userStatus = view["status"].get_int64();
+					break;
+				case bsoncxx::type::k_int32:
+					userStatus = view["status"].get_int32();
+					break;
+				}
+			}
+			if (userStatus > 1) {
+				return ERR_OptClub_MemberAlreadyPartnerError;
+			}
+		}
+		{
+			auto result = opt::UpdateOne(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{}
+				<< "$set" << open_document << "status" << b_int32{ 2 } << "ratio" << b_int32{ ratio } << close_document
+				<< finalize,
+				builder::stream::document{} << "userid" << b_int64{ memberId } << "clubid" << b_int64{ clubId } << finalize);
+			if (!result || result->modified_count() == 0) {
+				return ERR_OptClub_InsideError;
+			}
+		}
+		return Ok;
+		MGO_CATCH();
+		return ERR_OptClub_InsideError;
+	}
+	
 	bool LoadGameRoomInfos(::HallServer::GetGameMessageResponse& gameinfos) {
 		gameinfos.clear_header();
 		gameinfos.clear_gamemessage();

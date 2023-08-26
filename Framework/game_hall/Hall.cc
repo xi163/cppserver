@@ -1656,7 +1656,18 @@ void HallServ::SetAutoBecomePartnerMessage_club(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::ClubHallServer::SetAutoBecomePartnerMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-
+		rspdata.set_clubid(reqdata.clubid());
+		//-1:自动成为合伙人 无效 0:自动成为合伙人 未开启 1-100:自动成为合伙人 提成比例
+		//只有会员无效
+		Msg const& errmsg = mgo::SetAutoBecomePartner(pre_header_->userId, reqdata.clubid(), reqdata.autobcpartnerrate());
+		if (errmsg.code == Ok.code) {
+			rspdata.set_retcode(Ok.code);
+			rspdata.set_errormsg("俱乐部设置修改成功");
+		}
+		else {
+			rspdata.set_retcode(errmsg.code);
+			rspdata.set_errormsg(errmsg.errmsg());
+		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_SET_AUTO_BECOME_PARTNER_MESSAGE_RES,
 			pre_header_, header_);
@@ -1674,7 +1685,22 @@ void HallServ::BecomePartnerMessage_club(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::ClubHallServer::BecomePartnerMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-
+		rspdata.set_clubid(reqdata.clubid());
+		rspdata.set_memberid(reqdata.memberid());//要升级的会员Id
+		rspdata.set_rate(reqdata.rate());//要升级的会员的分成比例
+		Msg const& errmsg = mgo::BecomePartner(pre_header_->userId, reqdata.clubid(), reqdata.memberid(), reqdata.rate());
+		if (errmsg.code == Ok.code) {
+			rspdata.set_retcode(Ok.code);
+			rspdata.set_errormsg("俱乐部设置修改成功");
+		}
+		else if (errmsg.code == ERR_OptClub_MemberAlreadyPartnerError.code) {
+			rspdata.set_retcode(Ok.code);
+			rspdata.set_errormsg(errmsg.errmsg());
+		}
+		else {
+			rspdata.set_retcode(errmsg.code);
+			rspdata.set_errormsg(errmsg.errmsg());
+		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_HALL_CLUB_SUBID::CLIENT_TO_HALL_CLUB_BECOME_PARTNER_MESSAGE_RES,
 			pre_header_, header_);

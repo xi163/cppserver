@@ -96,6 +96,12 @@ namespace mgo {
 	//代理发起人开除俱乐部成员
 	Msg const& FireClubUser(int64_t clubId, int64_t promoterId, int64_t userId);
 	
+	//设置是否开启自动成为合伙人
+	Msg const& SetAutoBecomePartner(int64_t userId, int64_t clubId, int32_t autopartnerratio);
+	
+	//成为合伙人
+	Msg const& BecomePartner(int64_t userId, int64_t clubId, int64_t memberId, int32_t ratio);
+	
 	bool LoadGameClubInfos(
 		document::view_or_value const& select,
 		document::view_or_value const& where,

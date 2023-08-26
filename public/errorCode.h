@@ -68,6 +68,15 @@ enum EnterRoomErrCode {
 	XX(FireClub_OperationPermissionsErr, "开除俱乐部成员错误: 您所在俱乐部操作权限不够 非合伙人或盟主") \
 	XX(FireClub_InsideError, "开除俱乐部成员错误: 操作内部异常") \
 	\
+	XX(OptClub_InvitedUserNotExist, "俱乐部设置修改失败: 设置用户不存在") \
+	XX(OptClub_NotInClubOrClubNotExist, "俱乐部设置修改失败: 您不是俱乐部成员或俱乐部不存在") \
+	XX(OptClub_MemberNotInClubOrClubNotExist, "俱乐部设置修改失败: 非俱乐部成员或俱乐部不存在") \
+	XX(OptClub_OperationPermissionsErrAdmin, "俱乐部设置修改失败: 操作权限不够 非管理员") \
+	XX(OptClub_OperationPermissionsErr, "俱乐部设置修改失败: 您所在俱乐部操作权限不够 非合伙人或盟主") \
+	XX(OptClub_MemberAlreadyPartnerError, "俱乐部设置修改失败: 成员已经升级为合伙人") \
+	XX(OptClub_ParameterError, "俱乐部设置修改失败: 参数错误") \
+	XX(OptClub_InsideError, "俱乐部设置修改失败: 内部错误") \
+	\
 	YY(AddScoreHandleInsertDataError, 32, "玩家上分失败") \
 	XX(SubScoreHandleInsertDataError, "玩家下分失败") \
 	XX(SubScoreHandleUserNotExistsError, "玩家不存在") \	
