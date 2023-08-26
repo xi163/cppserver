@@ -22,9 +22,9 @@ namespace room {
 			void balance_server(uint32_t gameId, uint32_t roomId, std::string& ipport, GameMode mode);
 			bool validate_server(uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint16_t tableId, int64_t clubId);
 		public:
-			void get_club_room_info(int64_t clubId, ::club::info& info);
-			void get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info);
-			void get_club_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info);
+			void get_club_room_info(int64_t clubId, ::club::info& info, std::set<uint32_t> const& exclude);
+			void get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info, std::set<uint32_t> const& exclude);
+			void get_club_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info, std::set<uint32_t> const& exclude);
 		private:
 			GameRoomNodes nodes_;
 			mutable boost::shared_mutex mutex_;
@@ -169,8 +169,11 @@ namespace room {
 			return false;
 		}
 
-		void RoomList::get_club_room_info(int64_t clubId, ::club::info& info) {
+		void RoomList::get_club_room_info(int64_t clubId, ::club::info& info, std::set<uint32_t> const& exclude) {
 			for (GameRoomNodes::const_iterator it = nodes_.begin(); it != nodes_.end(); ++it) {
+				if (!exclude.empty() && exclude.find(it->first) != exclude.end()) {
+					continue;
+				}
 				bool new_gameid = true;
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
 					bool new_roomid = true;
@@ -223,7 +226,10 @@ namespace room {
 			_LOG_DEBUG("\n%s", info.DebugString().c_str());
 		}
 
-		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info) {
+		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info, std::set<uint32_t> const& exclude) {
+			if (!exclude.empty() && exclude.find(gameId) != exclude.end()) {
+				return;
+			}
 			GameRoomNodes::const_iterator it = nodes_.find(gameId);
 			if (it != nodes_.end()) {
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
@@ -273,7 +279,10 @@ namespace room {
 			_LOG_DEBUG("\n%s", info.DebugString().c_str());
 		}
 
-		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info) {
+		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info, std::set<uint32_t> const& exclude) {
+			if (!exclude.empty() && exclude.find(gameId) != exclude.end()) {
+				return;
+			}
 			GameRoomNodes::const_iterator it = nodes_.find(gameId);
 			if (it != nodes_.end()) {
 				RoomNodes::const_iterator ir = it->second.find(roomId);
@@ -334,16 +343,16 @@ namespace room {
 			return game_serv_[mode].validate_server(gameId, roomId, ipport, servId, tableId, clubId);
 		}
 
-		void get_club_room_info(GameMode mode, int64_t clubId, ::club::info& info) {
-			game_serv_[mode].get_club_room_info(clubId, info);
+		void get_club_room_info(GameMode mode, int64_t clubId, ::club::info& info, std::set<uint32_t> const& exclude) {
+			game_serv_[mode].get_club_room_info(clubId, info, exclude);
 		}
 
-		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, ::club::game::info& info) {
-			game_serv_[mode].get_club_room_info(clubId, gameId, info);
+		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, ::club::game::info& info, std::set<uint32_t> const& exclude) {
+			game_serv_[mode].get_club_room_info(clubId, gameId, info, exclude);
 		}
 
-		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info) {
-			game_serv_[mode].get_club_room_info(clubId, gameId, roomId, info);
+		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info, std::set<uint32_t> const& exclude) {
+			game_serv_[mode].get_club_room_info(clubId, gameId, roomId, info, exclude);
 		}
 	}
 }

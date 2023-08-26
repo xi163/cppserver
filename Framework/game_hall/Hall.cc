@@ -1008,7 +1008,7 @@ void HallServ::cmd_get_game_server_message(
 							{
 								READ_LOCK(gameinfo_mutex_[reqdata.type()]);
 								for (int i = 0; i < gameinfo_[reqdata.type()].gamemessage_size(); ++i) {
-									if (gameinfo_[reqdata.type()].gamemessage(i).gameid()) {
+									if (reqdata.gameid() == gameinfo_[reqdata.type()].gamemessage(i).gameid()) {
 										is_private = gameinfo_[reqdata.type()].gamemessage(i).gameprivate();
 										break;
 									}
@@ -1387,10 +1387,32 @@ void HallServ::GetRoomInfoMessage_club(
 		::ClubHallServer::GetRoomInfoMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
 		if (reqdata.clubid() > 0) {
+			std::vector<uint32_t> gamePrivate;
+			{
+				READ_LOCK(gameinfo_mutex_[kClub]);
+				for (int i = 0; i < gameinfo_[kClub].gamemessage_size(); ++i) {
+					if (gameinfo_[kClub].gamemessage(i).gameprivate()) {
+						gamePrivate.emplace_back(gameinfo_[kClub].gamemessage(i).gameid());
+					}
+				}
+			}
+			std::set<uint32_t> gameExclude;
+			if (!gamePrivate.empty()) {
+				READ_LOCK(mutexGamevisibility_);
+				std::map<int64_t, std::set<uint32_t>>::const_iterator it = mapClubvisibility_.find(reqdata.clubid());
+				if (it != mapClubvisibility_.end()) {
+					std::set<uint32_t> const& gameClubVisible = it->second;
+					for (std::vector<uint32_t>::const_iterator it = gamePrivate.begin(); it != gamePrivate.end(); ++it) {
+						if (gameClubVisible.find(*it) == gameClubVisible.end()) {
+							gameExclude.insert(*it);
+						}
+					}
+				}
+			}
 			if (reqdata.gameid() > 0) {
 				if (reqdata.roomid() > 0) {
 					::club::game::room::info info;
-					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), reqdata.roomid(), info);
+					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), reqdata.roomid(), info, gameExclude);
 					::club::info* clubinfo = rspdata.mutable_info();
 					clubinfo->set_clubid(reqdata.clubid());
 					::club::game::info* gameinfo = clubinfo->add_games();
@@ -1405,7 +1427,7 @@ void HallServ::GetRoomInfoMessage_club(
 				}
 				else {
 					::club::game::info info;
-					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), info);
+					room::nodes::get_club_room_info(kClub, reqdata.clubid(), reqdata.gameid(), info, gameExclude);
 					::club::info* clubinfo = rspdata.mutable_info();
 					clubinfo->set_clubid(reqdata.clubid());
 					::club::game::info* gameinfo = clubinfo->add_games();
@@ -1419,7 +1441,7 @@ void HallServ::GetRoomInfoMessage_club(
 			}
 			else {
 				::club::info info;
-				room::nodes::get_club_room_info(kClub, reqdata.clubid(), info);
+				room::nodes::get_club_room_info(kClub, reqdata.clubid(), info, gameExclude);
 				if (info.clubid() > 0) {
 					rspdata.mutable_info()->CopyFrom(info);
 				}

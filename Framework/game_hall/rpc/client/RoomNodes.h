@@ -17,9 +17,9 @@ namespace room {
 		void random_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport);
 		void balance_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport);
 		bool validate_server(GameMode mode, uint32_t gameId, uint32_t roomId, std::string& ipport, std::string const& servId, uint16_t tableId, int64_t clubId);
-		void get_club_room_info(GameMode mode, int64_t clubId, ::club::info& info);
-		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, ::club::game::info& info);
-		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info);
+		void get_club_room_info(GameMode mode, int64_t clubId, ::club::info& info, std::set<uint32_t> const& exclude);
+		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, ::club::game::info& info, std::set<uint32_t> const& exclude);
+		void get_club_room_info(GameMode mode, int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info, std::set<uint32_t> const& exclude);
 	}
 }
 
