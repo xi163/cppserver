@@ -838,7 +838,7 @@ void HallServ::cmd_get_game_info(
 		switch (reqdata.type()) {
 		case GameMode::kGoldCoin:
 		case GameMode::kFriendRoom: {
-			READ_LOCK(gameinfo_mutex_);
+			READ_LOCK(gameinfo_mutex_[reqdata.type()]);
 			rspdata.CopyFrom(gameinfo_[reqdata.type()]);
 			rspdata.mutable_header()->set_sign(PROTOBUF_SIGN);
 			rspdata.set_type(reqdata.type());
@@ -864,7 +864,7 @@ void HallServ::cmd_get_game_info(
 			if (vec.empty()) {
 				//_LOG_ERROR("无private游戏对俱乐部 %d 可见", reqdata.clubid());
 			}
-			READ_LOCK(gameinfo_mutex_);
+			READ_LOCK(gameinfo_mutex_[reqdata.type()]);
 			rspdata.mutable_header()->set_sign(PROTOBUF_SIGN);
 			rspdata.set_type(reqdata.type());
 			rspdata.set_retcode(0);
@@ -1004,10 +1004,35 @@ void HallServ::cmd_get_game_server_message(
 							}
 						}
 						else {
-							room::nodes::balance_server(kClub, gameid, roomid, ipport);
-							if (ipport.empty()) {
+							bool is_private = false;
+							bool is_visible = false;
+							{
+								READ_LOCK(gameinfo_mutex_[reqdata.type()]);
+								for (int i = 0; i < gameinfo_[reqdata.type()].gamemessage_size(); ++i) {
+									if (gameinfo_[reqdata.type()].gamemessage(i).gameid()) {
+										is_private = gameinfo_[reqdata.type()].gamemessage(i).gameprivate();
+										break;
+									}
+								}
+							}
+							if (is_private) {
+								READ_LOCK(mutexGamevisibility_);
+								std::map<int64_t, std::set<uint32_t>>::const_iterator it = mapClubvisibility_.find(reqdata.clubid());
+								if (it != mapClubvisibility_.end()) {
+									std::set<uint32_t>::const_iterator ir = it->second.find(reqdata.gameid());
+									is_visible = ir != it->second.end();
+								}
+							}
+							if (is_private && !is_visible) {
 								rspdata.set_retcode(5);
 								rspdata.set_errormsg("Game Server Not found!!!");
+							}
+							else {
+								room::nodes::balance_server(kClub, gameid, roomid, ipport);
+								if (ipport.empty()) {
+									rspdata.set_retcode(5);
+									rspdata.set_errormsg("Game Server Not found!!!");
+								}
 							}
 						}
 					}
@@ -1289,12 +1314,15 @@ void HallServ::loadGameRoomInfos() {
 	if (index >= 0 && index < threadPool_.size()) {
 		threadPool_[index]->run(CALLBACK_0([&]() {
 			{
+				WRITE_LOCK(gameinfo_mutex_[kGoldCoin]);
+				mgo::LoadGameRoomInfos(gameinfo_[kGoldCoin]);
+			}
+			{
 				WRITE_LOCK(mutexGamevisibility_);
 				mgo::LoadClubGamevisibility(mapGamevisibility_, mapClubvisibility_);
 			}
 			{
-				WRITE_LOCK(gameinfo_mutex_);
-				mgo::LoadGameRoomInfos(gameinfo_[kGoldCoin]);
+				WRITE_LOCK(gameinfo_mutex_[kClub]);
 				mgo::LoadGameClubRoomInfos(gameinfo_[kClub]);
 			}
 			
