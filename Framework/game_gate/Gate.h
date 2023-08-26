@@ -13,7 +13,7 @@
 
 #include "rpc/server/RpcService.h"
 
-//#define NDEBUG
+#include "IPLocator/IPLocator.h"
 
 static void setFailedResponse(muduo::net::HttpResponse& rsp,
 	muduo::net::HttpResponse::HttpStatusCode code = muduo::net::HttpResponse::k200Ok,
@@ -230,7 +230,7 @@ public:
 	eApiCtrl blackListControl_;
 	std::map<in_addr_t, eApiVisit> black_list_;
 	mutable boost::shared_mutex black_list_mutex_;
-	CIpFinder ipFinder_;
+	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
 };
 

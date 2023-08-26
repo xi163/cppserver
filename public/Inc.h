@@ -7,8 +7,6 @@
 
 #include <google/protobuf/message.h>
 
-#include "IPFinder.h"
-
 #include "zookeeperclient/zookeeperclient.h"
 #include "zookeeperclient/zookeeperlocker.h"
 #include "MongoDB/MongoDBOperation.h"

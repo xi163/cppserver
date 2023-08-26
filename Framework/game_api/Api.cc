@@ -24,7 +24,7 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	, ttlUserLock_(1000)
 	, ttlAgentLock_(500)
 	, ttlExpired_(30 * 60)
-	, ipFinder_("qqwry.dat") {
+	, ipLocator_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
 	rpcserver_.registerService(&rpcservice_);

@@ -13,6 +13,8 @@
 
 #include "rpc/server/RpcService.h"
 
+#include "IPLocator/IPLocator.h"
+
 #include "public/errorCode.h"
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
@@ -291,7 +293,7 @@ public:
 	eApiCtrl blackListControl_;
 	std::map<in_addr_t, eApiVisit> black_list_;
 	mutable boost::shared_mutex black_list_mutex_;
-	CIpFinder ipFinder_;
+	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
 };
 

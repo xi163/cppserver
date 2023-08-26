@@ -14,7 +14,7 @@ LoginServ::LoginServ(muduo::net::EventLoop* loop,
 	, gateRpcClients_(loop)
 	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&LoginServ::threadInit, this), "EventLoopThreadTimer"))
 	, server_state_(kRunning)
-	, ipFinder_("qqwry.dat") {
+	, ipLocator_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
 	rpcserver_.registerService(&rpcservice_);

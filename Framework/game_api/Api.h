@@ -17,6 +17,8 @@
 #include "public/gameConst.h"
 #include "public/gameStruct.h"
 
+#include "IPLocator/IPLocator.h"
+
 //最近一次请求操作的elapsed detail
 static void createLatestElapsed(
 	boost::property_tree::ptree& latest,
@@ -316,7 +318,7 @@ public:
 	std::map<in_addr_t, eApiVisit> black_list_;
 	mutable boost::shared_mutex black_list_mutex_;
 	
-	CIpFinder ipFinder_;
+	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
 #ifdef _STAT_ORDER_QPS_
 	//性能测试指标 间隔输出时间(s)

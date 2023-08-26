@@ -14,7 +14,7 @@ RouterServ::RouterServ(muduo::net::EventLoop* loop,
 	, gateRpcClients_(loop)
 	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&RouterServ::threadInit, this), "EventLoopThreadTimer"))
 	, server_state_(kRunning)
-	, ipFinder_("qqwry.dat") {
+	, ipLocator_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
 	server_.setConnectionCallback(

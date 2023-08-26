@@ -9,6 +9,8 @@
 #include "rpc/client/RpcClients.h"
 #include "rpc/client/RpcContainer.h"
 
+#include "IPLocator/IPLocator.h"
+
 #include "proto/Game.Common.pb.h"
 #include "proto/HallServer.Message.pb.h"
 #include "proto/HallClubServer.Message.pb.h"
@@ -343,7 +345,7 @@ public:
 	std::shared_ptr<muduo::net::EventLoopThread> thisTimer_;
 	rpc::Connector gameRpcClients_;
 	rpc::Container rpcClients_[rpc::kMaxRpcTy];
-	CIpFinder ipFinder_;
+	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
 };
 

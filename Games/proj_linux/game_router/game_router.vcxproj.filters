@@ -26,13 +26,13 @@
       <UniqueIdentifier>{079d3f19-9baf-47e1-afdb-c0192239bba3}</UniqueIdentifier>
     </Filter>
     <Filter Include="public">
-      <UniqueIdentifier>{e0ca9715-6da2-4d7e-a732-5d5b2046cabe}</UniqueIdentifier>
+      <UniqueIdentifier>{f1190569-b028-44c0-a2e8-048362d7c7b7}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\RedisClient">
-      <UniqueIdentifier>{4cae6b08-fca7-4eb2-8968-04dde5f576de}</UniqueIdentifier>
+      <UniqueIdentifier>{8b0ba15a-52c6-4381-a1a4-c002c66b3b1d}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\Database">
-      <UniqueIdentifier>{492809ff-0706-4432-8388-9126293b80e2}</UniqueIdentifier>
+      <UniqueIdentifier>{30e74e4e-3483-4bd6-8ca2-54c97c6e7e2d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -72,22 +72,25 @@
     <ClInclude Include="..\..\..\proto\Game.Rpc.pb.h">
       <Filter>pb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\proto\table.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\proto\user.pb.h">
+      <Filter>pb</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\public\errorCode.h">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\gameConst.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\gameStruct.h">
+      <Filter>public</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\IncMuduo.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\IPFinder.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\gameStruct.h">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
@@ -104,12 +107,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\public\redisKeys.h">
       <Filter>public\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\proto\table.pb.h">
-      <Filter>pb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\proto\user.pb.h">
-      <Filter>pb</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -155,8 +152,11 @@
     <ClCompile Include="..\..\..\proto\Game.Rpc.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\public\IPFinder.cpp">
-      <Filter>public</Filter>
+    <ClCompile Include="..\..\..\proto\table.pb.cc">
+      <Filter>pb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\proto\user.pb.cc">
+      <Filter>pb</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
       <Filter>public\RedisClient</Filter>
@@ -172,12 +172,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\public\redisKeys.cc">
       <Filter>public\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\proto\table.pb.cc">
-      <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\proto\user.pb.cc">
-      <Filter>pb</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

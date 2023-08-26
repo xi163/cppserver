@@ -22,7 +22,7 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, thisThread_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "MainEventLoopThread"))
 	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "EventLoopThreadTimer"))
-	, ipFinder_("qqwry.dat")
+	, ipLocator_("qqwry.dat")
 	, gameId_(gameId)
 	, roomId_(roomId) {
 	CTableThreadMgr::get_mutable_instance().Init(loop, "TableThreadPool");

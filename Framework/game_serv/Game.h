@@ -12,6 +12,8 @@
 
 #include "rpc/server/RpcService.h"
 
+#include "IPLocator/IPLocator.h"
+
 struct gate_t {
 	std::string IpPort;
 	std::shared_ptr<packet::internal_prev_header_t> pre_header;
@@ -165,7 +167,7 @@ public:
 	std::map<std::string, std::set<int64_t>> mapGateUsers_;
 	//mutable boost::shared_mutex mutexGateUsers_;
 	
-	CIpFinder ipFinder_;
+	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
 };
 

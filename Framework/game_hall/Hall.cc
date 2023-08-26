@@ -12,7 +12,7 @@ HallServ::HallServ(muduo::net::EventLoop* loop,
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, gameRpcClients_(loop)
 	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&HallServ::threadInit, this), "EventLoopThreadTimer"))
-	, ipFinder_("qqwry.dat") {
+	, ipLocator_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
 	server_.setConnectionCallback(
@@ -677,7 +677,7 @@ void HallServ::cmd_on_user_login(
 		try {
 			do {
 				std::string country, location;
-				ipFinder_.GetAddressByIp(ntohl(pre_header_->clientIp), location, country);
+				ipLocator_.GetAddressByIp(ntohl(pre_header_->clientIp), location, country);
 				std::string loginIp = utils::inetToIp(pre_header_->clientIp);
 				std::string key = redisKeys::prefix_token_limit + reqdata.session();
 				if (REDISCLIENT.exists(key)) {

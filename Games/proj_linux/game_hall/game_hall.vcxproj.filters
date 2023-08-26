@@ -23,13 +23,13 @@
       <UniqueIdentifier>{bda5abba-371a-4a89-a7e9-5818559f02ec}</UniqueIdentifier>
     </Filter>
     <Filter Include="public">
-      <UniqueIdentifier>{16043dd1-3d0b-4d52-b99b-d71f7c93a405}</UniqueIdentifier>
+      <UniqueIdentifier>{24c65347-38e0-4d57-8d71-82a22a8810c9}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\RedisClient">
-      <UniqueIdentifier>{b24edd8c-d500-4a46-9d20-24bc08139602}</UniqueIdentifier>
+      <UniqueIdentifier>{974b0b86-bb78-43e4-aa27-25fdbe7e143d}</UniqueIdentifier>
     </Filter>
     <Filter Include="public\Database">
-      <UniqueIdentifier>{de015e31-9e5d-4d1a-ab58-0e3d10a779c1}</UniqueIdentifier>
+      <UniqueIdentifier>{4cacbc39-e852-49c6-a4ca-84033055126c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -79,16 +79,13 @@
     <ClInclude Include="..\..\..\public\gameConst.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\public\gameStruct.h">
+      <Filter>public</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\public\Inc.h">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\IncMuduo.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\IPFinder.h">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\gameStruct.h">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
@@ -148,9 +145,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\proto\table.pb.cc">
       <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\IPFinder.cpp">
-      <Filter>public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
       <Filter>public\RedisClient</Filter>
