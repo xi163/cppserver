@@ -3,9 +3,9 @@
 
 #include "Logger/src/log/Logger.h"
 
-#define TraceMessageID(mainId, subId) { \
+#define TraceMessageId(mainId, subId) { \
 	std::string s; \
-	int lvl = fmtMessageID(s, mainId, subId, false, false); \
+	int lvl = fmtMessageId(s, mainId, subId, false, false); \
 	if(!s.empty()) { \
 		switch(lvl) { \
 			case LVL_DEBUG: \
@@ -27,20 +27,20 @@
 	} \
 }
 
-extern void initTraceMessageID();
+extern void initTraceMessage();
 
-extern void strMessageID(
+extern void strMessageId(
 	std::string& strMainID,
 	std::string& strSubID,
 	uint8_t mainId, uint8_t subId);
 
-extern int fmtMessageID(
+extern int fmtMessageId(
 	std::string& str,
 	uint8_t mainId, uint8_t subId,
 	bool trace_hall_heartbeat,
 	bool trace_game_heartbeat);
 
-extern std::string const fmtMessageID(
+extern std::string const fmtMessageId(
 	uint8_t mainId, uint8_t subId);
 
 #endif

@@ -101,7 +101,7 @@ void GateServ::asyncGameHandler(
 		int64_t userId = pre_header->userId;
 		assert(userId > 0 && userId == entryContext.getUserId());
 		assert(session == entryContext.getSession());
-		TraceMessageID(header->mainId, header->subId);
+		TraceMessageId(header->mainId, header->subId);
 		//////////////////////////////////////////////////////////////////////////
 		//进房间失败/离开房间/游戏结束，清理用户游戏节点
 		//////////////////////////////////////////////////////////////////////////
@@ -259,7 +259,7 @@ void GateServ::sendGameMessage(
 		else {
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 			packet::header_t const* header = packet::get_header(buf);
-			_LOG_ERROR("%s error", fmtMessageID(header->mainId, header->subId).c_str());
+			_LOG_ERROR("%s error", fmtMessageId(header->mainId, header->subId).c_str());
 			EntryPtr entry(entryContext.getWeakEntryPtr().lock());
 			if (entry) {
 				muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());
@@ -290,7 +290,7 @@ void GateServ::onUserOfflineGame(Context& entryContext) {
 			::Game::Common::MESSAGE_PROXY_TO_GAME_SERVER_SUBID::GAME_SERVER_ON_USER_OFFLINE,
 			NULL);
 		if (buffer) {
-			TraceMessageID(
+			TraceMessageId(
 				::Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
 				::Game::Common::MESSAGE_PROXY_TO_GAME_SERVER_SUBID::GAME_SERVER_ON_USER_OFFLINE);
 			assert(buffer->readableBytes() < packet::kMaxPacketSZ);

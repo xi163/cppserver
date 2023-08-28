@@ -186,7 +186,7 @@ void GateServ::asyncClientHandler(
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_PROXY: {
 				switch (header->enctype) {
 				case packet::PUBENC_PROTOBUF_NONE: {
-					TraceMessageID(header->mainId, header->subId);
+					TraceMessageId(header->mainId, header->subId);
 					int cmd = packet::enword(header->mainId, header->subId);
 					CmdCallbacks::const_iterator it = handlers_.find(cmd);
 					if (it != handlers_.end()) {
@@ -208,7 +208,7 @@ void GateServ::asyncClientHandler(
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_CLUB:
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL_FRIEND:
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL: {
-				TraceMessageID(header->mainId, header->subId);
+				TraceMessageId(header->mainId, header->subId);
 				Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 				int64_t userId = entryContext.getUserId();
 				uint32_t clientIp = entryContext.getFromIp();
@@ -230,9 +230,7 @@ void GateServ::asyncClientHandler(
 					aesKey,
 					clientIp,
 					0,
-#if 1
 					nodeValue_,
-#endif
 					buf->peek(),
 					header->len);
 				if (buffer) {
@@ -245,7 +243,7 @@ void GateServ::asyncClientHandler(
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC_FRIEND:
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER:
 			case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC: {
-				TraceMessageID(header->mainId, header->subId);
+				TraceMessageId(header->mainId, header->subId);
 				Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 				int64_t userId = entryContext.getUserId();
 				uint32_t clientIp = entryContext.getFromIp();
@@ -265,9 +263,7 @@ void GateServ::asyncClientHandler(
 					aesKey,
 					clientIp,
 					0,
-#if 1
 					nodeValue_,
-#endif
 					buf->peek(),
 					header->len);
 				if (buffer) {
@@ -314,7 +310,7 @@ BufferPtr GateServ::packKickGameUserMsg() {
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::GameServer::SUB_S2C_ENTER_ROOM_RES, &msg);
 
-	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+	TraceMessageId(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::GameServer::SUB_S2C_ENTER_ROOM_RES);
 
 	return buffer;
@@ -331,7 +327,7 @@ BufferPtr GateServ::packNotifyFailedMsg(uint8_t mainId, uint8_t subId) {
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_FAILED_MESSAGE, &msg);
 
-	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+	TraceMessageId(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_FAILED_MESSAGE);
 
 	return buffer;
@@ -347,7 +343,7 @@ BufferPtr GateServ::packOrderScoreMsg(int16_t userid, int64_t score) {
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_USER_ORDER_SCORE_MESSAGE, &msg);
 
-	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+	TraceMessageId(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_USER_ORDER_SCORE_MESSAGE);
 	
 	return buffer;
@@ -364,7 +360,7 @@ BufferPtr GateServ::packClientShutdownMsg(int64_t userid, int status) {
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY, &msg);
 
-	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+	TraceMessageId(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_SHUTDOWN_USER_CLIENT_MESSAGE_NOTIFY);
 
 	return buffer;
@@ -384,7 +380,7 @@ BufferPtr GateServ::packNoticeMsg(
 		::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY, &msg);
 
-	TraceMessageID(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
+	TraceMessageId(::Game::Common::MAIN_MESSAGE_CLIENT_TO_PROXY,
 		::Game::Common::PROXY_NOTIFY_PUBLIC_NOTICE_MESSAGE_NOTIFY);
 
 	return buffer;
@@ -407,7 +403,7 @@ void GateServ::broadcastNoticeMsg(
 void GateServ::broadcastMessage(int mainId, int subId, ::google::protobuf::Message* msg) {
 	BufferPtr buffer = packet::packMessage(mainId, subId, msg);
 	if (buffer) {
-		TraceMessageID(mainId, subId);
+		TraceMessageId(mainId, subId);
 		entities_.broadcast(buffer);
 	}
 }

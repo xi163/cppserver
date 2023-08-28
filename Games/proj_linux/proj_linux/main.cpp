@@ -27,6 +27,8 @@ typedef boost::tuple<std::string,
 //typedef ::std::shared_ptr<Message> MessagePtr;
 //typedef ::std::function<void(const ::google::protobuf::MessagePtr&)> ClientDoneCallback;
 int main() {
+	std::string s;
+	s.append("dsff").c_str();
 	int n = 1;
 	//_ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
 	//_ASSERT_S(n == 0, "");

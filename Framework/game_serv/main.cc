@@ -104,12 +104,15 @@ int main(int argc, char* argv[]) {
 	if (0 == rpcPort) {
 		rpcPort = RANDOM().betweenInt(5000, 10000).randInt_mt();
 	}
-	int16_t numThreads = pt.get<int>(config + ".numThreads", 10);
-	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 10);
-	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);
+	int16_t numThreads = pt.get<int>(config + ".numThreads", 0);
+	if (numThreads == 0) {
+		numThreads = utils::numCPU();
+	}
+	int16_t numWorkerThreads = pt.get<int>(config + ".numWorkerThreads", 0);
 	if (numWorkerThreads == 0) {
 		numWorkerThreads = utils::numCPU();
 	}
+	int kMaxQueueSize = pt.get<int>(config + ".kMaxQueueSize", 1000);
 	if (!ip.empty() && boost::regex_match(ip,
 		boost::regex(
 			"^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\." \

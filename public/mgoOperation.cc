@@ -1771,7 +1771,133 @@ namespace mgo {
 		MGO_CATCH();
 		return ERR_OptClub_InsideError;
 	}
-	
+	//获取俱乐部成员
+	//type 0-全部 1-合伙人 2-会员
+	Msg const& GetClubMembers(int64_t userId, int64_t clubId, int type) {
+		MGO_TRY();
+		switch (type) {
+		case 0: {
+			mongocxx::cursor cursor = opt::Find(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
+				builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);//全部 会员/合伙人
+			for (auto& view : cursor) {
+				_LOG_WARN(to_json(view).c_str());
+				document::view view = result->view();
+				if (view["userid"]) {
+					switch (view["userid"].type()) {
+					case bsoncxx::type::k_int64:
+						view["userid"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						view["userid"].get_int32();
+						break;
+					}
+				}
+				if (view["status"]) {
+					switch (view["status"].type()) {
+					case bsoncxx::type::k_int64:
+						view["status"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						view["status"].get_int32();
+						break;
+					}
+				}
+				if (view["ratio"]) {
+					switch (view["ratio"].type()) {
+					case bsoncxx::type::k_int64:
+						view["ratio"].get_int64();
+						break;
+					case bsoncxx::type::k_int32:
+						view["ratio"].get_int32();
+						break;
+					}
+				}
+				auto result = opt::FindOne(
+					mgoKeys::db::GAMEMAIN,
+					mgoKeys::tbl::GAMEUSER,
+					builder::stream::document{} << "account" << 1 << "nickname" << 1 << "headindex" << 1 << finalize,
+					builder::stream::document{} << "userid" << b_int64{ userId } << finalize);
+				if (!result) {
+					return Failed;
+				}
+			}
+			break;
+		}
+		case 1: {
+			mongocxx::cursor cursor = opt::Find(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
+				builder::stream::document{} << "clubid" << b_int64{ clubId } << "status" << b_int64{ 2 } << finalize);//合伙人
+			for (auto& view : cursor) {
+				_LOG_WARN(to_json(view).c_str());
+
+			}
+			break;
+		}
+		case 2: {
+			mongocxx::cursor cursor = opt::Find(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
+				builder::stream::document{} << "clubid" << b_int64{ clubId } << "status" << b_int64{ 1 } << finalize);//会员
+			for (auto& view : cursor) {
+				_LOG_WARN(to_json(view).c_str());
+
+			}
+			break;
+		}
+		}
+		MGO_CATCH();
+		return Failed;
+	}
+	//获取我的团队成员
+	//type 0-所有会员 1-直属合伙人 2-直属会员
+	Msg const& GetMyTeamMembers(int64_t userId, int64_t clubId,int type) {
+		MGO_TRY();
+		switch (type) {
+		case 0: {
+			mongocxx::cursor cursor = opt::Find(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
+				builder::stream::document{} << "promoterid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize);//直属所有 会员/合伙人
+			for (auto& view : cursor) {
+				_LOG_WARN(to_json(view).c_str());
+
+			}
+			break;
+		}
+		case 1: {
+			mongocxx::cursor cursor = opt::Find(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
+				builder::stream::document{} << "promoterid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << "status" << b_int64{ 2 } << finalize);//直属合伙人
+			for (auto& view : cursor) {
+				_LOG_WARN(to_json(view).c_str());
+
+			}
+			break;
+		}
+		case 2: {
+			mongocxx::cursor cursor = opt::Find(
+				mgoKeys::db::GAMEMAIN,
+				mgoKeys::tbl::GAME_CLUB_MEMBER,
+				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
+				builder::stream::document{} << "promoterid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << "status" << b_int64{ 1 } << finalize);//直属会员
+			for (auto& view : cursor) {
+				_LOG_WARN(to_json(view).c_str());
+
+			}
+			break;
+		}
+		}
+		MGO_CATCH();
+	}
 	bool LoadGameRoomInfos(::HallServer::GetGameMessageResponse& gameinfos) {
 		gameinfos.clear_header();
 		gameinfos.clear_gamemessage();

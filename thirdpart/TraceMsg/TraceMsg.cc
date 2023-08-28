@@ -2,14 +2,14 @@
 
 #include "TraceMsg/TraceMsg.h"
 
-#define NameStrMessageID "strMessageID"
-#define NameFmtMessageID "fmtMessageID"
+#define NameStrMessageId "strMessageId"
+#define NameFmtMessageId "fmtMessageId"
 
-typedef int (*FnStrMessageID)(std::string&, std::string&, std::string&, std::string&, uint8_t, uint8_t, bool, bool);
-typedef int (*FnFmtMessageID)(std::string&, uint8_t, uint8_t, bool, bool);
+typedef int (*FnStrMessageId)(std::string&, std::string&, std::string&, std::string&, uint8_t, uint8_t, bool, bool);
+typedef int (*FnFmtMessageId)(std::string&, uint8_t, uint8_t, bool, bool);
 
-static FnStrMessageID fnStrMessageID;
-static FnFmtMessageID fnFmtMessageID;
+static FnStrMessageId fnStrMessageId;
+static FnFmtMessageId fnFmtMessageId;
 
 static inline void LoadLibrary(std::string const& serviceName) {
 	std::string dllPath = boost::filesystem::initial_path<boost::filesystem::path>().string();
@@ -26,47 +26,47 @@ static inline void LoadLibrary(std::string const& serviceName) {
 		_LOG_ERROR("Can't Open %s, %s", dllName.c_str(), dlerror());
 		exit(0);
 	}
-	fnStrMessageID = (FnStrMessageID)dlsym(handle, NameStrMessageID);
-	if (!fnStrMessageID) {
+	fnStrMessageId = (FnStrMessageId)dlsym(handle, NameStrMessageId);
+	if (!fnStrMessageId) {
 		dlclose(handle);
-		_LOG_ERROR("Can't Find %s, %s", NameStrMessageID, dlerror());
+		_LOG_ERROR("Can't Find %s, %s", NameStrMessageId, dlerror());
 		exit(0);
 	}
-	fnFmtMessageID = (FnFmtMessageID)dlsym(handle, NameFmtMessageID);
-	if (!fnFmtMessageID) {
+	fnFmtMessageId = (FnFmtMessageId)dlsym(handle, NameFmtMessageId);
+	if (!fnFmtMessageId) {
 		dlclose(handle);
-		_LOG_ERROR("Can't Find %s, %s", NameFmtMessageID, dlerror());
+		_LOG_ERROR("Can't Find %s, %s", NameFmtMessageId, dlerror());
 		exit(0);
 	}
 }
 
-void initTraceMessageID() {
+void initTraceMessage() {
 	LoadLibrary("game_tracemsg");
 }
 
-void strMessageID(
+void strMessageId(
 	std::string& strMainID,
 	std::string& strSubID,
 	uint8_t mainId, uint8_t subId) {
-	if (fnStrMessageID) {
+	if (fnStrMessageId) {
 		std::string strMainDesc, strSubDesc;
-		fnStrMessageID(strMainID, strMainDesc, strSubID, strSubDesc, mainId, subId, false, false);
+		fnStrMessageId(strMainID, strMainDesc, strSubID, strSubDesc, mainId, subId, false, false);
 	}
 }
 
-int fmtMessageID(
+int fmtMessageId(
 	std::string& str,
 	uint8_t mainId, uint8_t subId,
 	bool trace_hall_heartbeat,
 	bool trace_game_heartbeat) {
-	return fnFmtMessageID ? fnFmtMessageID(str, mainId, subId, trace_hall_heartbeat, trace_game_heartbeat) : 0;
+	return fnFmtMessageId ? fnFmtMessageId(str, mainId, subId, trace_hall_heartbeat, trace_game_heartbeat) : 0;
 }
 
-std::string const fmtMessageID(
+std::string const fmtMessageId(
 	uint8_t mainId, uint8_t subId) {
-	if (fnFmtMessageID) {
+	if (fnFmtMessageId) {
 		std::string str;
-		fnFmtMessageID(str, mainId, subId, false, false);
+		fnFmtMessageId(str, mainId, subId, false, false);
 		return str;
 	}
 	return "";

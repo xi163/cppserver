@@ -184,7 +184,7 @@ void LoginServ::asyncClientHandler(
 				case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_PROXY: {
 					switch (header->enctype) {
 					case packet::PUBENC_PROTOBUF_NONE: {
-						TraceMessageID(header->mainId, header->subId);
+						TraceMessageId(header->mainId, header->subId);
 						int cmd = packet::enword(header->mainId, header->subId);
 						CmdCallbacks::const_iterator it = handlers_.find(cmd);
 						if (it != handlers_.end()) {
@@ -204,7 +204,7 @@ void LoginServ::asyncClientHandler(
 					break;
 				}
 				case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL: {
-					TraceMessageID(header->mainId, header->subId);
+					TraceMessageId(header->mainId, header->subId);
 					Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 					int64_t userId = entryContext.getUserId();
 					uint32_t clientIp = entryContext.getFromIp();
@@ -226,9 +226,7 @@ void LoginServ::asyncClientHandler(
 						aesKey,
 						clientIp,
 						0,
-#if 1
 						nodeValue_,
-#endif
 						buf->peek(),
 						header->len);
 					if (buffer) {
@@ -237,7 +235,7 @@ void LoginServ::asyncClientHandler(
 				}
 				case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER:
 				case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC: {
-					TraceMessageID(header->mainId, header->subId);
+					TraceMessageId(header->mainId, header->subId);
 					Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 					int64_t userId = entryContext.getUserId();
 					uint32_t clientIp = entryContext.getFromIp();
@@ -257,9 +255,7 @@ void LoginServ::asyncClientHandler(
 						aesKey,
 						clientIp,
 						0,
-#if 1
 						nodeValue_,
-#endif
 						buf->peek(),
 						header->len);
 					if (buffer) {

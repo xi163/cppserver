@@ -17,7 +17,7 @@
 #ifdef NDEBUG
 	#define _ASSERT_S(expr, s) __ASSERT_VOID_CAST (0)
 #else
-	#define _S(s) (strlen(s) == 0 ? "" : (std::string(": ") + s).c_str())
+	#define _S(s) (strlen(s) == 0 ? "" : std::string(": ").append(s).c_str())
 	#define _ASSERT_S(expr, s) \
 	  (expr) \
 	   ? __ASSERT_VOID_CAST (0) \

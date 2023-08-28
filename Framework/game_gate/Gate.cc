@@ -330,7 +330,7 @@ void GateServ::threadInit() {
 bool GateServ::InitServer() {
 	switch (tracemsg_) {
 	case true:
-		initTraceMessageID();
+		initTraceMessage();
 		break;
 	}
 	return true;

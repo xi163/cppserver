@@ -96,7 +96,7 @@ void GateServ::asyncGateHandler(
 		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
 		assert(session == entryContext.getSession());
-		TraceMessageID(header->mainId, header->subId);
+		TraceMessageId(header->mainId, header->subId);
 		
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
 	}

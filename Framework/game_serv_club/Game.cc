@@ -263,7 +263,7 @@ void GameServ::threadInit() {
 bool GameServ::InitServer() {
 	switch (tracemsg_) {
 	case true:
-		initTraceMessageID();
+		initTraceMessage();
 		break;
 	}
 	if (mgo::LoadClubGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo_)) {
@@ -413,7 +413,7 @@ void GameServ::asyncLogicHandler(
 		case Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_LOGIC: {
 			switch (header->enctype) {
 			case packet::PUBENC_PROTOBUF_NONE: {
-				TraceMessageID(header->mainId, header->subId);
+				TraceMessageId(header->mainId, header->subId);
 				int cmd = packet::enword(header->mainId, header->subId);
 				CmdCallbacks::const_iterator it = handlers_.find(cmd);
 				if (it != handlers_.end()) {
@@ -426,7 +426,7 @@ void GameServ::asyncLogicHandler(
 				break;
 			}
 			case packet::PUBENC_PROTOBUF_RSA: {
-				TraceMessageID(header->mainId, header->subId);
+				TraceMessageId(header->mainId, header->subId);
 				break;
 			}
 			case packet::PUBENC_PROTOBUF_AES: {
@@ -480,7 +480,7 @@ void GameServ::send(
 	packet::header_t const* header_) {
 	std::vector<uint8_t> data;
 	packet::packMessage(data, msg, len, mainId, subId, pre_header_, header_);
-	TraceMessageID(mainId, subId);
+	TraceMessageId(mainId, subId);
 	conn->send(&data[0], data.size());
 }
 
@@ -492,7 +492,7 @@ void GameServ::send(
 	packet::header_t const* header_) {
 	std::vector<uint8_t> data;
 	packet::packMessage(data, msg, len, subId, pre_header_, header_);
-	TraceMessageID(header_->mainId, subId);
+	TraceMessageId(header_->mainId, subId);
 	conn->send(&data[0], data.size());
 }
 
@@ -505,7 +505,7 @@ void GameServ::send(
 	packet::header_t const* header_) {
 	std::vector<uint8_t> data;
 	packet::packMessage(data, msg, mainId, subId, pre_header_, header_);
-	TraceMessageID(mainId, subId);
+	TraceMessageId(mainId, subId);
 	conn->send(&data[0], data.size());
 }
 
@@ -517,7 +517,7 @@ void GameServ::send(
 	packet::header_t const* header_) {
 	std::vector<uint8_t> data;
 	packet::packMessage(data, msg, subId, pre_header_, header_);
-	TraceMessageID(header_->mainId, subId);
+	TraceMessageId(header_->mainId, subId);
 	conn->send(&data[0], data.size());
 }
 

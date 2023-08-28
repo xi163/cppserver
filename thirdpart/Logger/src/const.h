@@ -74,11 +74,11 @@ struct Msg {
 };
 
 #define K_MSG(n, s) \
-	static const Msg n = Msg{ k##n, "k"#n, s };
+	static Msg const n = Msg{ k##n, "k"#n, s };
 #define P_MSG(p, n, s) \
-	static const Msg p##n = Msg{ n, #n, s };
+	static Msg const p##n = Msg{ n, #n, s };
 #define P_K_MSG(p, n, s) \
-	static const Msg p##n = Msg{ k##n, "k"#n, s };
+	static Msg const p##n = Msg{ k##n, "k"#n, s };
 
 #define K_MSG_X(n, s) K_MSG(n, s)
 #define K_MSG_Y(n, i, s) K_MSG(n, s)

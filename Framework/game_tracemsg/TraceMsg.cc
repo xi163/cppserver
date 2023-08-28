@@ -163,7 +163,7 @@ MY_TAB_MAP(subid_client_to_match_server_, MY_SUBID_CLIENT_TO_MATCH_SERVER_MAP);
 
 #endif
 
-extern "C" int strMessageID(
+extern "C" int strMessageId(
 	std::string& strMainID,
 	std::string& strMainDesc,
 	std::string& strSubID,
@@ -240,13 +240,13 @@ extern "C" int strMessageID(
 	return lvl;
 }
 
-extern "C" int fmtMessageID(
+extern "C" int fmtMessageId(
 	std::string & str,
 	uint8_t mainId, uint8_t subId,
 	bool trace_hall_heartbeat,
 	bool trace_game_heartbeat) {
 	std::string strMainID, strMainDesc, strSubID, strSubDesc;
-	int lvl = strMessageID(strMainID, strMainDesc, strSubID, strSubDesc, mainId, subId, trace_hall_heartbeat, trace_game_heartbeat);
+	int lvl = strMessageId(strMainID, strMainDesc, strSubID, strSubDesc, mainId, subId, trace_hall_heartbeat, trace_game_heartbeat);
 	if ((mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL ||
 		mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER) &&
 		strSubID.empty()) {

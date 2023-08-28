@@ -256,7 +256,7 @@ void RouterServ::threadInit() {
 bool RouterServ::InitServer() {
 	switch (tracemsg_) {
 	case true:
-		initTraceMessageID();
+		initTraceMessage();
 		break;
 	}
 	return true;
