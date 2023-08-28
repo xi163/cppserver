@@ -1784,7 +1784,6 @@ namespace mgo {
 				builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);//全部 会员/合伙人
 			for (auto& view : cursor) {
 				_LOG_WARN(to_json(view).c_str());
-				document::view view = result->view();
 				if (view["userid"]) {
 					switch (view["userid"].type()) {
 					case bsoncxx::type::k_int64:
