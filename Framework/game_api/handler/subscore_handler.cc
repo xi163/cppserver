@@ -19,7 +19,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 	int64_t beforeScore = 0;
 	int32_t onlinestatus = 0;
 	std::string linecode;
-	static __thread mongocxx::client_session session = MONGODBCLIENT.start_session();
+	/*static*/ /*__thread*/ mongocxx::client_session session = MongoDBClient::start_session();
 	bool btransaction = false;
 #ifdef _STAT_ORDER_QPS_DETAIL_
 	//std::stringstream ss;
