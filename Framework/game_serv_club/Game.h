@@ -162,10 +162,10 @@ public:
 	mutable boost::shared_mutex mutexGateConns_;
 	
 	std::map<int64_t, std::shared_ptr<gate_t>> mapUserGates_;
-	//mutable boost::shared_mutex mutexUserGates_;
+	mutable boost::shared_mutex mutexUserGates_;
 	
 	std::map<std::string, std::set<int64_t>> mapGateUsers_;
-	//mutable boost::shared_mutex mutexGateUsers_;
+	mutable boost::shared_mutex mutexGateUsers_;
 	
 	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;

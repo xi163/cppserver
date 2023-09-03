@@ -155,7 +155,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 			_LOG_ERROR("....%d", player->GetUserId());
 			return true;
 		}
-		_LOG_ERROR("....%d", player->GetUserId());
+		//_LOG_ERROR("....%d", player->GetUserId());
 		return false;
 	}
 	if (player->GetUserId() == -1) { //new android enter
@@ -171,7 +171,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		//匹配真人时间或没有真人玩家，机器人不准进入
 		if (totalMatchSeconds_ < timeoutMatchSeconds_ || table_->GetRealPlayerCount() < 1) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 2";
-			_LOG_ERROR("....%d", player->GetUserId());
+			//_LOG_ERROR("....%d", player->GetUserId());
 			return false;
 		}
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " " << table_->GetRobotPlayerCount() << "<" << maxAndroid_ << " true 1";

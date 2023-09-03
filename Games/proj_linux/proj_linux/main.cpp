@@ -27,13 +27,19 @@ typedef boost::tuple<std::string,
 //typedef ::std::shared_ptr<Message> MessagePtr;
 //typedef ::std::function<void(const ::google::protobuf::MessagePtr&)> ClientDoneCallback;
 int main() {
-	std::string s;
-	s.append("dsff").c_str();
+
+	//获取当前系统的所有CPU核数，包含禁用的
+	int all = sysconf(_SC_NPROCESSORS_CONF);//sysconf(_SC_NPROCS_CONF) get_nprocs_conf()
+	//获取当前系统的可用CPU核数
+	int enable = sysconf(_SC_NPROCESSORS_ONLN);//sysconf(_SC_NPROCS_ONLN) get_nprocs()
+	_LOG_DEBUG("all:%d enable:%d", all, enable);
+	//std::string s;
+	//s.append("dsff").c_str();
 	int n = 1;
 	//_ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
 	//_ASSERT_S(n == 0, "");
 	//_ASSERT_S(n == 0);
-	_ASSERT_V(n == 0, "断言错误 n=%d a=%d 操 ..............", n, 5);
+	//_ASSERT_V(n == 0, "断言错误 n=%d a=%d 操 ..............", n, 5);
 // 	ClientConn conn;
 // 	if (conn.get<0>().empty()) {
 // 		_LOG_DEBUG(" ok");
