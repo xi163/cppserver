@@ -73,10 +73,8 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 void GateServ::onConnected(
 	const muduo::net::TcpConnectionPtr& conn,
 	std::string const& ipaddr) {
-
+	
 	conn->getLoop()->assertInLoopThread();
-
-	_LOG_INFO("客户端真实IP[%s]", ipaddr.c_str());
 	
 	assert(!conn->getContext().empty());
 	Context& entryContext = boost::any_cast<Context&>(conn->getContext());
@@ -91,10 +89,10 @@ void GateServ::onConnected(
 		entryContext.setWorker(session, hash_session_, threadPool_);
 		//map[session] = weakConn
 		entities_.add(session, conn);
-		_LOG_INFO("session[%s]", session.c_str());
+		_LOG_INFO("客户端真实IP[%s] session[%s]", ipaddr.c_str(), session.c_str());
 	}
 	else {
-		_LOG_ERROR("error");
+		_LOG_ERROR("客户端真实IP[%s]", ipaddr.c_str());
 	}
 }
 

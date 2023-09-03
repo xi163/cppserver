@@ -176,7 +176,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		}
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " " << table_->GetRobotPlayerCount() << "<" << maxAndroid_ << " true 1";
 		//根据房间机器人配置来决定补充多少机器人
-		_LOG_ERROR("....%d  bool=%d", player->GetUserId(), table_->GetRobotPlayerCount() < maxAndroid_);
+		//_LOG_ERROR("....%d  bool=%d", player->GetUserId(), table_->GetRobotPlayerCount() < maxAndroid_);
 		return table_->GetRobotPlayerCount() < maxAndroid_;
 	}
 	else if (player->GetTableId() == INVALID_CHAIR) { //new real user enter
@@ -184,6 +184,9 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		if (table_->GetGameStatus() >= GAME_STATUS_START) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 3";
 			_LOG_ERROR("....%d", player->GetUserId());
+			return false;
+		}
+		if (table_->GetRealPlayerCount() > 0) {
 			return false;
 		}
 		_LOG_ERROR("....%d", player->GetUserId());
