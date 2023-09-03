@@ -54,7 +54,7 @@ namespace mgo {
 		};
 	}
 
-	void CreateGuestUser(int64_t seq, std::string const& account, model::GameUser& model);
+	void CreateGuestUser(int64_t seq, std::string const& account, model::GameUser& model, int64_t score = 0);
 }
 
 #endif

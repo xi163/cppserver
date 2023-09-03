@@ -3,7 +3,7 @@
 
 namespace mgo {
 	
-	void CreateGuestUser(int64_t seq , std::string const& account, model::GameUser& model) {
+	void CreateGuestUser(int64_t seq, std::string const& account, model::GameUser& model, int64_t score) {
 		model.UserId = seq;
 		if (account.empty()) {
 			model.Account = "guest_" + std::to_string(model.UserId);
@@ -25,7 +25,7 @@ namespace mgo {
 		model.Subscoretimes = 0;
 		model.Gamerevenue = 0;
 		model.WinLosescore = 0;
-		model.Score = 0;
+		model.Score = score;
 		model.Status = 1;//¶³½á <= 0
 		model.Onlinestatus = 0;
 		model.Gender = 0;
