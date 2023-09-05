@@ -20,14 +20,14 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 	uint32_t gameId, uint32_t roomId)
 	: server_(loop, listenAddr, "tcpServer")
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
-	, thisThread_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "MainEventLoopThread"))
-	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "EventLoopThreadTimer"))
+	, thisThread_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "MainThread"))
+	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&GameServ::threadInit, this), "TimerThread"))
 	, ipLocator_("qqwry.dat")
 	, gameId_(gameId)
 	, roomId_(roomId) {
-	CTableThreadMgr::get_mutable_instance().Init(loop, "TableThreadPool");
+	CTableThreadMgr::get_mutable_instance().Init(loop, "TableThread");
 	registerHandlers();
-	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
+	muduo::net::ReactorSingleton::inst(loop, "IOThread");
 	rpcserver_.registerService(&rpcservice_);
 	server_.setConnectionCallback(
 		std::bind(&GameServ::onConnection, this, std::placeholders::_1));

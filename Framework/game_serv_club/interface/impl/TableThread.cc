@@ -217,32 +217,24 @@ void CTableThreadMgr::Init(muduo::net::EventLoop* loop, std::string const& name)
 	baseLoop_ = loop;
 }
 
-void CTableThreadMgr::Assert() {
-	if (!pool_) {
-		_LOG_FATAL("pool is nil");
-	}
-}
-
 muduo::net::EventLoop* CTableThreadMgr::getNextLoop() {
-	Assert();
+	_ASSERT_S(pool_, "pool is nil");
 	return pool_->getNextLoop();
 }
 
 std::shared_ptr<muduo::net::EventLoopThreadPool> CTableThreadMgr::get() {
-	Assert();
+	_ASSERT_S(pool_, "pool is nil");
 	return pool_;
 }
 
 void CTableThreadMgr::setThreadNum(int numThreads) {
-	Assert();
+	_ASSERT_S(pool_, "pool is nil");
+	_ASSERT_V(numThreads > 0, "numThreads:%d", numThreads);
 	pool_->setThreadNum(numThreads);
-	if (numThreads < 1) {
-		_LOG_FATAL("%d", numThreads);
-	}
 }
 
 void CTableThreadMgr::start(const muduo::net::EventLoopThreadPool::ThreadInitCallback& cb, ITableContext* tableContext) {
-	Assert();
+	_ASSERT_S(pool_, "pool is nil");
 	if (!pool_->started()) {
 		pool_->start(cb);
 
@@ -273,7 +265,7 @@ void CTableThreadMgr::startCheckUserIn(ITableContext* tableContext) {
 }
 
 void CTableThreadMgr::quit() {
-	Assert();
+	_ASSERT_S(pool_, "pool is nil");
 	if (pool_->started()) {
 		RunInLoop(baseLoop_, std::bind(&CTableThreadMgr::quitInLoop, this));
 	}

@@ -49,7 +49,6 @@ public:
 
 private:
 	void quitInLoop();
-	void Assert();
 private:
 	muduo::net::EventLoop* baseLoop_;
 	std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
