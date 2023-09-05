@@ -152,7 +152,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 	if (table_->GetPlayerCount() >= GAME_PLAYER) {
 		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
 		if (userItem && userItem->GetChairId() == player->GetChairId()) {//断线重连可以进
-			_LOG_ERROR("....%d", player->GetUserId());
+			//_LOG_ERROR("....%d", player->GetUserId());
 			return true;
 		}
 		//_LOG_ERROR("....%d", player->GetUserId());
@@ -165,7 +165,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		//游戏开始了机器人新玩家不准进入
 		if (table_->GetGameStatus() >= GAME_STATUS_START) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 1";
-			_LOG_ERROR("....%d", player->GetUserId());
+			//_LOG_ERROR("....%d", player->GetUserId());
 			return false;
 		}
 		//匹配真人时间或没有真人玩家，机器人不准进入
@@ -183,13 +183,13 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		//游戏开始了真人新玩家不准进入
 		if (table_->GetGameStatus() >= GAME_STATUS_START) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 3";
-			_LOG_ERROR("....%d", player->GetUserId());
+			//_LOG_ERROR("....%d", player->GetUserId());
 			return false;
 		}
 		if (table_->GetRealPlayerCount() > 0) {
 			return false;
 		}
-		_LOG_ERROR("....%d", player->GetUserId());
+		//_LOG_ERROR("....%d", player->GetUserId());
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 2";
 		return true;
 	}
@@ -197,11 +197,11 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
 		if (userItem) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 3";
-			_LOG_ERROR("....%d", player->GetUserId());
+			//_LOG_ERROR("....%d", player->GetUserId());
 			return true;
 		}
 	}
-	_LOG_ERROR("....%d", player->GetUserId());
+	//_LOG_ERROR("....%d", player->GetUserId());
 	//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 4";
 	return false;
 }

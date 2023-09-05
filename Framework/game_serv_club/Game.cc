@@ -480,7 +480,7 @@ void GameServ::asyncOfflineHandler(std::string const& ipPort) {
 /// GetContext
 /// </summary>
 TableContext GameServ::GetContext(int64_t userId) {
-	_LOG_ERROR("%d", userId);
+	//_LOG_ERROR("%d", userId);
 #ifdef _TABLECONTEXT_INLOOP
 	TableContext ctx;
 	bool ok = false;
