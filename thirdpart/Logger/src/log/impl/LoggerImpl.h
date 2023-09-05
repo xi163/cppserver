@@ -120,7 +120,7 @@ namespace LOGGER {
 #define __LOG_INIT LOGGER::LoggerImpl::instance()->init
 #define __LOG LOGGER::LoggerImpl::instance()->write
 #define __LOG_S LOGGER::LoggerImpl::instance()->write_s
-#define __LOG_F LOGGER::Logger::instance()->write_s_fatal
+#define __LOG_F LOGGER::LoggerImpl::instance()->write_s_fatal
 #define __LOG_SET LOGGER::LoggerImpl::instance()->set_level
 #define __LOG_LVL LOGGER::LoggerImpl::instance()->get_level
 #define __LOG_TIMEZONE LOGGER::LoggerImpl::instance()->set_timezone
