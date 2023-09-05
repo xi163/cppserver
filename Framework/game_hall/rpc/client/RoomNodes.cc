@@ -109,7 +109,7 @@ namespace room {
 								}
 							}
 							else {
-								_LOG_ERROR("error");
+								_LOG_ERROR("%s", it->c_str());
 							}
 						}
 						int i = rooms.size() > 0 ? RANDOM().betweenInt(0, rooms.size() - 1).randInt_mt() : 0;

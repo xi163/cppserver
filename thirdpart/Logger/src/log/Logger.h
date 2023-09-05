@@ -32,6 +32,7 @@ namespace LOGGER {
 		void init(char const* dir, int level, char const* prename = NULL, size_t logsize = 100000000);
 		void write(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, char const* format, ...);
 		void write_s(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg);
+		void write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg);
 		void wait();
 		void enable();
 		void disable(int delay = 0, bool sync = false);
@@ -53,6 +54,7 @@ namespace LOGGER {
 #define LOG_INIT LOGGER::Logger::instance()->init
 #define LOG LOGGER::Logger::instance()->write
 #define LOG_S LOGGER::Logger::instance()->write_s
+#define LOG_F LOGGER::Logger::instance()->write_s_fatal
 #define LOG_SET LOGGER::Logger::instance()->set_level
 #define LOG_LVL LOGGER::Logger::instance()->get_level
 #define LOG_TIMEZONE LOGGER::Logger::instance()->set_timezone
@@ -94,7 +96,7 @@ namespace LOGGER {
 #endif
 
 //LOG_S_XXX(msg)
-#define _LOG_S_FATAL(msg) LOG_S(PARAM_FATAL, F_DETAIL|F_SYNC, msg); LOG_WAIT(); std::abort()
+#define _LOG_S_FATAL(msg) LOG_F(PARAM_FATAL, F_DETAIL|F_SYNC, msg)
 #define _LOG_S_ERROR(msg) LOG_S(PARAM_ERROR, F_DETAIL,        msg)
 #define _LOG_S_WARN(msg)  LOG_S(PARAM_WARN,  F_DETAIL,        msg)
 #define _LOG_S_INFO(msg)  LOG_S(PARAM_INFO,  F_DETAIL,        msg)

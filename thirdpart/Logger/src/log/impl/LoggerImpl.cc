@@ -140,6 +140,13 @@ namespace LOGGER {
 		write(level, file, line, func, stack, flag, "%s", msg.c_str());
 	}
 	
+	//write_s_fatal
+	void LoggerImpl::write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg) {
+		write(level, file, line, func, stack, flag, "%s", msg.c_str());
+		wait();
+		std::abort();
+	}
+	
 	//timezoneInfo
 	void LoggerImpl::timezoneInfo() {
 		struct tm tm = { 0 };

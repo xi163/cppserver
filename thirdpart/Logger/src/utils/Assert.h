@@ -21,7 +21,7 @@
 	#define _ASSERT_S(expr, s) \
 	  (expr) \
 	   ? __ASSERT_VOID_CAST (0) \
-	   : _LOG_S_FATAL(std::string("ASSERT: ").append(#expr).append(_S(s)))
+	   : _LOG_S_FATAL(std::string("ASSERT: ").append( #expr ).append(_S(s))))
 #endif
 
 // _ASSERT_V

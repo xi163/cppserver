@@ -39,7 +39,9 @@ int main() {
 	//_ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
 	//_ASSERT_S(n == 0, "");
 	//_ASSERT_S(n == 0);
-	//_ASSERT_V(n == 0, "断言错误 n=%d a=%d 操 ..............", n, 5);
+	std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
+	_ASSERT_S(!pool_, "pool is nil");
+	_LOG_DEBUG("...........");
 // 	ClientConn conn;
 // 	if (conn.get<0>().empty()) {
 // 		_LOG_DEBUG(" ok");

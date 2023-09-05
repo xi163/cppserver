@@ -91,7 +91,15 @@ namespace LOGGER {
 		AUTHORIZATION_CHECK;
 		write(level, file, line, func, stack, flag, "%s", msg.c_str());
 	}
-
+	
+	//write_s_fatal
+	void Logger::write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg) {
+		AUTHORIZATION_CHECK;
+		write(level, file, line, func, stack, flag, "%s", msg.c_str());
+		wait();
+		std::abort();
+	}
+	
 	//wait
 	void Logger::wait() {
 		AUTHORIZATION_CHECK;
