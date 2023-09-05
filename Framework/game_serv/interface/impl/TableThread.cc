@@ -76,7 +76,7 @@ void CTableThread::checkUserIn() {
 		return;
 	}
 	if (CRobotMgr::get_mutable_instance().Empty()) {
-		_LOG_ERROR("机器人没有库存了");
+		//_LOG_ERROR("机器人没有库存了");
 		return;
 	}
 	std::list<std::shared_ptr<CTable>> tables = CTableMgr::get_mutable_instance().UsedTables(tableId_);

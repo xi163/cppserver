@@ -120,7 +120,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				}
 				//创建并插入user表
 				mgo::model::GameUser model;
-				mgo::CreateGuestUser(userId, req.Account, model);
+				mgo::CreateGuestUser(userId, req.Account, model, gServer->registscore_);
 				model.Regip = conn->peerAddress().toIp();
 				model.Lastloginip = conn->peerAddress().toIp();
 				std::string insert_id = mgo::AddUser(
