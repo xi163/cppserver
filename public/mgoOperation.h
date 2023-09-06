@@ -119,7 +119,7 @@ namespace mgo {
 	bool LoadGameClubRoomInfos(
 		::HallServer::GetGameMessageResponse& gameinfos);
 
-	//金币场
+	//匹配场
 	bool LoadGameRoomInfo(
 		uint32_t gameid, uint32_t roomid,
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_);

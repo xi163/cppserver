@@ -2059,7 +2059,7 @@ namespace mgo {
 		MGO_CATCH();
 		return false;
 	}
-	//金币场
+	//匹配场
 	bool LoadGameRoomInfo(
 		uint32_t gameid, uint32_t roomid,
 		tagGameInfo& gameInfo_, tagGameRoomInfo& roomInfo_) {
@@ -2165,7 +2165,7 @@ namespace mgo {
 				break;
 			}
 		}
-		//金币场(kGoldCoin)匹配规则
+		//匹配场(kMatch)匹配规则
 		if (view["matchmask"]) {
 			switch (view["matchmask"].type()) {
 			case bsoncxx::type::k_int64:
@@ -2489,7 +2489,7 @@ namespace mgo {
 		// 					break;
 		// 				}
 		// 			}
-		// 			//金币场(kGoldCoin)匹配规则
+		// 			//匹配场(kMatch)匹配规则
 		// 			if (view["matchmask"]) {
 		// 				switch (view["matchmask"].type()) {
 		// 				case bsoncxx::type::k_int64:

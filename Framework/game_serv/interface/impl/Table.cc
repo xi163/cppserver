@@ -96,14 +96,13 @@ std::string const& CTable::ServId() {
 }
 
 std::string CTable::NewRoundId() {
-    //roomid-timestamp-pid-tid-tableid-rand
-    std::string strRoundId = std::to_string(roomInfo_->roomId) + "-";
-    strRoundId += std::to_string(STD_NOW().to_sec()) + "-";
-    strRoundId += std::to_string(::getpid()) + "-";
-    strRoundId += utils::gettid() + "-";
-    strRoundId += std::to_string(GetTableId())/* + "-"*/;
-   // strRoundId += std::to_string(rand() % 10);
-    return strRoundId;
+	//roomid-pid-tid-timestamp-tableid
+	std::string strRoundId = std::to_string(roomInfo_->roomId) + "-";
+	strRoundId += std::to_string(::getpid()) + "-";
+	strRoundId += utils::gettid() + "-";
+	strRoundId += std::to_string(STD_NOW().to_microsec()) + "-";
+	strRoundId += std::to_string(GetTableId());
+	return strRoundId;
 }
 
 std::string CTable::GetRoundId() {

@@ -86,11 +86,12 @@ enum eApiVisit {
     YY(Admin, 8, "管理员") \
 	YY(SuperAdmin, 9, "超级管理员") \
 
-//0-金币场 1-好友房 2-俱乐部
+//0-匹配场 1-竞技场-比赛 2-俱乐部 3-好友房-朋友圈 4-房卡
 #define GAMEMODE_MAP(XX, YY) \
-	YY(GoldCoin, 0, "金币场") \
-	YY(FriendRoom, 1, "好友房") \
+	YY(Match, 0, "匹配场") \
+    YY(Compete, 1, "竞技场") \
 	YY(Club, 2, "俱乐部") \
+    YY(Friend, 3, "好友房") \
 
 //0-百人 1-对战
 #define GAMETYPE_MAP(XX, YY) \

@@ -40,7 +40,7 @@ int main() {
 	//_ASSERT_S(n == 0, "");
 	//_ASSERT_S(n == 0);
 	std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
-	_ASSERT_S(!pool_, "pool is nil");
+	_ASSERT_S(pool_, "pool is nil");
 	_LOG_DEBUG("...........");
 // 	ClientConn conn;
 // 	if (conn.get<0>().empty()) {

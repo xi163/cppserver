@@ -70,13 +70,13 @@ std::map<int64_t, bool> recordUserIDs;
 void readFile(char const* filename, std::vector<std::string>& lines, char const* skip);
 
 int main() {
-	std::vector<std::string> lines;
-	readFile("conf.ini", lines, ";;");
-	usrid_start = (int64_t)atol(lines[0].c_str());
-	userid_max = (int64_t)atol(lines[1].c_str());
-	mongocxx::client conn{ mongocxx::uri{lines[2]} };//conn pwd???
-	mongocxx::database db = conn["gameconfig"];//db
-	mongocxx::collection collection = db["android_user"];//tblname
+	//std::vector<std::string> lines;
+	//readFile("conf.ini", lines, ";;");
+	//usrid_start = (int64_t)atol(lines[0].c_str());
+	//userid_max = (int64_t)atol(lines[1].c_str());
+	//mongocxx::client conn{ mongocxx::uri{lines[2]} };//conn pwd???
+	//mongocxx::database db = conn["gameconfig"];//db
+	//mongocxx::collection collection = db["android_user"];//tblname
 
 	try {
 		int c = 0;
@@ -121,10 +121,17 @@ int main() {
 				<< finalize;
 			bsoncxx::document::value doc = bsoncxx::builder::stream::document{}
 				<< "$set" << open_document
-				<< "userId" << userId
+				<< "userId" << b_int64{ userId }
 				<< "account" << account
 				<< "nickName" << nickname
 				<< "headId" << headID
+				<< "gameId" << b_int32{ 630 }
+				<< "roomId" << b_int32{ 6301 }
+				<< "enterTime" << "09:08"
+				<< "leaveTime" << "10:08"
+				<< "minScore" << b_int64{ 100000 }
+				<< "maxScore" << b_int64{ 400000 }
+				<<  "location" << "aaaaa"
 				<< close_document << finalize;
 			//更新用户ID/账号/昵称/头像
 			bsoncxx::stdx::optional<mongocxx::result::update> result = collection.update_one(cond.view(), doc.view());

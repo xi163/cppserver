@@ -329,8 +329,8 @@ private:
 	std::map<uint32_t, std::set<int64_t>> mapGamevisibility_;
 	mutable boost::shared_mutex mutexGamevisibility_;
 	//所有游戏房间信息
-	::HallServer::GetGameMessageResponse gameinfo_[kClub + 1];
-	mutable boost::shared_mutex gameinfo_mutex_[kClub + 1];
+	::HallServer::GetGameMessageResponse gameinfo_[kFriend + 1];
+	mutable boost::shared_mutex gameinfo_mutex_[kFriend + 1];
 	::HallServer::GetServerPlayerNumResponse room_playernums_;
 	mutable boost::shared_mutex room_playernums_mutex_;
 public:

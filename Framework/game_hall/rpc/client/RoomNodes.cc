@@ -97,8 +97,8 @@ namespace room {
 							if (rsp) {
 								//_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
 								switch (mode) {
-								case kGoldCoin:
-								case kFriendRoom:
+								case kMatch:
+								case kFriend:
 									rooms.emplace_back(std::make_pair(rsp->nodevalue(), rsp->numofloads()));
 									break;
 								case kClub:

@@ -836,8 +836,8 @@ void HallServ::cmd_get_game_info(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::HallServer::GetGameMessageResponse rspdata;
 		switch (reqdata.type()) {
-		case GameMode::kGoldCoin:
-		case GameMode::kFriendRoom: {
+		case GameMode::kMatch:
+		case GameMode::kFriend: {
 			READ_LOCK(gameinfo_mutex_[reqdata.type()]);
 			rspdata.CopyFrom(gameinfo_[reqdata.type()]);
 			rspdata.mutable_header()->set_sign(PROTOBUF_SIGN);
@@ -977,14 +977,14 @@ void HallServ::cmd_get_game_server_message(
 			std::string ipport;
 			switch (reqdata.type())
 			{
-			case kGoldCoin:
-				room::nodes::balance_server(kGoldCoin, gameid, roomid, ipport);
+			case kMatch:
+				room::nodes::balance_server(kMatch, gameid, roomid, ipport);
 				if (ipport.empty()) {
 					rspdata.set_retcode(ERROR_ENTERROOM_GAMENOTEXIST);
 					rspdata.set_errormsg("Game Server Not found!!!");
 				}
 				break;
-			case kFriendRoom:
+			case kFriend:
 				rspdata.set_retcode(ERROR_ENTERROOM_GAMENOTEXIST);
 				rspdata.set_errormsg("Game Server Not found!!!");
 				break;
@@ -1313,8 +1313,8 @@ void HallServ::loadGameRoomInfos() {
 	if (index >= 0 && index < threadPool_.size()) {
 		threadPool_[index]->run(CALLBACK_0([&]() {
 			{
-				WRITE_LOCK(gameinfo_mutex_[kGoldCoin]);
-				mgo::LoadGameRoomInfos(gameinfo_[kGoldCoin]);
+				WRITE_LOCK(gameinfo_mutex_[kMatch]);
+				mgo::LoadGameRoomInfos(gameinfo_[kMatch]);
 			}
 			{
 				WRITE_LOCK(mutexGamevisibility_);

@@ -117,7 +117,7 @@ void GameServ::onZookeeperConnected() {
 		nodeValue_ += utils::random::charStr(16, rTy::UpperCharNumber);
 		nodeValue_ += ":" + std::to_string(gameId_);
 		nodeValue_ += ":" + std::to_string(roomId_);
-		nodeValue_ += ":" + std::to_string(kGoldCoin);
+		nodeValue_ += ":" + std::to_string(kMatch);
 		//tcp
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
@@ -284,7 +284,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	std::vector<std::string> vec;
 	boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
 
-	_LOG_WARN("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), roomId_, getModeStr(kGoldCoin).c_str(), numThreads, numWorkerThreads);
+	_LOG_WARN("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), roomId_, getModeStr(kMatch).c_str(), numThreads, numWorkerThreads);
 
 	server_.start(true);
 	rpcserver_.start(true);
