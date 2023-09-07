@@ -210,7 +210,40 @@ namespace mgo {
 #endif
 			return coll.find(where, opts);
 		}
+		
+		mongocxx::cursor Find(
+			std::string const& dbname,
+			std::string const& tblname,
+			int64_t skip, int64_t limit,
+			bsoncxx::document::view_or_value const& select,
+			bsoncxx::document::view_or_value const& where,
+			bsoncxx::document::view_or_value const& sort,
+			int timeout) {
+			/*static*/ /*__thread*/ mongocxx::database db = MONGODBCLIENT[dbname];
+			mongocxx::collection  coll = db[tblname];
+			mongocxx::options::find opts = mongocxx::options::find{};
+			opts.projection(select);
+			
+			opts.sort(sort);
+			opts.skip(skip);
+			opts.limit(limit);
+			
+			opts.max_time(std::chrono::milliseconds(timeout));
+			//opts.max_await_time(std::chrono::milliseconds(timeout));
+			//opts.no_cursor_timeout(true);//FIXME: true-让cursor永不超时
 
+			mongocxx::read_preference rp;
+			rp.mode(mongocxx::read_preference::read_mode::k_secondary);
+			opts.read_preference(rp).max_time(std::chrono::milliseconds(timeout));
+#if 0
+			mongocxx::cursor cursor = coll.find(where, opts);
+			for (auto const& view : cursor) {
+				_LOG_WARN(to_json(view).c_str());
+			}
+#endif
+			return coll.find(where, opts);
+		}
+		
 		optional<bsoncxx::document::value> FindOneAndUpdate(
 			std::string const& dbname,
 			std::string const& tblname,
@@ -441,7 +474,41 @@ namespace mgo {
 #endif
 			cb(coll.find(where, opts));
 		}
+		
+		void Find(
+			std::string const& dbname,
+			std::string const& tblname,
+			int64_t skip, int64_t limit,
+			bsoncxx::document::view_or_value const& select,
+			bsoncxx::document::view_or_value const& where,
+			bsoncxx::document::view_or_value const& sort,
+			CursorCallback const& cb,
+			int timeout) {
+			/*static*/ /*__thread*/ mongocxx::database db = MONGODBCLIENT[dbname];
+			mongocxx::collection  coll = db[tblname];
+			mongocxx::options::find opts = mongocxx::options::find{};
+			opts.projection(select);
+			
+			opts.sort(sort);
+			opts.skip(skip);
+			opts.limit(limit);
 
+			opts.max_time(std::chrono::milliseconds(timeout));
+			//opts.max_await_time(std::chrono::milliseconds(timeout));
+			//opts.no_cursor_timeout(true);//FIXME: true-让cursor永不超时
+
+			mongocxx::read_preference rp;
+			rp.mode(mongocxx::read_preference::read_mode::k_secondary);
+			opts.read_preference(rp).max_time(std::chrono::milliseconds(timeout));
+#if 0
+			mongocxx::cursor cursor = coll.find(where, opts);
+			for (auto const& view : cursor) {
+				_LOG_WARN(to_json(view).c_str());
+			}
+#endif
+			cb(coll.find(where, opts));
+		}
+		
 		bool FindOneAndUpdate(
 			std::string const& dbname,
 			std::string const& tblname,

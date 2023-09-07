@@ -66,40 +66,31 @@ using bsoncxx::types::b_timestamp;
 #define MONGODBCLIENT MongoDBClient::ThreadLocalSingleton::instance()
 
 #define MGO_TRY() \
-	try {\
+	try { \
 
 #define MGO_CATCH() } \
-	catch (const mongocxx::authentication_exception& e) { \
+	catch (mongocxx::authentication_exception const& e) { \
 		_LOG_ERROR(e.what()); \
 	} \
-	catch (const mongocxx::bulk_write_exception& e) { \
+	catch (mongocxx::bulk_write_exception const& e) { \
 		_LOG_ERROR(e.what()); \
 	} \
-	catch (const mongocxx::gridfs_exception& e) { \
+	catch (mongocxx::gridfs_exception const& e) { \
 		_LOG_ERROR(e.what()); \
 	} \
-	catch (const mongocxx::operation_exception& e) { \
+	catch (mongocxx::operation_exception const& e) { \
 		_LOG_ERROR(e.what()); \
 	} \
-	catch (const mongocxx::logic_error& e) { \
+	catch (mongocxx::logic_error const& e) { \
 		_LOG_ERROR(e.what()); \
 	} \
-	catch (const mongocxx::query_exception& e) { \
+	catch (mongocxx::query_exception const& e) { \
 		_LOG_ERROR(e.what()); \
 	} \
-	catch (const mongocxx::write_exception& e) { \
+	catch (mongocxx::write_exception const& e) { \
 		_LOG_ERROR(e.what()); \
 	} \
-	catch (const mongocxx::exception& e) { \
-		_LOG_ERROR(e.what()); \
-		switch (mgo::opt::getErrCode(e.what())) { \
-		case 11000: \
-			break; \
-		default: \
-			break; \
-		} \
-	} \
-	catch (const bsoncxx::exception& e) { \
+	catch (mongocxx::exception const& e) { \
 		_LOG_ERROR(e.what()); \
 		switch (mgo::opt::getErrCode(e.what())) { \
 		case 11000: \
@@ -108,7 +99,16 @@ using bsoncxx::types::b_timestamp;
 			break; \
 		} \
 	} \
-	catch (const std::exception& e) { \
+	catch (bsoncxx::exception const& e) { \
+		_LOG_ERROR(e.what()); \
+		switch (mgo::opt::getErrCode(e.what())) { \
+		case 11000: \
+			break; \
+		default: \
+			break; \
+		} \
+	} \
+	catch (std::exception const& e) { \
 		_LOG_ERROR(e.what()); \
 	} \
 	catch (...) { \

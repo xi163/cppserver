@@ -1104,22 +1104,18 @@ void HallServ::cmd_set_headid(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::HallServer::SetHeadIdMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-		rspdata.set_retcode(0);
-		rspdata.set_errormsg("OK.");
+		rspdata.set_userid(pre_header_->userId);
 		int64_t userId = pre_header_->userId;
 		int32_t headid = reqdata.headid();
-		try {
-			mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-			userCollection.update_one(document{} << "userid" << userId << finalize,
-				document{} << "$set" << open_document <<
-				"headindex" << headid << close_document << finalize);
-			rspdata.set_userid(userId);
-			rspdata.set_headid(headid);
+		if (mgo::UpdateUser(
+			document{} << "$set" << open_document << "headindex" << headid << close_document << finalize,
+			document{} << "userid" << userId << finalize)) {
+			rspdata.set_retcode(0);
+			rspdata.set_errormsg("OK.");
 		}
-		catch (std::exception& e) {
-			_LOG_ERROR(e.what());
+		else {
 			rspdata.set_retcode(1);
-			rspdata.set_errormsg("Database  Error.");
+			rspdata.set_errormsg("set user headid Error.");
 		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_SET_HEAD_MESSAGE_RES,
@@ -1145,31 +1141,18 @@ void HallServ::cmd_get_userscore(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::HallServer::GetUserScoreMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-		int64_t userId = pre_header_->userId;
-		int64_t score = 0;
-		rspdata.set_userid(userId);
-		try {
-			mongocxx::options::find opts = mongocxx::options::find{};
-			opts.projection(document{} << "score" << 1 << finalize);
-			mongocxx::collection userCollection = MONGODBCLIENT["gamemain"]["game_user"];
-			bsoncxx::stdx::optional<bsoncxx::document::value> result =
-				userCollection.find_one(document{} << "userid" << userId << finalize, opts);
-			if (result) {
-				bsoncxx::document::view view = result->view();
-				score = view["score"].get_int64();
-				rspdata.set_score(score);
-				rspdata.set_retcode(0);
-				rspdata.set_errormsg("CMD GET USER SCORE OK.");
-			}
-			else {
-				rspdata.set_retcode(1);
-				rspdata.set_errormsg("CMD GET USER SCORE OK.");
-			}
+		rspdata.set_userid(pre_header_->userId);
+		UserBaseInfo info;
+		if (mgo::GetUserBaseInfo(
+			document{} << "score" << 1 << finalize,
+			document{} << "userid" << pre_header_->userId << finalize)) {
+			rspdata.set_score(info.userScore);
+			rspdata.set_retcode(0);
+			rspdata.set_errormsg("GET USER SCORE OK.");
 		}
-		catch (std::exception& e) {
-			_LOG_ERROR(e.what());
-			rspdata.set_retcode(2);
-			rspdata.set_errormsg("Database  Error.");
+		else {
+			rspdata.set_retcode(1);
+			rspdata.set_errormsg("GET USER SCORE Err.");
 		}
 		send(conn, &rspdata,
 			::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_USER_SCORE_MESSAGE_RES,

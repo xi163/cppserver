@@ -84,7 +84,16 @@ namespace mgo {
 			bsoncxx::document::view_or_value const& select,
 			bsoncxx::document::view_or_value const& where,
 			int timeout = 5000);
-
+		
+		mongocxx::cursor Find(
+			std::string const& dbname,
+			std::string const& tblname,
+			int64_t skip, int64_t limit,
+			bsoncxx::document::view_or_value const& select,
+			bsoncxx::document::view_or_value const& where,
+			bsoncxx::document::view_or_value const& sort = {},
+			int timeout = 5000);
+		
 		optional<bsoncxx::document::value> FindOneAndUpdate(
 			std::string const& dbname,
 			std::string const& tblname,
@@ -169,7 +178,17 @@ namespace mgo {
 			bsoncxx::document::view_or_value const& where,
 			CursorCallback const& cb,
 			int timeout = 5000);
-
+		
+		void Find(
+			std::string const& dbname,
+			std::string const& tblname,
+			int64_t skip, int64_t limit,
+			bsoncxx::document::view_or_value const& select,
+			bsoncxx::document::view_or_value const& where,
+			bsoncxx::document::view_or_value const& sort,
+			CursorCallback const& cb,
+			int timeout = 5000);
+		
 		bool FindOneAndUpdate(
 			std::string const& dbname,
 			std::string const& tblname,
