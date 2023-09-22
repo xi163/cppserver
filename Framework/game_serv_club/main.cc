@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
 	}
 	 //MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
-	std::string ip = pt.get<std::string>(config + ".ip", "192.168.0.113");
+	std::string ip = pt.get<std::string>(config + ".ip", "");
 	uint16_t port = pt.get<int>(config + ".port", 0);
 	if (0 == port) {
 		port = RANDOM().betweenInt(15000, 30000).randInt_mt();

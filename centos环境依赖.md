@@ -1,3 +1,32 @@
+### rz/sz安装
+    yum -y install lrzsz
+
+### zookeeper-3.4.14安装
+    yum search java |grep jdk
+    yum install java-1.8.0-openjdk
+    java -version
+    tar -zxvf zookeeper-3.4.14.tar.gz
+
+### mongodb-server安装
+    cd /etc/yum.repos.d/
+    vim mongodb-org-4.4.repo
+        [mongodb-org-4.4]
+        name=MongoDB Repository
+        baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.4/x86_64/
+        gpgcheck=1
+        enabled=1
+        gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+    sudo yum install -y mongodb-org
+    mongo
+    use admin
+    db.createUser({user:"root",pwd:"Lcw@12345678#!",roles:[{role:"root",db:"admin"}]})
+    vim /etc/mongod.conf
+
+### redis安装
+    tar -zxvf redis-7.0.5.tar.gz
+    cd redis-7.0.5
+    make && make install
+
 ### bazel安装
     wget https://copr.fedorainfracloud.org/coprs/vbatts/bazel/repo/epel-7/vbatts-bazel-epel-7.repo
     chmod +x vbatts-bazel-epel-7.repo
