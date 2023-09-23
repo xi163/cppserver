@@ -1145,7 +1145,7 @@ void HallServ::cmd_get_userscore(
 		UserBaseInfo info;
 		if (mgo::GetUserBaseInfo(
 			document{} << "score" << 1 << finalize,
-			document{} << "userid" << pre_header_->userId << finalize)) {
+			document{} << "userid" << pre_header_->userId << finalize, info)) {
 			rspdata.set_score(info.userScore);
 			rspdata.set_retcode(0);
 			rspdata.set_errormsg("GET USER SCORE OK.");
