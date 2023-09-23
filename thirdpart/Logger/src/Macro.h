@@ -42,17 +42,38 @@
 
 #endif
 
-#define LVL_FATAL       0
-#define LVL_ERROR       1
-#define LVL_WARN        2
-#define LVL_INFO        3
-#define LVL_TRACE       4
-#define LVL_DEBUG       5
+#define LVL_FATAL     0
+#define LVL_ERROR     1
+#define LVL_WARN      2
+#define LVL_INFO      3
+#define LVL_TRACE     4
+#define LVL_DEBUG     5
 
-#define F_PURE          0x00
-#define F_SYNC          0x01
-#define F_DETAIL        0x02
-#define F_TMSTMP        0x04
+#define M_STDOUT_ONLY 0
+#define M_FILE_ONLY   1
+#define M_STDOUT_FILE 2
+
+#define F_SYNC               0x1000
+#define F_DETAIL             0x0001
+#define F_TMSTMP             0x0002
+#define F_FN                 0x0004
+#define F_TMSTMP_FN          0x0008
+#define F_FL                 0x0010
+#define F_TMSTMP_FL          0x0020
+#define F_FL_FN              0x0040
+#define F_TMSTMP_FL_FN       0x0080
+#define F_TEXT               0x0100
+#define F_PURE               0x0200
+#define F_DETAIL_SYNC		(F_DETAIL | F_SYNC)
+#define F_TMSTMP_SYNC		(F_TMSTMP | F_SYNC)
+#define F_FN_SYNC			(F_FN | F_SYNC)
+#define F_TMSTMP_FN_SYNC	(F_TMSTMP_FN | F_SYNC)
+#define F_FL_SYNC			(F_FL | F_SYNC)
+#define F_TMSTMP_FL_SYNC	(F_TMSTMP_FL | F_SYNC)
+#define F_FL_FN_SYNC		(F_FL_FN | F_SYNC)
+#define F_TMSTMP_FL_FN_SYNC	(F_TMSTMP_FL_FN | F_SYNC)
+#define F_TEXT_SYNC			(F_TEXT | F_SYNC)
+#define F_PURE_SYNC			(F_PURE | F_SYNC)
 
 #include <stdlib.h>
 #include <stdio.h>
