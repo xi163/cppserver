@@ -8,7 +8,7 @@ typedef std::shared_ptr<muduo::net::Buffer> BufferPtr;
 
 #define SESSIONSZ  32
 #define AESKEYSZ   16
-#define SERVIDSZ   50
+#define SERVIDSZ   64
 
 #define HEADER_SIGN   0x5F5F
 #define PROTOBUF_SIGN 0xF5F5F5F5

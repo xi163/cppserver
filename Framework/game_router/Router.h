@@ -269,6 +269,7 @@ public:
 	int maxConnections_;
 
 	CmdCallbacks handlers_;
+	std::string internetIp_;
 	std::string proto_ = "ws://";
 	std::string http_proto_ = "http://";
 	std::string path_http_router_ = "/opt/router";

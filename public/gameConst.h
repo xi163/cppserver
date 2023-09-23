@@ -25,13 +25,40 @@
 #define NotScore(a) ((a)<0.01f)
 #endif
 
-#define _game_servid(v)   v[0].c_str()
-#define _gameid(v)        v[1].c_str()
-#define _roomid(v)        v[2].c_str()
-#define _modeid(v)        v[3].c_str()
-#define _gameip(v)        v[4].c_str()
-#define _game_tcp_port(v) v[5].c_str()
-#define _game_rpc_port(v) v[6].c_str()
+#define _router_internet_ip(v) v[0].c_str()
+#define _router_ws_port(v)     v[1].c_str()
+#define _router_http_port(v)   v[2].c_str()
+
+#define _login_internet_ip(v) v[0].c_str()
+#define _login_ws_port(v)     v[1].c_str()
+#define _login_http_port(v)   v[2].c_str()
+#define _login_ip(v)          v[3].c_str()
+#define _login_rpc_port(v)    v[4].c_str()
+
+#define _api_internet_ip(v) v[0].c_str()
+#define _api_ws_port(v)     v[1].c_str()
+#define _api_http_port(v)   v[2].c_str()
+#define _api_ip(v)          v[3].c_str()
+#define _api_rpc_port(v)    v[4].c_str()
+
+#define _gate_internet_ip(v) v[0].c_str()
+#define _gate_ws_port(v)     v[1].c_str()
+#define _gate_http_port(v)   v[2].c_str()
+#define _gate_ip(v)          v[3].c_str()
+#define _gate_tcp_port(v)    v[4].c_str()
+#define _gate_rpc_port(v)    v[5].c_str()
+
+#define _hall_ip(v)       v[0].c_str()
+#define _hall_tcp_port(v) v[1].c_str()
+#define _hall_rpc_port(v) v[2].c_str()
+
+#define _serv_servid(v)   v[0].c_str()
+#define _serv_gameid(v)   v[1].c_str()
+#define _serv_roomid(v)   v[2].c_str()
+#define _serv_modeid(v)   v[3].c_str()
+#define _serv_ip(v)       v[4].c_str()
+#define _serv_tcp_port(v) v[5].c_str()
+#define _serv_rpc_port(v) v[6].c_str()
 
 enum GameEndTag
 {

@@ -129,16 +129,18 @@ void GateServ::onZookeeperConnected() {
 		//websocket
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, server_.ipPort(), boost::is_any_of(":"));
-		nodeValue_ = vec[0] + ":" + vec[1];
+		nodeValue_ = internetIp_ + ":" + vec[1];
 		path_handshake_ = "/ws_" + vec[1];
-		//tcp
-		boost::algorithm::split(vec, tcpserver_.ipPort(), boost::is_any_of(":"));
-		nodeValue_ += ":" + vec[1];
-		//rpc
-		boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
-		nodeValue_ += ":" + vec[1];
+		server_ipport_ = internetIp_ + ":" + vec[1];
 		//http
 		boost::algorithm::split(vec, httpserver_.ipPort(), boost::is_any_of(":"));
+		nodeValue_ += ":" + vec[1];
+		httpserver_ipport_ = internetIp_ + ":" + vec[1];
+		//tcp
+		boost::algorithm::split(vec, tcpserver_.ipPort(), boost::is_any_of(":"));
+		nodeValue_ += ":" + vec[0] + ":" + vec[1];
+		//rpc
+		boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
 		nodeValue_ += ":" + vec[1];
 		nodePath_ = "/GAME/game_gate/" + nodeValue_;
 		zkclient_->createNode(nodePath_, nodeValue_, true);

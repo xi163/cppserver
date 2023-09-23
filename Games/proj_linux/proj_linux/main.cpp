@@ -19,6 +19,47 @@
 
 
 
+int _getNetCardIp(std::string const& netCardName, std::string& Ip) {
+#ifdef _linux_
+	int sockfd;
+	struct ifconf conf;
+	struct ifreq* ifr;
+	char buf[BUFSZ] = { 0 };
+	int num;
+	int i;
+	sockfd = ::socket(PF_INET, SOCK_DGRAM, 0);
+	if (sockfd < 0) {
+		return -1;
+	}
+	conf.ifc_len = BUFSZ;
+	conf.ifc_buf = buf;
+	if (::ioctl(sockfd, SIOCGIFCONF, &conf) < 0) {
+		::close(sockfd);
+		return -1;
+	}
+	num = conf.ifc_len / sizeof(struct ifreq);
+	ifr = conf.ifc_req;
+
+	for (int i = 0; i < num; ++i) {
+		struct sockaddr_in* sin = (struct sockaddr_in*)(&ifr->ifr_addr);
+		if (::ioctl(sockfd, SIOCGIFFLAGS, ifr) < 0) {
+			::close(sockfd);
+			return -1;
+		}
+		if ((ifr->ifr_flags & IFF_UP) &&
+			strcmp(netCardName.c_str(), ifr->ifr_name) == 0) {
+			Ip = ::inet_ntoa(sin->sin_addr);
+			::close(sockfd);
+			_LOG_DEBUG("%s", Ip.c_str());
+			//return 0;
+		}
+
+		++ifr;
+	}
+	::close(sockfd);
+#endif
+	return Ip.empty() ? -1 : 0;
+}
 
 typedef boost::tuple<std::string,
 	muduo::net::WeakTcpConnectionPtr,
@@ -28,20 +69,22 @@ typedef boost::tuple<std::string,
 //typedef ::std::function<void(const ::google::protobuf::MessagePtr&)> ClientDoneCallback;
 int main() {
 
+	std::string Ip;
+	_getNetCardIp("eth0", Ip);
 	//获取当前系统的所有CPU核数，包含禁用的
-	int all = sysconf(_SC_NPROCESSORS_CONF);//sysconf(_SC_NPROCS_CONF) get_nprocs_conf()
+	//int all = sysconf(_SC_NPROCESSORS_CONF);//sysconf(_SC_NPROCS_CONF) get_nprocs_conf()
 	//获取当前系统的可用CPU核数
-	int enable = sysconf(_SC_NPROCESSORS_ONLN);//sysconf(_SC_NPROCS_ONLN) get_nprocs()
-	_LOG_DEBUG("all:%d enable:%d", all, enable);
+	//int enable = sysconf(_SC_NPROCESSORS_ONLN);//sysconf(_SC_NPROCS_ONLN) get_nprocs()
+	//_LOG_DEBUG("all:%d enable:%d", all, enable);
 	//std::string s;
 	//s.append("dsff").c_str();
-	int n = 1;
+	//int n = 1;
 	//_ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
 	//_ASSERT_S(n == 0, "");
 	//_ASSERT_S(n == 0);
-	std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
-	_ASSERT_S(pool_, "pool is nil");
-	_LOG_DEBUG("...........");
+	//std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
+	//_ASSERT_S(pool_, "pool is nil");
+	//_LOG_DEBUG("...........");
 // 	ClientConn conn;
 // 	if (conn.get<0>().empty()) {
 // 		_LOG_DEBUG(" ok");

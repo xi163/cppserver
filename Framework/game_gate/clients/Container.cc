@@ -71,9 +71,9 @@ void Container::add(std::string const& name) {
 	case containTy::kGateTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		_LOG_WARN(">>> 网关服 %s:%s tcp:%s rpc:%s http:%s", vec[0].c_str(), vec[1].c_str(), vec[2].c_str(), vec[3].c_str(), vec[4].c_str());
+		_LOG_WARN(">>> 网关服 %s:%s http:%s:%s tcp:%s:%s rpc:%s:%s", _gate_internet_ip(vec), _gate_ws_port(vec), _gate_internet_ip(vec), _gate_http_port(vec), _gate_ip(vec), _gate_tcp_port(vec), _gate_ip(vec), _gate_rpc_port(vec));
 		//try add & connect
-		muduo::net::InetAddress serverAddr(vec[0], atoi(vec[2].c_str()));
+		muduo::net::InetAddress serverAddr(_gate_ip(vec), atoi(_gate_tcp_port(vec)));
 		clients_->add(name, serverAddr);
 		//try remove from repair
 		repair_.remove(name);
@@ -82,9 +82,9 @@ void Container::add(std::string const& name) {
 	case containTy::kHallTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		_LOG_WARN(">>> 大厅服 %s:%s rpc:%s", vec[0].c_str(), vec[1].c_str(), vec[2].c_str());
+		_LOG_WARN(">>> 大厅服 %s:%s rpc:%s", _hall_ip(vec), _hall_tcp_port(vec), _hall_rpc_port(vec));
 		//try add & connect
-		muduo::net::InetAddress serverAddr(vec[0], atoi(vec[1].c_str()));
+		muduo::net::InetAddress serverAddr(_hall_ip(vec), atoi(_hall_tcp_port(vec)));
 		clients_->add(name, serverAddr);
 		//try remove from repair
 		repair_.remove(name);
@@ -93,9 +93,9 @@ void Container::add(std::string const& name) {
 	case containTy::kGameTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _gameip(vec), _game_tcp_port(vec), _game_rpc_port(vec), _roomid(vec), getModeStr(atoi(_modeid(vec))).c_str());
+		_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _serv_ip(vec), _serv_tcp_port(vec), _serv_rpc_port(vec), _serv_roomid(vec), getModeStr(atoi(_serv_modeid(vec))).c_str());
 		//try add & connect
-		muduo::net::InetAddress serverAddr(_gameip(vec), atoi(_game_tcp_port(vec)));
+		muduo::net::InetAddress serverAddr(_serv_ip(vec), atoi(_serv_tcp_port(vec)));
 		clients_->add(name, serverAddr);
 		//try remove from repair
 		repair_.remove(name);
@@ -109,7 +109,7 @@ void Container::remove(std::string const& name) {
 	case containTy::kGateTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		_LOG_WARN(">>> 网关服 %s:%s tcp:%s rpc:%s http:%s", vec[0].c_str(), vec[1].c_str(), vec[2].c_str(), vec[3].c_str(), vec[4].c_str());
+		_LOG_WARN(">>> 网关服 %s:%s http:%s:%s tcp:%s:%s rpc:%s:%s", _gate_internet_ip(vec), _gate_ws_port(vec), _gate_internet_ip(vec), _gate_http_port(vec), _gate_ip(vec), _gate_tcp_port(vec), _gate_ip(vec), _gate_rpc_port(vec));
 		//try remove
 		clients_->remove(name, true);
 		//try remove from repair
@@ -119,7 +119,7 @@ void Container::remove(std::string const& name) {
 	case containTy::kHallTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		_LOG_WARN(">>> 大厅服 %s:%s rpc:%s", vec[0].c_str(), vec[1].c_str(), vec[2].c_str());
+		_LOG_WARN(">>> 大厅服 %s:%s rpc:%s", _hall_ip(vec), _hall_tcp_port(vec), _hall_rpc_port(vec));
 		//try remove
 		clients_->remove(name, true);
 		//try remove from repair
@@ -129,7 +129,7 @@ void Container::remove(std::string const& name) {
 	case containTy::kGameTy: {
 		std::vector<std::string> vec;
 		boost::algorithm::split(vec, name, boost::is_any_of(":"));
-		_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _gameip(vec), _game_tcp_port(vec), _game_rpc_port(vec), _roomid(vec), getModeStr(atoi(_modeid(vec))).c_str());
+		_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _serv_ip(vec), _serv_tcp_port(vec), _serv_rpc_port(vec), _serv_roomid(vec), getModeStr(atoi(_serv_modeid(vec))).c_str());
 		//try remove
 		clients_->remove(name, true);
 		//try remove from repair

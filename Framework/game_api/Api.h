@@ -287,6 +287,7 @@ public:
 	int maxConnections_;
 
 	CmdCallbacks handlers_;
+	std::string internetIp_, server_ipport_, httpserver_ipport_;
 	std::string proto_ = "ws://";
 	std::string http_proto_ = "http://";
 	std::string path_http_order_ = "/opt/order";

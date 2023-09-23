@@ -84,6 +84,7 @@ int main(int argc, char* argv[]) {
 	}
 	//MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
+	std::string internetIp = pt.get<std::string>(config + ".internetIp", "");
 	std::string ip = pt.get<std::string>(config + ".ip", "");
 	int16_t port = pt.get<int>(config + ".port", 0);
 	if (0 == port) {
@@ -127,14 +128,16 @@ int main(int argc, char* argv[]) {
 		}
 		_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), ip.c_str());
 	}
+	if (internetIp.empty()) {
+		internetIp = ip;
+	}
 	muduo::net::EventLoop loop;
-	muduo::net::InetAddress listenAddr(ip, port);//websocket
+	muduo::net::InetAddress listenAddr(/*internetIp, */port);//websocket
+	muduo::net::InetAddress listenAddrHttp(/*internetIp, */httpPort);//http
 	muduo::net::InetAddress listenAddrTcp(ip, tcpPort);//tcp
 	muduo::net::InetAddress listenAddrRpc(ip, rpcPort);//rpc
-	muduo::net::InetAddress listenAddrHttp(ip, httpPort);//http
-	GateServ server(
-		&loop,
-		listenAddr, listenAddrTcp, listenAddrRpc, listenAddrHttp, cert_path, private_key);
+	GateServ server(&loop, listenAddr, listenAddrTcp, listenAddrRpc, listenAddrHttp, cert_path, private_key);
+	server.internetIp_ = internetIp;
 	server.maxConnections_ = kMaxConnections;
 	server.idleTimeout_ = kTimeoutSeconds;
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);

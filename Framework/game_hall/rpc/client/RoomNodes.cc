@@ -34,8 +34,8 @@ namespace room {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 			WRITE_LOCK(mutex_);
-			RoomNodes& roomNodes = nodes_[std::stoi(_gameid(vec))];
-			Nodes& nodes = roomNodes[std::stoi(_roomid(vec))];
+			RoomNodes& roomNodes = nodes_[std::stoi(_serv_gameid(vec))];
+			Nodes& nodes = roomNodes[std::stoi(_serv_roomid(vec))];
 			nodes.insert(name);
 		}
 
@@ -43,9 +43,9 @@ namespace room {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
 			WRITE_LOCK(mutex_);
-			GameRoomNodes::iterator it = nodes_.find(std::stoi(_gameid(vec)));
+			GameRoomNodes::iterator it = nodes_.find(std::stoi(_serv_gameid(vec)));
 			if (it != nodes_.end()) {
-				RoomNodes::iterator ir = it->second.find(std::stoi(_roomid(vec)));
+				RoomNodes::iterator ir = it->second.find(std::stoi(_serv_roomid(vec)));
 				if (ir != it->second.end()) {
 					Nodes::iterator ix = ir->second.find(name);
 					if (ix != ir->second.end()) {
@@ -211,7 +211,7 @@ namespace room {
 									if (vec.empty()) {
 										boost::algorithm::split(vec, *ix, boost::is_any_of(":"));
 									}
-									tableinfo->set_nodeid(_game_servid(vec));
+									tableinfo->set_nodeid(_serv_servid(vec));
 #endif
 								}
 							}
@@ -264,7 +264,7 @@ namespace room {
 									if (vec.empty()) {
 										boost::algorithm::split(vec, *ix, boost::is_any_of(":"));
 									}
-									tableinfo->set_nodeid(_game_servid(vec));
+									tableinfo->set_nodeid(_serv_servid(vec));
 #endif
 								}
 							}
@@ -311,7 +311,7 @@ namespace room {
 									if (vec.empty()) {
 										boost::algorithm::split(vec, *ix, boost::is_any_of(":"));
 									}
-									tableinfo->set_nodeid(_game_servid(vec));
+									tableinfo->set_nodeid(_serv_servid(vec));
 #endif
 								}
 							}

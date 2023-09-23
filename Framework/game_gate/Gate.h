@@ -193,6 +193,7 @@ public:
 	int maxConnections_;
 	
 	CmdCallbacks handlers_;
+	std::string internetIp_, server_ipport_, httpserver_ipport_;;
 	std::string proto_ = "ws://";
 	std::string path_handshake_;
 	rpc::server::Service rpcservice_;
