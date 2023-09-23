@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
 	muduo::net::InetAddress listenAddrHttp(/*internetIp, */httpPort);//http
 	muduo::net::InetAddress listenAddrRpc(ip, rpcPort);//rpc
 	ApiServ server(&loop, listenAddr, listenAddrRpc, listenAddrHttp, cert_path, private_key);
-	server.internetIp_ = internetIp;
+	server.internetIp_ = internetIp;//curl httpbin.org/ip
 	server.maxConnections_ = kMaxConnections;
 	server.idleTimeout_ = kTimeoutSeconds;
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
