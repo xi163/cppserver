@@ -39,7 +39,7 @@ namespace redisKeys {
 	static uint32_t const Expire_PhoneUid = Expire_1Week;
 	static uint32_t const Expire_EmailUid = Expire_1Week;
 	
-	static uint32_t const Expire_UidOnline = 1 * 60;//fix BUG 游戏中Key值过期会出问题, 过期时间设置 > 正常一局游戏时间
+	static uint32_t const Expire_UidOnline = 1 * 120;//fix BUG 游戏中Key值过期会出问题, 过期时间设置 > 正常一局游戏时间
 	
 	//static uint32_t const Expire_Ecs_UserCoin   = 60 * 60 * 24 * 30; //用户金币
 	//static uint32_t const Expire_Ecs_Lock       = 60 * 60 * 12;      //房间锁

@@ -1,5 +1,8 @@
 ### rz/sz安装
     yum -y install lrzsz
+    
+### screen安装
+    yum -y install screen
 
 ### zookeeper-3.4.14安装
     yum search java |grep jdk

@@ -285,11 +285,8 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	CTableThreadMgr::get_mutable_instance().start(std::bind(&GameServ::threadInit, this), this);
 	CTableMgr::get_mutable_instance().Init(this);
 	CRobotMgr::get_mutable_instance().Init(this);
-	
-	std::vector<std::string> vec;
-	boost::algorithm::split(vec, rpcserver_.ipPort(), boost::is_any_of(":"));
 
-	_LOG_WARN("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), vec[1].c_str(), roomId_, getModeStr(kClub).c_str(), numThreads, numWorkerThreads);
+	_LOG_WARN("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), roomId_, getModeStr(kClub).c_str(), numThreads, numWorkerThreads);
 
 	server_.start(true);
 	rpcserver_.start(true);
