@@ -147,6 +147,11 @@ namespace utils {
 		return utils::_mkDir(dir);
 	}
 	
+	void mkDir_p(char const* dir) {
+		AUTHORIZATION_CHECK;
+		utils::_mkDir_p(dir);
+	}
+	
 	char const* MD5Encode(char const* src, unsigned len, char dst[], int upper) {
 		AUTHORIZATION_CHECK_P;
 		return utils::MD5(src, len, dst, upper);

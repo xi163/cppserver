@@ -32,7 +32,9 @@ namespace utils {
 	std::string _GetModulePath(std::string* filename = NULL, bool exec = false);
 
 	bool _mkDir(char const* dir);
-
+	
+	void _mkDir_p(char const* dir);
+	
 	/*tid_t*/std::string _gettid();
 
 	void _trim_file(char const* _FILE_, char* buf, size_t size);

@@ -489,18 +489,34 @@ namespace utils {
 #endif
 #ifdef _windows_
 			if (mkdir(dir) < 0) {
-				return false;
-			}
 #else
 			if (mkdir(dir, /*0777*/S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+#endif
+				//printf("mkdir %s err\n", dir);
 				return false;
 			}
-#endif
+			else {
+				//printf("mkdir %s ok\n", dir);
+			}
+		}
+		else {
+			//printf("mkdir %s exist\n", dir);
 		}
 #ifdef WIN32			
 #pragma warning(pop) 
 #endif
 		return true;
+	}
+	
+	void _mkDir_p(char const* dir) {
+		std::string s(dir);
+		if (s[s.size() - 1] != '/') {
+			s.append("/");
+		}
+		size_t pos = -1;
+		while ((pos = s.find_first_of('/', pos + 1)) != std::string::npos) {
+			_mkDir(s.substr(0, pos).c_str());
+		}
 	}
 	
 	void _replaceAll(std::string& s, std::string const& src, std::string const& dst) {

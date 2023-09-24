@@ -61,7 +61,9 @@ namespace utils {
 	std::string GetModulePath(std::string* filename = NULL, bool exec = false);
 
 	bool mkDir(char const* dir);
-
+	
+	void mkDir_p(char const* dir);
+	
 	/*tid_t*/std::string gettid();
 
 	std::string const trim_file(char const* _FILE_);
