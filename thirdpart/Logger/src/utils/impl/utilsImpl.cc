@@ -170,7 +170,7 @@ namespace utils {
 	//https://www.cplusplus.com/reference/ctime/gmtime/
 	//https://www.cplusplus.com/reference/ctime/mktime/?kw=mktime
 	//https://www.runoob.com/cprogramming/c-standard-library-time-h.html
-	void _convertUTC(time_t const t, struct tm& tm, time_t* tp, int64_t timezone) {
+	void _convertUTC(time_t const t, struct tm& tm, time_t* tp, int timezone) {
 		switch (timezone) {
 		case MY_UTC: {
 #ifdef _windows_
@@ -207,7 +207,7 @@ namespace utils {
 			//tm -> time_t
 			time_t t_utc = mktime(&tm_utc);
 			//(UTC+08:00) Asia/shanghai, Beijing(China) (tm_hour + MY_CST) % 24
-			time_t t_zone = t_utc + timezone * 3600;
+			time_t t_zone = t_utc + (time_t)timezone * 3600;
 #ifdef _windows_
 			//time_t -> tm
 			localtime_s(&tm, &t_zone);
@@ -228,7 +228,7 @@ namespace utils {
 		}
 	}
 
-	void _timezoneInfo(struct tm const& tm, int64_t timezone) {
+	void _timezoneInfo(struct tm const& tm, int timezone) {
 		switch (timezone) {
 		case MY_EST: {
 			__TLOG_INFO("America/New_York %04d-%02d-%02d %02d:%02d:%02d",
@@ -261,7 +261,7 @@ namespace utils {
 	}
 
 	//strfTime 2021-12-31 23:59:59
-	std::string _strfTime(time_t const t, int64_t timezone) {
+	std::string _strfTime(time_t const t, int timezone) {
 		struct tm tm = { 0 };
 		utils::_convertUTC(t, tm, NULL, timezone);
 		char chr[256];
@@ -288,7 +288,7 @@ namespace utils {
 	}
 #endif
 
-	time_t _strpTime(char const* s, int64_t timezone) {
+	time_t _strpTime(char const* s, int timezone) {
 		struct tm tm = { 0 };
 		strptime(s, "%Y-%m-%d %H:%M:%S", &tm);
 		//tm -> time_t

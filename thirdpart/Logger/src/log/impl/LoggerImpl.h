@@ -32,12 +32,12 @@ namespace LOGGER {
 		friend class Logger;
 	private:
 #if 0
-		typedef std::pair<size_t, uint8_t> Flags;
+		typedef std::pair<size_t, int> Flags;
 		typedef std::pair<std::string, std::string> Message;
 		typedef std::pair<Message, Flags> MessageT;
 		typedef std::vector<MessageT> Messages;
 #else
-		typedef std::pair<size_t, uint8_t> Flags;
+		typedef std::pair<size_t, int> Flags;
 		typedef std::pair<std::string, std::string> Message;
 		typedef std::pair<Message, Flags> MessageT;
 		typedef std::list<MessageT> Messages;
@@ -47,43 +47,69 @@ namespace LOGGER {
 		~LoggerImpl();
 	public:
 		static LoggerImpl* instance();
-		void set_timezone(int64_t timezone = MY_CST);
-		void set_level(int level);
-		char const* get_level();
-		void set_color(int level, int title, int text);
-		void init(char const* dir, int level, char const* prename, size_t logsize);
-		void write(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, char const* format, ...);
-		void write_s(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg);
-		void write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg);
+	public:
+		void setPrename(char const* name);
+		char const* getPrename() const;
+		
+		char const* timezoneString() const;
+		void setTimezone(int timezone = MY_CST);
+		int getTimezone();
+		
+		char const* levelString() const;
+		void setLevel(int level);
+		int getLevel();
+
+		char const* modeString() const;
+		void setMode(int mode);
+		int getMode();
+
+		char const* styleString() const;
+		void setStyle(int style);
+		int getStyle();
+
+		void setColor(int level, int title, int text);
+	public:
+		void init(char const* dir, char const* prename, size_t logsize);
+		void write(int level, char const* file, int line, char const* func, char const* stack, int flag, char const* format, ...);
+		void write_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
+		void write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
 		void wait();
 		void enable();
 		void disable(int delay = 0, bool sync = false);
-		void stop();
 	private:
-		bool started();
 		bool check(int level);
-		size_t format_s(int level, char const* file, int line, char const* func, uint8_t flag, char* buffer, size_t size);
-		void notify(char const* msg, size_t len, size_t pos, uint8_t flag, char const* stack, size_t stacklen);
-		void stdoutbuf(int level, char const* msg, size_t len, size_t pos, uint8_t flag, char const* stack = NULL, size_t stacklen = 0);
-		void checkSync(uint8_t flag);
+		size_t format_s(char const* file, int line, char const* func, int level, int flag, char* buffer, size_t size);
+		void notify(char const* msg, size_t len, size_t pos, int flag, char const* stack, size_t stacklen);
+		void stdoutbuf(char const* msg, size_t len, size_t pos, int level, int flag, char const* stack = NULL, size_t stacklen = 0);
 	private:
 		void open(char const* path);
-		void write(char const* msg, size_t len, size_t pos, uint8_t flag);
+		void write(char const* msg, size_t len, size_t pos, int flag);
 		void close();
 		void shift(struct tm const& tm, struct timeval const& tv);
 		void update(struct tm& tm, struct timeval& tv);
 		void get(struct tm& tm, struct timeval& tv);
 		void wait(Messages& msgs);
 		bool consume(struct tm const& tm, struct timeval const& tv, Messages& msgs);
+		bool started();
 		bool start();
 		bool valid();
+		void notify_started();
+		void wait_started();
 		void sync();
-		void flush();
+		void stop();
 		void timezoneInfo();
 		void openConsole();
 		void closeConsole();
 		void doConsole(int const cmd);
 	private:
+		bool _setTimezone(int64_t timezone);
+		bool _setMode(int mode);
+		bool _setStyle(int style);
+		bool _setLevel(int level);
+		bool _checkDir();
+		std::string const _name(bool space);
+	private:
+		bool mkdir_ = false;
 #ifdef _windows_
 		HANDLE fd_ = INVALID_HANDLE_VALUE;
 #else
@@ -92,10 +118,13 @@ namespace LOGGER {
 		pid_t pid_ = 0;
 		int day_ = -1;
 		size_t size_ = 0;
+		std::atomic<int> timezone_{ MY_CST };
 		std::atomic<int> level_{ LVL_DEBUG };
+		std::atomic<int> mode_{ M_STDOUT_FILE };
+		std::atomic<int> style_{ F_DETAIL };
 		char prefix_[256] = { 0 };
 		char path_[512] = { 0 };
-		int64_t timezone_ = MY_CST;
+		char prename_[30] = { 0 };
 		struct timeval tv_ = { 0 };
 		struct tm tm_ = { 0 };
 		//mutable std::shared_mutex tm_mutex_;
@@ -104,8 +133,8 @@ namespace LOGGER {
 		bool started_ = false;
 		std::atomic_bool done_{ false };
 		std::atomic_flag starting_{ ATOMIC_FLAG_INIT };
-		std::mutex mutex_;
-		std::condition_variable cond_;
+		std::mutex start_mutex_, mutex_;
+		std::condition_variable start_cond_, cond_;
 		Messages messages_;
 		bool sync_ = false;
 		std::mutex sync_mutex_;
@@ -121,14 +150,14 @@ namespace LOGGER {
 #define __LOG LOGGER::LoggerImpl::instance()->write
 #define __LOG_S LOGGER::LoggerImpl::instance()->write_s
 #define __LOG_F LOGGER::LoggerImpl::instance()->write_s_fatal
-#define __LOG_SET LOGGER::LoggerImpl::instance()->set_level
-#define __LOG_LVL LOGGER::LoggerImpl::instance()->get_level
-#define __LOG_TIMEZONE LOGGER::LoggerImpl::instance()->set_timezone
+#define __LOG_SET_TIMEZONE LOGGER::LoggerImpl::instance()->setTimezone
+#define __LOG_SET_LEVEL LOGGER::LoggerImpl::instance()->setLevel
+#define __LOG_SET_MODE LOGGER::LoggerImpl::instance()->setMode
+#define __LOG_SET_STYLE LOGGER::LoggerImpl::instance()->setStyle
+#define __LOG_SET_COLOR LOGGER::LoggerImpl::instance()->setColor
 #define __LOG_WAIT LOGGER::LoggerImpl::instance()->wait
-#define __LOG_COLOR LOGGER::LoggerImpl::instance()->set_color
 #define __LOG_CONSOLE_OPEN LOGGER::LoggerImpl::instance()->enable
 #define __LOG_CONSOLE_CLOSE LOGGER::LoggerImpl::instance()->disable
-#define __LOG_STOP LOGGER::LoggerImpl::instance()->stop
 #define __LOG_FORMAT LOGGER::LoggerImpl::instance()->format
 #define __LOG_STARTED LOGGER::LoggerImpl::instance()->started
 #define __LOG_CHECK LOGGER::LoggerImpl::instance()->check
@@ -136,19 +165,19 @@ namespace LOGGER {
 #define __LOG_CHECK_NOTIFY LOGGER::LoggerImpl::instance()->notify
 #define __LOG_CHECK_STDOUT LOGGER::LoggerImpl::instance()->stdoutbuf
 
-#define __LOG_SET_FATAL __LOG_SET(LVL_FATAL)
-#define __LOG_SET_ERROR __LOG_SET(LVL_ERROR)
-#define __LOG_SET_WARN  __LOG_SET(LVL_WARN)
-#define __LOG_SET_INFO  __LOG_SET(LVL_INFO)
-#define __LOG_SET_TRACE __LOG_SET(LVL_TRACE)
-#define __LOG_SET_DEBUG __LOG_SET(LVL_DEBUG)
+#define __LOG_SET_FATAL __LOG_SET_LEVEL(LVL_FATAL)
+#define __LOG_SET_ERROR __LOG_SET_LEVEL(LVL_ERROR)
+#define __LOG_SET_WARN  __LOG_SET_LEVEL(LVL_WARN)
+#define __LOG_SET_INFO  __LOG_SET_LEVEL(LVL_INFO)
+#define __LOG_SET_TRACE __LOG_SET_LEVEL(LVL_TRACE)
+#define __LOG_SET_DEBUG __LOG_SET_LEVEL(LVL_DEBUG)
 
-#define __LOG_COLOR_FATAL(a,b) __LOG_COLOR(LVL_FATAL, a, b)
-#define __LOG_COLOR_ERROR(a,b) __LOG_COLOR(LVL_ERROR, a, b)
-#define __LOG_COLOR_WARN(a,b)  __LOG_COLOR(LVL_WARN,  a, b)
-#define __LOG_COLOR_INFO(a,b)  __LOG_COLOR(LVL_INFO,  a, b)
-#define __LOG_COLOR_TRACE(a,b) __LOG_COLOR(LVL_TRACE, a, b)
-#define __LOG_COLOR_DEBUG(a,b) __LOG_COLOR(LVL_DEBUG, a, b)
+#define __LOG_COLOR_FATAL(a,b) __LOG_SET_COLOR(LVL_FATAL, a, b)
+#define __LOG_COLOR_ERROR(a,b) __LOG_SET_COLOR(LVL_ERROR, a, b)
+#define __LOG_COLOR_WARN(a,b)  __LOG_SET_COLOR(LVL_WARN,  a, b)
+#define __LOG_COLOR_INFO(a,b)  __LOG_SET_COLOR(LVL_INFO,  a, b)
+#define __LOG_COLOR_TRACE(a,b) __LOG_SET_COLOR(LVL_TRACE, a, b)
+#define __LOG_COLOR_DEBUG(a,b) __LOG_SET_COLOR(LVL_DEBUG, a, b)
 
 //__LOG_XXX("%s", msg)
 #ifdef _windows_

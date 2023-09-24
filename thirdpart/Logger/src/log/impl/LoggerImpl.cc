@@ -26,26 +26,189 @@
 #define __LOG_NOTIFY_O __LOG_S(_PARAM_O, F_PURE, "")
 #define __LOG_NOTIFY_X __LOG_S(_PARAM_X, F_PURE, "")
 
+#define TAG_0 'T'
+#define TAG_1 'P'
+
 namespace LOGGER {
 
-	//constructor
 	LoggerImpl::LoggerImpl() :pid_(getpid()) {
-	};
+	}
 
-	//destructor
 	LoggerImpl::~LoggerImpl() {
 		stop();
 	}
 
-	//instance
 	LoggerImpl* LoggerImpl::instance() {
 		static LoggerImpl logger;
 		return &logger;
 	}
+
+	void LoggerImpl::setPrename(char const* name) {
+		if (name && name[0]) {
+			snprintf(prename_, sizeof(prename_), "%s", name);
+		}
+	}
+
+	char const* LoggerImpl::getPrename() const {
+		return prename_;
+	}
 	
-	//set_timezone
-	void LoggerImpl::set_timezone(int64_t timezone/* = MY_CST*/) {
-		timezone_ = timezone;
+	bool LoggerImpl::_setTimezone(int64_t timezone) {
+		switch (timezone) {
+		case MY_PST:
+		case MY_MST:
+		case MY_EST:
+		case MY_BST:
+		case MY_UTC:
+		case MY_GST:
+		case MY_CST:
+		case MY_JST:
+			timezone_.store(timezone);
+			return true;
+		}
+		return false;
+	}
+	
+	bool LoggerImpl::_setMode(int mode) {
+		switch (mode) {
+		case M_STDOUT_ONLY:
+		case M_FILE_ONLY:
+		case M_STDOUT_FILE:
+			mode_.store(mode);
+			return true;
+		}
+		return false;
+	}
+	
+	bool LoggerImpl::_setStyle(int style) {
+		switch (style) {
+		case F_DETAIL:
+		case F_TMSTMP:
+		case F_FN:
+		case F_TMSTMP_FN:
+		case F_FL:
+		case F_TMSTMP_FL:
+		case F_FL_FN:
+		case F_TMSTMP_FL_FN:
+		case F_TEXT:
+		case F_PURE:
+			style_.store(style);
+			return true;
+		}
+		return false;
+	}
+	
+	bool LoggerImpl::_setLevel(int level) {
+#if 0
+		switch (level) {
+		case LVL_DEBUG:
+		case LVL_TRACE:
+		case LVL_INFO:
+		case LVL_WARN:
+		case LVL_ERROR:
+		case LVL_FATAL:
+			level_.store(level);
+			return true;
+		}
+		return false;
+#else
+		if (level >= LVL_DEBUG) {
+			level_.store(LVL_DEBUG);
+		}
+		else if (level <= LVL_FATAL) {
+			level_.store(LVL_FATAL);
+		}
+		else {
+			level_.store(level);
+		}
+		return true;
+#endif
+	}
+	
+	char const* LoggerImpl::timezoneString() const {
+		return getTimeZoneDesc(timezone_.load()).c_str();
+	}
+	void LoggerImpl::setTimezone(int timezone/* = MY_CST*/) {
+		switch (timezone == timezone_.load()) {
+		case false:
+			switch (_setTimezone(timezone)) {
+			case true:
+			default:
+				break;
+			}
+			break;
+		}
+	}
+	int LoggerImpl::getTimezone() {
+		return timezone_.load();
+	}
+
+	char const* LoggerImpl::levelString() const {
+		static char const* s[] = { "FATAL","ERROR","WARNING","INFO","TRACE","DEBUG" };
+		return s[level_.load()];
+	}
+	void LoggerImpl::setLevel(int level) {
+		switch (level == level_.load()) {
+		case false:
+			switch (_setLevel(level)) {
+			case true:
+			default:
+				break;
+			}
+		}
+	}
+	int LoggerImpl::getLevel() {
+		return level_.load();
+	}
+	
+	char const* LoggerImpl::modeString() const {
+		static char const* s[] = { "M_STDOUT_ONLY", "M_FILE_ONLY", "M_STDOUT_FILE" };
+		return s[mode_.load()];
+	}
+	void LoggerImpl::setMode(int mode) {
+		switch (mode == mode_.load()) {
+		case false:
+			switch (_setMode(mode)) {
+			case true:
+			default:
+				break;
+			}
+		}
+	}
+	int LoggerImpl::getMode() {
+		return mode_.load();
+	}
+
+	char const* LoggerImpl::styleString() const {
+		switch (style_.load()) {
+		case F_DETAIL: return "F_DETAIL";
+		case F_TMSTMP: return "F_TMSTMP";
+		case F_FN: return "F_FN";
+		case F_TMSTMP_FN: return "F_TMSTMP_FN";
+		case F_FL: return "F_FL";
+		case F_TMSTMP_FL: return "F_TMSTMP_FL";
+		case F_FL_FN: return "F_FL_FN";
+		case F_TMSTMP_FL_FN: return "F_TMSTMP_FL_FN";
+		case F_TEXT: return "F_TEXT";
+		case F_PURE: return "F_PURE";
+		default: return "F_UNKNOWN";
+		}
+	}
+	void LoggerImpl::setStyle(int style) {
+		switch (style == style_.load()) {
+		case false:
+			switch (_setStyle(style)) {
+			case true:
+			default:
+				break;
+			}
+		}
+	}
+	int LoggerImpl::getStyle() {
+		return style_.load();
+	}
+
+	void LoggerImpl::setColor(int level, int clrtitle, int clrtext) {
 	}
 	
 	//update
@@ -71,50 +234,53 @@ namespace LOGGER {
 		}
 	}
 
-	//set_level
-	void LoggerImpl::set_level(int level) {
-		if (level >= LVL_DEBUG) {
-			level_.store(LVL_DEBUG);
-		}
-		else if (level <= LVL_FATAL) {
-			level_.store(LVL_FATAL);
-		}
-		else {
-			level_.store(level);
-		}
-	}
-
-	//get_level
-	char const* LoggerImpl::get_level() {
-		static char const* s[] = { "FATAL","ERROR","WARNING","INFO","TRACE","DEBUG" };
-		return s[level_.load()];
-	}
-
-	//set_color
-	void LoggerImpl::set_color(int level, int clrtitle, int clrtext) {
-	}
-
-	//init
-	void LoggerImpl::init(char const* dir, int level, char const* prename, size_t logsize) {
-		utils::_mkDir(dir);
-		//打印level_及以下级别日志
-		level_.store(level);
-		if (start()) {
-			size_ = logsize;
-			(prename && prename[0]) ?
-				snprintf(prefix_, sizeof(prefix_), "%s/%s ", ((dir && dir[0]) ? dir : "."), prename) :
-				snprintf(prefix_, sizeof(prefix_), "%s/", ((dir && dir[0]) ? dir : "."));
-			timezoneInfo();
+	bool LoggerImpl::_checkDir() {
+		switch (mkdir_) {
+		case false:
+			std::string s(prefix_);
+			size_t pos = s.find_last_of('/');
+			utils::_mkDir_p(s.substr(0, pos + 1).c_str());
+			mkdir_ = true;
+			break;
 		}
 	}
 	
+	std::string const LoggerImpl::_name(bool space) {
+		switch (prename_[0] == '\0') {
+		case true: return "";
+		default:
+			switch (space) {
+			case true:
+				return std::string(" <").append(prename_).append("> ");
+			default:
+				return std::string(" <").append(prename_).append(">");
+			}
+		}
+	}
+	
+	//init
+	void LoggerImpl::init(char const* dir, char const* prename, size_t logsize) {
+		size_ = logsize;
+		setPrename(prename);
+		(prename && prename[0]) ?
+			snprintf(prefix_, sizeof(prefix_), "%s/%s ", ((dir && dir[0]) ? dir : "."), prename) :
+			snprintf(prefix_, sizeof(prefix_), "%s/", ((dir && dir[0]) ? dir : "."));
+		switch (getMode()) {
+		case M_FILE_ONLY:
+		case M_STDOUT_FILE:
+			_checkDir();
+			break;
+		}
+		timezoneInfo();
+	}
+	
 	//write
-	void LoggerImpl::write(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, char const* format, ...) {
+	void LoggerImpl::write(int level, char const* file, int line, char const* func, char const* stack, int flag, char const* format, ...) {
 		if (check(level)) {
 			static size_t const PATHSZ = 512;
 			static size_t const MAXSZ = 81920;
 			char msg[PATHSZ + MAXSZ + 2];
-			size_t pos = format_s(level, file, line, func, flag, msg, PATHSZ);
+			size_t pos = format_s(file, line, func, level, flag, msg, PATHSZ);
 			va_list ap;
 			va_start(ap, format);
 #ifdef _windows_
@@ -125,23 +291,19 @@ namespace LOGGER {
 			va_end(ap);
 			msg[pos + n] = '\n';
 			msg[pos + n + 1] = '\0';
-			if (started()) {
-				notify(msg, pos + n + 1, pos, flag, stack, stack ? strlen(stack) : 0);
-			}
-			else {
-				stdoutbuf(level, msg, pos + n + 1, pos, flag, stack, stack ? strlen(stack) : 0);
-				checkSync(flag);
-			}
+			start();
+			//wait_started();
+			notify(msg, pos + n + 1, pos, flag, stack, stack ? strlen(stack) : 0);
 		}
 	}
 
 	//write_s
-	void LoggerImpl::write_s(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg) {
+	void LoggerImpl::write_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg) {
 		write(level, file, line, func, stack, flag, "%s", msg.c_str());
 	}
 	
 	//write_s_fatal
-	void LoggerImpl::write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg) {
+	void LoggerImpl::write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg) {
 		write(level, file, line, func, stack, flag, "%s", msg.c_str());
 		wait();
 		std::abort();
@@ -153,20 +315,14 @@ namespace LOGGER {
 		utils::_convertUTC(time(NULL), tm, NULL, timezone_);
 		utils::_timezoneInfo(tm, timezone_);
 	}
-
-	//started
-	bool LoggerImpl::started() {
-		return started_;
-	}
-
-	//check
+	
+	//打印level_及以下级别日志
 	bool LoggerImpl::check(int level) {
-		//打印level_及以下级别日志
 		return level <= level_.load() || level == _S || level == _O || level == _X;
 	}
 
 	//format
-	size_t LoggerImpl::format_s(int level, char const* file, int line, char const* func, uint8_t flag, char* buffer, size_t size) {
+	size_t LoggerImpl::format_s(char const* file, int line, char const* func, int level, int flag, char* buffer, size_t size) {
 		struct tm tm;
 		struct timeval tv;
 		update(tm, tv);
@@ -209,7 +365,7 @@ namespace LOGGER {
 	}
 
 	//write
-	void LoggerImpl::write(char const* msg, size_t len, size_t pos, uint8_t flag) {
+	void LoggerImpl::write(char const* msg, size_t len, size_t pos, int flag) {
 #ifdef _windows_
 		if (fd_ != INVALID_HANDLE_VALUE) {
 			if (pos == 0) {
@@ -267,47 +423,46 @@ namespace LOGGER {
 		assert(prefix_[0]);
 		if (tm.tm_mday != day_) {
 			close();
-			snprintf(path_, sizeof(path_), "%s%d %04d-%02d-%02d.log",
-				prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+			snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.log",
+				prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			struct stat stStat;
 			if (stat(path_, &stStat) < 0) {
-				open(path_);
-				day_ = tm.tm_mday;
 			}
 			else {
-				std::abort();
+				remove(path_);
 			}
+			open(path_);
+			day_ = tm.tm_mday;
 		}
 		else {
 			struct stat stStat;
 			if (stat(path_, &stStat) < 0) {
+				close();
+				open(path_);
 				return;
 			}
 			if (stStat.st_size < size_) {
 			}
 			else {
 				close();
-				snprintf(path_, sizeof(path_), "%s%d %04d-%02d-%02d %02d.%02d.%02d.log",
-					prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+				snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.%.6lu.log",
+					prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
 				if (stat(path_, &stStat) < 0) {
-					//if (rename(path_, tmp) < 0) {
-					//	return;
-					//}
 					open(path_);
 					//day_ = tm.tm_mday;
 				}
 				else {//0 existed
-					snprintf(path_, sizeof(path_), "%s%d %04d-%02d-%02d %02d.%02d.%02d.%.6lu.log",
-						prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
-					if (stat(path_, &stStat) < 0) {
-						//if (rename(path_, tmp) < 0) {
-						//	return;
-						//}
-						open(path_);
-						//day_ = tm.tm_mday;
-					}
-					else {
-						std::abort();
+					for (int i = 0;;) {
+						snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.%.6lu.%d.log",
+							prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec, i);
+						if (stat(path_, &stStat) < 0) {
+							open(path_);
+							//day_ = tm.tm_mday;
+							break;
+						}
+						else {
+							++i;
+						}
 					}
 				}
 			}
@@ -318,6 +473,7 @@ namespace LOGGER {
 	bool LoggerImpl::start() {
 		if (!started_ && !starting_.test_and_set()) {
 			thread_ = std::thread([this](LoggerImpl* logger) {
+				//notify_started();
 				struct tm tm = { 0 };
 				struct timeval tv = { 0 };
 				bool syn = false;
@@ -345,10 +501,9 @@ namespace LOGGER {
 		}
 		return started_;
 	}
-
-	//valid
+	
+	//detach()后get_id()/joinable()无效
 	bool LoggerImpl::valid() {
-		//detach()后get_id()/joinable()无效
 #if 0
 		std::ostringstream oss;
 		oss << thread_.get_id();
@@ -357,9 +512,34 @@ namespace LOGGER {
 		return thread_.joinable();
 #endif
 	}
-
+	
+	bool LoggerImpl::started() {
+		return started_;
+	}
+	
+	//notify_started
+	void LoggerImpl::notify_started() {
+		{
+			std::unique_lock<std::mutex> lock(start_mutex_); {
+				started_ = true;
+				start_cond_.notify_all();
+			}
+		}
+	}
+	
+	//wait_started
+	void LoggerImpl::wait_started() {
+		while (!started_) {
+			std::unique_lock<std::mutex> lock(start_mutex_); {
+				while (!started_) {
+					start_cond_.wait(lock);
+				}
+			}
+		}
+	}
+	
 	//notify
-	void LoggerImpl::notify(char const* msg, size_t len, size_t pos, uint8_t flag, char const* stack, size_t stacklen) {
+	void LoggerImpl::notify(char const* msg, size_t len, size_t pos, int flag, char const* stack, size_t stacklen) {
 		{
 			std::unique_lock<std::mutex> lock(mutex_); {
 				messages_.emplace_back(
@@ -384,7 +564,29 @@ namespace LOGGER {
 		}
 	}
 
-	//getlevel
+	//sync
+	void LoggerImpl::sync() {
+		{
+			std::unique_lock<std::mutex> lock(sync_mutex_); {
+				sync_ = true;
+				sync_cond_.notify_one();
+			}
+			//std::this_thread::yield();
+		}
+	}
+	
+	//wait
+	void LoggerImpl::wait() {
+		{
+			std::unique_lock<std::mutex> lock(sync_mutex_); {
+				while (!sync_) {
+					sync_cond_.wait(lock);
+				}
+				sync_ = false;
+			}
+		}
+	}
+	
 	static inline int getlevel(char const c) {
 		switch (c) {
 		case 'F': return LVL_FATAL;
@@ -402,7 +604,6 @@ namespace LOGGER {
 	//consume
 	bool LoggerImpl::consume(struct tm const& tm, struct timeval const& tv, Messages& msgs) {
 		assert(!msgs.empty());
-		shift(tm, tv);
 		bool syn = false;
 		for (Messages::const_iterator it = msgs.begin();
 			it != msgs.end(); ++it) {
@@ -410,21 +611,61 @@ namespace LOGGER {
 #define Stack(it) ((it)->first.second)
 #define Pos(it) ((it)->second.first)
 #define Flag(it) ((it)->second.second)
+
+			int mode = getMode();
+			switch (mode) {
+			case M_FILE_ONLY:
+			case M_STDOUT_FILE:
+				if (prefix_[0] == '\0') {
+					break;
+				}
+				_checkDir();
+				shift(tm, tv);
+// 				switch (prefix_[0]) {
+// 				case TAG_0:
+// 					_checkDir();
+// 					shift(tm, tv);
+// 					break;
+// 				}
+			}
+			if (mode > M_STDOUT_ONLY && (!mkdir_ || prefix_[0] == TAG_1)) {
+				mode = M_STDOUT_ONLY;
+			}
 			int level = getlevel(Msg(it).c_str()[0]);
 			switch (level) {
-			case LVL_FATAL:
-			case LVL_TRACE: {
-				write(Msg(it).c_str(), Msg(it).size(), Pos(it), Flag(it));
-				write(Stack(it).c_str(), Stack(it).size(), 0, 0);
-				stdoutbuf(level, Msg(it).c_str(), Msg(it).size(), Pos(it), Flag(it), Stack(it).c_str(), Stack(it).size());
+			case LVL_FATAL: {
+				switch (mode) {
+				case M_FILE_ONLY:
+				case M_STDOUT_FILE:
+					write(Msg(it).c_str(), Msg(it).size(), Pos(it), Flag(it));
+					write(Stack(it).c_str(), Stack(it).size(), 0, 0);
+					break;
+				}
+				switch (mode) {
+				case M_STDOUT_ONLY:
+				case M_STDOUT_FILE:
+					stdoutbuf(Msg(it).c_str(), Msg(it).size(), Pos(it), level, Flag(it), Stack(it).c_str(), Stack(it).size());
+					break;
+				}
 				break;
 			}
 			case LVL_ERROR:
 			case LVL_WARN:
 			case LVL_INFO:
+			case LVL_TRACE:
 			case LVL_DEBUG: {
-				write(Msg(it).c_str(), Msg(it).size(), Pos(it), Flag(it));
-				stdoutbuf(level, Msg(it).c_str(), Msg(it).size(), Pos(it), Flag(it));
+				switch (mode) {
+				case M_FILE_ONLY:
+				case M_STDOUT_FILE:
+					write(Msg(it).c_str(), Msg(it).size(), Pos(it), Flag(it));
+					break;
+				}
+				switch (mode) {
+				case M_STDOUT_ONLY:
+				case M_STDOUT_FILE:
+					stdoutbuf(Msg(it).c_str(), Msg(it).size(), Pos(it), level, Flag(it));
+					break;
+				}
 				break;
 			}
 			case _O:
@@ -448,24 +689,22 @@ namespace LOGGER {
 #endif
 		return syn;
 	}
-
-	//flush
-	void LoggerImpl::flush() {
-		__LOG_WAIT_S;
-	}
-
+	
 	//stop
 	void LoggerImpl::stop() {
-		flush();
+		switch (started()) {
+		case true:
+			__LOG_WAIT_S;
+			break;
+		}
 		//done_.store(true);
 		//if (thread_.joinable()) {
 		//	thread_.join();
 		//}
 	}
 
-	//stdoutbuf
 	//需要调用utils::_initConsole()初始化
-	void LoggerImpl::stdoutbuf(int level, char const* msg, size_t len, size_t pos, uint8_t flag, char const* stack, size_t stacklen) {
+	void LoggerImpl::stdoutbuf(char const* msg, size_t len, size_t pos, int level, int flag, char const* stack, size_t stacklen) {
 #ifdef QT_CONSOLE
 		switch (level) {
 		default:
@@ -480,49 +719,6 @@ namespace LOGGER {
 		if (!isConsoleOpen_) {
 			return;
 		}
-		//foreground color
-#define FOREGROUND_Red         (FOREGROUND_RED)//红
-#define FOREGROUND_Green       (FOREGROUND_GREEN)//绿
-#define FOREGROUND_Blue        (FOREGROUND_BLUE)//蓝
-#define FOREGROUND_Yellow      (FOREGROUND_RED|FOREGROUND_GREEN)//黄
-#define FOREGROUND_Cyan        (FOREGROUND_GREEN|FOREGROUND_BLUE)//青
-#define FOREGROUND_Purple      (FOREGROUND_RED|FOREGROUND_BLUE)//紫
-#define FOREGROUND_White       (FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE)//白
-#define FOREGROUND_Gray        (FOREGROUND_INTENSITY)//灰
-#define FOREGROUND_Black       (0)//黑
-#define FOREGROUND_LightRed    (FOREGROUND_INTENSITY|FOREGROUND_Red)//淡红
-#define FOREGROUND_HighGreen   (FOREGROUND_INTENSITY|FOREGROUND_Green)//亮绿
-#define FOREGROUND_LightBlue   (FOREGROUND_INTENSITY|FOREGROUND_Blue)//淡蓝
-#define FOREGROUND_LightYellow (FOREGROUND_INTENSITY|FOREGROUND_Yellow)//淡黄
-#define FOREGROUND_HighCyan    (FOREGROUND_INTENSITY|FOREGROUND_Cyan)//亮青
-#define FOREGROUND_Pink        (FOREGROUND_INTENSITY|FOREGROUND_Purple)//粉红
-#define FOREGROUND_HighWhite   (FOREGROUND_INTENSITY|FOREGROUND_White)//亮白
-//background color
-#define BACKGROUND_Red         (BACKGROUND_RED)//红
-#define BACKGROUND_Green       (BACKGROUND_GREEN)//绿
-#define BACKGROUND_Blue        (BACKGROUND_BLUE)//蓝
-#define BACKGROUND_Yellow      (BACKGROUND_RED|BACKGROUND_GREEN)//黄
-#define BACKGROUND_Cyan        (BACKGROUND_GREEN|BACKGROUND_BLUE)//青
-#define BACKGROUND_Purple      (BACKGROUND_RED|BACKGROUND_BLUE)//紫
-#define BACKGROUND_White       (BACKGROUND_RED|BACKGROUND_GREEN|BACKGROUND_BLUE)//白
-#define BACKGROUND_Gray        (BACKGROUND_INTENSITY)//灰
-#define BACKGROUND_Black       (0)//黑
-#define BACKGROUND_LightRed    (BACKGROUND_INTENSITY|BACKGROUND_Red)//淡红
-#define BACKGROUND_HighGreen   (BACKGROUND_INTENSITY|BACKGROUND_Green)//亮绿
-#define BACKGROUND_LightBlue   (BACKGROUND_INTENSITY|BACKGROUND_Blue)//淡蓝
-#define BACKGROUND_LightYellow (BACKGROUND_INTENSITY|BACKGROUND_Yellow)//淡黄
-#define BACKGROUND_HighCyan    (BACKGROUND_INTENSITY|BACKGROUND_Cyan)//亮青
-#define BACKGROUND_Pink        (BACKGROUND_INTENSITY|BACKGROUND_Purple)//粉红
-#define BACKGROUND_HighWhite   (BACKGROUND_INTENSITY|BACKGROUND_White)//亮白
-
-		static int const color[][2] = {
-			{FOREGROUND_Red, FOREGROUND_LightRed},//FATAL
-			{FOREGROUND_Red, FOREGROUND_Purple},//ERROR
-			{FOREGROUND_Cyan, FOREGROUND_HighCyan},//WARN
-			{FOREGROUND_Pink, FOREGROUND_White},//INFO
-			{FOREGROUND_Yellow, FOREGROUND_LightYellow},//TRACE
-			{FOREGROUND_HighGreen, FOREGROUND_Gray},//DEBUG
-		};
 		HANDLE h = ::GetStdHandle(STD_OUTPUT_HANDLE);
 		switch (level) {
 		case LVL_FATAL:
@@ -616,36 +812,6 @@ namespace LOGGER {
 #endif
 	}
 	
-	//checkSync
-	void LoggerImpl::checkSync(uint8_t flag) {
-		if ((flag & F_SYNC)) {
-			sync();
-		}
-	}
-
-	//sync
-	void LoggerImpl::sync() {
-		{
-			std::unique_lock<std::mutex> lock(sync_mutex_); {
-				sync_ = true;
-				sync_cond_.notify_one();
-			}
-			//std::this_thread::yield();
-		}
-	}
-
-	//wait
-	void LoggerImpl::wait() {
-		{
-			std::unique_lock<std::mutex> lock(sync_mutex_); {
-				while (!sync_) {
-					sync_cond_.wait(lock);
-				}
-				sync_ = false;
-			}
-		}
-	}
-
 	//enable
 	void LoggerImpl::enable() {
 		if (!enable_.load()) {
@@ -720,3 +886,18 @@ namespace LOGGER {
 		}
 	}
 }
+
+#if 0
+int main() {
+	utils::_setrlimit();
+	__LOG_SET_MODE(M_STDOUT_FILE);
+	__LOG_SET_DEBUG;
+	__LOG_INIT("/mnt/hgfs/presstest/deploy/log", "client_presstest", 100000000);
+	for (int i = 0; i < 10; ++i) {
+		xsleep(0);
+		__LOG_ERROR("Hi%d", i);
+	}
+	//__LOG_FATAL("崩溃吧");
+	return 0;
+}
+#endif

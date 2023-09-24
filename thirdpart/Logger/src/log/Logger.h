@@ -25,18 +25,35 @@ namespace LOGGER {
 		~Logger();
 	public:
 		static Logger* instance();
-		void set_timezone(int64_t timezone = MY_CST);
-		void set_level(int level);
-		char const* get_level();
-		void set_color(int level, int title, int text);
-		void init(char const* dir, int level, char const* prename = NULL, size_t logsize = 100000000);
-		void write(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, char const* format, ...);
-		void write_s(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg);
-		void write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, uint8_t flag, std::string const& msg);
+		
+		void setPrename(char const* name);
+		char const* getPrename() const;
+
+		char const* timezoneString() const;
+		void setTimezone(int timezone = MY_CST);
+		int getTimezone();
+
+		char const* levelString() const;
+		void setLevel(int level);
+		int getLevel();
+
+		char const* modeString() const;
+		void setMode(int mode);
+		int getMode();
+
+		char const* styleString() const;
+		void setStyle(int style);
+		int getStyle();
+
+		void setColor(int level, int title, int text);
+	public:
+		void init(char const* dir, char const* prename = NULL, size_t logsize = 100000000);
+		void write(int level, char const* file, int line, char const* func, char const* stack, int flag, char const* format, ...);
+		void write_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
+		void write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
 		void wait();
 		void enable();
 		void disable(int delay = 0, bool sync = false);
-		void cleanup();
 	private:
 		template <class T> static inline T* New() {
 			void* ptr = (void*)malloc(sizeof(T));
@@ -55,28 +72,28 @@ namespace LOGGER {
 #define LOG LOGGER::Logger::instance()->write
 #define LOG_S LOGGER::Logger::instance()->write_s
 #define LOG_F LOGGER::Logger::instance()->write_s_fatal
-#define LOG_SET LOGGER::Logger::instance()->set_level
-#define LOG_LVL LOGGER::Logger::instance()->get_level
-#define LOG_TIMEZONE LOGGER::Logger::instance()->set_timezone
+#define LOG_SET_TIMEZONE LOGGER::Logger::instance()->setTimezone
+#define LOG_SET_LEVEL LOGGER::Logger::instance()->setLevel
+#define LOG_SET_MODE LOGGER::Logger::instance()->setMode
+#define LOG_SET_STYLE LOGGER::Logger::instance()->setStyle
+#define LOG_SET_COLOR LOGGER::Logger::instance()->setColor
 #define LOG_WAIT LOGGER::Logger::instance()->wait
-#define LOG_COLOR LOGGER::Logger::instance()->set_color
 #define LOG_CONSOLE_OPEN LOGGER::Logger::instance()->enable
 #define LOG_CONSOLE_CLOSE LOGGER::Logger::instance()->disable
-#define LOG_CLEANUP LOGGER::Logger::instance()->cleanup
 
-#define LOG_SET_FATAL LOG_SET(LVL_FATAL)
-#define LOG_SET_ERROR LOG_SET(LVL_ERROR)
-#define LOG_SET_WARN  LOG_SET(LVL_WARN)
-#define LOG_SET_INFO  LOG_SET(LVL_INFO)
-#define LOG_SET_TRACE LOG_SET(LVL_TRACE)
-#define LOG_SET_DEBUG LOG_SET(LVL_DEBUG)
+#define LOG_SET_FATAL LOG_SET_LEVEL(LVL_FATAL)
+#define LOG_SET_ERROR LOG_SET_LEVEL(LVL_ERROR)
+#define LOG_SET_WARN  LOG_SET_LEVEL(LVL_WARN)
+#define LOG_SET_INFO  LOG_SET_LEVEL(LVL_INFO)
+#define LOG_SET_TRACE LOG_SET_LEVEL(LVL_TRACE)
+#define LOG_SET_DEBUG LOG_SET_LEVEL(LVL_DEBUG)
 
-#define LOG_COLOR_FATAL(a,b) LOG_COLOR(LVL_FATAL, a, b)
-#define LOG_COLOR_ERROR(a,b) LOG_COLOR(LVL_ERROR, a, b)
-#define LOG_COLOR_WARN(a,b)  LOG_COLOR(LVL_WARN,  a, b)
-#define LOG_COLOR_INFO(a,b)  LOG_COLOR(LVL_INFO,  a, b)
-#define LOG_COLOR_TRACE(a,b) LOG_COLOR(LVL_TRACE, a, b)
-#define LOG_COLOR_DEBUG(a,b) LOG_COLOR(LVL_DEBUG, a, b)
+#define LOG_COLOR_FATAL(a,b) LOG_SET_COLOR(LVL_FATAL, a, b)
+#define LOG_COLOR_ERROR(a,b) LOG_SET_COLOR(LVL_ERROR, a, b)
+#define LOG_COLOR_WARN(a,b)  LOG_SET_COLOR(LVL_WARN,  a, b)
+#define LOG_COLOR_INFO(a,b)  LOG_SET_COLOR(LVL_INFO,  a, b)
+#define LOG_COLOR_TRACE(a,b) LOG_SET_COLOR(LVL_TRACE, a, b)
+#define LOG_COLOR_DEBUG(a,b) LOG_SET_COLOR(LVL_DEBUG, a, b)
 
 //LOG_XXX("%s", msg)
 #ifdef _windows_

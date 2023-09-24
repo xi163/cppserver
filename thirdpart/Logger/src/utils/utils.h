@@ -72,13 +72,13 @@ namespace utils {
 
 	std::string str_error(unsigned errnum);
 
-	void convertUTC(time_t const t, struct tm& tm, time_t* tp = NULL, int64_t timezone = MY_CST);
+	void convertUTC(time_t const t, struct tm& tm, time_t* tp = NULL, int timezone = MY_CST);
 
-	std::string strfTime(time_t const t, int64_t timezone);
+	std::string strfTime(time_t const t, int timezone);
 	
-	time_t strpTime(char const* s, int64_t timezone);
+	time_t strpTime(char const* s, int timezone);
 
-	void timezoneInfo(struct tm const& tm, int64_t timezone);
+	void timezoneInfo(struct tm const& tm, int timezone);
 
 	std::string ws2str(std::wstring const& ws);
 

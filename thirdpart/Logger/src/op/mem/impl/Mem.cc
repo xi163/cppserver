@@ -46,7 +46,12 @@ namespace Operation {
 		AUTHORIZATION_CHECK_I;
 		return impl_->GetPos(pos);
 	}
-
+	
+	char* CMemory::Gets(char* str, int num) {
+		AUTHORIZATION_CHECK_P;
+		return impl_->Gets(str, num);
+	}
+	
 	bool CMemory::Open(Mode mode) {
 		AUTHORIZATION_CHECK_B;
 		return impl_->Open(mode);

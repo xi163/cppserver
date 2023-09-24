@@ -81,22 +81,22 @@ namespace utils {
 		return utils::_str_error(errnum);
 	}
 
-	void convertUTC(time_t const t, struct tm& tm, time_t* tp, int64_t timezone) {
+	void convertUTC(time_t const t, struct tm& tm, time_t* tp, int timezone) {
 		AUTHORIZATION_CHECK;
 		utils::_convertUTC(t, tm, tp, timezone);
 	}
 
-	void timezoneInfo(struct tm const& tm, int64_t timezone) {
+	void timezoneInfo(struct tm const& tm, int timezone) {
 		AUTHORIZATION_CHECK;
 		utils::_timezoneInfo(tm, timezone);
 	}
 
-	std::string strfTime(time_t const t, int64_t timezone) {
+	std::string strfTime(time_t const t, int timezone) {
 		AUTHORIZATION_CHECK_S;
 		return utils::_strfTime(t, timezone);
 	}
 
-	time_t strpTime(char const* s, int64_t timezone) {
+	time_t strpTime(char const* s, int timezone) {
 		AUTHORIZATION_CHECK_I;
 		return utils::_strpTime(s, timezone);
 	}

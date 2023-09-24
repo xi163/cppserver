@@ -64,16 +64,16 @@
 #define F_TMSTMP_FL_FN       0x0080
 #define F_TEXT               0x0100
 #define F_PURE               0x0200
-#define F_DETAIL_SYNC		(F_DETAIL | F_SYNC)
-#define F_TMSTMP_SYNC		(F_TMSTMP | F_SYNC)
-#define F_FN_SYNC			(F_FN | F_SYNC)
-#define F_TMSTMP_FN_SYNC	(F_TMSTMP_FN | F_SYNC)
-#define F_FL_SYNC			(F_FL | F_SYNC)
-#define F_TMSTMP_FL_SYNC	(F_TMSTMP_FL | F_SYNC)
-#define F_FL_FN_SYNC		(F_FL_FN | F_SYNC)
-#define F_TMSTMP_FL_FN_SYNC	(F_TMSTMP_FL_FN | F_SYNC)
-#define F_TEXT_SYNC			(F_TEXT | F_SYNC)
-#define F_PURE_SYNC			(F_PURE | F_SYNC)
+#define F_DETAIL_SYNC       (F_DETAIL | F_SYNC)
+#define F_TMSTMP_SYNC       (F_TMSTMP | F_SYNC)
+#define F_FN_SYNC           (F_FN | F_SYNC)
+#define F_TMSTMP_FN_SYNC    (F_TMSTMP_FN | F_SYNC)
+#define F_FL_SYNC           (F_FL | F_SYNC)
+#define F_TMSTMP_FL_SYNC    (F_TMSTMP_FL | F_SYNC)
+#define F_FL_FN_SYNC        (F_FL_FN | F_SYNC)
+#define F_TMSTMP_FL_FN_SYNC (F_TMSTMP_FL_FN | F_SYNC)
+#define F_TEXT_SYNC         (F_TEXT | F_SYNC)
+#define F_PURE_SYNC         (F_PURE | F_SYNC)
 
 #include <stdlib.h>
 #include <stdio.h>
