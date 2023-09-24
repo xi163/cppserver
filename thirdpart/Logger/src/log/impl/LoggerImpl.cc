@@ -263,7 +263,7 @@ namespace LOGGER {
 		size_ = logsize;
 		setPrename(prename);
 		(prename && prename[0]) ?
-			snprintf(prefix_, sizeof(prefix_), "%s/%s ", ((dir && dir[0]) ? dir : "."), prename) :
+			snprintf(prefix_, sizeof(prefix_), "%s/%s.", ((dir && dir[0]) ? dir : "."), prename) :
 			snprintf(prefix_, sizeof(prefix_), "%s/", ((dir && dir[0]) ? dir : "."));
 		switch (getMode()) {
 		case M_FILE_ONLY:
