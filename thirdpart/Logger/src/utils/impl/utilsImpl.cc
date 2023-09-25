@@ -170,7 +170,7 @@ namespace utils {
 	//https://www.cplusplus.com/reference/ctime/gmtime/
 	//https://www.cplusplus.com/reference/ctime/mktime/?kw=mktime
 	//https://www.runoob.com/cprogramming/c-standard-library-time-h.html
-	void _convertUTC(time_t const t, struct tm& tm, time_t* tp, int timezone) {
+	bool _convertUTC(time_t const t, struct tm& tm, time_t* tp, int timezone) {
 		switch (timezone) {
 		case MY_UTC: {
 #ifdef _windows_
@@ -196,8 +196,7 @@ namespace utils {
 		case MY_BST:
 		case MY_GST:
 		case MY_CST:
-		case MY_JST:
-		default: {
+		case MY_JST: {
 			struct tm tm_utc = { 0 };
 #ifdef _windows_
 			gmtime_s(&tm_utc, &t);//UTC/GMT
@@ -225,37 +224,46 @@ namespace utils {
 			}
 			break;
 		}
+		default:
+			return false;
 		}
+		return true;
 	}
 
 	void _timezoneInfo(struct tm const& tm, int timezone) {
 		switch (timezone) {
 		case MY_EST: {
-			__TLOG_INFO("America/New_York %04d-%02d-%02d %02d:%02d:%02d",
+			__LOG_INFOF("%s %s %s %s America/New_York %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		case MY_BST: {
-			__TLOG_INFO("Europe/London %04d-%02d-%02d %02d:%02d:%02d",
+			__LOG_INFOF("%s %s %s %s Europe/London %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		case MY_GST: {
-			__TLOG_INFO("Asia/Dubai %04d-%02d-%02d %02d:%02d:%02d",
+			__LOG_INFOF("%s %s %s %s Asia/Dubai %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		case MY_CST: {
-			__TLOG_INFO("Beijing (China) %04d-%02d-%02d %02d:%02d:%02d",
+			__LOG_INFOF("%s %s %s %s Beijing (China) %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		case MY_JST: {
-			__TLOG_INFO("Asia/Tokyo %04d-%02d-%02d %02d:%02d:%02d",
+			__LOG_INFOF("%s %s %s %s Asia/Tokyo %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		default:
+			__LOG_ERRORLF("%s %s %s %s", __LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR());
 			break;
 		}
 	}

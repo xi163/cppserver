@@ -133,7 +133,10 @@ namespace LOGGER {
 		case false:
 			switch (_setTimezone(timezone)) {
 			case true:
+				setting(true);
+				break;
 			default:
+				setting(true);
 				break;
 			}
 			break;
@@ -152,7 +155,10 @@ namespace LOGGER {
 		case false:
 			switch (_setLevel(level)) {
 			case true:
+				setting(false);
+				break;
 			default:
+				setting(false);
 				break;
 			}
 		}
@@ -170,7 +176,10 @@ namespace LOGGER {
 		case false:
 			switch (_setMode(mode)) {
 			case true:
+				setting(false);
+				break;
 			default:
+				setting(false);
 				break;
 			}
 		}
@@ -199,7 +208,10 @@ namespace LOGGER {
 		case false:
 			switch (_setStyle(style)) {
 			case true:
+				setting(false);
+				break;
 			default:
+				setting(false);
 				break;
 			}
 		}
@@ -215,14 +227,29 @@ namespace LOGGER {
 	bool LoggerImpl::update(struct tm& tm, struct timeval& tv) {
 		{
 			write_lock(tm_mutex_); {
-				gettimeofday(&tv_, NULL);
-				time_t t = tv_.tv_sec;
-				utils::_convertUTC(t, tm_, NULL, timezone_);
-				tm = tm_;
-				tv = tv_;
+				switch (utcOk()) {
+				case true: {
+					gettimeofday(&tv_, NULL);
+					time_t t = tv_.tv_sec;
+					utcOk_ = utils::_convertUTC(t, tm_, NULL, timezone_.load());
+					switch (utcOk_) {
+					case true:
+						tm = tm_;
+						tv = tv_;
+						break;
+					default:
+						goto ERR;
+					}
+					return true;
+				}
+				default:
+					return false;
+				}
 			}
 		}
-		return true;
+	ERR:
+		__LOG_ERRORLF("error");
+		return false;
 	}
 
 	//get
@@ -273,7 +300,6 @@ namespace LOGGER {
 		(prename && prename[0]) ?
 			snprintf(prefix_, sizeof(prefix_), "%s/%s.", ((dir && dir[0]) ? dir : "."), prename) :
 			snprintf(prefix_, sizeof(prefix_), "%s/", ((dir && dir[0]) ? dir : "."));
-		timezoneInfo();
 	}
 	
 	//write
@@ -311,11 +337,49 @@ namespace LOGGER {
 		std::abort();
 	}
 	
-	//timezoneInfo
-	void LoggerImpl::timezoneInfo() {
-		struct tm tm = { 0 };
-		utils::_convertUTC(time(NULL), tm, NULL, timezone_);
-		utils::_timezoneInfo(tm, timezone_);
+	bool LoggerImpl::utcOk() {
+		return utcOk_;
+	}
+	
+	//setting
+	void LoggerImpl::setting(bool v) {
+		switch (v) {
+		case true: {
+			struct tm tm = { 0 };
+			utcOk_ = utils::_convertUTC(time(NULL), tm, NULL, timezone_.load());
+			switch (utcOk_) {
+			case true:
+				utils::_timezoneInfo(tm, timezone_.load());
+				break;
+			default:
+				utils::_timezoneInfo(tm, timezone_.load());
+				break;
+			}
+			break;
+		}
+		default:
+			switch (utcOk()) {
+			case true: {
+				struct tm tm = { 0 };
+				utcOk_ = utils::_convertUTC(time(NULL), tm, NULL, timezone_.load());
+				switch (utcOk_) {
+				case true:
+					utils::_timezoneInfo(tm, timezone_.load());
+					break;
+				default:
+					utils::_timezoneInfo(tm, timezone_.load());
+					break;
+				}
+				break;
+			}
+			default:{
+				struct tm tm = { 0 };
+				utils::_timezoneInfo(tm, timezone_.load());
+				break;
+			}
+			}
+			break;
+		}
 	}
 	
 	//打印level_及以下级别日志
@@ -337,7 +401,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimezoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_.load()).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
 				utils::_gettid().c_str(),
 				utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
@@ -348,7 +412,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimezoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_.load()).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
 		case F_FN:
 		case F_FN_SYNC:
@@ -365,7 +429,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimezoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_.load()).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
 				utils::_trim_func(func).c_str());
 		case F_FL:
@@ -383,7 +447,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimezoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_.load()).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
 				utils::_trim_file(file).c_str(), line);
 		case F_FL_FN:
@@ -401,7 +465,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimezoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_.load()).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
 				utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
 		case F_TEXT:

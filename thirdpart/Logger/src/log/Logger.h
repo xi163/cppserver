@@ -77,7 +77,14 @@ namespace LOGGER {
 #define _LOG_SET_MODE LOGGER::Logger::instance()->setMode
 #define _LOG_SET_STYLE LOGGER::Logger::instance()->setStyle
 #define _LOG_SET_COLOR LOGGER::Logger::instance()->setColor
+#define _LOG_TIMEZONE LOGGER::Logger::instance()->getTimezone
+#define _LOG_LEVEL LOGGER::Logger::instance()->getLevel
+#define _LOG_MODE LOGGER::Logger::instance()->getMode
 #define _LOG_STYLE LOGGER::Logger::instance()->getStyle
+#define _LOG_TIMEZONE_STR LOGGER::Logger::instance()->timezoneString
+#define _LOG_LEVEL_STR LOGGER::Logger::instance()->levelString
+#define _LOG_MODE_STR LOGGER::Logger::instance()->modeString
+#define _LOG_STYLE_STR LOGGER::Logger::instance()->styleString
 #define _LOG_WAIT LOGGER::Logger::instance()->wait
 #define _LOG_CONSOLE_OPEN LOGGER::Logger::instance()->enable
 #define _LOG_CONSOLE_CLOSE LOGGER::Logger::instance()->disable
@@ -205,7 +212,69 @@ namespace LOGGER {
 
 // F_FL_FN
 
+#ifdef _windows_
+#define _LOG_FATALLF(fmt,...) _LOG(PARAM_FATAL, F_FL_FN|F_SYNC, fmt, ##__VA_ARGS__); _LOG_WAIT(); std::abort()
+#define _LOG_ERRORLF(fmt,...) _LOG(PARAM_ERROR, F_FL_FN,        fmt, ##__VA_ARGS__)
+#define _LOG_WARNLF(fmt,...)  _LOG(PARAM_WARN,  F_FL_FN,        fmt, ##__VA_ARGS__)
+#define _LOG_INFOLF(fmt,...)  _LOG(PARAM_INFO,  F_FL_FN,        fmt, ##__VA_ARGS__)
+#define _LOG_TRACELF(fmt,...) _LOG(PARAM_TRACE, F_FL_FN,        fmt, ##__VA_ARGS__)
+#define _LOG_DEBUGLF(fmt,...) _LOG(PARAM_DEBUG, F_FL_FN,        fmt, ##__VA_ARGS__)
+#else
+#define _LOG_FATALLF(args...) _LOG(PARAM_FATAL, F_FL_FN|F_SYNC, ##args); _LOG_WAIT(); std::abort()
+#define _LOG_ERRORLF(args...) _LOG(PARAM_ERROR, F_FL_FN,        ##args)
+#define _LOG_WARNLF(args...)  _LOG(PARAM_WARN,  F_FL_FN,        ##args)
+#define _LOG_INFOLF(args...)  _LOG(PARAM_INFO,  F_FL_FN,        ##args)
+#define _LOG_TRACELF(args...) _LOG(PARAM_TRACE, F_FL_FN,        ##args)
+#define _LOG_DEBUGLF(args...) _LOG(PARAM_DEBUG, F_FL_FN,        ##args)
+#endif
+
+#define _LOG_S_FATALLF(msg) _LOG_F(PARAM_FATAL, F_FL_FN|F_SYNC, msg)
+#define _LOG_S_ERRORLF(msg) _LOG_S(PARAM_ERROR, F_FL_FN,        msg)
+#define _LOG_S_WARNLF(msg)  _LOG_S(PARAM_WARN,  F_FL_FN,        msg)
+#define _LOG_S_INFOLF(msg)  _LOG_S(PARAM_INFO,  F_FL_FN,        msg)
+#define _LOG_S_TRACELF(msg) _LOG_S(PARAM_TRACE, F_FL_FN,        msg)
+#define _LOG_S_DEBUGLF(msg) _LOG_S(PARAM_DEBUG, F_FL_FN,        msg)
+
+#ifdef _windows_
+#define _LOG_FATALLF_SYN(fmt,...) _LOG(PARAM_FATAL, F_FL_FN|F_SYNC, fmt, ##__VA_ARGS__); _LOG_WAIT()
+#else
+#define _LOG_FATALLF_SYN(args...) _LOG(PARAM_FATAL, F_FL_FN|F_SYNC, ##args); _LOG_WAIT()
+#endif
+
+#define _LOG_S_FATALLF_SYN(msg) _LOG_S(PARAM_FATAL, F_FL_FN|F_SYNC, msg); _LOG_WAIT()
+
 // F_TMSTMP_FL_FN
+
+#ifdef _windows_
+#define _LOG_FATALTLF(fmt,...) _LOG(PARAM_FATAL, F_TMSTMP_FL_FN|F_SYNC, fmt, ##__VA_ARGS__); _LOG_WAIT(); std::abort()
+#define _LOG_ERRORTLF(fmt,...) _LOG(PARAM_ERROR, F_TMSTMP_FL_FN,        fmt, ##__VA_ARGS__)
+#define _LOG_WARNTLF(fmt,...)  _LOG(PARAM_WARN,  F_TMSTMP_FL_FN,        fmt, ##__VA_ARGS__)
+#define _LOG_INFOTLF(fmt,...)  _LOG(PARAM_INFO,  F_TMSTMP_FL_FN,        fmt, ##__VA_ARGS__)
+#define _LOG_TRACETLF(fmt,...) _LOG(PARAM_TRACE, F_TMSTMP_FL_FN,        fmt, ##__VA_ARGS__)
+#define _LOG_DEBUGTLF(fmt,...) _LOG(PARAM_DEBUG, F_TMSTMP_FL_FN,        fmt, ##__VA_ARGS__)
+#else
+#define _LOG_FATALTLF(args...) _LOG(PARAM_FATAL, F_TMSTMP_FL_FN|F_SYNC, ##args); _LOG_WAIT(); std::abort()
+#define _LOG_ERRORTLF(args...) _LOG(PARAM_ERROR, F_TMSTMP_FL_FN,        ##args)
+#define _LOG_WARNTLF(args...)  _LOG(PARAM_WARN,  F_TMSTMP_FL_FN,        ##args)
+#define _LOG_INFOTLF(args...)  _LOG(PARAM_INFO,  F_TMSTMP_FL_FN,        ##args)
+#define _LOG_TRACETLF(args...) _LOG(PARAM_TRACE, F_TMSTMP_FL_FN,        ##args)
+#define _LOG_DEBUGTLF(args...) _LOG(PARAM_DEBUG, F_TMSTMP_FL_FN,        ##args)
+#endif
+
+#define _LOG_S_FATALTLF(msg) _LOG_F(PARAM_FATAL, F_TMSTMP_FL_FN|F_SYNC, msg)
+#define _LOG_S_ERRORTLF(msg) _LOG_S(PARAM_ERROR, F_TMSTMP_FL_FN,        msg)
+#define _LOG_S_WARNTLF(msg)  _LOG_S(PARAM_WARN,  F_TMSTMP_FL_FN,        msg)
+#define _LOG_S_INFOTLF(msg)  _LOG_S(PARAM_INFO,  F_TMSTMP_FL_FN,        msg)
+#define _LOG_S_TRACETLF(msg) _LOG_S(PARAM_TRACE, F_TMSTMP_FL_FN,        msg)
+#define _LOG_S_DEBUGTLF(msg) _LOG_S(PARAM_DEBUG, F_TMSTMP_FL_FN,        msg)
+
+#ifdef _windows_
+#define _LOG_FATALTLF_SYN(fmt,...) _LOG(PARAM_FATAL, F_TMSTMP_FL_FN|F_SYNC, fmt, ##__VA_ARGS__); _LOG_WAIT()
+#else
+#define _LOG_FATALTLF_SYN(args...) _LOG(PARAM_FATAL, F_TMSTMP_FL_FN|F_SYNC, ##args); _LOG_WAIT()
+#endif
+
+#define _LOG_S_FATALTLF_SYN(msg) _LOG_S(PARAM_FATAL, F_TMSTMP_FL_FN|F_SYNC, msg); _LOG_WAIT()
 
 // F_TEXT
 

@@ -81,9 +81,9 @@ namespace utils {
 		return utils::_str_error(errnum);
 	}
 
-	void convertUTC(time_t const t, struct tm& tm, time_t* tp, int timezone) {
-		AUTHORIZATION_CHECK;
-		utils::_convertUTC(t, tm, tp, timezone);
+	bool convertUTC(time_t const t, struct tm& tm, time_t* tp, int timezone) {
+		AUTHORIZATION_CHECK_B;
+		return utils::_convertUTC(t, tm, tp, timezone);
 	}
 
 	void timezoneInfo(struct tm const& tm, int timezone) {
