@@ -55,27 +55,28 @@
 	YY(M_FILE_ONLY,   1, "FILE_ONLY") \
 	YY(M_STDOUT_FILE, 2, "STDOUT_FILE") \
 
-#define F_SYNC               0x1000
-#define F_DETAIL             0x0001
-#define F_TMSTMP             0x0002
-#define F_FN                 0x0004
-#define F_TMSTMP_FN          0x0008
-#define F_FL                 0x0010
-#define F_TMSTMP_FL          0x0020
-#define F_FL_FN              0x0040
-#define F_TMSTMP_FL_FN       0x0080
-#define F_TEXT               0x0100
-#define F_PURE               0x0200
-#define F_DETAIL_SYNC       (F_DETAIL | F_SYNC)
-#define F_TMSTMP_SYNC       (F_TMSTMP | F_SYNC)
-#define F_FN_SYNC           (F_FN | F_SYNC)
-#define F_TMSTMP_FN_SYNC    (F_TMSTMP_FN | F_SYNC)
-#define F_FL_SYNC           (F_FL | F_SYNC)
-#define F_TMSTMP_FL_SYNC    (F_TMSTMP_FL | F_SYNC)
-#define F_FL_FN_SYNC        (F_FL_FN | F_SYNC)
-#define F_TMSTMP_FL_FN_SYNC (F_TMSTMP_FL_FN | F_SYNC)
-#define F_TEXT_SYNC         (F_TEXT | F_SYNC)
-#define F_PURE_SYNC         (F_PURE | F_SYNC)
+#define STYLE_MAP(XX, YY) \
+	YY(F_SYNC,              0x1000,                "SYNC") \
+	YY(F_DETAIL,            0x0001,                "DETAIL") \
+	YY(F_TMSTMP,            0x0002,                "TMSTMP") \
+	YY(F_FN,                0x0004,                "FN") \
+	YY(F_TMSTMP_FN,         0x0008,                "TMSTMP_FN") \
+	YY(F_FL,                0x0010,                "FL") \
+	YY(F_TMSTMP_FL,         0x0020,                "TMSTMP_FL") \
+	YY(F_FL_FN,             0x0040,                "FL_FN") \
+	YY(F_TMSTMP_FL_FN,      0x0080,                "TMSTMP_FL_FN") \
+	YY(F_TEXT,              0x0100,                "TEXT") \
+	YY(F_PURE,              0x0200,                "PURE") \
+	YY(F_DETAIL_SYNC,       F_DETAIL|F_SYNC,       "DETAIL_SYNC") \
+	YY(F_TMSTMP_SYNC,       F_TMSTMP|F_SYNC,       "TMSTMP_SYNC") \
+	YY(F_FN_SYNC,           F_FN|F_SYNC,           "FN_SYNC") \
+	YY(F_TMSTMP_FN_SYNC,    F_TMSTMP_FN|F_SYNC,    "TMSTMP_FN_SYNC") \
+	YY(F_FL_SYNC,           F_FL|F_SYNC,           "FL_SYNC") \
+	YY(F_TMSTMP_FL_SYNC,    F_TMSTMP_FL|F_SYNC,    "TMSTMP_FL_SYNC") \
+	YY(F_FL_FN_SYNC,        F_FL_FN|F_SYNC,        "FL_FN_SYNC") \
+	YY(F_TMSTMP_FL_FN_SYNC, F_TMSTMP_FL_FN|F_SYNC, "TMSTMP_FL_FN_SYNC") \
+	YY(F_TEXT_SYNC,         F_TEXT|F_SYNC,         "TEXT_SYNC") \
+	YY(F_PURE_SYNC,         F_PURE|F_SYNC,         "PURE_SYNC") \
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -235,12 +236,18 @@ enum {
 	MODE_MAP(ENUM_X, ENUM_Y)
 };
 
+enum {
+	STYLE_MAP(ENUM_X, ENUM_Y)
+};
+
 STATIC_FUNCTION_IMPLEMENT(TIMEZONE_MAP, DETAIL_X, DETAIL_Y, NAME, TimeZoneName)
 STATIC_FUNCTION_IMPLEMENT(TIMEZONE_MAP, DETAIL_X, DETAIL_Y, DESC, TimeZoneDesc)
 STATIC_FUNCTION_IMPLEMENT(LEVEL_MAP, DETAIL_X, DETAIL_Y, NAME, LevelName)
 STATIC_FUNCTION_IMPLEMENT(LEVEL_MAP, DETAIL_X, DETAIL_Y, DESC, LevelDesc)
 STATIC_FUNCTION_IMPLEMENT(MODE_MAP, DETAIL_X, DETAIL_Y, NAME, ModeName)
 STATIC_FUNCTION_IMPLEMENT(MODE_MAP, DETAIL_X, DETAIL_Y, DESC, ModeDesc)
+STATIC_FUNCTION_IMPLEMENT(STYLE_MAP, DETAIL_X, DETAIL_Y, NAME, StyleName)
+STATIC_FUNCTION_IMPLEMENT(STYLE_MAP, DETAIL_X, DETAIL_Y, DESC, StyleDesc)
 
 enum rTy {
 	Number = 0,
