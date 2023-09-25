@@ -235,14 +235,21 @@ namespace LOGGER {
 	}
 
 	bool LoggerImpl::_checkDir() {
-		switch (mkdir_) {
-		case false:
-			std::string s(prefix_);
-			size_t pos = s.find_last_of('/');
-			utils::_mkDir_p(s.substr(0, pos + 1).c_str());
-			mkdir_ = true;
+		switch (prefix_[0]) {
+		case '\0':
+			break;
+		default:
+			switch (mkdir_) {
+			case false:
+				std::string s(prefix_);
+				size_t pos = s.find_last_of('/');
+				utils::_mkDir_p(s.substr(0, pos + 1).c_str());
+				mkdir_ = true;
+				break;
+			}
 			break;
 		}
+		return mkdir_;
 	}
 	
 	std::string const LoggerImpl::_name(bool space) {
@@ -265,12 +272,6 @@ namespace LOGGER {
 		(prename && prename[0]) ?
 			snprintf(prefix_, sizeof(prefix_), "%s/%s.", ((dir && dir[0]) ? dir : "."), prename) :
 			snprintf(prefix_, sizeof(prefix_), "%s/", ((dir && dir[0]) ? dir : "."));
-		switch (getMode()) {
-		case M_FILE_ONLY:
-		case M_STDOUT_FILE:
-			_checkDir();
-			break;
-		}
 		timezoneInfo();
 	}
 	
@@ -616,20 +617,29 @@ namespace LOGGER {
 			switch (mode) {
 			case M_FILE_ONLY:
 			case M_STDOUT_FILE:
-				if (prefix_[0] == '\0') {
+				switch (_checkDir()) {
+				default:
+					mode = M_STDOUT_ONLY;
+					break;
+				case true:
+					shift(tm, tv);
 					break;
 				}
-				_checkDir();
-				shift(tm, tv);
-// 				switch (prefix_[0]) {
+// 				switch (Msg(it).c_str()[0]) {
 // 				case TAG_0:
-// 					_checkDir();
-// 					shift(tm, tv);
+// 					switch (_checkDir()) {
+// 					default:
+// 						mode = M_STDOUT_ONLY;
+// 						break;
+// 					case true:
+// 						shift(tm, tv);
+// 						break;
+// 					}
+// 					break;
+// 				case TAG_1:
+// 					mode = M_STDOUT_ONLY;
 // 					break;
 // 				}
-			}
-			if (mode > M_STDOUT_ONLY && (!mkdir_ || prefix_[0] == TAG_1)) {
-				mode = M_STDOUT_ONLY;
 			}
 			int level = getlevel(Msg(it).c_str()[0]);
 			switch (level) {

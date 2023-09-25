@@ -18,12 +18,12 @@
 #endif
 #define __STACK__       utils::_stack_backtrace().c_str()
 
-#define _PARAM_FATAL     0,__FILE__,__LINE__,__FUNC__,__STACK__
-#define _PARAM_ERROR     1,__FILE__,__LINE__,__FUNC__,NULL
-#define _PARAM_WARN      2,__FILE__,__LINE__,__FUNC__,NULL
-#define _PARAM_INFO      3,__FILE__,__LINE__,__FUNC__,NULL
-#define _PARAM_TRACE     4,__FILE__,__LINE__,__FUNC__,NULL
-#define _PARAM_DEBUG     5,__FILE__,__LINE__,__FUNC__,NULL
+#define _PARAM_FATAL     LVL_FATAL,__FILE__,__LINE__,__FUNC__,__STACK__
+#define _PARAM_ERROR     LVL_ERROR,__FILE__,__LINE__,__FUNC__,NULL
+#define _PARAM_WARN      LVL_WARN ,__FILE__,__LINE__,__FUNC__,NULL
+#define _PARAM_INFO      LVL_INFO ,__FILE__,__LINE__,__FUNC__,NULL
+#define _PARAM_TRACE     LVL_TRACE,__FILE__,__LINE__,__FUNC__,NULL
+#define _PARAM_DEBUG     LVL_DEBUG,__FILE__,__LINE__,__FUNC__,NULL
 
 namespace LOGGER {
 	

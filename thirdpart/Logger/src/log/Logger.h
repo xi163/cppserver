@@ -8,12 +8,12 @@
 #endif
 #define __STACK__       utils::stack_backtrace().c_str()
 
-#define PARAM_FATAL     0,__FILE__,__LINE__,__FUNC__,__STACK__
-#define PARAM_ERROR     1,__FILE__,__LINE__,__FUNC__,NULL
-#define PARAM_WARN      2,__FILE__,__LINE__,__FUNC__,NULL
-#define PARAM_INFO      3,__FILE__,__LINE__,__FUNC__,NULL
-#define PARAM_TRACE     4,__FILE__,__LINE__,__FUNC__,NULL
-#define PARAM_DEBUG     5,__FILE__,__LINE__,__FUNC__,NULL
+#define PARAM_FATAL     LVL_FATAL,__FILE__,__LINE__,__FUNC__,__STACK__
+#define PARAM_ERROR     LVL_ERROR,__FILE__,__LINE__,__FUNC__,NULL
+#define PARAM_WARN      LVL_WARN ,__FILE__,__LINE__,__FUNC__,NULL
+#define PARAM_INFO      LVL_INFO ,__FILE__,__LINE__,__FUNC__,NULL
+#define PARAM_TRACE     LVL_TRACE,__FILE__,__LINE__,__FUNC__,NULL
+#define PARAM_DEBUG     LVL_DEBUG,__FILE__,__LINE__,__FUNC__,NULL
 
 namespace LOGGER {
 

@@ -160,12 +160,14 @@ namespace LOGGER {
 #if 1
 int main() {
 	utils::setrlimit();
-	LOG_SET_MODE(M_STDOUT_FILE);
+	//LOG_SET_MODE(M_FILE_ONLY);
 	LOG_SET_DEBUG;
-	LOG_INIT("/mnt/hgfs/presstest/deploy/log", "client_presstest", 100000000);
-	for (int i = 0; i < 10; ++i) {
-		xsleep(0);
-		_LOG_ERROR("Hi%d", i);
+	//LOG_INIT("/mnt/hgfs/presstest/deploy/log", "client_presstest", 10000);
+	while (1) {
+		for (int i = 0; i < 10; ++i) {
+			xsleep(0);
+			_LOG_ERROR("Hi%d", i);
+		}
 	}
 	//_LOG_FATAL("崩溃吧");
 	return 0;
