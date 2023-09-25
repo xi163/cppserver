@@ -83,7 +83,7 @@ void RouterServ::onHttpMessage(
 	if (!conn || conn->getContext().empty()) {
 		return;
 	}
-	//_LOG_DEBUG("\n%.*s", buf->readableBytes(), buf->peek());
+	_LOG_DEBUG("\n%.*s", buf->readableBytes(), buf->peek());
 	//先确定是HTTP数据报文，再解析
 	//assert(buf->readableBytes() > 4 && buf->findCRLFCRLF());
 	Context& entryContext = boost::any_cast<Context&>(conn->getContext());
