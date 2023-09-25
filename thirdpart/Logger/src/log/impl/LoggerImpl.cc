@@ -724,7 +724,6 @@ namespace LOGGER {
 #define Stack(it) ((it)->first.second)
 #define Pos(it) ((it)->second.first)
 #define Flag(it) ((it)->second.second)
-
 			int mode = getMode();
 			switch (mode) {
 			case M_FILE_ONLY:
