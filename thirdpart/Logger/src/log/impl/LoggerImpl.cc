@@ -332,7 +332,7 @@ namespace LOGGER {
 		switch (flag) {
 		case F_DETAIL:
 		case F_DETAIL_SYNC:
-			//W101106 CST 21:17:00.024254 199 main.go:103][main] server.run xxx
+			//W101106 CST 21:17:00.024254 199 main.cc:103] server.run xxx
 			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu %s %s:%d] %s ",
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
@@ -352,7 +352,7 @@ namespace LOGGER {
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
 		case F_FN:
 		case F_FN_SYNC:
-			//W101106][main] server.run xxx
+			//W101106] server.run xxx
 			return snprintf(buffer, size, "%c%c%d%s] %s ",
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
@@ -360,7 +360,7 @@ namespace LOGGER {
 				utils::_trim_func(func).c_str());
 		case F_TMSTMP_FN:
 		case F_TMSTMP_FN_SYNC:
-			//W101106 CST 21:17:00.024254][main] server.run xxx
+			//W101106 CST 21:17:00.024254] server.run xxx
 			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu] %s ",
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
@@ -370,7 +370,7 @@ namespace LOGGER {
 				utils::_trim_func(func).c_str());
 		case F_FL:
 		case F_FL_SYNC:
-			//W101106 main.go:103] xxx
+			//W101106 main.cc:103] xxx
 			return snprintf(buffer, size, "%c%c%d%s %s:%d] ",
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
@@ -378,7 +378,7 @@ namespace LOGGER {
 				utils::_trim_file(file).c_str(), line);
 		case F_TMSTMP_FL:
 		case F_TMSTMP_FL_SYNC:
-			//W101106 CST 21:17:00.024254 main.go:103] xxx
+			//W101106 CST 21:17:00.024254 main.cc:103] xxx
 			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu %s:%d] ",
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
@@ -388,7 +388,7 @@ namespace LOGGER {
 				utils::_trim_file(file).c_str(), line);
 		case F_FL_FN:
 		case F_FL_FN_SYNC:
-			//W101106 main.go:103][main] server.run xxx
+			//W101106 main.cc:103] server.run xxx
 			return snprintf(buffer, size, "%c%c%d%s %s:%d] %s ",
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
@@ -396,7 +396,7 @@ namespace LOGGER {
 				utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
 		case F_TMSTMP_FL_FN:
 		case F_TMSTMP_FL_FN_SYNC:
-			//W101106 CST 21:17:00.024254 main.go:103][main] server.run xxx
+			//W101106 CST 21:17:00.024254 main.cc:103] server.run xxx
 			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu %s:%d] %s ",
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
