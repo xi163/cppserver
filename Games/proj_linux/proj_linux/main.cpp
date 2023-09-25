@@ -4,73 +4,62 @@
 #include <google/protobuf/message.h>
 #include "IncMuduo.h"
 
-// static_assert
-// //#include "RpcClients.h"
-// assert()
-// void assert_check(bool expr, char const* file, int line, char const* func, char const* format, ...) {
-// //	LOG()
-// }
-// #define _LOG_ASSERT(expr, msg) \
-// switch(expr){ \
-// 	case false: \
-// 	_LOG_FATAL("%s",msg)
-// }\
-// 
-
-
-
-int _getNetCardIp(std::string const& netCardName, std::string& Ip) {
-#ifdef _linux_
-	int sockfd;
-	struct ifconf conf;
-	struct ifreq* ifr;
-	char buf[BUFSZ] = { 0 };
-	int num;
-	int i;
-	sockfd = ::socket(PF_INET, SOCK_DGRAM, 0);
-	if (sockfd < 0) {
-		return -1;
-	}
-	conf.ifc_len = BUFSZ;
-	conf.ifc_buf = buf;
-	if (::ioctl(sockfd, SIOCGIFCONF, &conf) < 0) {
-		::close(sockfd);
-		return -1;
-	}
-	num = conf.ifc_len / sizeof(struct ifreq);
-	ifr = conf.ifc_req;
-
-	for (int i = 0; i < num; ++i) {
-		struct sockaddr_in* sin = (struct sockaddr_in*)(&ifr->ifr_addr);
-		if (::ioctl(sockfd, SIOCGIFFLAGS, ifr) < 0) {
-			::close(sockfd);
-			return -1;
-		}
-		if ((ifr->ifr_flags & IFF_UP) &&
-			strcmp(netCardName.c_str(), ifr->ifr_name) == 0) {
-			Ip = ::inet_ntoa(sin->sin_addr);
-			::close(sockfd);
-			_LOG_DEBUG("%s", Ip.c_str());
-			//return 0;
-		}
-
-		++ifr;
-	}
-	::close(sockfd);
+bool _mkDir(char const* dir) {
+#ifdef WIN32
+#pragma warning(push)
+#pragma warning(disable:4996)
 #endif
-	return Ip.empty() ? -1 : 0;
+#if 1
+	struct stat stStat;
+	if (stat(dir, &stStat) < 0) {
+#else
+	if (access(dir, 0) < 0) {
+#endif
+#ifdef _windows_
+		if (mkdir(dir) < 0) {
+			printf("mkdir %s err\n", dir);
+			return false;
+		}
+		else {
+			printf("mkdir %s ok\n", dir);
+		}
+#else
+		if (mkdir(dir, /*0777*/S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+			printf("mkdir %s err\n", dir);
+			return false;
+		}
+		else {
+			printf("mkdir %s ok\n", dir);
+		}
+#endif
+	}
+	else {
+		printf("mkdir %s 已存在\n", dir);
+	}
+#ifdef WIN32			
+#pragma warning(pop) 
+#endif
+	return true;
+	}
+
+void _mkDir_p(char const* dir) {
+	std::string s(dir);
+	if (s[s.size() - 1] != '/') {
+		s.append("/");
+	}
+	size_t pos = -1;
+	while ((pos = s.find_first_of('/', pos + 1)) != std::string::npos) {
+		_mkDir(s.substr(0, pos).c_str());
+	}
 }
 
-typedef boost::tuple<std::string,
-	muduo::net::WeakTcpConnectionPtr,
-	muduo::net::TcpConnectionPtr> ClientConn;
-
-//typedef ::std::shared_ptr<Message> MessagePtr;
-//typedef ::std::function<void(const ::google::protobuf::MessagePtr&)> ClientDoneCallback;
 int main() {
-
-	std::string Ip;
-	_getNetCardIp("eth0", Ip);
+	std::string s("/home/www1/data/log");
+	size_t pos = s.find_last_of('/');
+	printf("%s\n", s.substr(0, pos).c_str());
+	printf("%s\n", s.substr(pos+1, -1).c_str());
+	//printf("创建目录\n");
+	//_mkDir_p("/home/www1/data/log");
 	//获取当前系统的所有CPU核数，包含禁用的
 	//int all = sysconf(_SC_NPROCESSORS_CONF);//sysconf(_SC_NPROCS_CONF) get_nprocs_conf()
 	//获取当前系统的可用CPU核数
@@ -78,10 +67,10 @@ int main() {
 	//_LOG_DEBUG("all:%d enable:%d", all, enable);
 	//std::string s;
 	//s.append("dsff").c_str();
-	//int n = 1;
-	//_ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
-	//_ASSERT_S(n == 0, "");
-	//_ASSERT_S(n == 0);
+	int n = 1;
+	_ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
+	_ASSERT_S(n == 0, "");
+	_ASSERT(n == 0);
 	//std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
 	//_ASSERT_S(pool_, "pool is nil");
 	//_LOG_DEBUG("...........");
@@ -266,6 +255,6 @@ int main() {
 	//STD::Weight weight;
 	//weight.rand().betweenInt64(0, 5).randInt64_mt();
 
-	getchar();
+	//getchar();
 	return 0;
 }

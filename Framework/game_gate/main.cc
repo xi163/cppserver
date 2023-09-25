@@ -23,14 +23,18 @@ int main(int argc, char* argv[]) {
 	//读取配置文件
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_ini("./conf/game.conf", pt);
-	//日志目录/文件/日志级别  logdir/logname
-	std::string logdir = pt.get<std::string>(config + ".logdir", "./log/game_gate/");
+	//日志相关
 	std::string logname = pt.get<std::string>(config + ".logname", "game_gate");
-	int loglevel = pt.get<int>(config + ".loglevel", 1);
-	if (!boost::filesystem::exists(logdir)) {
-		boost::filesystem::create_directories(logdir);
-	}
-	//_LOG_INFO("%s%s 日志级别 = %d", logdir.c_str(), logname.c_str(), loglevel);
+	std::string logdir = pt.get<std::string>(config + ".logdir", "./log/game_gate");
+	int logtimezone = pt.get<int>(config + ".logtimezone", MY_CST);
+	int loglevel = pt.get<int>(config + ".loglevel", LVL_DEBUG);
+	int logmode = pt.get<int>(config + ".logmode", M_STDOUT_FILE);
+	int logstyle = pt.get<int>(config + ".logstyle", F_DETAIL);
+	_LOG_SET_TIMEZONE(logtimezone);
+	_LOG_SET_LEVEL(loglevel);
+	_LOG_SET_MODE(logmode);
+	_LOG_SET_STYLE(logstyle);
+	_LOG_INIT(logdir.c_str(), logname.c_str(), 100000000);
 	//zookeeper服务器集群IP
 	std::string strZookeeperIps = "";
 	{

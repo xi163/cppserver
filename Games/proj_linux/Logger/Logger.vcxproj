@@ -101,6 +101,7 @@
     <ClCompile Include="..\..\..\thirdpart\Logger\src\ini\impl\iniImpl.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\lock\impl\SpinLock.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.cc" />
+    <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\color_win.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\Logger.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\log\impl\LoggerImpl.cc" />
     <ClCompile Include="..\..\..\thirdpart\Logger\src\mime\Mime.cpp" />
@@ -179,7 +180,7 @@
     <Link />
     <ClCompile />
     <Link>
-      <LibraryDependencies>protobuf;pthread;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;snappy;ssl;rt;m;z;dl</LibraryDependencies>
+      <LibraryDependencies>boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;pthread;rt;m;z;dl;snappy;crypto;ssl</LibraryDependencies>
       <OutputFile>/home/andy/cppserver/libs/$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>/usr/local/lib64;/usr/local/lib;/usr/lib64;/usr/lib;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

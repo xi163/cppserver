@@ -50,21 +50,21 @@ namespace STD {
 		default:
 		case precision::SECOND: {
 			return utils::_sprintf("%s %04d-%02d-%02d %02d:%02d:%02d",
-				getTimeZoneDesc(timzone).c_str(),
+				LOGGER::getTimezoneDesc(timzone).c_str(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
 				tm.tm_hour, tm.tm_min, tm.tm_sec);
 		}
 		case precision::MILLISECOND: {
 			tv.tv_usec = to_millisec() - tv.tv_sec * 1000;
 			return utils::_sprintf("%s %04d-%02d-%02d %02d:%02d:%02d.%.3lu",
-				getTimeZoneDesc(timzone).c_str(),
+				LOGGER::getTimezoneDesc(timzone).c_str(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
 		}
 		case precision::MICROSECOND: {
 			tv.tv_usec = to_microsec() - tv.tv_sec * 1000000UL;
 			return utils::_sprintf("%s %04d-%02d-%02d %02d:%02d:%02d.%.6lu",
-				getTimeZoneDesc(timzone).c_str(),
+				LOGGER::getTimezoneDesc(timzone).c_str(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
 		}

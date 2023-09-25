@@ -157,11 +157,10 @@ namespace LOGGER {
 	}
 }
 
-#if 1
+#if 0
 int main() {
 	utils::setrlimit();
-	//LOG_SET_MODE(M_FILE_ONLY);
-
+	_LOG_SET_MODE(M_FILE_ONLY);
 	_LOG_SET_STYLE(F_PURE);
 	_LOG_SET_DEBUG;
 	_LOG_INIT("/mnt/hgfs/presstest/deploy/log", "client_presstest", 10000);

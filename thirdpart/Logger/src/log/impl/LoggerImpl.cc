@@ -126,7 +126,7 @@ namespace LOGGER {
 	}
 	
 	char const* LoggerImpl::timezoneString() const {
-		return getTimeZoneDesc(timezone_.load()).c_str();
+		return getTimezoneDesc(timezone_.load()).c_str();
 	}
 	void LoggerImpl::setTimezone(int timezone/* = MY_CST*/) {
 		switch (timezone == timezone_.load()) {
@@ -337,7 +337,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimeZoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
 				utils::_gettid().c_str(),
 				utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
@@ -348,7 +348,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimeZoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
 		case F_FN:
 		case F_FN_SYNC:
@@ -365,7 +365,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimeZoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
 				utils::_trim_func(func).c_str());
 		case F_FL:
@@ -383,7 +383,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimeZoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
 				utils::_trim_file(file).c_str(), line);
 		case F_FL_FN:
@@ -401,7 +401,7 @@ namespace LOGGER {
 				(ok ? TAG_0 : TAG_1),
 				chr[level], pid_,
 				_name(false).c_str(),
-				getTimeZoneDesc(timezone_).c_str(),
+				getTimezoneDesc(timezone_).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
 				utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
 		case F_TEXT:
@@ -1040,6 +1040,7 @@ namespace LOGGER {
 int main() {
 	utils::_setrlimit();
 	__LOG_SET_MODE(M_STDOUT_FILE);
+	__LOG_SET_STYLE(F_PURE);
 	__LOG_SET_DEBUG;
 	__LOG_INIT("/mnt/hgfs/presstest/deploy/log", "client_presstest", 100000000);
 	for (int i = 0; i < 10; ++i) {
