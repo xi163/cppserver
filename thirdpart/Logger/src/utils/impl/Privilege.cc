@@ -1,4 +1,4 @@
-﻿#include "Privilege.h"
+#include "Privilege.h"
 
 #if defined(_windows_)
 #include <AccCtrl.h>

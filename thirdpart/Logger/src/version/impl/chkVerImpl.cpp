@@ -1,4 +1,4 @@
-﻿#include "chkVerImpl.h"
+#include "chkVerImpl.h"
 #include "../../utils/impl/utilsImpl.h"
 #include "../../utils/impl/regedt32.h"
 #include "../../ini/ini.h"

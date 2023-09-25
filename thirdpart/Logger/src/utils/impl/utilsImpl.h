@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_UTILSIMPL_H
+#ifndef INCLUDE_UTILSIMPL_H
 #define INCLUDE_UTILSIMPL_H
 
 #include "../../Macro.h"

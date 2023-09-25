@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_GETTIMEOFDAY_H
+#ifndef INCLUDE_GETTIMEOFDAY_H
 #define INCLUDE_GETTIMEOFDAY_H
 
 #include "../../Macro.h"

@@ -227,7 +227,7 @@ main(int argc, char** argv)
 	std::string KEY("06D2BADB14171B53F84781866F5DCF5F");
 	std::string strTimestamp = "1579107393425";
 	std::string strAgentid = "10000";
-	std::string md5code = "334270F58E3E9DEC";//agentId¹ØÁªµÄmd5code
+	std::string md5code = "334270F58E3E9DEC";//agentIdå…³è”çš„md5code
 	std::string src = strAgentid + strTimestamp + md5code;
 
 	char dst[32 + 1] = { 0 };

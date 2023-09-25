@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_COLOR_LINUX_H
+#ifndef INCLUDE_COLOR_LINUX_H
 #define INCLUDE_COLOR_LINUX_H
 
 #include "../../Macro.h"

@@ -1,4 +1,4 @@
-﻿#include "utilsImpl.h"
+#include "utilsImpl.h"
 #include "gettimeofday.h"
 #include "../../rand/impl/StdRandomImpl.h"
 

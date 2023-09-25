@@ -1,4 +1,4 @@
-﻿#include "gettimeofday.h"
+#include "gettimeofday.h"
 
 #ifdef _windows_
 

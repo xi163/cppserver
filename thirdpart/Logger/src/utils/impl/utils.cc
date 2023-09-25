@@ -1,4 +1,4 @@
-﻿#include "../utils.h"
+#include "../utils.h"
 #include "utilsImpl.h"
 #include "backtrace.h"
 #include "Privilege.h"

@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_REGEDT32_H
+#ifndef INCLUDE_REGEDT32_H
 #define INCLUDE_REGEDT32_H
 
 #include "../../Macro.h"

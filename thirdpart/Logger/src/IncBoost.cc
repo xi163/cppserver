@@ -1,4 +1,4 @@
-﻿#include "IncBoost.h"
+#include "IncBoost.h"
 
 namespace BOOST {
 	void replace(std::string& json, const std::string& placeholder, const std::string& value) {

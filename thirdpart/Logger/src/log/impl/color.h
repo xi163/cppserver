@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_COLOR_H
+#ifndef INCLUDE_COLOR_H
 #define INCLUDE_COLOR_H
 
 #ifdef _windows_

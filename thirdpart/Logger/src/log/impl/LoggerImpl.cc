@@ -1,4 +1,4 @@
-﻿#include "LoggerImpl.h"
+#include "LoggerImpl.h"
 #include "../../utils/impl/utilsImpl.h"
 #include "../../utils/impl/Console.h"
 
@@ -212,7 +212,7 @@ namespace LOGGER {
 	}
 	
 	//update
-	void LoggerImpl::update(struct tm& tm, struct timeval& tv) {
+	bool LoggerImpl::update(struct tm& tm, struct timeval& tv) {
 		{
 			write_lock(tm_mutex_); {
 				gettimeofday(&tv_, NULL);
@@ -222,6 +222,7 @@ namespace LOGGER {
 				tv = tv_;
 			}
 		}
+		return true;
 	}
 
 	//get
@@ -326,21 +327,99 @@ namespace LOGGER {
 	size_t LoggerImpl::format_s(char const* file, int line, char const* func, int level, int flag, char* buffer, size_t size) {
 		struct tm tm;
 		struct timeval tv;
-		update(tm, tv);
+		bool ok = update(tm, tv);
 		static char const chr[] = { 'F','E','W','I','T','D','S','O','X' };
-		size_t pos = (flag & F_DETAIL) ?
-			snprintf(buffer, size, "%c%d %s %02d:%02d:%02d.%.6lu %s %s:%d] %s ",
-				chr[level],
-				pid_,
+		switch (flag) {
+		case F_DETAIL:
+		case F_DETAIL_SYNC:
+			//W101106 CST 21:17:00.024254 199 main.go:103][main] server.run xxx
+			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu %s %s:%d] %s ",
+				(ok ? TAG_0 : TAG_1),
+				chr[level], pid_,
+				_name(false).c_str(),
 				getTimeZoneDesc(timezone_).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
 				utils::_gettid().c_str(),
-				utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str()) :
-			snprintf(buffer, size, "%c%s %02d:%02d:%02d.%.6lu] ",
-				chr[level],
+				utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
+		case F_TMSTMP:
+		case F_TMSTMP_SYNC:
+			//W101106 CST 21:17:00.024254] xxx
+			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu] ",
+				(ok ? TAG_0 : TAG_1),
+				chr[level], pid_,
+				_name(false).c_str(),
 				getTimeZoneDesc(timezone_).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
-		return pos;
+		case F_FN:
+		case F_FN_SYNC:
+			//W101106][main] server.run xxx
+			return snprintf(buffer, size, "%c%c%d%s] %s ",
+				(ok ? TAG_0 : TAG_1),
+				chr[level], pid_,
+				_name(false).c_str(),
+				utils::_trim_func(func).c_str());
+		case F_TMSTMP_FN:
+		case F_TMSTMP_FN_SYNC:
+			//W101106 CST 21:17:00.024254][main] server.run xxx
+			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu] %s ",
+				(ok ? TAG_0 : TAG_1),
+				chr[level], pid_,
+				_name(false).c_str(),
+				getTimeZoneDesc(timezone_).c_str(),
+				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
+				utils::_trim_func(func).c_str());
+		case F_FL:
+		case F_FL_SYNC:
+			//W101106 main.go:103] xxx
+			return snprintf(buffer, size, "%c%c%d%s %s:%d] ",
+				(ok ? TAG_0 : TAG_1),
+				chr[level], pid_,
+				_name(false).c_str(),
+				utils::_trim_file(file).c_str(), line);
+		case F_TMSTMP_FL:
+		case F_TMSTMP_FL_SYNC:
+			//W101106 CST 21:17:00.024254 main.go:103] xxx
+			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu %s:%d] ",
+				(ok ? TAG_0 : TAG_1),
+				chr[level], pid_,
+				_name(false).c_str(),
+				getTimeZoneDesc(timezone_).c_str(),
+				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
+				utils::_trim_file(file).c_str(), line);
+		case F_FL_FN:
+		case F_FL_FN_SYNC:
+			//W101106 main.go:103][main] server.run xxx
+			return snprintf(buffer, size, "%c%c%d%s %s:%d] %s ",
+				(ok ? TAG_0 : TAG_1),
+				chr[level], pid_,
+				_name(false).c_str(),
+				utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
+		case F_TMSTMP_FL_FN:
+		case F_TMSTMP_FL_FN_SYNC:
+			//W101106 CST 21:17:00.024254 main.go:103][main] server.run xxx
+			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu %s:%d] %s ",
+				(ok ? TAG_0 : TAG_1),
+				chr[level], pid_,
+				_name(false).c_str(),
+				getTimeZoneDesc(timezone_).c_str(),
+				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
+				utils::_trim_file(file).c_str(), line, utils::_trim_func(func).c_str());
+		case F_TEXT:
+		case F_TEXT_SYNC:
+			//W101106] xxx
+			return snprintf(buffer, size, "%c%c%d%s] ",
+				(ok ? TAG_0 : TAG_1),
+				chr[level], pid_,
+				_name(false).c_str());
+		case F_PURE:
+		case F_PURE_SYNC:
+		default:
+			//xxx
+			return snprintf(buffer, size, "%c%c%s",
+				(ok ? TAG_0 : TAG_1),
+				chr[level],
+				_name(true).c_str());
+		}
 	}
 
 	//open
@@ -367,56 +446,89 @@ namespace LOGGER {
 
 	//write
 	void LoggerImpl::write(char const* msg, size_t len, size_t pos, int flag) {
+		switch (fd_) {
+		case INVALID_HANDLE_VALUE:
+			break;
+		default:
+			switch (flag) {
+			case F_DETAIL:
+			case F_DETAIL_SYNC:
+				LoggerImpl::write(fd_, msg, len);
+				break;
+			case F_TMSTMP:
+			case F_TMSTMP_SYNC:
+				LoggerImpl::write(fd_, msg, len);
+				break;
+			case F_FN:
+			case F_FN_SYNC:
+				LoggerImpl::write(fd_, msg, len);
+				break;
+			case F_TMSTMP_FN:
+			case F_TMSTMP_FN_SYNC:
+				LoggerImpl::write(fd_, msg, len);
+				break;
+			case F_FL:
+			case F_FL_SYNC:
+				LoggerImpl::write(fd_, msg, len);
+				break;
+			case F_TMSTMP_FL:
+			case F_TMSTMP_FL_SYNC:
+				LoggerImpl::write(fd_, msg, len);
+				break;
+			case F_FL_FN:
+			case F_FL_FN_SYNC:
+				LoggerImpl::write(fd_, msg, len);
+				break;
+			case F_TMSTMP_FL_FN:
+			case F_TMSTMP_FL_FN_SYNC:
+				LoggerImpl::write(fd_, msg, len);
+				break;
+			case F_TEXT:
+			case F_TEXT_SYNC:
+				LoggerImpl::write(fd_, msg, len);
+				break;
+			case F_PURE:
+			case F_PURE_SYNC:
+			default:
+				LoggerImpl::write(fd_, msg + pos, (int)len - (int)pos);
+				break;
+			}
+			break;
+		}
+	}
+	
+	//write
+	void LoggerImpl::write(char const* msg, size_t len) {
+		switch (fd_) {
+		case INVALID_HANDLE_VALUE:
+			break;
+		default:
+			LoggerImpl::write(fd_, msg, len);
+			break;
+		}
+	}
+	
+	//write
+	void LoggerImpl::write(fd_t fd, char const* msg, size_t len) {
 #ifdef _windows_
-		if (fd_ != INVALID_HANDLE_VALUE) {
-			if (pos == 0) {
-				long size = 0;
-				WriteFile(fd_, msg, len, (LPDWORD)&size, NULL);
-			}
-			else if ((flag & F_TMSTMP)) {
-				long size = 0;
-				WriteFile(fd_, msg + 1, len - 1, (LPDWORD)&size, NULL);
-			}
-			else if ((flag & F_DETAIL)) {
-				long size = 0;
-				WriteFile(fd_, msg, len, (LPDWORD)&size, NULL);
-			}
-			else {
-				long size = 0;
-				WriteFile(fd_, msg + pos, len - pos, (LPDWORD)&size, NULL);
-			}
-		}
+		long size = 0;
+		(void)::WriteFile(fd, msg, len, (LPDWORD)&size, NULL);
 #else
-		if (fd_ != INVALID_HANDLE_VALUE) {
-			if (pos == 0) {
-				(void)::write(fd_, msg, len);
-			}
-			else if ((flag & F_TMSTMP)) {
-				(void)::write(fd_, msg + 1, len - 1);
-			}
-			else if ((flag & F_DETAIL)) {
-				(void)::write(fd_, msg, len);
-			}
-			else {
-				(void)::write(fd_, msg + pos, len - pos);
-			}
-		}
+		(void)::write(fd, msg, len);
 #endif
 	}
 
 	//close
 	void LoggerImpl::close() {
+
+		if (INVALID_HANDLE_VALUE != fd_) {
 #ifdef _windows_
-		if (INVALID_HANDLE_VALUE != fd_) {
 			CloseHandle(fd_);
-			fd_ = INVALID_HANDLE_VALUE;
-		}
 #else
-		if (INVALID_HANDLE_VALUE != fd_) {
 			::close(fd_);
+#endif
 			fd_ = INVALID_HANDLE_VALUE;
 		}
-#endif
 	}
 
 	//shift
@@ -617,44 +729,36 @@ namespace LOGGER {
 			switch (mode) {
 			case M_FILE_ONLY:
 			case M_STDOUT_FILE:
-				switch (_checkDir()) {
-				default:
+				switch (Msg(it).c_str()[0]) {
+				case TAG_0:
+					switch (_checkDir()) {
+					default:
+						mode = M_STDOUT_ONLY;
+						break;
+					case true:
+						shift(tm, tv);
+						break;
+					}
+					break;
+				case TAG_1:
 					mode = M_STDOUT_ONLY;
 					break;
-				case true:
-					shift(tm, tv);
-					break;
 				}
-// 				switch (Msg(it).c_str()[0]) {
-// 				case TAG_0:
-// 					switch (_checkDir()) {
-// 					default:
-// 						mode = M_STDOUT_ONLY;
-// 						break;
-// 					case true:
-// 						shift(tm, tv);
-// 						break;
-// 					}
-// 					break;
-// 				case TAG_1:
-// 					mode = M_STDOUT_ONLY;
-// 					break;
-// 				}
 			}
-			int level = getlevel(Msg(it).c_str()[0]);
+			int level = getlevel(Msg(it).c_str()[1]);
 			switch (level) {
 			case LVL_FATAL: {
 				switch (mode) {
 				case M_FILE_ONLY:
 				case M_STDOUT_FILE:
-					write(Msg(it).c_str(), Msg(it).size(), Pos(it), Flag(it));
-					write(Stack(it).c_str(), Stack(it).size(), 0, 0);
+					write(&Msg(it).c_str()[1], Msg(it).size() - 1, Pos(it) - 1, Flag(it));
+					write(Stack(it).c_str(), Stack(it).size());
 					break;
 				}
 				switch (mode) {
 				case M_STDOUT_ONLY:
 				case M_STDOUT_FILE:
-					stdoutbuf(Msg(it).c_str(), Msg(it).size(), Pos(it), level, Flag(it), Stack(it).c_str(), Stack(it).size());
+					stdoutbuf(&Msg(it).c_str()[1], Msg(it).size() - 1, Pos(it) - 1, level, Flag(it), Stack(it).c_str(), Stack(it).size());
 					break;
 				}
 				break;
@@ -667,13 +771,13 @@ namespace LOGGER {
 				switch (mode) {
 				case M_FILE_ONLY:
 				case M_STDOUT_FILE:
-					write(Msg(it).c_str(), Msg(it).size(), Pos(it), Flag(it));
+					write(&Msg(it).c_str()[1], Msg(it).size() - 1, Pos(it) - 1, Flag(it));
 					break;
 				}
 				switch (mode) {
 				case M_STDOUT_ONLY:
 				case M_STDOUT_FILE:
-					stdoutbuf(Msg(it).c_str(), Msg(it).size(), Pos(it), level, Flag(it));
+					stdoutbuf(&Msg(it).c_str()[1], Msg(it).size() - 1, Pos(it) - 1, level, Flag(it));
 					break;
 				}
 				break;
@@ -729,97 +833,133 @@ namespace LOGGER {
 		if (!isConsoleOpen_) {
 			return;
 		}
-		HANDLE h = ::GetStdHandle(STD_OUTPUT_HANDLE);
-		switch (level) {
-		case LVL_FATAL:
-		case LVL_TRACE: {
-			if ((flag & F_TMSTMP)) {
-				::SetConsoleTextAttribute(h, color[level][0]);
-				printf("%.*s", (int)pos - 1, msg + 1);
-				::SetConsoleTextAttribute(h, color[level][1]);
-				printf("%.*s", (int)len - (int)pos, msg + pos);
-				::SetConsoleTextAttribute(h, color[level][0]);
-				printf("%.*s", (int)stacklen, stack);//stack
-			}
-			else if ((flag & F_DETAIL)) {
-				::SetConsoleTextAttribute(h, color[level][0]);
-				printf("%.*s", (int)pos, msg);
-				::SetConsoleTextAttribute(h, color[level][1]);
-				printf("%.*s", (int)len - (int)pos, msg + pos);
-				::SetConsoleTextAttribute(h, color[level][0]);
-				printf("%.*s", (int)stacklen, stack);//stack
-			}
-			else {
-				::SetConsoleTextAttribute(h, color[level][0]);
-				printf("%.*s", (int)len - (int)pos, msg + pos);
-				::SetConsoleTextAttribute(h, color[level][0]);
-				printf("%.*s", (int)stacklen, stack);//stack
-			}
-			break;
-		}
-		case LVL_ERROR:
-		case LVL_WARN:
-		case LVL_INFO:
-		case LVL_DEBUG: {
-			if ((flag & F_TMSTMP)) {
-				::SetConsoleTextAttribute(h, color[level][0]);
-				printf("%.*s", (int)pos - 1, msg + 1);
-				::SetConsoleTextAttribute(h, color[level][1]);
-				printf("%.*s", (int)len - (int)pos, msg + pos);
-			}
-			else if ((flag & F_DETAIL)) {
-				::SetConsoleTextAttribute(h, color[level][0]);
-				printf("%.*s", (int)pos, msg);
-				::SetConsoleTextAttribute(h, color[level][1]);
-				printf("%.*s", (int)len - (int)pos, msg + pos);
-			}
-			else {
-				::SetConsoleTextAttribute(h, color[level][0]);
-				printf("%.*s", (int)len - (int)pos, msg + pos);
-			}
-			break;
-		}
-		}
-		//::CloseHandle(h);
-#else
-		switch (level) {
-		case LVL_FATAL:
-		case LVL_TRACE: {
-			if ((flag & F_TMSTMP)) {
-				Printf(color[level][0], "%.*s", (int)pos - 1, msg + 1);
-				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
-				Printf(color[level][0], "%.*s", (int)stacklen, stack);//stack
-			}
-			else if ((flag & F_DETAIL)) {
-				Printf(color[level][0], "%.*s", (int)pos, msg);
-				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
-				Printf(color[level][0], "%.*s", (int)stacklen, stack);//stack
-			}
-			else {
-				Printf(color[level][0], "%.*s", (int)len - (int)pos, msg + pos);
-				Printf(color[level][0], "%.*s", (int)stacklen, stack);//stack
-			}
-			break;
-		}
-		case LVL_ERROR:
-		case LVL_WARN:
-		case LVL_INFO:
-		case LVL_DEBUG: {
-			if ((flag & F_TMSTMP)) {
-				Printf(color[level][0], "%.*s", (int)pos - 1, msg + 1);
-				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
-			}
-			else if ((flag & F_DETAIL)) {
-				Printf(color[level][0], "%.*s", (int)pos, msg);
-				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
-			}
-			else {
-				Printf(color[level][0], "%.*s", (int)len - (int)pos, msg + pos);
-			}
-			break;
-		}
-		}
 #endif
+		switch (level) {
+		case LVL_FATAL: {
+			switch (flag) {
+			case F_DETAIL:
+			case F_DETAIL_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_TMSTMP:
+			case F_TMSTMP_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_FN:
+			case F_FN_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_TMSTMP_FN:
+			case F_TMSTMP_FN_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_FL:
+			case F_FL_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_TMSTMP_FL:
+			case F_TMSTMP_FL_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_FL_FN:
+			case F_FL_FN_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_TMSTMP_FL_FN:
+			case F_TMSTMP_FL_FN_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_TEXT:
+			case F_TEXT_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_PURE:
+			case F_PURE_SYNC:
+			default:
+				Printf(color[level][0], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			}
+			break;
+		}
+		case LVL_ERROR:
+		case LVL_WARN:
+		case LVL_INFO:
+		case LVL_TRACE:
+		case LVL_DEBUG: {
+			switch (flag) {
+			case F_DETAIL:
+			case F_DETAIL_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_TMSTMP:
+			case F_TMSTMP_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_FN:
+			case F_FN_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_TMSTMP_FN:
+			case F_TMSTMP_FN_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_FL:
+			case F_FL_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_TMSTMP_FL:
+			case F_TMSTMP_FL_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_FL_FN:
+			case F_FL_FN_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_TMSTMP_FL_FN:
+			case F_TMSTMP_FL_FN_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_TEXT:
+			case F_TEXT_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_PURE:
+			case F_PURE_SYNC:
+			default:
+				Printf(color[level][0], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			}
+			break;
+		}
+		}
 	}
 	
 	//enable

@@ -1,4 +1,4 @@
-﻿#include "regedt32.h"
+#include "regedt32.h"
 #include "utilsImpl.h"
 #include "../../log/impl/LoggerImpl.h"
 

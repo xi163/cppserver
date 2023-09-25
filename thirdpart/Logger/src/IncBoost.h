@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_INCBOOST_H
+#ifndef INCLUDE_INCBOOST_H
 #define INCLUDE_INCBOOST_H
 
 #include <boost/version.hpp>

@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_CONSOLE_H
+#ifndef INCLUDE_CONSOLE_H
 #define INCLUDE_CONSOLE_H
 
 #include "../../Macro.h"

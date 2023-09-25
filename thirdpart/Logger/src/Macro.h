@@ -162,6 +162,8 @@ typedef std::chrono::system_clock::time_point time_point;
 #define OBJ_CALLBACK_4(obj, cb, ...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, ##__VA_ARGS__)
 #define OBJ_CALLBACK_5(obj, cb, ...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, ##__VA_ARGS__)
 
+typedef HANDLE fd_t;
+
 #elif defined(_linux_)
 
 #include <unistd.h> //ssize_t
@@ -215,6 +217,8 @@ typedef std::chrono::system_clock::time_point time_point;
 #define OBJ_CALLBACK_3(obj, cb, args...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##args)
 #define OBJ_CALLBACK_4(obj, cb, args...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, ##args)
 #define OBJ_CALLBACK_5(obj, cb, args...) std::bind(cb, obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, ##args)
+
+typedef int fd_t;
 
 #endif
 

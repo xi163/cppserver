@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_SPINLOCK_H
+#ifndef INCLUDE_SPINLOCK_H
 #define INCLUDE_SPINLOCK_H
 
 #include "Logger/src/Macro.h"

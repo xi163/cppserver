@@ -1,4 +1,4 @@
-﻿#include "SpinLockImpl.h"
+#include "SpinLockImpl.h"
 #include "../SpinLock.h"
 //#include "../../utils/impl/utilsImpl.h"
 #include "../../auth/auth.h"

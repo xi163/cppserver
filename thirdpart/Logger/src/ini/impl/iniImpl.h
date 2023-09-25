@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_INIIMPL_H
+#ifndef INCLUDE_INIIMPL_H
 #define INCLUDE_INIIMPL_H
 
 #include "../../Macro.h"

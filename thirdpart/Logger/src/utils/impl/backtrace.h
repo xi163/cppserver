@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_BACKTRACE_H
+#ifndef INCLUDE_BACKTRACE_H
 #define INCLUDE_BACKTRACE_H
 
 #include "../../Macro.h"

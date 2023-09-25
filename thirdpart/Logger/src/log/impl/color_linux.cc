@@ -1,4 +1,4 @@
-﻿#include "color_linux.h"
+#include "color_linux.h"
 
 #ifdef _linux_
 

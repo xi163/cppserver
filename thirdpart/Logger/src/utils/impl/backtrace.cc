@@ -1,4 +1,4 @@
-﻿#include "backtrace.h"
+#include "backtrace.h"
 #include "gettimeofday.h"
 #include "../../log/impl/LoggerImpl.h"
 #include "../../excp/impl/excpImpl.h"

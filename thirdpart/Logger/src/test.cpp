@@ -1,4 +1,4 @@
-﻿#include "test.h"
+#include "test.h"
 #include "utils/utils.h"
 #include "timer/timer.h"
 

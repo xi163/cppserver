@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_COLOR_WIN_H
+#ifndef INCLUDE_COLOR_WIN_H
 #define INCLUDE_COLOR_WIN_H
 
 #include "../../Macro.h"
@@ -38,6 +38,8 @@
 #define BACKGROUND_HighCyan    (BACKGROUND_INTENSITY|BACKGROUND_Cyan)//亮青
 #define BACKGROUND_Pink        (BACKGROUND_INTENSITY|BACKGROUND_Purple)//粉红
 #define BACKGROUND_HighWhite   (BACKGROUND_INTENSITY|BACKGROUND_White)//亮白
+
+int Printf(int color, char const* fmt, ...);
 
 #endif
 

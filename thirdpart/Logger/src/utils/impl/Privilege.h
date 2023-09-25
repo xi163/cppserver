@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_PRIVILEGE_H
+#ifndef INCLUDE_PRIVILEGE_H
 #define INCLUDE_PRIVILEGE_H
 
 #include "../../Macro.h"

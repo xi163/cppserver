@@ -1,4 +1,4 @@
-﻿#ifndef INCLUDE_INI_H
+#ifndef INCLUDE_INI_H
 #define INCLUDE_INI_H
 
 #include "Logger/src/Macro.h"
