@@ -26,8 +26,15 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 			if (!freeItems_.empty()) {
 				player = freeItems_.back();
 				freeItems_.pop_back();
+#if 1
+				if (player) {
+					player->Reset();
+					items_[userId] = player;
+				}
+#endif
 			}
 		}
+#if 0
 		if (player) {
 			player->Reset();
 			{
@@ -35,6 +42,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 				items_[userId] = player;
 			}
 		}
+#endif
 	}
 	else {
 		player = std::shared_ptr<CPlayer>(new CPlayer());
