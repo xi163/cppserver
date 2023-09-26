@@ -788,7 +788,7 @@ void CTable::SendUserSitdownFinish(std::shared_ptr<CPlayer> const& player, packe
 }
 
 bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendState, bool sendToSelf) {
-    assert(player && player->Valid() && player->GetTableId() >= 0 && player->GetChairId() >= 0);
+    _ASSERT(player && player->Valid() && player->GetTableId() >= 0 && player->GetChairId() >= 0);
     //游戏中禁止起立
     if (!player->isPlaying()) {
         int64_t userId = player->GetUserId();

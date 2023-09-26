@@ -13,6 +13,7 @@ public:
 	CPlayer();
 	virtual ~CPlayer() = default;
 	virtual void Reset();
+	virtual bool ExistOnlineInfo();
 	virtual inline bool Valid() { return /*tableId_ != INVALID_TABLE && chairId_ != INVALID_CHAIR && */GetUserId() > 0; }
 	virtual inline bool IsRobot() { return false; }
 	virtual inline bool IsOfficial() { return official_; }

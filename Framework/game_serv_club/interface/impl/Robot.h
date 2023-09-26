@@ -14,6 +14,7 @@ public:
 	virtual void Reset();
 	virtual inline bool IsRobot() { return true; }
 	virtual inline bool IsOfficial() { return false; }
+	virtual inline bool ExistOnlineInfo() { return true; }
 	virtual inline std::shared_ptr<IRobotDelegate> GetDelegate() { return robotDelegate_; }
 	/// <summary>
 	/// IRobotDelegate消息回调

@@ -224,11 +224,13 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 		break;
 	}
 	case 3: {
+
 		break;
 	}
 	default:
 		break;
 	}
+	_LOG_ERROR("error");
 	return kFailed;
 }
 
@@ -318,6 +320,7 @@ int Login(
 		break;
 	}
 	}
+	_LOG_ERROR("error");
 	response::xml::Test(req, rsp);
 	return kFailed;
 }

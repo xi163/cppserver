@@ -14,6 +14,7 @@ public:
 	virtual bool Valid() = 0;
 	virtual bool IsRobot() = 0;
 	virtual bool IsOfficial() = 0;
+	virtual bool ExistOnlineInfo() = 0;
 	virtual std::shared_ptr<IRobotDelegate> GetDelegate() = 0;
 	/// <summary>
 	/// IRobotDelegate消息回调

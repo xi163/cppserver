@@ -442,6 +442,12 @@ void CGameTable::CheckGameStart() {
  			//	player->SetUserStatus(sOffline);
  			//	table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_SCORELIMIT);
  			//}
+			else if (!player->ExistOnlineInfo()) {
+				bPlaying_[i] = false;
+				m_bRoundEndExit[i] = false;
+				player->SetUserStatus(sOffline);
+				table_->ClearTableUser(i, true, true);
+			}
 		}
 	}
 }
@@ -1302,6 +1308,12 @@ void CGameTable::clearKickUsers() {
 // 					table_->ClearTableUser(i, true, true, ERROR_ENTERROOM_LONGTIME_NOOP);
 // 				}
 // 			}
+			else if (!player->ExistOnlineInfo()) {
+				bPlaying_[i] = false;
+				m_bRoundEndExit[i] = false;
+				player->SetUserStatus(sOffline);
+				table_->ClearTableUser(i, true, true);
+			}
 			static STD::Random r(1, 100);
 			if (player->IsRobot()  && table_->GetPlayerCount() > MIN_GAME_PLAYER && r.randInt_mt() <= randValue) {
 				OnUserLeft(player->GetUserId(), true);

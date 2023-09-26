@@ -1,4 +1,4 @@
-
+#include "public/Inc.h"
 #include "Player.h"
 
 CPlayer::CPlayer() {
@@ -30,4 +30,9 @@ bool CPlayer::SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data
 /// </summary>
 bool CPlayer::SendTableMessage(uint8_t subId, uint8_t const* data, size_t len) {
 	return false;
+}
+
+bool CPlayer::ExistOnlineInfo() {
+	_ASSERT(baseInfo_.userId > 0);
+	return REDISCLIENT.ExistOnlineInfo(baseInfo_.userId);
 }

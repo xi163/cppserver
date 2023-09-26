@@ -142,6 +142,7 @@ int Router(
 		break;
 	}
 	}
+	_LOG_ERROR("error");
 	response::xml::Test(req, rsp);
 	return kFailed;
 }

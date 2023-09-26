@@ -181,10 +181,11 @@ void RouterServ::onHttpMessage(
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			_LOG_FATAL("entry invalid");
+			_LOG_ERROR("entry invalid");
 		}
 		return;
 	}
+	_LOG_ERROR("error");
 	muduo::net::HttpResponse rsp(false);
 	response::text::Result(
 		muduo::net::HttpResponse::k404NotFound,
@@ -486,6 +487,7 @@ void RouterServ::processHttpRequest(
 // 		}
 // 	}
 	else {
+		_LOG_ERROR("error");
 #if 1
 		response::text::Result(
 			muduo::net::HttpResponse::k404NotFound,
