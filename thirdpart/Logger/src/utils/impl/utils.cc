@@ -86,11 +86,6 @@ namespace utils {
 		return utils::_convertUTC(t, tm, tp, timezone);
 	}
 
-	void timezoneInfo(struct tm const& tm, int timezone) {
-		AUTHORIZATION_CHECK;
-		utils::_timezoneInfo(tm, timezone);
-	}
-
 	std::string strfTime(time_t const t, int timezone) {
 		AUTHORIZATION_CHECK_S;
 		return utils::_strfTime(t, timezone);

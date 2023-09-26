@@ -53,8 +53,6 @@ namespace utils {
 	
 	time_t _strpTime(char const* s, int timezone);
 
-	void _timezoneInfo(struct tm const& tm, int timezone);
-
 	std::string _ws2str(std::wstring const& ws);
 
 	std::wstring _str2ws(std::string const& str);

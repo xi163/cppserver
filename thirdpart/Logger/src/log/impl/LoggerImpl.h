@@ -101,6 +101,7 @@ namespace LOGGER {
 		void stop();
 		bool utcOk();
 		void setting(bool v);
+		static void setting(struct tm const& tm, int timezone);
 		void openConsole();
 		void closeConsole();
 		void doConsole(int const cmd);

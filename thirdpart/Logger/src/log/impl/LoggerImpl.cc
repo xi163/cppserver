@@ -349,10 +349,10 @@ namespace LOGGER {
 			utcOk_ = utils::_convertUTC(time(NULL), tm, NULL, timezone_.load());
 			switch (utcOk_) {
 			case true:
-				utils::_timezoneInfo(tm, timezone_.load());
+				LoggerImpl::setting(tm, timezone_.load());
 				break;
 			default:
-				utils::_timezoneInfo(tm, timezone_.load());
+				LoggerImpl::setting(tm, timezone_.load());
 				break;
 			}
 			break;
@@ -364,20 +364,59 @@ namespace LOGGER {
 				utcOk_ = utils::_convertUTC(time(NULL), tm, NULL, timezone_.load());
 				switch (utcOk_) {
 				case true:
-					utils::_timezoneInfo(tm, timezone_.load());
+					LoggerImpl::setting(tm, timezone_.load());
 					break;
 				default:
-					utils::_timezoneInfo(tm, timezone_.load());
+					LoggerImpl::setting(tm, timezone_.load());
 					break;
 				}
 				break;
 			}
 			default:{
 				struct tm tm = { 0 };
-				utils::_timezoneInfo(tm, timezone_.load());
+				LoggerImpl::setting(tm, timezone_.load());
 				break;
 			}
 			}
+			break;
+		}
+	}
+	
+	//setting
+	void LoggerImpl::setting(struct tm const& tm, int timezone) {
+		switch (timezone) {
+		case MY_EST: {
+			__LOG_INFOF("%s %s %s %s America/New_York %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		case MY_BST: {
+			__LOG_INFOF("%s %s %s %s Europe/London %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		case MY_GST: {
+			__LOG_INFOF("%s %s %s %s Asia/Dubai %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		case MY_CST: {
+			__LOG_INFOF("%s %s %s %s Beijing (China) %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		case MY_JST: {
+			__LOG_INFOF("%s %s %s %s Asia/Tokyo %04d-%02d-%02d %02d:%02d:%02d",
+				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		default:
+			__LOG_ERRORLF("%s %s %s %s", __LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR());
 			break;
 		}
 	}
