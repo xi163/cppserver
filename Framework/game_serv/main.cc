@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 	_LOG_SET_LEVEL(loglevel);
 	_LOG_SET_MODE(logmode);
 	_LOG_SET_STYLE(logstyle);
-	_LOG_INIT(logdir.c_str(), logname.c_str(), 100000000);
+	_LOG_INIT(logdir.c_str(), logname.append(".").append(std::to_string(roomId)).c_str(), 100000000);
 	//zookeeper服务器集群IP
 	std::string strZookeeperIps = "";
 	{

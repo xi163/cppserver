@@ -10,6 +10,34 @@
 
 #define TIME_GAME_START_DELAY 2
 
+class LogInit {
+public:
+	LogInit(uint32_t roomId) {
+		//检查配置文件
+		if (!boost::filesystem::exists(INI_FILENAME)) {
+			_LOG_ERROR("%s not exists", INI_FILENAME);
+			return;
+		}
+		//读取配置文件
+		boost::property_tree::ptree pt;
+		boost::property_tree::read_ini(INI_FILENAME, pt);
+		//日志相关
+		std::string logname = pt.get<std::string>("Global.logname", "s13s");
+		std::string logdir = pt.get<std::string>("Global.logdir", "./log/s13s");
+		int logtimezone = pt.get<int>("Global.logtimezone", MY_CST);
+		int loglevel = pt.get<int>("Global.loglevel", LVL_DEBUG);
+		int logmode = pt.get<int>("Global.logmode", M_STDOUT_FILE);
+		int logstyle = pt.get<int>("Global.logstyle", F_DETAIL);
+		_LOG_SET_TIMEZONE(logtimezone);
+		_LOG_SET_LEVEL(loglevel);
+		_LOG_SET_MODE(logmode);
+		_LOG_SET_STYLE(logstyle);
+		_LOG_INIT(logdir.c_str(), logname.append(".").append(std::to_string(roomId)).c_str(), 100000000);
+	}
+	~LogInit() {
+	}
+};
+
 CGameTable::CGameTable(void) {
 	maxAndroid_ = 0;
 	//累计匹配时长
@@ -40,6 +68,9 @@ bool CGameTable::SetTable(std::shared_ptr<ITable> const& table) {
 	m_replay.roomname = ThisRoomName;
 	m_replay.gameid = ThisGameId;//游戏类型
 	m_replay.saveAsStream = true;//对局详情格式 true-binary false-jsondata
+	
+	static LogInit loginit(ThisRoomId);
+	
 	ReadConfigInformation();
     return true;
 }
