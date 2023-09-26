@@ -22,8 +22,8 @@ public:
 		boost::property_tree::ptree pt;
 		boost::property_tree::read_ini(INI_FILENAME, pt);
 		//日志相关
-		std::string logname = pt.get<std::string>("Global.logname", "s13s_club");
-		std::string logdir = pt.get<std::string>("Global.logdir", "./log/s13s_club");
+		std::string logname = pt.get<std::string>("Global.logname", "s13s");
+		std::string logdir = pt.get<std::string>("Global.logdir", "./log/s13s");
 		int logtimezone = pt.get<int>("Global.logtimezone", MY_CST);
 		int loglevel = pt.get<int>("Global.loglevel", LVL_DEBUG);
 		int logmode = pt.get<int>("Global.logmode", M_STDOUT_FILE);
