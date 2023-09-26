@@ -40,7 +40,7 @@ namespace STD {
 	::time_point& time_point::get() {
 		return t_;
 	}
-	std::string const time_point::format(precision pre, int64_t timzone) const {
+	std::string const time_point::format(precision pre, int timzone) const {
 		struct tm tm = { 0 };
 		struct timeval tv = { 0 };
 		//gettimeofday(&tv, NULL);

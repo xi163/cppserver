@@ -29,7 +29,7 @@ namespace STD {
 		time_t to_time_t() const;
 		::time_point const& get() const;
 		::time_point& get();
-		std::string const format(precision pre = SECOND, int64_t timzone = MY_CST) const;
+		std::string const format(precision pre = SECOND, int timzone = MY_CST) const;
 		time_point duration(int64_t millsec);
 		time_point const duration(int64_t millsec) const;
 		time_point& add(int64_t millsec);
