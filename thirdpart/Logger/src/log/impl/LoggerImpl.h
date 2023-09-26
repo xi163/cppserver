@@ -83,7 +83,6 @@ namespace LOGGER {
 		void stdoutbuf(char const* msg, size_t len, size_t pos, int level, int flag, char const* stack = NULL, size_t stacklen = 0);
 	private:
 		void open(char const* path);
-		static void write(fd_t fd, char const* msg, size_t len);
 		void write(char const* msg, size_t len, size_t pos, int flag);
 		void write(char const* msg, size_t len);
 		void close();
@@ -101,7 +100,6 @@ namespace LOGGER {
 		void stop();
 		bool utcOk();
 		void setting(bool v);
-		static void setting(struct tm const& tm, int timezone);
 		void openConsole();
 		void closeConsole();
 		void doConsole(int const cmd);

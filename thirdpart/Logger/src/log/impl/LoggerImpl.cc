@@ -68,6 +68,33 @@ namespace LOGGER {
 		}
 		return false;
 	}
+
+	bool LoggerImpl::_setLevel(int level) {
+#if 0
+		switch (level) {
+		case LVL_DEBUG:
+		case LVL_TRACE:
+		case LVL_INFO:
+		case LVL_WARN:
+		case LVL_ERROR:
+		case LVL_FATAL:
+			level_.store(level);
+			return true;
+		}
+		return false;
+#else
+		if (level >= LVL_DEBUG) {
+			level_.store(LVL_DEBUG);
+		}
+		else if (level <= LVL_FATAL) {
+			level_.store(LVL_FATAL);
+		}
+		else {
+			level_.store(level);
+		}
+		return true;
+#endif
+	}
 	
 	bool LoggerImpl::_setMode(int mode) {
 		switch (mode) {
@@ -98,33 +125,6 @@ namespace LOGGER {
 		return false;
 	}
 	
-	bool LoggerImpl::_setLevel(int level) {
-#if 0
-		switch (level) {
-		case LVL_DEBUG:
-		case LVL_TRACE:
-		case LVL_INFO:
-		case LVL_WARN:
-		case LVL_ERROR:
-		case LVL_FATAL:
-			level_.store(level);
-			return true;
-		}
-		return false;
-#else
-		if (level >= LVL_DEBUG) {
-			level_.store(LVL_DEBUG);
-		}
-		else if (level <= LVL_FATAL) {
-			level_.store(LVL_FATAL);
-		}
-		else {
-			level_.store(level);
-		}
-		return true;
-#endif
-	}
-	
 	char const* LoggerImpl::timezoneString() const {
 		return getTimezoneDesc(timezone_.load()).c_str();
 	}
@@ -147,8 +147,7 @@ namespace LOGGER {
 	}
 
 	char const* LoggerImpl::levelString() const {
-		static char const* s[] = { "FATAL","ERROR","WARNING","INFO","TRACE","DEBUG" };
-		return s[level_.load()];
+		return getLevelDesc(level_.load()).c_str();
 	}
 	void LoggerImpl::setLevel(int level) {
 		switch (level == level_.load()) {
@@ -168,8 +167,7 @@ namespace LOGGER {
 	}
 	
 	char const* LoggerImpl::modeString() const {
-		static char const* s[] = { "M_STDOUT_ONLY", "M_FILE_ONLY", "M_STDOUT_FILE" };
-		return s[mode_.load()];
+		return getModeDesc(mode_.load()).c_str();
 	}
 	void LoggerImpl::setMode(int mode) {
 		switch (mode == mode_.load()) {
@@ -189,19 +187,7 @@ namespace LOGGER {
 	}
 
 	char const* LoggerImpl::styleString() const {
-		switch (style_.load()) {
-		case F_DETAIL: return "F_DETAIL";
-		case F_TMSTMP: return "F_TMSTMP";
-		case F_FN: return "F_FN";
-		case F_TMSTMP_FN: return "F_TMSTMP_FN";
-		case F_FL: return "F_FL";
-		case F_TMSTMP_FL: return "F_TMSTMP_FL";
-		case F_FL_FN: return "F_FL_FN";
-		case F_TMSTMP_FL_FN: return "F_TMSTMP_FL_FN";
-		case F_TEXT: return "F_TEXT";
-		case F_PURE: return "F_PURE";
-		default: return "F_UNKNOWN";
-		}
+		return getStyleDesc(style_.load()).c_str();
 	}
 	void LoggerImpl::setStyle(int style) {
 		switch (style == style_.load()) {
@@ -342,6 +328,45 @@ namespace LOGGER {
 	}
 	
 	//setting
+	static inline void setting(struct tm const& tm, int timezone, int level, int mode, int style) {
+		switch (timezone) {
+		case MY_EST: {
+			__LOG_INFOF("%s %s %s %s America/New_York %04d-%02d-%02d %02d:%02d:%02d",
+				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		case MY_BST: {
+			__LOG_INFOF("%s %s %s %s Europe/London %04d-%02d-%02d %02d:%02d:%02d",
+				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		case MY_GST: {
+			__LOG_INFOF("%s %s %s %s Asia/Dubai %04d-%02d-%02d %02d:%02d:%02d",
+				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		case MY_CST: {
+			__LOG_INFOF("%s %s %s %s Beijing (China) %04d-%02d-%02d %02d:%02d:%02d",
+				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		case MY_JST: {
+			__LOG_INFOF("%s %s %s %s Asia/Tokyo %04d-%02d-%02d %02d:%02d:%02d",
+				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			break;
+		}
+		default:
+			__LOG_ERRORLF("%s %s %s %s", getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str());
+			break;
+		}
+	}
+	
+	//setting
 	void LoggerImpl::setting(bool v) {
 		switch (v) {
 		case true: {
@@ -349,10 +374,10 @@ namespace LOGGER {
 			utcOk_ = utils::_convertUTC(time(NULL), tm, NULL, timezone_.load());
 			switch (utcOk_) {
 			case true:
-				LoggerImpl::setting(tm, timezone_.load());
+				LOGGER::setting(tm, timezone_.load(), level_.load(), mode_.load(), style_.load());
 				break;
 			default:
-				LoggerImpl::setting(tm, timezone_.load());
+				LOGGER::setting(tm, timezone_.load(), level_.load(), mode_.load(), style_.load());
 				break;
 			}
 			break;
@@ -364,59 +389,20 @@ namespace LOGGER {
 				utcOk_ = utils::_convertUTC(time(NULL), tm, NULL, timezone_.load());
 				switch (utcOk_) {
 				case true:
-					LoggerImpl::setting(tm, timezone_.load());
+					LOGGER::setting(tm, timezone_.load(), level_.load(), mode_.load(), style_.load());
 					break;
 				default:
-					LoggerImpl::setting(tm, timezone_.load());
+					LOGGER::setting(tm, timezone_.load(), level_.load(), mode_.load(), style_.load());
 					break;
 				}
 				break;
 			}
 			default:{
 				struct tm tm = { 0 };
-				LoggerImpl::setting(tm, timezone_.load());
+				LOGGER::setting(tm, timezone_.load(), level_.load(), mode_.load(), style_.load());
 				break;
 			}
 			}
-			break;
-		}
-	}
-	
-	//setting
-	void LoggerImpl::setting(struct tm const& tm, int timezone) {
-		switch (timezone) {
-		case MY_EST: {
-			__LOG_INFOF("%s %s %s %s America/New_York %04d-%02d-%02d %02d:%02d:%02d",
-				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
-				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-			break;
-		}
-		case MY_BST: {
-			__LOG_INFOF("%s %s %s %s Europe/London %04d-%02d-%02d %02d:%02d:%02d",
-				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
-				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-			break;
-		}
-		case MY_GST: {
-			__LOG_INFOF("%s %s %s %s Asia/Dubai %04d-%02d-%02d %02d:%02d:%02d",
-				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
-				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-			break;
-		}
-		case MY_CST: {
-			__LOG_INFOF("%s %s %s %s Beijing (China) %04d-%02d-%02d %02d:%02d:%02d",
-				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
-				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-			break;
-		}
-		case MY_JST: {
-			__LOG_INFOF("%s %s %s %s Asia/Tokyo %04d-%02d-%02d %02d:%02d:%02d",
-				__LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR(),
-				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-			break;
-		}
-		default:
-			__LOG_ERRORLF("%s %s %s %s", __LOG_LEVEL_STR(), __LOG_MODE_STR(), __LOG_STYLE_STR(), __LOG_TIMEZONE_STR());
 			break;
 		}
 	}
@@ -548,6 +534,16 @@ namespace LOGGER {
 	}
 
 	//write
+	static inline void write(fd_t fd, char const* msg, size_t len) {
+#ifdef _windows_
+		long size = 0;
+		(void)::WriteFile(fd, msg, len, (LPDWORD)&size, NULL);
+#else
+		(void)::write(fd, msg, len);
+#endif
+	}
+
+	//write
 	void LoggerImpl::write(char const* msg, size_t len, size_t pos, int flag) {
 		switch (fd_) {
 		case INVALID_HANDLE_VALUE:
@@ -556,44 +552,44 @@ namespace LOGGER {
 			switch (flag) {
 			case F_DETAIL:
 			case F_DETAIL_SYNC:
-				LoggerImpl::write(fd_, msg, len);
+				LOGGER::write(fd_, msg, len);
 				break;
 			case F_TMSTMP:
 			case F_TMSTMP_SYNC:
-				LoggerImpl::write(fd_, msg, len);
+				LOGGER::write(fd_, msg, len);
 				break;
 			case F_FN:
 			case F_FN_SYNC:
-				LoggerImpl::write(fd_, msg, len);
+				LOGGER::write(fd_, msg, len);
 				break;
 			case F_TMSTMP_FN:
 			case F_TMSTMP_FN_SYNC:
-				LoggerImpl::write(fd_, msg, len);
+				LOGGER::write(fd_, msg, len);
 				break;
 			case F_FL:
 			case F_FL_SYNC:
-				LoggerImpl::write(fd_, msg, len);
+				LOGGER::write(fd_, msg, len);
 				break;
 			case F_TMSTMP_FL:
 			case F_TMSTMP_FL_SYNC:
-				LoggerImpl::write(fd_, msg, len);
+				LOGGER::write(fd_, msg, len);
 				break;
 			case F_FL_FN:
 			case F_FL_FN_SYNC:
-				LoggerImpl::write(fd_, msg, len);
+				LOGGER::write(fd_, msg, len);
 				break;
 			case F_TMSTMP_FL_FN:
 			case F_TMSTMP_FL_FN_SYNC:
-				LoggerImpl::write(fd_, msg, len);
+				LOGGER::write(fd_, msg, len);
 				break;
 			case F_TEXT:
 			case F_TEXT_SYNC:
-				LoggerImpl::write(fd_, msg, len);
+				LOGGER::write(fd_, msg, len);
 				break;
 			case F_PURE:
 			case F_PURE_SYNC:
 			default:
-				LoggerImpl::write(fd_, msg + pos, (int)len - (int)pos);
+				LOGGER::write(fd_, msg + pos, (int)len - (int)pos);
 				break;
 			}
 			break;
@@ -606,27 +602,17 @@ namespace LOGGER {
 		case INVALID_HANDLE_VALUE:
 			break;
 		default:
-			LoggerImpl::write(fd_, msg, len);
+			LOGGER::write(fd_, msg, len);
 			break;
 		}
 	}
 	
-	//write
-	void LoggerImpl::write(fd_t fd, char const* msg, size_t len) {
-#ifdef _windows_
-		long size = 0;
-		(void)::WriteFile(fd, msg, len, (LPDWORD)&size, NULL);
-#else
-		(void)::write(fd, msg, len);
-#endif
-	}
-
 	//close
 	void LoggerImpl::close() {
 
 		if (INVALID_HANDLE_VALUE != fd_) {
 #ifdef _windows_
-			CloseHandle(fd_);
+			::CloseHandle(fd_);
 #else
 			::close(fd_);
 #endif
