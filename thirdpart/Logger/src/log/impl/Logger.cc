@@ -95,9 +95,9 @@ namespace LOGGER {
 	}
 
 	//init
-	void Logger::init(char const* dir, char const* prename, size_t logsize) {
-		//AUTHORIZATION_CHECK;
-		impl_->init(dir, prename, logsize);
+	void Logger::init(char const* dir, char const* logname, size_t logsize) {
+		AUTHORIZATION_CHECK;
+		impl_->init(dir, logname, logsize);
 	}
 
 	//write

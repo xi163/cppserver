@@ -47,7 +47,7 @@ namespace LOGGER {
 
 		void setColor(int level, int title, int text);
 	public:
-		void init(char const* dir, char const* prename = NULL, size_t logsize = 100000000);
+		void init(char const* dir, char const* logname = NULL, size_t logsize = 100000000);
 		void write(int level, char const* file, int line, char const* func, char const* stack, int flag, char const* format, ...);
 		void write_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
 		void write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);

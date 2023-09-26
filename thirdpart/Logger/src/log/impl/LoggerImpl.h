@@ -69,7 +69,7 @@ namespace LOGGER {
 
 		void setColor(int level, int title, int text);
 	public:
-		void init(char const* dir, char const* prename, size_t logsize);
+		void init(char const* dir, char const* logname, size_t logsize);
 		void write(int level, char const* file, int line, char const* func, char const* stack, int flag, char const* format, ...);
 		void write_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
 		void write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
@@ -86,6 +86,7 @@ namespace LOGGER {
 		void write(char const* msg, size_t len, size_t pos, int flag);
 		void write(char const* msg, size_t len);
 		void close();
+		bool mkdir();
 		void shift(struct tm const& tm, struct timeval const& tv);
 		bool update(struct tm& tm, struct timeval& tv);
 		void get(struct tm& tm, struct timeval& tv);
@@ -108,8 +109,6 @@ namespace LOGGER {
 		bool _setMode(int mode);
 		bool _setStyle(int style);
 		bool _setLevel(int level);
-		bool _checkDir();
-		std::string const _name(bool space);
 	private:
 		bool mkdir_ = false;
 		bool utcOk_ = true;
@@ -123,7 +122,7 @@ namespace LOGGER {
 		std::atomic<int> style_{ F_DETAIL };
 		char prefix_[256] = { 0 };
 		char path_[512] = { 0 };
-		char prename_[30] = { 0 };
+		char name_[30] = { 0 };
 		struct timeval tv_ = { 0 };
 		struct tm tm_ = { 0 };
 		//mutable std::shared_mutex tm_mutex_;
