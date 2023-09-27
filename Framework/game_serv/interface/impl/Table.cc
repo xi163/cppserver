@@ -784,7 +784,11 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
         if (player->IsRobot()) {
             _LOG_WARN("<robot> %d %d", chairId, userId);
             //清理机器人数据
+#ifdef DEL_ROBOT_BY_USERID_
             CRobotMgr::get_mutable_instance().Delete(userId);
+#else
+            CRobotMgr::get_mutable_instance().Delete(player);
+#endif
         }
         else {
             if (roomInfo_->serverStatus != kRunning && tableContext_->GetGameInfo()->gameType == GameType_BaiRen) {
@@ -804,7 +808,11 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
             //清理真人数据
             tableContext_->DelContext(userId);
             DelOnlineInfo(userId);
+#ifdef DEL_PLAYER_BY_USERID_
             CPlayerMgr::get_mutable_instance().Delete(userId);
+#else
+            CPlayerMgr::get_mutable_instance().Delete(player);
+#endif
         }
         //清空重置座位
         if (chairId < items_.size()) {

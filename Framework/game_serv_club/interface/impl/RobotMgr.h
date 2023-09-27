@@ -14,9 +14,11 @@ public:
 	bool Empty();
 	std::shared_ptr<CRobot> Pick();
 	void Delete(int64_t userId);
+	void Delete(std::shared_ptr<CRobot> const& robot);
 private:
 	bool load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, RobotDelegateCreator creator);
 protected:
+	typedef std::pair<int64_t, std::shared_ptr<CRobot>> Item;
 	std::map<int64_t, std::shared_ptr<CRobot>> items_;
 	std::list<std::shared_ptr<CRobot>> freeItems_;
 	mutable boost::shared_mutex mutex_;

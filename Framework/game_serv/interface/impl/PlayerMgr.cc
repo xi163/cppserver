@@ -28,7 +28,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 				freeItems_.pop_back();
 #if 0
 				if (player) {
-					//player->Reset();
+					player->Reset();
 					items_[userId] = player;
 				}
 #endif
@@ -36,7 +36,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 		}
 #if 1
 		if (player) {
-			//player->Reset();
+			player->Reset();
 			{
 				WRITE_LOCK(mutex_);
 				items_[userId] = player;
@@ -65,6 +65,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::Get(int64_t userId) {
 	return std::shared_ptr<CPlayer>();
 }
 
+//一个userId占用多个CPlayer对象?
 void CPlayerMgr::Delete(int64_t userId) {
 	{
 		WRITE_LOCK(mutex_);
@@ -77,4 +78,21 @@ void CPlayerMgr::Delete(int64_t userId) {
 		}
 	}
 	_LOG_ERROR("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
+}
+
+void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
+	{
+		WRITE_LOCK(mutex_);
+		std::map<int64_t, std::shared_ptr<CPlayer>>::iterator it = std::find_if(std::begin(items_), std::end(items_),
+			[&](Item& kv) -> bool {
+				return kv.second.get() == player.get();
+			});
+		if (it != items_.end()) {
+			std::shared_ptr<CPlayer>& player = it->second;
+			items_.erase(it);
+			player->Reset();
+			freeItems_.emplace_back(player);
+		}
+	}
+	_LOG_ERROR("%d used = %d free = %d", player->GetUserId(), items_.size(), freeItems_.size());
 }
