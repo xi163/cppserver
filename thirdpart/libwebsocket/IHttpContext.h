@@ -94,6 +94,8 @@ namespace muduo {
 		typedef http::IContext IHttpContext;
 		typedef std::unique_ptr<IHttpContext> IHttpContextPtr;
 
+		typedef std::function<bool(http::IRequest const* request)> wsValidateCallback;
+
 	}//namespace net
 }//namespace muduo
 

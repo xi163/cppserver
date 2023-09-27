@@ -3618,10 +3618,9 @@ namespace muduo {
 #endif
 						break;
 					}
-
-#ifdef LIBWEBSOCKET_DEBUG
+//#ifdef LIBWEBSOCKET_DEBUG
 					_LOG_INFO("bufsize = %d\n\n%.*s", buf->readableBytes(), buf->readableBytes(), buf->peek());
-#endif
+//#endif
 					//务必先找到CRLFCRLF结束符得到完整HTTP请求，否则unique_ptr对象失效
 					if (!context.getHttpContext()) {
 						*saveErrno = HandShakeE::WS_ERROR_HTTPCONTEXT;
@@ -3649,7 +3648,7 @@ namespace muduo {
 #endif
 							break;
 						}
-						//HTTP/1.1
+						//HTTP/1.1 - built-in
 						muduo::net::http::IRequest::Version version = context.getHttpContext()->requestConstPtr()->getVersion();
 						if (version != muduo::net::http::IRequest::kHttp11) {
 							*saveErrno = HandShakeE::WS_ERROR_HTTPVERSION;
@@ -3658,7 +3657,7 @@ namespace muduo {
 #endif
 							break;
 						}
-						//Connection: Upgrade
+						//Connection: Upgrade - built-in
 						std::string connection = context.getHttpContext()->requestConstPtr()->getHeader("Connection");
 						if (connection.empty() || connection != "Upgrade") {
 							*saveErrno = HandShakeE::WS_ERROR_CONNECTION;
@@ -3667,7 +3666,7 @@ namespace muduo {
 #endif
 							break;
 						}
-						//Upgrade: websocket
+						//Upgrade: websocket - built-in
 						std::string upgrade = context.getHttpContext()->requestConstPtr()->getHeader("Upgrade");
 						if (upgrade.empty() || upgrade != "websocket") {
 							*saveErrno = HandShakeE::WS_ERROR_UPGRADE;
@@ -3698,7 +3697,7 @@ namespace muduo {
 #endif
 							break;
 						}
-						//Sec-WebSocket-Version: 13
+						//Sec-WebSocket-Version: 13 - built-in
 						std::string SecWebSocketVersion = context.getHttpContext()->requestConstPtr()->getHeader("Sec-WebSocket-Version");
 						if (SecWebSocketVersion.empty() || SecWebSocketVersion != "13") {
 							*saveErrno = HandShakeE::WS_ERROR_SECVERSION;
@@ -3707,7 +3706,7 @@ namespace muduo {
 #endif
 							break;
 						}
-						//Sec-WebSocket-Key: ylPFmimkYxdg/eh968/lHQ==
+						//Sec-WebSocket-Key: ylPFmimkYxdg/eh968/lHQ== - built-in
 						std::string SecWebSocketKey = context.getHttpContext()->requestConstPtr()->getHeader("Sec-WebSocket-Key");
 						if (SecWebSocketKey.empty()) {
 							*saveErrno = HandShakeE::WS_ERROR_SECKEY;
@@ -3717,7 +3716,7 @@ namespace muduo {
 							break;
 						}
 						if (handler) {
-							if (!handler->onValidateCallback(SecWebSocketKey)) {
+							if (!handler->onValidateCallback(context.getHttpContext()->requestConstPtr())) {
 								*saveErrno = HandShakeE::WS_ERROR_SECKEYCHK;
 #ifdef LIBWEBSOCKET_DEBUG
 								_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());

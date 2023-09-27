@@ -48,7 +48,7 @@ namespace muduo {
 				void forceClose();
 				void forceCloseWithDelay(double seconds);
 				std::string peerIpAddrToString() const;
-				bool onValidateCallback(std::string const& key);
+				bool onValidateCallback(http::IRequest const* request);
 				void onConnectedCallback(std::string const& ipaddr);
 				void onMessageCallback(IBytesBuffer* buf, int msgType, ITimestamp* receiveTime);
 				void onClosedCallback(IBytesBuffer* buf, ITimestamp* receiveTime);

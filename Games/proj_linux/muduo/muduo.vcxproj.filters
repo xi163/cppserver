@@ -16,14 +16,14 @@
     <Filter Include="websocket">
       <UniqueIdentifier>{26d35666-3c10-4c15-81a8-e80c31f40307}</UniqueIdentifier>
     </Filter>
-    <Filter Include="protorpc2">
-      <UniqueIdentifier>{3da612fd-e360-46b7-92bb-3e6659b8e9ea}</UniqueIdentifier>
-    </Filter>
     <Filter Include="protorpc">
       <UniqueIdentifier>{662143ac-f96f-4848-992f-1a3f3c33f586}</UniqueIdentifier>
     </Filter>
     <Filter Include="protobuf">
       <UniqueIdentifier>{1d2eff8d-3411-4bb5-bbb3-dad0305a32bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="protorpc\protorpc2">
+      <UniqueIdentifier>{3da612fd-e360-46b7-92bb-3e6659b8e9ea}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -145,19 +145,19 @@
       <Filter>poller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcServer.cc">
-      <Filter>protorpc2</Filter>
+      <Filter>protorpc\protorpc2</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcService.cc">
-      <Filter>protorpc2</Filter>
+      <Filter>protorpc\protorpc2</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcChannel.cc">
-      <Filter>protorpc2</Filter>
+      <Filter>protorpc\protorpc2</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.cc">
       <Filter>protorpc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\rpcservice.pb.cc">
-      <Filter>protorpc2</Filter>
+      <Filter>protorpc\protorpc2</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpc.pb.cc">
       <Filter>protorpc</Filter>
@@ -342,22 +342,22 @@
       <Filter>poller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcServer.h">
-      <Filter>protorpc2</Filter>
+      <Filter>protorpc\protorpc2</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcService.h">
-      <Filter>protorpc2</Filter>
+      <Filter>protorpc\protorpc2</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\service.h">
-      <Filter>protorpc2</Filter>
+      <Filter>protorpc\protorpc2</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\RpcChannel.h">
-      <Filter>protorpc2</Filter>
+      <Filter>protorpc\protorpc2</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\RpcCodec.h">
       <Filter>protorpc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\protorpc2\rpcservice.pb.h">
-      <Filter>protorpc2</Filter>
+      <Filter>protorpc\protorpc2</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protorpc\rpc.pb.h">
       <Filter>protorpc</Filter>
