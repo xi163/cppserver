@@ -26,17 +26,17 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 			if (!freeItems_.empty()) {
 				player = freeItems_.back();
 				freeItems_.pop_back();
-#if 1
+#if 0
 				if (player) {
-					player->Reset();
+					//player->Reset();
 					items_[userId] = player;
 				}
 #endif
 			}
 		}
-#if 0
+#if 1
 		if (player) {
-			player->Reset();
+			//player->Reset();
 			{
 				WRITE_LOCK(mutex_);
 				items_[userId] = player;
