@@ -787,7 +787,7 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
 #ifdef DEL_ROBOT_BY_USERID_
             CRobotMgr::get_mutable_instance().Delete(userId);
 #else
-            CRobotMgr::get_mutable_instance().Delete(player);
+            CRobotMgr::get_mutable_instance().Delete(std::dynamic_pointer_cast<CRobot>(player));
 #endif
         }
         else {

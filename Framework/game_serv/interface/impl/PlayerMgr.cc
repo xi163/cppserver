@@ -84,7 +84,7 @@ void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 	{
 		WRITE_LOCK(mutex_);
 		std::map<int64_t, std::shared_ptr<CPlayer>>::iterator it = std::find_if(std::begin(items_), std::end(items_),
-			[&](Item& kv) -> bool {
+			[&](Item const& kv) -> bool {
 				return kv.second.get() == player.get();
 			});
 		if (it != items_.end()) {
