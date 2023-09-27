@@ -71,6 +71,11 @@
     ldd -r ./*.so
 
 ### gcc g++升级
+    debuginfo-install glibc-2.17-326.el7_9.x86_64 libgcc-4.8.5-44.el7.x86_64 libstdc++-4.8.5-44.el7.x86_64 zlib-1.2.7-20.el7_9.x86_64
+    yum --enablerepo='*debug*' install /usr/lib/debug/.build-id/81/414f466ecfd2127b001e5aef506d56362b12e8
+    yum install gcc
+    yum install gcc-c++
+    yum install gdb
     yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel asciidoc
     yum install make automake gcc gcc-c++ kernel-devel cmake
     yum groupinstall "Development Tools" "Development Libraries" --skip-broken

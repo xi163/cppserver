@@ -153,7 +153,8 @@ static std::string varname##_to_string(int varname);
 		XX(WS_ERROR_PACKSZ, "握手包非法") \
 		XX(WS_ERROR_CRLFCRLF, "握手查找CRLFCRLF") \
 		XX(WS_ERROR_CONTEXT, "无效websocket::context") \
-		XX(WS_ERROR_PATH, "握手路径错误")
+		XX(WS_ERROR_PATH, "握手路径错误") \
+		XX(WS_ERROR_HTTPCONTEXT, "无效websocket::httpContext")
 
 #define FUNCTON_DECLARE_HANDSHAKE_TO_STRING(varname) \
 			MY_DESC_TABLE_DECLARE(table_##varname##s_, MY_MAP_HANDSHAKE); \
@@ -248,12 +249,13 @@ namespace muduo {
 
 			//握手错误码
 			enum HandShakeE {
-				WS_ERROR_WANT_MORE = 0x66, //握手读取
-				WS_ERROR_PARSE     = 0x77, //握手解析失败
-				WS_ERROR_PACKSZ    = 0x88, //握手包非法
-				WS_ERROR_CRLFCRLF  = 0x99, //握手查找CRLFCRLF
-				WS_ERROR_CONTEXT   = 0x55, //无效websocket::Context
-				WS_ERROR_PATH      = 0x33, //握手路径错误
+				WS_ERROR_WANT_MORE   = 0x66, //握手读取
+				WS_ERROR_PARSE       = 0x77, //握手解析失败
+				WS_ERROR_PACKSZ      = 0x88, //握手包非法
+				WS_ERROR_CRLFCRLF    = 0x99, //握手查找CRLFCRLF
+				WS_ERROR_CONTEXT     = 0x55, //无效websocket::Context
+				WS_ERROR_PATH        = 0x33, //握手路径错误
+				WS_ERROR_HTTPCONTEXT = 0x22, //无效websocket::httpContext
 			};
 
 			//连接状态
@@ -1026,7 +1028,7 @@ namespace muduo {
 				}
 
 				inline IHttpContextPtr& getHttpContext() {
-					assert(httpContext_);
+					//assert(httpContext_);
 					return httpContext_;
 				}
 
@@ -3604,9 +3606,11 @@ namespace muduo {
 #endif
 					//务必先找到CRLFCRLF结束符得到完整HTTP请求，否则unique_ptr对象失效
 					if (!context.getHttpContext()) {
+						*saveErrno = HandShakeE::WS_ERROR_HTTPCONTEXT;
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_ERROR("httpContext == null");
+						_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
 #endif
+						break;
 					}
 					assert(context.getHttpContext());
 					if (!context.getHttpContext()->parseRequestPtr(buf, receiveTime)) {
@@ -3690,6 +3694,7 @@ namespace muduo {
 				} while (0);
 				switch (*saveErrno)
 				{
+				case HandShakeE::WS_ERROR_HTTPCONTEXT:
 				case HandShakeE::WS_ERROR_PATH:
 				case HandShakeE::WS_ERROR_PARSE:
 				case HandShakeE::WS_ERROR_PACKSZ:
@@ -3726,6 +3731,7 @@ namespace muduo {
 						case HandShakeE::WS_ERROR_WANT_MORE:
 						case HandShakeE::WS_ERROR_CRLFCRLF:
 							break;
+						case HandShakeE::WS_ERROR_HTTPCONTEXT:
 						case HandShakeE::WS_ERROR_PATH:
 						case HandShakeE::WS_ERROR_PARSE:
 						case HandShakeE::WS_ERROR_PACKSZ: {
