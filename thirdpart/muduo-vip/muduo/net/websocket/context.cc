@@ -86,7 +86,25 @@ namespace muduo {
 				}
 				return "0.0.0.0";
 			}
+			
+			bool Context::onValidateCallback(std::string const& key) {
+//				muduo::net::TcpConnectionPtr conn(weakConn_.lock());
+// 				if (conn) {
+// 					conn->getLoop()->assertInLoopThread();
+// 
+// 					muduo::net::Buffer* buff = reinterpret_cast<muduo::net::Buffer*>(buf);
+// 					assert(buff);
+// 
+// 					muduo::Timestamp* preceiveTime = reinterpret_cast<muduo::Timestamp*>(receiveTime);
+// 					assert(preceiveTime);
 
+					if (wsValidateCallback_) {
+						return wsValidateCallback_(key);
+					}
+					return true;
+//				}
+			}
+			
 			void Context::onConnectedCallback(std::string const& ipaddr) {
 				muduo::net::TcpConnectionPtr conn(weakConn_.lock());
 				if (conn) {

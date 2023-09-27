@@ -37,8 +37,9 @@ namespace muduo {
 			}
 			
 			void hook(
-				const WsConnectedCallback& ccb,
-				const WsMessageCallback& mcb,
+				const muduo::net::wsValidateCallback& vcb,
+				const muduo::net::WsConnectedCallback& ccb,
+				const muduo::net::WsMessageCallback& mcb,
 				const muduo::net::TcpConnectionPtr& conn,
 				std::string const& path_handshake) {
 				conn->getLoop()->assertInLoopThread();
@@ -47,6 +48,8 @@ namespace muduo {
 				//////////////////////////////////////////////////////////////////////////
 				websocket::ContextPtr context(new muduo::net::websocket::Context(conn, path_handshake));
 				{
+					//wsValidateCallback
+					context->setWsValidateCallback(vcb);
 					//WsConnectedCallback
 					context->setWsConnectedCallback(ccb);
 					//WsClosedCallback
@@ -119,12 +122,13 @@ namespace muduo {
 			}
 
 			void Server::hook(
-				const WsConnectedCallback& ccb,
-				const WsMessageCallback& mcb,
+				const muduo::net::wsValidateCallback& vcb,
+				const muduo::net::WsConnectedCallback& ccb,
+				const muduo::net::WsMessageCallback& mcb,
 				const muduo::net::TcpConnectionPtr& conn,
 				std::string const& path_handshake) {
 
-				muduo::net::websocket::hook(ccb, mcb, conn, path_handshake);
+				muduo::net::websocket::hook(vcb, ccb, mcb, conn, path_handshake);
 			}
 
 			void Server::reset(const muduo::net::TcpConnectionPtr& conn) {

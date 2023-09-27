@@ -20,6 +20,7 @@ namespace muduo {
 				virtual void forceClose() = 0;
 				virtual void forceCloseWithDelay(double seconds) = 0;
 				virtual std::string peerIpAddrToString() const   = 0;
+				virtual bool onValidateCallback(std::string const& key)                                 = 0;
 				virtual void onConnectedCallback(std::string const& ipaddr)                             = 0;
 				virtual void onMessageCallback(IBytesBuffer* buf, int msgType, ITimestamp* receiveTime) = 0;
 				virtual void onClosedCallback(IBytesBuffer* buf, ITimestamp* receiveTime)               = 0;

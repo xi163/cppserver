@@ -22,6 +22,9 @@ namespace muduo {
 				explicit Context(const muduo::net::WeakTcpConnectionPtr& weakConn, std::string const& path);
 				~Context();
 			public:
+				inline void setWsValidateCallback(wsValidateCallback const& cb) {
+					wsValidateCallback_ = cb;
+				}
 				inline void setWsConnectedCallback(WsConnectedCallback const& cb) {
 					wsConnectedCallback_ = cb;
 				}
@@ -45,6 +48,7 @@ namespace muduo {
 				void forceClose();
 				void forceCloseWithDelay(double seconds);
 				std::string peerIpAddrToString() const;
+				bool onValidateCallback(std::string const& key);
 				void onConnectedCallback(std::string const& ipaddr);
 				void onMessageCallback(IBytesBuffer* buf, int msgType, ITimestamp* receiveTime);
 				void onClosedCallback(IBytesBuffer* buf, ITimestamp* receiveTime);
@@ -64,6 +68,7 @@ namespace muduo {
 				std::unique_ptr<Holder> holder_;
 #endif
 				muduo::net::WeakTcpConnectionPtr weakConn_;
+				wsValidateCallback wsValidateCallback_;
 				WsConnectedCallback wsConnectedCallback_;
 				WsMessageCallback wsMessageCallback_;
 				WsClosedCallback wsClosedCallback_;

@@ -11,8 +11,9 @@ namespace muduo {
         namespace websocket {
 
 			void hook(
-				const WsConnectedCallback& ccb,
-				const WsMessageCallback& mcb,
+				const muduo::net::wsValidateCallback& vcb,
+				const muduo::net::WsConnectedCallback& ccb,
+				const muduo::net::WsMessageCallback& mcb,
 				const muduo::net::TcpConnectionPtr& conn,
 				std::string const& path_handshake);
 
@@ -44,8 +45,9 @@ namespace muduo {
 				void start(bool et = false);
 
 				static void hook(
-					const WsConnectedCallback& ccb,
-					const WsMessageCallback& mcb,
+					const muduo::net::wsValidateCallback& vcb,
+					const muduo::net::WsConnectedCallback& ccb,
+					const muduo::net::WsMessageCallback& mcb,
 					const muduo::net::TcpConnectionPtr& conn,
 					std::string const& path_handshake);
 

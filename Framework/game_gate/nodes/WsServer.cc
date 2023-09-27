@@ -37,12 +37,13 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		//websocket::Context::ctor
 		//////////////////////////////////////////////////////////////////////////
 		muduo::net::websocket::hook(
+			std::bind(&GateServ::onValidate, this,
+				std::placeholders::_1),
 			std::bind(&GateServ::onConnected, this,
 				std::placeholders::_1, std::placeholders::_2),
 			std::bind(&GateServ::onMessage, this,
 				std::placeholders::_1, std::placeholders::_2,
-				std::placeholders::_3, std::placeholders::_4),
-			conn, path_handshake_);
+				std::placeholders::_3, std::placeholders::_4), conn, path_handshake_);
 		EntryPtr entry(new Entry(Entry::TypeE::TcpTy, conn, "客户端", "网关服"));
 		RunInLoop(conn->getLoop(),
 			std::bind(&Buckets::push, &boost::any_cast<Buckets&>(conn->getLoop()->getContext()), entry));
@@ -68,6 +69,11 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 					this, entryContext));
 		}
 	}
+}
+
+bool GateServ::onValidate(std::string const& key) {
+	_LOG_ERROR("%s", key.c_str());
+	return true;
 }
 
 void GateServ::onConnected(
