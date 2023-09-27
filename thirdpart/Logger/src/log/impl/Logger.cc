@@ -161,16 +161,16 @@ namespace LOGGER {
 int main() {
 	utils::setrlimit();
 	_LOG_SET_MODE(M_FILE_ONLY);
-	_LOG_SET_STYLE(F_PURE);
+	//_LOG_SET_STYLE(F_PURE);
 	_LOG_SET_DEBUG;
 	_LOG_INIT("/mnt/hgfs/presstest/deploy/log", "client_presstest", 10000);
-	//while (1) {
-	for (int i = 0; i < 10; ++i) {
-		xsleep(0);
-		_LOG_DEBUG("Hi%d", i);
+	while (1) {
+		for (int i = 0; i < 10; ++i) {
+			xsleep(0);
+			_LOG_DEBUG("_______Hi%d", i);
+		}
 	}
-	//}
-	_LOG_FATAL("崩溃吧");
+	//_LOG_FATAL("崩溃吧");
 	return 0;
 }
 #endif

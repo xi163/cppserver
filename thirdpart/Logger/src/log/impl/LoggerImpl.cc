@@ -528,35 +528,22 @@ namespace LOGGER {
 	
 	void LoggerImpl::shift(struct tm const& tm, struct timeval const& tv) {
 		assert(prefix_[0]);
-		if (tm.tm_mday != day_) {
+		if (tm.tm_mday != day_) {//new day
 			close();
 			snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.log",
 				prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			struct stat stStat;
 			if (stat(path_, &stStat) < 0) {
-			}
-			else {
-				remove(path_);
-			}
-			open(path_);
-			day_ = tm.tm_mday;
-		}
-		else {
-			struct stat stStat;
-			if (stat(path_, &stStat) < 0) {
-				close();
 				open(path_);
-				return;
+				day_ = tm.tm_mday;
 			}
-			if (stStat.st_size < size_) {
-			}
-			else {
-				close();
+			else {//0 existed
 				snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.%.6lu.log",
 					prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
+				struct stat stStat;
 				if (stat(path_, &stStat) < 0) {
 					open(path_);
-					//day_ = tm.tm_mday;
+					day_ = tm.tm_mday;
 				}
 				else {//0 existed
 					for (int i = 0;;) {
@@ -564,11 +551,77 @@ namespace LOGGER {
 							prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec, i);
 						if (stat(path_, &stStat) < 0) {
 							open(path_);
-							//day_ = tm.tm_mday;
+							day_ = tm.tm_mday;
 							break;
 						}
-						else {
+						else {//0 existed
 							++i;
+						}
+					}
+				}
+			}
+		}
+		else {//current day
+			struct stat stStat;
+			if (stat(path_, &stStat) < 0) {
+				close();
+				snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.log",
+					prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+				struct stat stStat;
+				if (stat(path_, &stStat) < 0) {
+					open(path_);
+				}
+				else {//0 existed
+					snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.%.6lu.log",
+						prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
+					struct stat stStat;
+					if (stat(path_, &stStat) < 0) {
+						open(path_);
+					}
+					else {//0 existed
+						for (int i = 0;;) {
+							snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.%.6lu.%d.log",
+								prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec, i);
+							if (stat(path_, &stStat) < 0) {
+								open(path_);
+								break;
+							}
+							else {//0 existed
+								++i;
+							}
+						}
+					}
+				}
+			}
+			else {//0 existed
+				if (stStat.st_size < size_) {
+				}
+				else {
+					close();
+					snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.log",
+						prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+					struct stat stStat;
+					if (stat(path_, &stStat) < 0) {
+						open(path_);
+					}
+					else {//0 existed
+						snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.%.6lu.log",
+							prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
+						if (stat(path_, &stStat) < 0) {
+							open(path_);
+						}
+						else {//0 existed
+							for (int i = 0;;) {
+								snprintf(path_, sizeof(path_), "%s%d_%04d-%02d-%02d.%02d.%02d.%02d.%.6lu.%d.log",
+									prefix_, pid_, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec, i);
+								if (stat(path_, &stStat) < 0) {
+									open(path_);
+									break;
+								}
+								else {//0 existed
+									++i;
+								}
+							}
 						}
 					}
 				}
