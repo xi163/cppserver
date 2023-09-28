@@ -97,7 +97,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver;/home/andy/cppserver/public;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart/Json/include;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/jsoncpp-src-0.5.0/include;/home/andy/cppserver/Framework/game_serv_club;/home/andy/cppserver/Framework/game_serv_club/interface;/home/andy/cppserver/Games/Game_s13s_club;/home/andy/cppserver/Framework;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable -Wno-sign-compare -Wno-switch %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>

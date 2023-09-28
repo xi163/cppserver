@@ -150,7 +150,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/bsoncxx/v_noabi;/usr/local/include/mongocxx/v_noabi;/usr/local/include/google/protobuf;/usr/local/include/hiredis-vip;/usr/local/include/zookeeper;/home/andy/cppserver;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;/home/andy/cppserver/public/MongoDB;/home/andy/cppserver/public/RedisClient;/home/andy/cppserver/public/RedisLock;/home/andy/cppserver/public/zookeeperclient;/home/andy/cppserver/Framework/game_serv;/home/andy/cppserver/Framework/game_serv/interface;/home/andy/cppserver/Framework/game_serv/interface/impl;/home/andy/cppserver/Framework;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUDUO_STD_STRING</PreprocessorDefinitions>
-      <AdditionalOptions>-pthread -Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable</AdditionalOptions>
+      <AdditionalOptions>-pthread -Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable -Wno-sign-compare</AdditionalOptions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
