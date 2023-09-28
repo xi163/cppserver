@@ -867,7 +867,7 @@ void HallServ::cmd_get_game_info(
 			rspdata.set_retcode(0);
 			rspdata.set_errormsg("Get Game Message OK!");
 			//if (gameinfo_[reqdata.type()].gamemessage_size() == 0) {
-			//	_LOG_ERROR("%s 游戏列表为空", getModeStr(reqdata.type()).c_str());
+			//	_LOG_ERROR("%s 游戏列表为空", getModeMsg(reqdata.type()).c_str());
 			//}
 			for (int i = 0; i < gameinfo_[reqdata.type()].gamemessage_size(); ++i) {
 				switch (gameinfo_[reqdata.type()].gamemessage(i).gameprivate()) {

@@ -94,7 +94,7 @@ namespace rpc {
 		case containTy::kRpcGameTy: {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
-			_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _serv_ip(vec), _serv_tcp_port(vec), _serv_rpc_port(vec), _serv_roomid(vec), getModeStr(atoi(_serv_modeid(vec))).c_str());
+			_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _serv_ip(vec), _serv_tcp_port(vec), _serv_rpc_port(vec), _serv_roomid(vec), getModeMsg(atoi(_serv_modeid(vec))).c_str());
 			//try add & connect
 			muduo::net::InetAddress serverAddr(_serv_ip(vec), atoi(_serv_rpc_port(vec)));
 			clients_->add(name, serverAddr);
@@ -152,7 +152,7 @@ namespace rpc {
 		case containTy::kRpcGameTy: {
 			std::vector<std::string> vec;
 			boost::algorithm::split(vec, name, boost::is_any_of(":"));
-			_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _serv_ip(vec), _serv_tcp_port(vec), _serv_rpc_port(vec), _serv_roomid(vec), getModeStr(atoi(_serv_modeid(vec))).c_str());
+			_LOG_WARN(">>> 游戏服 %s:%s rpc:%s 房间号[%s] %s", _serv_ip(vec), _serv_tcp_port(vec), _serv_rpc_port(vec), _serv_roomid(vec), getModeMsg(atoi(_serv_modeid(vec))).c_str());
 			//try remove
 			clients_->remove(name, true);
 			//try remove from repair
