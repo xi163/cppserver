@@ -122,7 +122,7 @@ buf[0] = 0x78  - 低地址 = 低位
 		YY(WS_ERROR_SECPROTOCOL, 0x1030, "请求头字段错误:Sec-WebSocket-Protocol") \
 		YY(WS_ERROR_SECVERSION,  0x1040, "请求头字段错误:Sec-WebSocket-Version") \
 		YY(WS_ERROR_SECKEY,      0x1050, "请求头字段错误:Sec-WebSocket-Key") \
-		YY(WS_ERROR_VERIFY,      0x1060, "请求头校验错误:Sec-WebSocket-verify") \
+		YY(WS_ERROR_VERIFY,      0x1060, "请求头校验错误:Sec-WebSocket-Verify") \
 
 //大小端模式
 #define ENDIAN_MAP(XX, YY) \
