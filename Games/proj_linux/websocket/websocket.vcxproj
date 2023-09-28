@@ -116,6 +116,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <PositionIndependentCode>true</PositionIndependentCode>
+      <AdditionalOptions>-Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable -Wno-unused-but-set-variable -Wno-sign-compare %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib />
   </ItemDefinitionGroup>
