@@ -222,7 +222,7 @@ namespace rpc {
 		if (it == clients_.end()) {
 			//name新节点
 			TcpClientPtr client(new TcpClient(loop_, serverAddr, name, this));
-			_LOG_WARN("[RPC]添加节点 name = %s", client->name().c_str());
+			Warnf("[RPC]添加节点 name = %s", client->name().c_str());
 			//192.168.2.93:20000
 			clients_[client->name()] = client;
 			client->enableRetry();
@@ -236,7 +236,7 @@ namespace rpc {
 					!client->connection()->connected()) {
 					//连接断开则重连
 					if (!client->retry()) {
-						_LOG_WARN("[RPC]重连节点 name = %s", client->name().c_str());
+						Warnf("[RPC]重连节点 name = %s", client->name().c_str());
 						client->reconnect();
 					}
 				}
@@ -248,7 +248,7 @@ namespace rpc {
 			}
 			else {
 				it->second.reset(new TcpClient(loop_, serverAddr, name, this));
-				_LOG_WARN("[RPC]重建节点 name = %s", name.c_str());
+				Warnf("[RPC]重建节点 name = %s", name.c_str());
 				it->second->enableRetry();
 				it->second->connect();
 			}
@@ -411,7 +411,7 @@ namespace rpc {
 			//连接已经无效直接删除
 			if (!it->second->connection() ||
 				!it->second->connection()->connected()) {
-				_LOG_WARN("[RPC]移除节点 name = %s", it->first.c_str());
+				Warnf("[RPC]移除节点 name = %s", it->first.c_str());
 				it->second->stop();
 				clients_.erase(it);
 			}

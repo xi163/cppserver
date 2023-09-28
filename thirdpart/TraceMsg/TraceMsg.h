@@ -9,19 +9,19 @@
 	if(!s.empty()) { \
 		switch(lvl) { \
 			case LVL_DEBUG: \
-				_LOG_DEBUG(s.c_str()); \
+				Debugf(s.c_str()); \
 				break; \
 			case LVL_TRACE: \
-				_LOG_TRACE(s.c_str()); \
+				Tracef(s.c_str()); \
 				break; \
 			case LVL_INFO: \
-				_LOG_INFO(s.c_str()); \
+				Infof(s.c_str()); \
 				break; \
 			case LVL_WARN: \
-				_LOG_WARN(s.c_str()); \
+				Warnf(s.c_str()); \
 				break; \
 			case LVL_ERROR: \
-				_LOG_ERROR(s.c_str()); \
+				Errorf(s.c_str()); \
 				break; \
 		} \
 	} \

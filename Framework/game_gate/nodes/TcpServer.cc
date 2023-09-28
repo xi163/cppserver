@@ -9,14 +9,14 @@ void GateServ::onTcpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_[KTcpTy].incrementAndGet();
-		_LOG_INFO("网关服[%s] <- 网关服[%s] %s %d",
+		Infof("网关服[%s] <- 网关服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
 		int32_t num = numConnected_[KTcpTy].decrementAndGet();
-		_LOG_INFO("网关服[%s] <- 网关服[%s] %s %d",
+		Infof("网关服[%s] <- 网关服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -64,13 +64,13 @@ void GateServ::onTcpMessage(
 						conn, peer, buffer, receiveTime));
 			}
 			else {
-				//_LOG_ERROR("error");
+				//Errorf("error");
 				//break;
 			}
 		}
 		//数据包不足够解析，等待下次接收再解析
 		else {
-			_LOG_ERROR("error");
+			Errorf("error");
 			break;
 		}
 	}
@@ -83,7 +83,7 @@ void GateServ::asyncTcpHandler(
 	muduo::Timestamp receiveTime) {
 	muduo::net::TcpConnectionPtr conn(weakTcpConn.lock());
 	if (!conn) {
-		_LOG_ERROR("error");
+		Errorf("error");
 		return;
 	}
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
@@ -101,11 +101,11 @@ void GateServ::asyncTcpHandler(
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
 	}
 	else {
-		_LOG_ERROR("error");
+		Errorf("error");
 	}
 }
 
 void GateServ::onMarqueeNotify(std::string const& msg) {
-	_LOG_INFO("跑马灯消息\n%s", msg.c_str());
+	Infof("跑马灯消息\n%s", msg.c_str());
 	broadcastNoticeMsg("跑马灯消息", msg, 0, 2);
 }

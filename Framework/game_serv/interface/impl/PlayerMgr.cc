@@ -77,7 +77,7 @@ void CPlayerMgr::Delete(int64_t userId) {
 			freeItems_.emplace_back(player);
 		}
 	}
-	_LOG_ERROR("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
+	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
 
 void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
@@ -94,5 +94,5 @@ void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 			freeItems_.emplace_back(player);
 		}
 	}
-	_LOG_ERROR("%d used = %d free = %d", player->GetUserId(), items_.size(), freeItems_.size());
+	Errorf("%d used = %d free = %d", player->GetUserId(), items_.size(), freeItems_.size());
 }

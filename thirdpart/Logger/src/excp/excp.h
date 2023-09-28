@@ -64,7 +64,7 @@ namespace EXCPT {
 			std::ostringstream oss; \
 			oss << "TRACE[ " << #fn << " ] " << e.what() \
 			   << " " << utils::trim_file(e.f_.c_str()) << "(" << e.l_ << ") " << utils::trim_func(e.fn_.c_str()); \
-			_LOG_S_TRACE(oss.str()); \
+			Trace(oss.str()); \
 		} \
 	}
 
@@ -78,7 +78,7 @@ namespace EXCPT {
 			std::ostringstream oss; \
 			oss << "TRACE[ " << #fn << "(" << e.err_no_ << ") ] " << e.what() \
 			   << " " << utils::trim_file(e.f_.c_str()) << "(" << e.l_ << ") " << utils::trim_func(e.fn_.c_str()); \
-			_LOG_S_TRACE(oss.str()); \
+			Trace(oss.str()); \
 		} \
 	}
 
@@ -91,7 +91,7 @@ namespace EXCPT {
 
 #define MY_TRY_TRACE() \
 	try { \
-	_LOG_DEBUG("");
+	Debugf("");
 
 #define MY_THROW_A(err_str) (throw EXCPT::function_error(__FILE__, __LINE__, __FUNC__, err_str))
 #define MY_THROW_C(fn_str, err_str) (throw EXCPT::function_error(__FILE__, __LINE__, __FUNC__, fn_str, err_str))
@@ -101,10 +101,10 @@ namespace EXCPT {
 #define PLAT_CATCH() \
 	} \
 	catch (QException const& e) { \
-		_LOG_S_FATAL(std::string("QT EXCEPTION: ") + e.what()); \
+		Fatal(std::string("QT EXCEPTION: ") + e.what()); \
 	} \
 	catch(QUnhandledException const& e) { \
-		_LOG_S_FATAL(std::string("QT EXCEPTION: ") + e.what());
+		Fatal(std::string("QT EXCEPTION: ") + e.what());
 
 #else
 #define PLAT_CATCH()
@@ -125,19 +125,19 @@ namespace EXCPT {
 		 ) : \
 		oss << "EXCEPTION: " << e.fn_str_ << "(" << e.err_no_ << ") " << e.what() \
 		   << " " << utils::trim_file(e.f_.c_str()) << "(" << e.l_ << ") " << utils::trim_func(e.fn_.c_str()); \
-		_LOG_S_FATAL(oss.str());
+		Fatal(oss.str());
 
 
 #define STD_CATCH() \
 	} \
 	catch (std::exception const& e) { \
-		_LOG_S_FATAL(std::string("EXCEPTION: ") + e.what());
+		Fatal(std::string("EXCEPTION: ") + e.what());
 
 
 #define ANY_CATCH() \
 	} \
 	catch (...) { \
-		_LOG_S_FATAL("EXCEPTION: unknown error");
+		Fatal("EXCEPTION: unknown error");
 
 #define MY_CATCH() \
 	PLAT_CATCH() \

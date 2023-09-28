@@ -1,44 +1,44 @@
-#ifndef INCLUDE_ASSERTIMPL_H_
-#define INCLUDE_ASSERTIMPL_H_
+#ifndef INCLUDEASSERTIMPL_H_
+#define INCLUDEASSERTIMPL_H_
 
 #include "Logger/src/log/impl/LoggerImpl.h"
 
-// __ASSERT
+// _ASSERT
 #ifdef NDEBUG
-	#define __ASSERT(expr) __ASSERT_VOID_CAST (0)
+	#define _ASSERT(expr) __ASSERT_VOID_CAST (0)
 #else
-	#define __ASSERT(expr) \
+	#define _ASSERT(expr) \
 	  (expr) \
 	   ? __ASSERT_VOID_CAST (0) \
-	   : __LOG_S_FATAL("ASSERT: " + std::string(#expr))
+	   : _Fatal("ASSERT: " + std::string(#expr))
 #endif
 
-// __ASSERT_S
+// _ASSERT_S
 #ifdef NDEBUG
-	#define __ASSERT_S(expr, s) __ASSERT_VOID_CAST (0)
+	#define _ASSERT_S(expr, s) __ASSERT_VOID_CAST (0)
 #else
 	#define __S(s) (strlen(s) == 0 ? "" : std::string(": ").append(s).c_str())
-	#define __ASSERT_S(expr, s) \
+	#define _ASSERT_S(expr, s) \
 	  (expr) \
 	   ? __ASSERT_VOID_CAST (0) \
-	   : __LOG_S_FATAL(std::string("ASSERT: ").append( #expr ).append(__S(s)))
+	   : _Fatal(std::string("ASSERT: ").append( #expr ).append(__S(s)))
 #endif
 
-// __ASSERT_V
+// _ASSERT_V
 #ifdef _windows_
 
 	#ifdef NDEBUG
-		#define __ASSERT_V(expr, fmt,...) __ASSERT_VOID_CAST (0)
+		#define _ASSERT_V(expr, fmt,...) __ASSERT_VOID_CAST (0)
 	#else
-		#define __ASSERT_V(expr, fmt,...) __ASSERT_S(expr, utils::_sprintf(fmt, ##__VA_ARGS__).c_str())
+		#define _ASSERT_V(expr, fmt,...) _ASSERT_S(expr, utils::_sprintf(fmt, ##__VA_ARGS__).c_str())
 	#endif
 
 #else
 
 	#ifdef NDEBUG
-		#define __ASSERT_V(expr, args...) __ASSERT_VOID_CAST (0)
+		#define _ASSERT_V(expr, args...) __ASSERT_VOID_CAST (0)
 	#else
-		#define __ASSERT_V(expr, args...) __ASSERT_S(expr, utils::_sprintf(NULL, ##args).c_str())
+		#define _ASSERT_V(expr, args...) _ASSERT_S(expr, utils::_sprintf(NULL, ##args).c_str())
 	#endif
 
 #endif

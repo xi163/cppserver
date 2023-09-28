@@ -128,37 +128,37 @@ namespace LOGGER {
 	static inline void setting(struct tm const& tm, int timezone, int level, int mode, int style) {
 		switch (timezone) {
 		case MY_EST: {
-			__LOG_INFOF("%s %s %s %s America/New_York %04d-%02d-%02d %02d:%02d:%02d",
+			_Infof_fn("%s %s %s %s America/New_York %04d-%02d-%02d %02d:%02d:%02d",
 				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		case MY_BST: {
-			__LOG_INFOF("%s %s %s %s Europe/London %04d-%02d-%02d %02d:%02d:%02d",
+			_Infof_fn("%s %s %s %s Europe/London %04d-%02d-%02d %02d:%02d:%02d",
 				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		case MY_GST: {
-			__LOG_INFOF("%s %s %s %s Asia/Dubai %04d-%02d-%02d %02d:%02d:%02d",
+			_Infof_fn("%s %s %s %s Asia/Dubai %04d-%02d-%02d %02d:%02d:%02d",
 				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		case MY_CST: {
-			__LOG_INFOF("%s %s %s %s Beijing (China) %04d-%02d-%02d %02d:%02d:%02d",
+			_Infof_fn("%s %s %s %s Beijing (China) %04d-%02d-%02d %02d:%02d:%02d",
 				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		case MY_JST: {
-			__LOG_INFOF("%s %s %s %s Asia/Tokyo %04d-%02d-%02d %02d:%02d:%02d",
+			_Infof_fn("%s %s %s %s Asia/Tokyo %04d-%02d-%02d %02d:%02d:%02d",
 				getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str(),
 				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 			break;
 		}
 		default:
-			__LOG_ERRORLF("%s %s %s %s", getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str());
+			_Errorf_fl_fn("%s %s %s %s", getLevelDesc(level).c_str(), getModeDesc(mode).c_str(), getStyleDesc(style).c_str(), getTimezoneDesc(timezone).c_str());
 			break;
 		}
 	}
@@ -949,7 +949,7 @@ namespace LOGGER {
 			}
 		}
 	ERR:
-		__LOG_ERRORLF("error");
+		_Errorf_fl_fn("error");
 		return false;
 	}
 	
@@ -1090,7 +1090,7 @@ namespace LOGGER {
 		if (!enable_.load()) {
 			enable_.store(true);
 			openConsole();
-			//__TLOG_WARN("enable ...");
+			//_Warnf_tmsp("enable ...");
 		}
 	}
 
@@ -1098,11 +1098,11 @@ namespace LOGGER {
 	void LoggerImpl::disable(int delay, bool sync) {
 		if (enable_.load()) {
 			enable_.store(false);
-			__TLOG_WARN("disable after %d milliseconds ...", delay);
+			_Warnf_tmsp("disable after %d milliseconds ...", delay);
 			if (sync) {
 				timer_.SyncWait(delay, [&] {
 					if (!enable_.load()) {
-						__TLOG_WARN("disable ...");
+						_Warnf_tmsp("disable ...");
 #if 0
 						closeConsole();
 #else
@@ -1114,7 +1114,7 @@ namespace LOGGER {
 			else {
 				timer_.AsyncWait(delay, [&] {
 					if (!enable_.load()) {
-						__TLOG_WARN("disable ...");
+						_Warnf_tmsp("disable ...");
 #if 0
 						closeConsole();
 #else
@@ -1138,7 +1138,7 @@ namespace LOGGER {
 	//closeConsole
 	void LoggerImpl::closeConsole() {
 		if (isConsoleOpen_ && !isDoing_.test_and_set()) {
-			__TLOG_WARN("closed ...");
+			_Warnf_tmsp("closed ...");
 			utils::_closeConsole();
 			isConsoleOpen_ = false;
 			isDoing_.clear();
@@ -1169,9 +1169,9 @@ int main() {
 	__LOG_INIT("/mnt/hgfs/presstest/deploy/log", "client_presstest", 100000000);
 	for (int i = 0; i < 10; ++i) {
 		xsleep(0);
-		__LOG_ERROR("Hi%d", i);
+		_Errorf("Hi%d", i);
 	}
-	//__LOG_FATAL("崩溃吧");
+	//_Fatalf("崩溃吧");
 	return 0;
 }
 #endif

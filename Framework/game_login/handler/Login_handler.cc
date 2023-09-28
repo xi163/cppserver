@@ -79,7 +79,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 			if (insert_id.empty()) {
 				return response::json::Result(ERR_CreateGameUser, rsp);
 			}
-			_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
+			Errorf(">>>>>> insert_id = %s", insert_id.c_str());
 			//token签名加密
 			BOOST::Json json;
 			json.put("account", model.Account);
@@ -153,7 +153,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 				if (insert_id.empty()) {
 					return response::json::Result(ERR_CreateGameUser, rsp);
 				}
-				_LOG_ERROR(">>>>>> insert_id = %s", insert_id.c_str());
+				Errorf(">>>>>> insert_id = %s", insert_id.c_str());
 				//token签名加密
 				BOOST::Json json;
 				json.put("account", model.Account);
@@ -230,7 +230,7 @@ int doLogin(LoginReq const& req, muduo::net::HttpResponse& rsp,
 	default:
 		break;
 	}
-	_LOG_ERROR("error");
+	Errorf("error");
 	return kFailed;
 }
 
@@ -281,7 +281,7 @@ int Login(
 #endif
 					std::string const& strURL = param;
 					decrypt = Crypto::AES_ECBDecrypt(strURL, descode);
-					_LOG_DEBUG("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, md5code.c_str(), descode.c_str(), decrypt.c_str());
+					Debugf("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, md5code.c_str(), descode.c_str(), decrypt.c_str());
 					if (!decrypt.empty()) {
 						break;
 					}
@@ -310,7 +310,7 @@ int Login(
 				return doLogin(req, rsp, conn, receiveTime);
 			}
 			catch (boost::property_tree::ptree_error& e) {
-				_LOG_ERROR(e.what());
+				Errorf(e.what());
 				return response::json::Result(ERR_GameHandleParamsError, rsp);
 			}
 		}
@@ -320,7 +320,7 @@ int Login(
 		break;
 	}
 	}
-	_LOG_ERROR("error");
+	Errorf("error");
 	response::xml::Test(req, rsp);
 	return kFailed;
 }

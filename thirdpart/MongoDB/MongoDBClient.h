@@ -70,28 +70,28 @@ using bsoncxx::types::b_timestamp;
 
 #define MGO_CATCH() } \
 	catch (mongocxx::authentication_exception const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 	} \
 	catch (mongocxx::bulk_write_exception const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 	} \
 	catch (mongocxx::gridfs_exception const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 	} \
 	catch (mongocxx::operation_exception const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 	} \
 	catch (mongocxx::logic_error const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 	} \
 	catch (mongocxx::query_exception const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 	} \
 	catch (mongocxx::write_exception const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 	} \
 	catch (mongocxx::exception const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 		switch (mgo::opt::getErrCode(e.what())) { \
 		case 11000: \
 			break; \
@@ -100,7 +100,7 @@ using bsoncxx::types::b_timestamp;
 		} \
 	} \
 	catch (bsoncxx::exception const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 		switch (mgo::opt::getErrCode(e.what())) { \
 		case 11000: \
 			break; \
@@ -109,7 +109,7 @@ using bsoncxx::types::b_timestamp;
 		} \
 	} \
 	catch (std::exception const& e) { \
-		_LOG_ERROR(e.what()); \
+		Errorf(e.what()); \
 	} \
 	catch (...) { \
 	} \

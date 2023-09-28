@@ -50,7 +50,7 @@ namespace utils {
 	}
 
 	void EchoFunc(std::string const&& s) {
-		__TLOG_ERROR("test: %s", s.c_str());
+		_Errorf_tmsp("test: %s", s.c_str());
 	}
 
 	void testTimer() {
@@ -58,13 +58,13 @@ namespace utils {
 		//周期性执行定时任务
 		t.StartTimer(10000, std::bind(EchoFunc, "timeout StartTimer1!"));
 		//std::this_thread::sleep_for(std::chrono::seconds(4));
-		__TLOG_WARN("try to expire timer1!");
+		_Warnf_tmsp("try to expire timer1!");
 		t.Expire();
 
 		//周期性执行定时任务
 		//t.StartTimer(10000, std::bind(EchoFunc, "timeout StartTimer2!"));
 		//std::this_thread::sleep_for(std::chrono::seconds(4));
-		//__TLOG_INFO("try to expire timer2!");
+		//_Infof_tmsp("try to expire timer2!");
 		//t.Expire();
 
 		//std::this_thread::sleep_for(std::chrono::seconds(2));

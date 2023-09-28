@@ -19,23 +19,23 @@ static inline void LoadLibrary(std::string const& serviceName) {
 	dllName.insert(0, "./lib");
 	dllName.append(".so");
 	dllName.insert(0, dllPath);
-	_LOG_WARN(dllName.c_str());
+	Warnf(dllName.c_str());
 	//getchar();
 	void* handle = dlopen(dllName.c_str(), RTLD_LAZY);
 	if (!handle) {
-		_LOG_ERROR("Can't Open %s, %s", dllName.c_str(), dlerror());
+		Errorf("Can't Open %s, %s", dllName.c_str(), dlerror());
 		exit(0);
 	}
 	fnStrMessageId = (FnStrMessageId)dlsym(handle, NameStrMessageId);
 	if (!fnStrMessageId) {
 		dlclose(handle);
-		_LOG_ERROR("Can't Find %s, %s", NameStrMessageId, dlerror());
+		Errorf("Can't Find %s, %s", NameStrMessageId, dlerror());
 		exit(0);
 	}
 	fnFmtMessageId = (FnFmtMessageId)dlsym(handle, NameFmtMessageId);
 	if (!fnFmtMessageId) {
 		dlclose(handle);
-		_LOG_ERROR("Can't Find %s, %s", NameFmtMessageId, dlerror());
+		Errorf("Can't Find %s, %s", NameFmtMessageId, dlerror());
 		exit(0);
 	}
 }

@@ -47,7 +47,7 @@ namespace muduo {
 #ifdef MEMORYLEAK_DETECT
 					//atomic decr
 					atom_decr(s_c_);
-					_LOG_DEBUG("SSL_free c = %d", atom_get(s_c_));
+					Debugf("SSL_free c = %d", atom_get(s_c_));
 #endif
 					//shutdown：SSL_shutdown
 					::SSL_shutdown(ssl);
@@ -66,18 +66,18 @@ namespace muduo {
 			static inline bool SSL_handshake_(SSL_CTX* ctx, SSL*& ssl, int sockfd, int& saveErrno) {
 				if (ctx) {
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_DEBUG("-----------------------------------------------------------------------------");
+					Debugf("-----------------------------------------------------------------------------");
 #endif
 #if 0
 					//create the SSL：SSL_new
 					if ((ssl = ::SSL_new(ctx)) == NULL) {
-						_LOG_ERROR("SSL_new failed");
+						Errorf("SSL_new failed");
 						return false;
 					}
 					//create a BIO：BIO_new_socket
 					BIO* bio = ::BIO_new_socket(sockfd, BIO_NOCLOSE);
 					if (!bio) {
-						_LOG_ERROR("BIO_new_socket failed");
+						Errorf("BIO_new_socket failed");
 						muduo::net::ssl::SSL_free_(ssl);
 						return false;
 					}
@@ -90,40 +90,40 @@ namespace muduo {
 						//握手失败
 						switch (saveErrno) {
 						case SSL_ERROR_SSL:
-							_LOG_ERROR("SSL_accept SSL_ERROR_SSL");
+							Errorf("SSL_accept SSL_ERROR_SSL");
 							muduo::net::ssl::SSL_free_(ssl);
 							break;
 						case SSL_ERROR_WANT_READ:
-							_LOG_ERROR("SSL_accept SSL_ERROR_WANT_READ");
+							Errorf("SSL_accept SSL_ERROR_WANT_READ");
 							break;
 						case SSL_ERROR_WANT_WRITE:
-							_LOG_ERROR("SSL_accept SSL_ERROR_WANT_WRITE");
+							Errorf("SSL_accept SSL_ERROR_WANT_WRITE");
 							break;
 						case SSL_ERROR_WANT_X509_LOOKUP:
-							_LOG_ERROR("SSL_accept SSL_ERROR_WANT_X509_LOOKUP");
+							Errorf("SSL_accept SSL_ERROR_WANT_X509_LOOKUP");
 							muduo::net::ssl::SSL_free_(ssl);
 							break;
 						case SSL_ERROR_SYSCALL:
-							_LOG_ERROR("SSL_accept SSL_ERROR_SYSCALL");
+							Errorf("SSL_accept SSL_ERROR_SYSCALL");
 							muduo::net::ssl::SSL_free_(ssl);
 							break;
 						case SSL_ERROR_ZERO_RETURN:
-							_LOG_ERROR("SSL_accept SSL_ERROR_ZERO_RETURN");
+							Errorf("SSL_accept SSL_ERROR_ZERO_RETURN");
 							break;
 						case SSL_ERROR_WANT_CONNECT:
-							_LOG_ERROR("SSL_accept SSL_ERROR_WANT_CONNECT");
+							Errorf("SSL_accept SSL_ERROR_WANT_CONNECT");
 							break;
 						case SSL_ERROR_WANT_ACCEPT:
-							_LOG_ERROR("SSL_accept SSL_ERROR_WANT_ACCEPT");
+							Errorf("SSL_accept SSL_ERROR_WANT_ACCEPT");
 							break;
 						default:
-							_LOG_ERROR("SSL_accept failed");
+							Errorf("SSL_accept failed");
 							muduo::net::ssl::SSL_free_(ssl);
 							break;
 						}
 						return false;
 					}
-					_LOG_DEBUG("SSL_accept succ(version \"%s\" cipher:\"%s\")",
+					Debugf("SSL_accept succ(version \"%s\" cipher:\"%s\")",
 						SSL_get_version(ssl), SSL_get_cipher_name(ssl));
 					//握手成功
 					return true;
@@ -131,7 +131,7 @@ namespace muduo {
 					if (!ssl) {
 						//create the SSL：SSL_new
 						if ((ssl = ::SSL_new(ctx)) == NULL) {
-							_LOG_ERROR("SSL_new failed");
+							Errorf("SSL_new failed");
 							return false;
 						}
 #ifdef MEMORYLEAK_DETECT
@@ -144,7 +144,7 @@ namespace muduo {
 #endif
 						//SSL_set_fd
 						if (::SSL_set_fd(ssl, sockfd) == 0) {
-							_LOG_ERROR("SSL_set_fd failed");
+							Errorf("SSL_set_fd failed");
 							muduo::net::ssl::SSL_free_(ssl);
 							return false;
 						}
@@ -160,7 +160,7 @@ namespace muduo {
 					//create a BIO：BIO_new_fd
 					BIO* bio = ::BIO_new_fd(2, BIO_NOCLOSE);
 					if (!bio) {
-						_LOG_ERROR("BIO_new_fd failed");
+						Errorf("BIO_new_fd failed");
 						muduo::net::ssl::SSL_free_(ssl);
 						return false;
 					}
@@ -173,47 +173,47 @@ namespace muduo {
 						switch (saveErrno) {
 						case SSL_ERROR_SSL:
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR("SSL_do_handshake SSL_ERROR_SSL");
+							Errorf("SSL_do_handshake SSL_ERROR_SSL");
 #endif
 							muduo::net::ssl::SSL_free_(ssl);
 							break;
 							//SSL需要在非阻塞socket可读时读入数据
 						case SSL_ERROR_WANT_READ:
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR("SSL_do_handshake SSL_ERROR_WANT_READ");
+							Errorf("SSL_do_handshake SSL_ERROR_WANT_READ");
 #endif
 							break;
 							//SSL需要在非阻塞socket可写时写入数据
 						case SSL_ERROR_WANT_WRITE:
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR("SSL_do_handshake SSL_ERROR_WANT_WRITE");
+							Errorf("SSL_do_handshake SSL_ERROR_WANT_WRITE");
 #endif
 							break;
 						case SSL_ERROR_WANT_X509_LOOKUP:
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR("SSL_do_handshake SSL_ERROR_WANT_X509_LOOKUP");
+							Errorf("SSL_do_handshake SSL_ERROR_WANT_X509_LOOKUP");
 #endif
 							muduo::net::ssl::SSL_free_(ssl);
 							break;
 						case SSL_ERROR_SYSCALL:
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR("SSL_do_handshake SSL_ERROR_SYSCALL");
+							Errorf("SSL_do_handshake SSL_ERROR_SYSCALL");
 #endif
 							muduo::net::ssl::SSL_free_(ssl);
 							break;
 						case SSL_ERROR_ZERO_RETURN:
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR("SSL_do_handshake SSL_ERROR_ZERO_RETURN");
+							Errorf("SSL_do_handshake SSL_ERROR_ZERO_RETURN");
 #endif
 							break;
 						case SSL_ERROR_WANT_CONNECT:
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR("SSL_do_handshake SSL_ERROR_WANT_CONNECT");
+							Errorf("SSL_do_handshake SSL_ERROR_WANT_CONNECT");
 #endif
 							break;
 						case SSL_ERROR_WANT_ACCEPT:
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR("SSL_do_handshake SSL_ERROR_WANT_ACCEPT");
+							Errorf("SSL_do_handshake SSL_ERROR_WANT_ACCEPT");
 #endif
 							break;
 						default:
@@ -222,7 +222,7 @@ namespace muduo {
 							::BIO_free(bio);
 #endif
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR("SSL_do_handshake failed");
+							Errorf("SSL_do_handshake failed");
 #endif
 							muduo::net::ssl::SSL_free_(ssl);
 							break;
@@ -230,7 +230,7 @@ namespace muduo {
 						return false;
 					}
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_WARN("SSL_do_handshake succ(version \"%s\" cipher:\"%s\")",
+					Warnf("SSL_do_handshake succ(version \"%s\" cipher:\"%s\")",
 						SSL_get_version(ssl), SSL_get_cipher_name(ssl));
 #endif
 					//握手成功
@@ -290,17 +290,17 @@ namespace muduo {
 				::SSL_library_init();
 				::SSL_load_error_strings();
 				OpenSSL_add_all_algorithms();
-				_LOG_DEBUG("Using OpenSSL version \"%s\"", ::SSLeay_version(SSLEAY_VERSION));
+				Debugf("Using OpenSSL version \"%s\"", ::SSLeay_version(SSLEAY_VERSION));
 #else
 				if (OPENSSL_init_ssl(
 					/*OPENSSL_INIT_LOAD_CONFIG |*/
 					OPENSSL_INIT_LOAD_SSL_STRINGS |
 					OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL) == 0) {
-					_LOG_ERROR("OPENSSL_init_ssl error");
+					Errorf("OPENSSL_init_ssl error");
 					return;
 				}
 				::ERR_clear_error();
-				_LOG_ERROR("OPENSSL_init_ssl");
+				Errorf("OPENSSL_init_ssl");
 #endif
 			}
 
@@ -339,7 +339,7 @@ namespace muduo {
 					//创建SSL_CTX
 					ssl_ctx_ = ::SSL_CTX_new(SSLv23_server_method());
 					if (!ssl_ctx_) {
-						_LOG_ERROR("SSL_CTX_new failed");
+						Errorf("SSL_CTX_new failed");
 						ssl::SSL_library_free();
 						return false;
 					}
@@ -382,12 +382,12 @@ namespace muduo {
 						* See http://www.mail-archive.com/openssl-dev@openssl.org/msg30957.html */
 					EC_KEY* ecdh = ::EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
 					if (!ecdh) {
-						_LOG_ERROR("EC_KEY_new_by_curve_name error");
+						Errorf("EC_KEY_new_by_curve_name error");
 						ssl::SSL_CTX_free();
 						return false;
 					}
 					if (SSL_CTX_set_tmp_ecdh(ssl_ctx_, ecdh) != 1) {
-						_LOG_ERROR("SSL_CTX_set_tmp_ecdh error");
+						Errorf("SSL_CTX_set_tmp_ecdh error");
 						ssl::SSL_CTX_free();
 						return false;
 					}
@@ -414,27 +414,27 @@ namespace muduo {
 				std::string const& client_ca_cert_file_path,
 				std::string const& client_ca_cert_dir_path) {
 				if (cert_path.empty() || private_key_path.empty()) {
-					//_LOG_ERROR("SSL_CTX_setup_certs failed");
+					//Errorf("SSL_CTX_setup_certs failed");
 					return;
 				}
 				//SSL_CTX_create
 				if (!ssl::SSL_CTX_create()) {
 					return;
 				}
-				_LOG_WARN("Loading certificate-chain from '%s'" \
+				Warnf("Loading certificate-chain from '%s'" \
 					"and private-key from '%s'",
 					cert_path.c_str(), private_key_path.c_str());
 #if 1
 				//为SSL会话加载本应用的证书所属的证书链
 				if (::SSL_CTX_use_certificate_chain_file(ssl_ctx_, cert_path.c_str()) != 1) {
-					_LOG_ERROR("SSL_CTX_use_certificate_chain_file failed");
+					Errorf("SSL_CTX_use_certificate_chain_file failed");
 					ssl::SSL_CTX_free();
 					return;
 				}
 #else
 				//为SSL会话加载本应用的证书*.cer
 				if (::SSL_CTX_use_certificate_file(ssl_ctx_, cert_path.c_str(), SSL_FILETYPE_PEM) != 1) {
-					_LOG_ERROR("SSL_CTX_use_certificate_file failed");
+					Errorf("SSL_CTX_use_certificate_file failed");
 					ssl::SSL_CTX_free();
 					return;
 				}
@@ -444,13 +444,13 @@ namespace muduo {
 
 				//为SSL会话加载本应用的私钥
 				if (::SSL_CTX_use_PrivateKey_file(ssl_ctx_, private_key_path.c_str(), SSL_FILETYPE_PEM) != 1) {
-					_LOG_ERROR("SSL_CTX_use_PrivateKey_file failed");
+					Errorf("SSL_CTX_use_PrivateKey_file failed");
 					ssl::SSL_CTX_free();
 					return;
 				}
 				//验证所加载的私钥和证书是否相匹配
 				if (::SSL_CTX_check_private_key(ssl_ctx_) != 1) {
-					_LOG_ERROR("SSL_CTX_check_private_key failed");
+					Errorf("SSL_CTX_check_private_key failed");
 					ssl::SSL_CTX_free();
 					return;
 				}

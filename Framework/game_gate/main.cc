@@ -10,7 +10,7 @@ static void StopService(int signo) {
 int main(int argc, char* argv[]) {
 	//检查配置文件
 	if (!boost::filesystem::exists("./conf/game.conf")) {
-		_LOG_ERROR("./conf/game.conf not exists");
+		Errorf("./conf/game.conf not exists");
 		return -1;
 	}
 	std::string config = "game_gate";
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 				strZookeeperIps += child.second.get_value<std::string>();
 			}
 		}
-		//_LOG_INFO("ZookeeperIP = %s", strZookeeperIps.c_str());
+		//Infof("ZookeeperIP = %s", strZookeeperIps.c_str());
 	}
 	//RedisCluster服务器集群IP
 	std::map<std::string, std::string> mapRedisIps;
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 				mapRedisIps[vec[0]] = vec[1];
 			}
 		}
-		//_LOG_INFO("RedisClusterIP = %s", strRedisIps.c_str());
+		//Infof("RedisClusterIP = %s", strRedisIps.c_str());
 	}
 	//redisLock分布式锁
 	std::string strRedisLockIps = "";
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 				strRedisLockIps += child.second.get_value<std::string>();
 			}
 		}
-		//_LOG_INFO("RedisLockIP = %s", strRedisLockIps.c_str());
+		//Infof("RedisLockIP = %s", strRedisLockIps.c_str());
 	}
 	//MongoDB
 	std::string strMongoDBUrl = pt.get<std::string>("MongoDB.Url");
@@ -127,10 +127,10 @@ int main(int argc, char* argv[]) {
 	else {
 		std::string netcardName = pt.get<std::string>("Global.netcardName", "eth0");
 		if (utils::getNetCardIp(netcardName, ip) < 0) {
-			_LOG_FATAL("获取网卡 %s IP失败", netcardName.c_str());
+			Fatalf("获取网卡 %s IP失败", netcardName.c_str());
 			return -1;
 		}
-		_LOG_INFO("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), ip.c_str());
+		Infof("网卡名称 = %s 绑定IP = %s", netcardName.c_str(), ip.c_str());
 	}
 	if (internetIp.empty()) {
 		internetIp = ip;
@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
 						"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$"))) {
 				muduo::net::InetAddress addr(muduo::StringArg(ipaddr), 0, false);
 				server.admin_list_[addr.ipv4NetEndian()] = eApiVisit::kEnable;
-				//_LOG_INFO("管理员IP[%s]", ipaddr.c_str());
+				//Infof("管理员IP[%s]", ipaddr.c_str());
 			}
 		}
 	}

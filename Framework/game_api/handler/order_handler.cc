@@ -16,12 +16,12 @@ int doOrder(OrderReq const& req, muduo::net::HttpResponse& rsp,
 	muduo::Timestamp receiveTime) {
 	switch (req.Type) {
 	case eApiType::OpAddScore: {
-		_LOG_DEBUG("上分REQ orderId[%s] account[%s] agentId[%d] deltascore[%f] deltascoreI64[%lld]",
+		Debugf("上分REQ orderId[%s] account[%s] agentId[%d] deltascore[%f] deltascoreI64[%lld]",
 			req.orderId.c_str(), req.Account.c_str(), req.p_agent_info->agentId, req.Score, req.scoreI64);
 		return addScore(req, rsp, conn, receiveTime);
 	}
 	case eApiType::OpSubScore:{
-		_LOG_WARN("下分REQ orderId[%s] account[%s] agentId[%d] deltascore[%f] deltascoreI64[%lld]",
+		Warnf("下分REQ orderId[%s] account[%s] agentId[%d] deltascore[%f] deltascoreI64[%lld]",
 			req.orderId.c_str(), req.Account.c_str(), req.p_agent_info->agentId, req.Score, req.scoreI64);
 		return subScore(req, rsp, conn, receiveTime);
 	}
@@ -297,7 +297,7 @@ int Order(
 				return response::json::Result(ERR_GameHandleProxyMD5CodeError, rsp);
 			}
 			//param = utils::HTML::Decode(param);
-			//_LOG_DEBUG("HTML::Decode >>> %s", param.c_str());
+			//Debugf("HTML::Decode >>> %s", param.c_str());
 			for (int c = 1; c < 3; ++c) {
 				param = utils::URL::Decode(param);
 #if 1
@@ -307,10 +307,10 @@ int Order(
 #else
 				param = boost::regex_replace(param, boost::regex("\r\n|\r|\n"), "");
 #endif
-				//_LOG_DEBUG("URL::Decode[%d] >>> %s", c, param.c_str());
+				//Debugf("URL::Decode[%d] >>> %s", c, param.c_str());
 				std::string const& strURL = param;
 				decrypt = Crypto::AES_ECBDecrypt(strURL, p_agent_info->descode);
-				_LOG_DEBUG("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, p_agent_info->md5code.c_str(), p_agent_info->descode.c_str(), decrypt.c_str());
+				Debugf("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, p_agent_info->md5code.c_str(), p_agent_info->descode.c_str(), decrypt.c_str());
 				if (!decrypt.empty()) {
 					break;
 				}
@@ -322,7 +322,7 @@ int Order(
 		}
 		{
 			HttpParams decryptParams;
-			_LOG_DEBUG(decrypt.c_str());
+			Debugf(decrypt.c_str());
 			if (!utils::parseQuery(decrypt, decryptParams)) {
 				return response::json::Result(ERR_GameHandleParamsError, rsp);
 			}

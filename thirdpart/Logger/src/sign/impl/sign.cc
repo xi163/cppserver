@@ -29,7 +29,7 @@ namespace utils {
 			json.put("expired", token.expired);
 			json.put("data", data);
 			std::string s = json.to_string();
-			__LOG_ERROR("\n%s", s.c_str());
+			_Errorf("\n%s", s.c_str());
 			std::string strBase64 = Crypto::AES_ECBEncrypt(s, secret);
 			//std::string strBase64 = Crypto::Des_Encrypt(s, (char *)secret.c_str());
 			//return utils::URL::Encode(strBase64);
@@ -49,7 +49,7 @@ namespace utils {
 			json.put("expired", token.expired);
 			json.put("data", data);
 			std::string s = json.to_string();
-			__LOG_ERROR("\n%s", s.c_str());
+			_Errorf("\n%s", s.c_str());
 			std::string strBase64 = Crypto::AES_ECBEncrypt(s, secret);
 			//std::string strBase64 = Crypto::Des_Encrypt(s, (char *)secret.c_str());
 			//return utils::URL::Encode(strBase64);

@@ -12,7 +12,7 @@ namespace MongoDBClient {
 
 		ThreadLocalSingleton::setUri(url);
 
-		_LOG_INFO("%s", url.c_str());
+		Infof("%s", url.c_str());
 	}
 
 	mongocxx::client_session start_session() {

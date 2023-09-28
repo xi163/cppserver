@@ -9,14 +9,14 @@ void GateServ::onHallConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_[kHallClientTy].incrementAndGet();
-		_LOG_INFO("网关服[%s] -> 大厅服[%s] %s %d",
+		Infof("网关服[%s] -> 大厅服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
 		int32_t num = numConnected_[kHallClientTy].decrementAndGet();
-		_LOG_INFO("网关服[%s] -> 大厅服[%s] %s %d",
+		Infof("网关服[%s] -> 大厅服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -64,13 +64,13 @@ void GateServ::onHallMessage(const muduo::net::TcpConnectionPtr& conn,
 						conn, peer, buffer, receiveTime));
 			}
 			else {
-				//_LOG_ERROR("error");
+				//Errorf("error");
 				//break;
 			}
 		}
 		//数据包不足够解析，等待下次接收再解析
 		else {
-			_LOG_ERROR("error");
+			Errorf("error");
 			break;
 		}
 	}
@@ -83,7 +83,7 @@ void GateServ::asyncHallHandler(
 	muduo::Timestamp receiveTime) {
 	muduo::net::TcpConnectionPtr conn(weakHallConn.lock());
 	if (!conn) {
-		_LOG_ERROR("error");
+		Errorf("error");
 		return;
 	}
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
@@ -112,7 +112,7 @@ void GateServ::asyncHallHandler(
 			boost::algorithm::split(vec, conn->name(), boost::is_any_of(":"));
 			std::string const& name = vec[0] + ":" + vec[1];
 			ClientConn clientConn(name, conn);
-			_LOG_WARN("%d 登陆成功，大厅节点 >>> %s", userId, name.c_str());
+			Warnf("%d 登陆成功，大厅节点 >>> %s", userId, name.c_str());
 			entryContext.setClientConn(containTy::kHallTy, clientConn);
 			//顶号处理 userid -> conn -> entryContext -> session
 			muduo::net::TcpConnectionPtr old(sessions_.add(userId, peer).lock());
@@ -131,7 +131,7 @@ void GateServ::asyncHallHandler(
 #else
 					old->forceCloseWithDelay(0.2f);
 #endif
-					_LOG_ERROR("KICK_REPLACE %s => %s", session_.c_str(), session.c_str());
+					Errorf("KICK_REPLACE %s => %s", session_.c_str(), session.c_str());
 				}
 			}
 		}
@@ -153,7 +153,7 @@ void GateServ::asyncHallHandler(
 				if (REDISCLIENT.GetOnlineInfoIP(userId, serverIp)) {
 					//与目标游戏节点不一致，重新指定
 					if (clientConn.first != serverIp) {
-						_LOG_WARN("%d 游戏节点[%s] [%s]不一致，重新指定", userId, clientConn.first.c_str(), serverIp.c_str());
+						Warnf("%d 游戏节点[%s] [%s]不一致，重新指定", userId, clientConn.first.c_str(), serverIp.c_str());
 						//获取目标游戏节点
 						ClientConn clientConn;
 						clients_[containTy::kGameTy].clients_->get(serverIp, clientConn);
@@ -161,25 +161,25 @@ void GateServ::asyncHallHandler(
 						if (gameConn) {
 							//更新用户游戏节点
 							entryContext.setClientConn(containTy::kGameTy, clientConn);
-							_LOG_INFO("%d 游戏节点[%s] 更新成功", userId, serverIp.c_str());
+							Infof("%d 游戏节点[%s] 更新成功", userId, serverIp.c_str());
 						}
 						else {
 							//目标游戏节点不可用，要求zk实时监控
-							_LOG_ERROR("%d 游戏节点[%s]不可用，更新失败!", userId, serverIp.c_str());
+							Errorf("%d 游戏节点[%s]不可用，更新失败!", userId, serverIp.c_str());
 						}
 					}
 				}
 				else {
-					_LOG_ERROR("%d 游戏节点IP不存在!", userId);
+					Errorf("%d 游戏节点IP不存在!", userId);
 				}
 			}
 			else {
 				//用户当前游戏节点不存在/不可用，需要指定
 				if (clientConn.first.empty()) {
-					_LOG_WARN("%d 游戏节点不存在，需要指定", userId);
+					Warnf("%d 游戏节点不存在，需要指定", userId);
 				}
 				else {
-					_LOG_ERROR("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
+					Errorf("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
 				}
 				std::string serverIp;//roomid:ip:port:mode
 				if (REDISCLIENT.GetOnlineInfoIP(userId, serverIp)) {
@@ -190,28 +190,28 @@ void GateServ::asyncHallHandler(
 					if (gameConn) {
 						//指定用户游戏节点
 						entryContext.setClientConn(containTy::kGameTy, clientConn);
-						_LOG_INFO("%d 游戏节点[%s]，指定成功!", userId, serverIp.c_str());
+						Infof("%d 游戏节点[%s]，指定成功!", userId, serverIp.c_str());
 					}
 					else {
 						//目标游戏节点不可用，要求zk实时监控
-						_LOG_INFO("%d 游戏节点[%s]不可用，指定失败!", userId, serverIp.c_str());
+						Infof("%d 游戏节点[%s]不可用，指定失败!", userId, serverIp.c_str());
 					}
 				}
 				else {
-					_LOG_ERROR("%d 游戏节点IP不存在!", userId);
+					Errorf("%d 游戏节点IP不存在!", userId);
 				}
 			}
 		}
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
 	}
 	else {
-		_LOG_ERROR("error");
+		Errorf("error");
 	}
 }
 
 //跨网关顶号处理(异地登陆)
 void GateServ::onUserLoginNotify(std::string const& msg) {
-	//_LOG_WARN(msg.c_str());
+	//Warnf(msg.c_str());
 	try {
 		std::stringstream ss(msg);
 		boost::property_tree::ptree root;
@@ -243,7 +243,7 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 #else
 					old->forceCloseWithDelay(0.2f);
 #endif
-					_LOG_DEBUG("KICK_REPLACE %lld\ngateip %s => %s\nsession %s => %s",
+					Debugf("KICK_REPLACE %lld\ngateip %s => %s\nsession %s => %s",
 						userid,
 						nodeValue_.c_str(), gateip.c_str(),
 						session_.c_str(), session.c_str());
@@ -252,14 +252,14 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 		}
 	}
 	catch (boost::property_tree::ptree_error& e) {
-		_LOG_ERROR(e.what());
+		Errorf(e.what());
 	}
 }
 
 void GateServ::sendHallMessage(
 	Context& entryContext,
 	BufferPtr const& buf, int64_t userId) {
-	//_LOG_INFO("...");
+	//Infof("...");
 	ClientConn const& clientConn = entryContext.getClientConn(containTy::kHallTy);
 	muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 	if (hallConn) {
@@ -278,12 +278,12 @@ void GateServ::sendHallMessage(
 			clients_[containTy::kHallTy].clients_->check(clientConn.first, true);
 #endif
 			if (buf) {
-				//_LOG_DEBUG("len = %d\n", buf->readableBytes());
+				//Debugf("len = %d\n", buf->readableBytes());
 				hallConn->send(buf.get());
 			}
 		}
 		else {
-			_LOG_WARN("用户大厅服维护，重新分配");
+			Warnf("用户大厅服维护，重新分配");
 			//用户大厅服维护，重新分配
 			ClientConnList clients;
 			//异步获取全部有效大厅连接
@@ -302,7 +302,7 @@ void GateServ::sendHallMessage(
 							//账号已经登陆，但登陆大厅维护中，重新指定账号登陆大厅
 							entryContext.setClientConn(containTy::kHallTy, clientConn);
 							if (buf) {
-								//_LOG_DEBUG("len = %d\n", buf->readableBytes());
+								//Debugf("len = %d\n", buf->readableBytes());
 								hallConn->send(buf.get());
 							}
 						}
@@ -313,7 +313,7 @@ void GateServ::sendHallMessage(
 					else {
 						packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 						packet::header_t const* header = packet::get_header(buf);
-						_LOG_ERROR("%s error", fmtMessageId(header->mainId, header->subId).c_str());
+						Errorf("%s error", fmtMessageId(header->mainId, header->subId).c_str());
 						EntryPtr entry(entryContext.getWeakEntryPtr().lock());
 						if (entry) {
 							muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());
@@ -328,7 +328,7 @@ void GateServ::sendHallMessage(
 			else {
 				packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 				packet::header_t const* header = packet::get_header(buf);
-				_LOG_ERROR("%s error", fmtMessageId(header->mainId, header->subId).c_str());
+				Errorf("%s error", fmtMessageId(header->mainId, header->subId).c_str());
 				EntryPtr entry(entryContext.getWeakEntryPtr().lock());
 				if (entry) {
 					muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());
@@ -341,7 +341,7 @@ void GateServ::sendHallMessage(
 		}
 	}
 	else {
-		_LOG_WARN("用户大厅服失效，重新分配");
+		Warnf("用户大厅服失效，重新分配");
 		//用户大厅服失效，重新分配
 		ClientConnList clients;
 		//异步获取全部有效大厅连接
@@ -363,7 +363,7 @@ void GateServ::sendHallMessage(
 							entryContext.setClientConn(containTy::kHallTy, clientConn);
 						}
 						if (buf) {
-							//_LOG_DEBUG("len = %d\n", buf->readableBytes());
+							//Debugf("len = %d\n", buf->readableBytes());
 							hallConn->send(buf.get());
 						}
 					}
@@ -374,7 +374,7 @@ void GateServ::sendHallMessage(
 				else {
 					packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 					packet::header_t const* header = packet::get_header(buf);
-					_LOG_ERROR("%s error", fmtMessageId(header->mainId, header->subId).c_str());
+					Errorf("%s error", fmtMessageId(header->mainId, header->subId).c_str());
 					EntryPtr entry(entryContext.getWeakEntryPtr().lock());
 					if (entry) {
 						muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());
@@ -389,7 +389,7 @@ void GateServ::sendHallMessage(
 		else {
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 			packet::header_t const* header = packet::get_header(buf);
-			_LOG_ERROR("%s error", fmtMessageId(header->mainId, header->subId).c_str());
+			Errorf("%s error", fmtMessageId(header->mainId, header->subId).c_str());
 			EntryPtr entry(entryContext.getWeakEntryPtr().lock());
 			if (entry) {
 				muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());

@@ -369,11 +369,11 @@ namespace utils {
             BlockHeader::GetBlocks(ppBlockHeader);
             // Dump information about the memory blocks.
 #ifdef _DUMPTOLOG
-            __PLOG_DEBUG("\n");
-            __PLOG_DEBUG("=====================");
-            __PLOG_DEBUG("Current Memory Blocks");
-            __PLOG_DEBUG("=====================");
-            __PLOG_DEBUG("\n");
+            _Debugf_pure("\n");
+            _Debugf_pure("=====================");
+            _Debugf_pure("Current Memory Blocks");
+            _Debugf_pure("=====================");
+            _Debugf_pure("\n");
 #else
 
 #endif
@@ -390,11 +390,11 @@ namespace utils {
                 char file[100] = { 0 }, func[100] = { 0 };
                 utils::_trim_file(fileName, file, sizeof(file));
                 utils::_trim_file(funcName, func, sizeof(func));
-                __PLOG_DEBUG("%s:%d %s %-6d %5d bytes %-50s",
+                _Debugf_pure("%s:%d %s %-6d %5d bytes %-50s",
                     file, line, func,
                     i, size, typeName);
 #else
-                __PLOG_DEBUG("%s:%d %15s %15s %6d %20s %6d bytes",
+                _Debugf_pure("%s:%d %15s %15s %6d %20s %6d bytes",
                     utils::_trim_file(fileName).c_str(),
                     line,
                     utils::_trim_func(funcName).c_str(),
@@ -503,13 +503,13 @@ namespace utils {
 
             // Dump the memory usage statistics.
 #ifdef _DUMPTOLOG
-            __PLOG_DEBUG("\n");
-            __PLOG_DEBUG("-----------------------");
-            __PLOG_DEBUG("Memory Usage Statistics");
-            __PLOG_DEBUG("-----------------------");
-            __PLOG_DEBUG("\n");
-            __PLOG_DEBUG("%-50s%5s  %5s %7s %s", "allocated type", "blocks", "", "bytes", "");
-            __PLOG_DEBUG("%-50s%5s  %5s %7s %s", "--------------", "------", "", "-----", "");
+            _Debugf_pure("\n");
+            _Debugf_pure("-----------------------");
+            _Debugf_pure("Memory Usage Statistics");
+            _Debugf_pure("-----------------------");
+            _Debugf_pure("\n");
+            _Debugf_pure("%-50s%5s  %5s %7s %s", "allocated type", "blocks", "", "bytes", "");
+            _Debugf_pure("%-50s%5s  %5s %7s %s", "--------------", "------", "", "-----", "");
 #else
 
 #endif
@@ -520,7 +520,7 @@ namespace utils {
                 size_t totalSize = pMD->totalSize;
                 double totalSizePct = 100.0 * totalSize / grandTotalSize;
 #ifdef _DUMPTOLOG
-                __PLOG_DEBUG(
+                _Debugf_pure(
                     "%-50s %5d %5.1f%% %7d %5.1f%%",
                     pMD->typeName,
                     blockCount,
@@ -533,8 +533,8 @@ namespace utils {
 #endif
             }
 #ifdef _DUMPTOLOG
-            __PLOG_DEBUG("%-50s %5s %5s  %7s %s", "--------", "-----", "", "-------", "");
-            __PLOG_DEBUG("%-50s %5d %5s  %7d %s", "[totals]", grandTotalNumBlocks, "", grandTotalSize, "");
+            _Debugf_pure("%-50s %5s %5s  %7s %s", "--------", "-----", "", "-------", "");
+            _Debugf_pure("%-50s %5d %5s  %7d %s", "[totals]", grandTotalNumBlocks, "", grandTotalSize, "");
 #else
 
 #endif

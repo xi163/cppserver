@@ -72,7 +72,7 @@ public:
 public:
 	bool onCondition(const muduo::net::InetAddress& peerAddr);
 	void onConnection(const muduo::net::TcpConnectionPtr& conn);
-	bool onValidate(muduo::net::http::IRequest const* request);
+	bool onVerify(muduo::net::http::IRequest const* request);
 	void onConnected(
 		const muduo::net::TcpConnectionPtr& conn,
 		std::string const& ipaddr);

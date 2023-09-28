@@ -20,7 +20,7 @@ namespace rpc {
 			rsp.set_nodevalue(gServer->nodeValue_);
 			rsp.set_tablecount(CTableMgr::get_mutable_instance().FreeCount());
 			done(&rsp);
-			//_LOG_WARN("\nrsp:%s", rsp.DebugString().c_str());
+			//Warnf("\nrsp:%s", rsp.DebugString().c_str());
 		}
 		void Service::GetRoomInfo(const ::Game::Rpc::RoomInfoReqPtr& req,
 			const ::Game::Rpc::RoomInfoRsp* responsePrototype,
@@ -52,7 +52,7 @@ namespace rpc {
 				}
 			}
 			done(&rsp);
-			//_LOG_WARN("\nrsp:%s", rsp.DebugString().c_str());
+			//Warnf("\nrsp:%s", rsp.DebugString().c_str());
 		}
 		void Service::NotifyUserScore(const ::Game::Rpc::UserScoreReqPtr& req,
 			const ::Game::Rpc::UserScoreRsp* responsePrototype,
@@ -62,10 +62,10 @@ namespace rpc {
 			//if (peer) {
 			//	//BufferPtr buffer = GateServ::packOrderScoreMsg(req->userid(), req->score());
 			//	//muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
-			//	//_LOG_WARN("succ %lld.score: %lld", req->userid(), req->score());
+			//	//Warnf("succ %lld.score: %lld", req->userid(), req->score());
 			//}
 			//else {
-			//	//_LOG_ERROR("failed %lld.score: %lld", req->userid(), req->score());
+			//	//Errorf("failed %lld.score: %lld", req->userid(), req->score());
 			//}
 			done(&rsp);
 		}
@@ -79,7 +79,7 @@ namespace rpc {
 				rsp.set_clubid(table->GetClubId());
 			}
 			done(&rsp);
-			//_LOG_WARN("\nrsp:%s", rsp.DebugString().c_str());
+			//Warnf("\nrsp:%s", rsp.DebugString().c_str());
 		}
 	}
 }

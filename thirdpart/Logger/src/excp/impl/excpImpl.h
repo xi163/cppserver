@@ -42,7 +42,7 @@ namespace excp {
 			std::ostringstream oss; \
 			oss << "TRACE[ " << #fn << " ] " << e.what() \
 			   << " " << utils::_trim_file(e.f_.c_str()) << "(" << e.l_ << ") " << utils::_trim_func(e.fn_.c_str()); \
-			__LOG_S_TRACE(oss.str()); \
+			_Trace(oss.str()); \
 		} \
 	}
 
@@ -56,7 +56,7 @@ namespace excp {
 			std::ostringstream oss; \
 			oss << "TRACE[ " << #fn << "(" << e.err_no_ << ") ] " << e.what() \
 			   << " " << utils::_trim_file(e.f_.c_str()) << "(" << e.l_ << ") " << utils::_trim_func(e.fn_.c_str()); \
-			__LOG_S_TRACE(oss.str()); \
+			_Trace(oss.str()); \
 		} \
 	}
 
@@ -69,7 +69,7 @@ namespace excp {
 
 #define __MY_TRY_TRACE() \
 	try { \
-	__LOG_DEBUG("");
+	_Debugf("");
 
 #define __MY_THROW_A(err_str) (throw excp::function_error(__FILE__, __LINE__, __FUNC__, err_str))
 #define __MY_THROW_C(fn_str, err_str) (throw excp::function_error(__FILE__, __LINE__, __FUNC__, fn_str, err_str))
@@ -90,19 +90,19 @@ namespace excp {
 		 ) : \
 		oss << "EXCEPTION: " << e.fn_str_ << "(" << e.err_no_ << ") " << e.what() \
 		   << " " << utils::_trim_file(e.f_.c_str()) << "(" << e.l_ << ") " << utils::_trim_func(e.fn_.c_str()); \
-		__LOG_S_FATAL(oss.str());
+		_Fatal(oss.str());
 
 
 #define __STD_CATCH() \
 	} \
 	catch (std::exception const& e) { \
-		__LOG_S_FATAL(std::string("EXCEPTION: ") + e.what());
+		_Fatal(std::string("EXCEPTION: ") + e.what());
 
 
 #define __ANY_CATCH() \
 	} \
 	catch (...) { \
-		__LOG_S_FATAL("EXCEPTION: unknown error");
+		_Fatal("EXCEPTION: unknown error");
 
 #define __MY_CATCH() \
 	__FUNC_CATCH() \

@@ -185,7 +185,7 @@ namespace utils {
 				assert(t_zone == mktime(&tm));
 				*tp = t_zone;
 				if (t_zone != mktime(&tm)) {
-					__LOG_S_FATAL("t_zone != mktime(&tm)");
+					_Fatal("t_zone != mktime(&tm)");
 				}
 			}
 			break;
@@ -220,7 +220,7 @@ namespace utils {
 				*tp = t_zone;
 			}
 			if (t_zone != mktime(&tm)) {
-				__LOG_S_FATAL("t_zone != mktime(&tm)");
+				_Fatal("t_zone != mktime(&tm)");
 			}
 			break;
 		}
@@ -602,17 +602,17 @@ namespace utils {
 		if (getrlimit(RLIMIT_CORE, &rlmt) == -1) {
 			exit(0);
 		}
-		//__LOG_DEBUG("Before set rlimit CORE dump current is:%d, max is:%d", (int)rlmt.rlim_cur, (int)rlmt.rlim_max);
+		//_Debugf("Before set rlimit CORE dump current is:%d, max is:%d", (int)rlmt.rlim_cur, (int)rlmt.rlim_max);
 		rlmt.rlim_cur = 1024 * 1024 * 1024;
 		rlmt.rlim_max = 1024 * 1024 * 1024;
 		if (setrlimit(RLIMIT_CORE, &rlmt) == -1) {
-			__LOG_ERROR("RLIMIT_CORE error");
+			_Errorf("RLIMIT_CORE error");
 			exit(0);
 		}
 #if 0
 		if (getrlimit(RLIMIT_NOFILE, &rlmt) == -1)
 			return false;
-		//__LOG_DEBUG("Before set rlimit RLIMIT_NOFILE current is:%d, max is:%d", (int)rlmt.rlim_cur, (int)rlmt.rlim_max);
+		//_Debugf("Before set rlimit RLIMIT_NOFILE current is:%d, max is:%d", (int)rlmt.rlim_cur, (int)rlmt.rlim_max);
 		rlmt.rlim_cur = (rlim_t)655350;
 		rlmt.rlim_max = (rlim_t)655356;
 		if (setrlimit(RLIMIT_NOFILE, &rlmt) == -1)
@@ -621,20 +621,20 @@ namespace utils {
 		//ulimit -a / ulimit -n
 		//http://juduir.com/topic/1802500000000000075
 		if (getrlimit(RLIMIT_NOFILE, &rlmt) == -1) {
-			__LOG_ERROR("ulimit fd number failed");
+			_Errorf("ulimit fd number failed");
 			exit(0);
 		}
-		//__LOG_DEBUG("Before set rlimit RLIMIT_NOFILE current is:%d, max is:%d", (int)rlmt.rlim_cur, (int)rlmt.rlim_max);
+		//_Debugf("Before set rlimit RLIMIT_NOFILE current is:%d, max is:%d", (int)rlmt.rlim_cur, (int)rlmt.rlim_max);
 		rlmt.rlim_cur = (rlim_t)655350;
 		rlmt.rlim_max = (rlim_t)655356;
 		if (setrlimit(RLIMIT_NOFILE, &rlmt) == -1) {
 			char buf[64];
 			sprintf(buf, "ulimit -n %d", rlmt.rlim_max);
 			if (-1 == system(buf)) {
-				__LOG_ERROR("%s failed", buf);
+				_Errorf("%s failed", buf);
 				exit(0);
 			}
-			__LOG_ERROR("Set max fd open count failed");
+			_Errorf("Set max fd open count failed");
 			exit(0);
 		}
 #endif
@@ -746,17 +746,17 @@ namespace utils {
 		sockaddr_in sinaddr, dinaddr, minaddr;
 		//char const* srcIp = "192.168.161.12";
 		if (inet_pton(AF_INET, srcIp, &sinaddr.sin_addr) < 1) {
-			__LOG_ERROR("inet_pton error:%s", srcIp);
+			_Errorf("inet_pton error:%s", srcIp);
 			assert(false);
 		}
 		//char const* dstIp = "192.168.160.2";
 		if (inet_pton(AF_INET, dstIp, &dinaddr.sin_addr) < 1) {
-			__LOG_ERROR("inet_pton error:%s", dstIp);
+			_Errorf("inet_pton error:%s", dstIp);
 			assert(false);
 		}
 		char const* maskIp = "255.255.255.0";
 		if (inet_pton(AF_INET, maskIp, &minaddr.sin_addr) < 1) {
-			__LOG_ERROR("inet_pton error:%s", maskIp);
+			_Errorf("inet_pton error:%s", maskIp);
 			assert(false);
 		}
 		//11000000 10101000 10100001 00001100
@@ -769,10 +769,10 @@ namespace utils {
 		uint32_t srcmask = sinetaddr & minetaddr;
 		uint32_t dstmask = dinetaddr & minetaddr;
 		if (srcmask == dstmask) {
-			__LOG_WARN("same subnet: %#X:%s & %#X:%s", sinetaddr, srcIp, dinetaddr, dstIp);
+			_Warnf("same subnet: %#X:%s & %#X:%s", sinetaddr, srcIp, dinetaddr, dstIp);
 		}
 		else {
-			__LOG_WARN("different subnet: %#X:%s & %#X:%s", sinetaddr, srcIp, dinetaddr, dstIp);
+			_Warnf("different subnet: %#X:%s & %#X:%s", sinetaddr, srcIp, dinetaddr, dstIp);
 		}
 		return srcmask == dstmask;
 	}
@@ -781,7 +781,7 @@ namespace utils {
 		sockaddr_in sinaddr, dinaddr, minaddr;
 		char const* maskIpstr = "255.255.255.0";
 		if (inet_pton(AF_INET, maskIpstr, &minaddr.sin_addr) < 1) {
-			__LOG_ERROR("inet_pton error:%s\n", maskIpstr);
+			_Errorf("inet_pton error:%s\n", maskIpstr);
 			assert(false);
 		}
 		//11000000 10101000 10100001 00001100
@@ -796,10 +796,10 @@ namespace utils {
 		char const* srcIp = _inetToIp(srcInetIp).c_str();
 		char const* dstIp = _inetToIp(dstInetIp).c_str();
 		if (srcmask == dstmask) {
-			__LOG_WARN("same subnet: %#X:%s & %#X:%s", sinetaddr, srcIp, dinetaddr, dstIp);
+			_Warnf("same subnet: %#X:%s & %#X:%s", sinetaddr, srcIp, dinetaddr, dstIp);
 		}
 		else {
-			__LOG_WARN("different subnet: %#X:%s & %#X:%s", sinetaddr, srcIp, dinetaddr, dstIp);
+			_Warnf("different subnet: %#X:%s & %#X:%s", sinetaddr, srcIp, dinetaddr, dstIp);
 		}
 		return srcmask == dstmask;
 	}
@@ -889,10 +889,10 @@ namespace utils {
 			std::string s;
 			s.resize(n/* + 1*/);
 			static int const size = strlen((char const*)arr[x]);
-			//__LOG_TRACE("len=%d size=%d arr[%d]=%s", n, size, x, arr[x]);
+			//_Tracef("len=%d size=%d arr[%d]=%s", n, size, x, arr[x]);
 			for (int i = 0; i < n; ++i) {
 				int r = _RANDOM().betweenInt(0, size - 1).randInt_mt();
-				//__LOG_TRACE("s[%d] = arr[%d][%d] = %c", i, x, r, arr[x][r]);
+				//_Tracef("s[%d] = arr[%d][%d] = %c", i, x, r, arr[x][r]);
 				s[i] = arr[x][r];
 			}
 			//s[n] = '\0';

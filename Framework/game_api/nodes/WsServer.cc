@@ -10,7 +10,7 @@ void ApiServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_[KWebsocketTy].incrementAndGet();
-		_LOG_INFO("API服[%s] <- 客户端[%s] %s %d",
+		Infof("API服[%s] <- 客户端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -48,7 +48,7 @@ void ApiServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 	else {
 		int32_t num = numConnected_[KWebsocketTy].decrementAndGet();
-		_LOG_INFO("API服[%s] <- 客户端[%s] %s %d",
+		Infof("API服[%s] <- 客户端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -73,7 +73,7 @@ void ApiServ::onConnected(
 
 	conn->getLoop()->assertInLoopThread();
 
-	_LOG_INFO("客户端真实IP[%s]", ipaddr.c_str());
+	Infof("客户端真实IP[%s]", ipaddr.c_str());
 
 	assert(!conn->getContext().empty());
 	Context& entryContext = boost::any_cast<Context&>(conn->getContext());
@@ -88,10 +88,10 @@ void ApiServ::onConnected(
 		entryContext.setWorker(session, hash_session_, threadPool_);
 		//map[session] = weakConn
 		entities_.add(session, conn);
-		_LOG_INFO("session[%s]", session.c_str());
+		Infof("session[%s]", session.c_str());
 	}
 	else {
-		_LOG_ERROR("error");
+		Errorf("error");
 	}
 }
 
@@ -139,7 +139,7 @@ void ApiServ::onMessage(
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			_LOG_ERROR("entry invalid");
+			Errorf("entry invalid");
 		}
 	}
 	//数据包不足够解析，等待下次接收再解析
@@ -192,7 +192,7 @@ void ApiServ::asyncClientHandler(
 							handler(conn, buf);
 						}
 						else {
-							_LOG_ERROR("unregister handler %d:%d", header->mainId, header->subId);
+							Errorf("unregister handler %d:%d", header->mainId, header->subId);
 						}
 						break;
 					}
@@ -217,7 +217,7 @@ void ApiServ::asyncClientHandler(
 					//非登录消息 userid > 0
 					if (header->subId != ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ &&
 						userId == 0) {
-						_LOG_ERROR("user Must Login Hall Server First!");
+						Errorf("user Must Login Hall Server First!");
 						break;
 					}
 					BufferPtr buffer = packet::packMessage(
@@ -246,7 +246,7 @@ void ApiServ::asyncClientHandler(
 					assert(header->len == len);
 					assert(header->len >= packet::kHeaderLen);
 					if (userId == 0) {
-						_LOG_ERROR("user Must Login Hall Server First!");
+						Errorf("user Must Login Hall Server First!");
 						break;
 					}
 					BufferPtr buffer = packet::packMessage(
@@ -274,7 +274,7 @@ void ApiServ::asyncClientHandler(
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			_LOG_ERROR("TcpConnectionPtr.conn invalid");
+			Errorf("TcpConnectionPtr.conn invalid");
 		}
 }
 
@@ -312,7 +312,7 @@ bool ApiServ::refreshBlackListSync() {
 		it != black_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	_LOG_DEBUG("IP访问黑名单\n%s", s.c_str());
+	Debugf("IP访问黑名单\n%s", s.c_str());
 	return false;
 }
 
@@ -326,7 +326,7 @@ bool ApiServ::refreshBlackListInLoop() {
 		it != black_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	_LOG_DEBUG("IP访问黑名单\n%s", s.c_str());
+	Debugf("IP访问黑名单\n%s", s.c_str());
 	return false;
 }
 

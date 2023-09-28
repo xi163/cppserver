@@ -205,7 +205,7 @@ namespace mgo {
 #if 0
 			mongocxx::cursor cursor = coll.find(where, opts);
 			for (auto const& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 			}
 #endif
 			return coll.find(where, opts);
@@ -238,7 +238,7 @@ namespace mgo {
 #if 0
 			mongocxx::cursor cursor = coll.find(where, opts);
 			for (auto const& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 			}
 #endif
 			return coll.find(where, opts);
@@ -469,7 +469,7 @@ namespace mgo {
 #if 0
 			mongocxx::cursor cursor = coll.find(where, opts);
 			for (auto const& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 			}
 #endif
 			cb(coll.find(where, opts));
@@ -503,7 +503,7 @@ namespace mgo {
 #if 0
 			mongocxx::cursor cursor = coll.find(where, opts);
 			for (auto const& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 			}
 #endif
 			cb(coll.find(where, opts));

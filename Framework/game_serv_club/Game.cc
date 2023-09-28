@@ -100,7 +100,7 @@ bool GameServ::InitZookeeper(std::string const& ipaddr) {
 	zkclient_->SetConnectedWatcherHandler(
 		std::bind(&GameServ::onZookeeperConnected, this));
 	if (!zkclient_->connectServer()) {
-		_LOG_FATAL("error");
+		Fatalf("error");
 		abort();
 		return false;
 	}
@@ -147,7 +147,7 @@ void GameServ::onZookeeperConnected() {
 			for (std::string const& name : names) {
 				s += "\n" + name;
 			}
-			_LOG_WARN("可用网关服列表%s", s.c_str());
+			Warnf("可用网关服列表%s", s.c_str());
 		}
 	}
 	{
@@ -164,7 +164,7 @@ void GameServ::onZookeeperConnected() {
 			for (std::string const& name : names) {
 				s += "\n" + name;
 			}
-			_LOG_WARN("可用大厅服列表%s", s.c_str());
+			Warnf("可用大厅服列表%s", s.c_str());
 		}
 	}
 }
@@ -186,7 +186,7 @@ void GameServ::onGateWatcher(
 		for (std::string const& name : names) {
 			s += "\n" + name;
 		}
-		_LOG_WARN("可用网关服列表%s", s.c_str());
+		Warnf("可用网关服列表%s", s.c_str());
 	}
 }
 
@@ -206,7 +206,7 @@ void GameServ::onHallWatcher(int type, int state,
 		for (std::string const& name : names) {
 			s += "\n" + name;
 		}
-		_LOG_WARN("可用大厅服列表%s", s.c_str());
+		Warnf("可用大厅服列表%s", s.c_str());
 	}
 }
 
@@ -224,7 +224,7 @@ void GameServ::registerZookeeper() {
 bool GameServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
 	if (!redisClient_->initRedisCluster(ipaddr, passwd)) {
-		_LOG_FATAL("error");
+		Fatalf("error");
 		return false;
 	}
 	redisIpaddr_ = ipaddr;
@@ -242,7 +242,7 @@ bool GameServ::InitMongoDB(std::string const& url) {
 
 void GameServ::threadInit() {
 	if (!REDISCLIENT.initRedisCluster(redisIpaddr_, redisPasswd_)) {
-		_LOG_FATAL("initRedisCluster error");
+		Fatalf("initRedisCluster error");
 	}
 	std::string s;
 	for (std::vector<std::string>::const_iterator it = redlockVec_.begin();
@@ -253,7 +253,7 @@ void GameServ::threadInit() {
 		s += "\n" + vec[0];
 		s += ":" + vec[1];
 	}
-	//_LOG_WARN("redisLock%s", s.c_str());
+	//Warnf("redisLock%s", s.c_str());
 }
 
 //LoadGameClubInfos(
@@ -269,7 +269,7 @@ bool GameServ::InitServer() {
 	if (mgo::LoadClubGameRoomInfo(gameId_, roomId_, gameInfo_, roomInfo_)) {
 		return true;
 	}
-	_LOG_ERROR("error");
+	Errorf("error");
 	return false;
 }
 
@@ -286,7 +286,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	CTableMgr::get_mutable_instance().Init(this);
 	CRobotMgr::get_mutable_instance().Init(this);
 
-	_LOG_WARN("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), roomId_, getModeMsg(kClub).c_str(), numThreads, numWorkerThreads);
+	Warnf("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), roomId_, getModeMsg(kClub).c_str(), numThreads, numWorkerThreads);
 
 	server_.start(true);
 	rpcserver_.start(true);
@@ -306,7 +306,7 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			mapGateConns_[conn->peerAddress().toIpPort()] = conn;
 		}
 		int32_t num = numConnected_.incrementAndGet();
-		_LOG_INFO("游戏服[%s] <- 网关服[%s] %s %d",
+		Infof("游戏服[%s] <- 网关服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -317,7 +317,7 @@ void GameServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			mapGateConns_.erase(conn->peerAddress().toIpPort());
 		}
 		int32_t num = numConnected_.decrementAndGet();
-		_LOG_INFO("游戏服[%s] <- 网关服[%s] %s %d",
+		Infof("游戏服[%s] <- 网关服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -379,7 +379,7 @@ void GameServ::onMessage(
 		}
 		//数据包不足够解析，等待下次接收再解析
 		else {
-			_LOG_ERROR("error");
+			Errorf("error");
 			break;
 		}
 	}
@@ -391,7 +391,7 @@ void GameServ::asyncLogicHandler(
 	muduo::Timestamp receiveTime) {
 	muduo::net::TcpConnectionPtr conn(weakConn.lock());
 	if (!conn) {
-		_LOG_ERROR("error");
+		Errorf("error");
 		return;
 	}
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
@@ -418,7 +418,7 @@ void GameServ::asyncLogicHandler(
 					handler(conn, buf);
 				}
 				else {
-					_LOG_ERROR("unregister handler %d:%d", header->mainId, header->subId);
+					Errorf("unregister handler %d:%d", header->mainId, header->subId);
 				}
 				break;
 			}
@@ -439,7 +439,7 @@ void GameServ::asyncLogicHandler(
 		}
 	}
 	else {
-		_LOG_ERROR("error");
+		Errorf("error");
 	}
 }
 
@@ -447,7 +447,7 @@ void GameServ::asyncLogicHandler(
 /// asyncOfflineHandler
 /// </summary>
 void GameServ::asyncOfflineHandler(std::string const& ipPort) {
-	_LOG_ERROR("%s", ipPort.c_str());
+	Errorf("%s", ipPort.c_str());
 	std::vector<int64_t> v;
 	{
 		READ_LOCK(mutexGateUsers_);
@@ -477,7 +477,7 @@ void GameServ::asyncOfflineHandler(std::string const& ipPort) {
 /// GetContext
 /// </summary>
 TableContext GameServ::GetContext(int64_t userId) {
-	//_LOG_ERROR("%d", userId);
+	//Errorf("%d", userId);
 #ifdef _TABLECONTEXT_INLOOP
 	TableContext ctx;
 	bool ok = false;
@@ -552,7 +552,7 @@ void GameServ::AddContext(
 	const muduo::net::TcpConnectionPtr& conn,
 	packet::internal_prev_header_t const* pre_header_,
 	packet::header_t const* header_) {
-	_LOG_ERROR("%d", pre_header_->userId);
+	Errorf("%d", pre_header_->userId);
 #ifdef _TABLECONTEXT_INLOOP
 	RunInLoop(thisThread_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::AddContextInLoop, conn, pre_header_, header_));
 #else
@@ -671,7 +671,7 @@ void GameServ::AddContextInLoop(
 /// DelContext
 /// </summary>
 void GameServ::DelContext(int64_t userId) {
-	_LOG_ERROR("%d", userId);
+	Errorf("%d", userId);
 #ifdef _TABLECONTEXT_INLOOP
 	RunInLoop(thisThread_->getLoop(), OBJ_CALLBACK_0(this, &GameServ::DelContextInLoop, userId));
 #else
@@ -902,12 +902,12 @@ void GameServ::cmd_on_user_enter_room(
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
 					if (player->isOffline()) {
-						_LOG_WARN("[%s][%d][%s] %d %d 断线重连进房间",
+						Warnf("[%s][%d][%s] %d %d 断线重连进房间",
 							table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
 							player->GetChairId(), player->GetUserId());
 					}
 					else {
-						_LOG_WARN("[%s][%d][%s] %d %d 异地登陆进房间",
+						Warnf("[%s][%d][%s] %d %d 异地登陆进房间",
 							table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
 							player->GetChairId(), player->GetUserId());
 					}
@@ -984,7 +984,7 @@ void GameServ::cmd_on_user_enter_room(
 				"ERROR_ENTERROOM_NOSESSION", pre_header_, header_);
 			return;
 		}
-		_LOG_WARN("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfo_.roomId,
+		Warnf("roomid:%d enterMinScore:%lld enterMaxScore:%lld %lld.Score:%lld", roomInfo_.roomId,
 			roomInfo_.enterMinScore, roomInfo_.enterMaxScore, pre_header_->userId, userInfo.userScore);
 		//最小进入条件
 		if (roomInfo_.enterMinScore > 0 &&
@@ -1185,10 +1185,10 @@ void GameServ::cmd_on_user_offline(
 	size_t msgLen = packet::get_msglen(buf);
 	switch (pre_header_->kicking) {
 	case KICK_REPLACE:
-		_LOG_ERROR("KICK_REPLACE %d", pre_header_->userId);
+		Errorf("KICK_REPLACE %d", pre_header_->userId);
 		break;
 	default:
-		_LOG_ERROR("KICK_LEAVEGS %d", pre_header_->userId);
+		Errorf("KICK_LEAVEGS %d", pre_header_->userId);
 		//KickUser(pre_header_->userId, KICK_GS | KICK_CLOSEONLY);
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (!player) {

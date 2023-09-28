@@ -41,7 +41,7 @@ namespace muduo {
 		//readFull for EPOLLET
 		ssize_t IBytesBuffer::readFull(int sockfd, IBytesBuffer* buf, int* savedErrno) {
 			assert(buf->writableBytes() >= 0);
-			//_LOG_DEBUG("begin {{{");
+			//Debugf("begin {{{");
 			ssize_t n = 0;
 			do {
 				//make sure that writable > 0
@@ -85,7 +85,7 @@ namespace muduo {
 						errno != ECONNABORTED &&
 						errno != EPROTO*/ &&
 						errno != EINTR) {
-						_LOG_ERROR("rc = %d errno = %d errmsg = %s",
+						Errorf("rc = %d errno = %d errmsg = %s",
 							rc, errno, strerror(errno));
 					}
 					break;
@@ -96,12 +96,12 @@ namespace muduo {
 					//rc = 0 errno = 0 peer close
 					//
 					//Connection has been aborted by peer
-					//_LOG_ERROR("Connection has been aborted by peer rc = %d errno = %d errmsg = %s",
+					//Errorf("Connection has been aborted by peer rc = %d errno = %d errmsg = %s",
 					//	rc, errno, strerror(errno));
 					break;
 				}
 			} while (true);
-			//_LOG_DEBUG("end }}}");
+			//Debugf("end }}}");
 			return n;
 		}//readFull
 			
@@ -122,7 +122,7 @@ namespace muduo {
 					//只要可写(内核buf还有空间且用户待写数据还未写完)，就一直写，直到数据发送完，或者errno = EAGAIN
 					n += (ssize_t)rc;
 					left -= (ssize_t)rc;
-					//_LOG_DEBUG("rc = %d left = %d errno = %d errmsg = %s",
+					//Debugf("rc = %d left = %d errno = %d errmsg = %s",
 					//	rc, left, errno, strerror(errno));
 					continue;
 				}
@@ -136,7 +136,7 @@ namespace muduo {
 						errno != ECONNABORTED &&
 						errno != EPROTO*/ &&
 						errno != EINTR) {
-						_LOG_ERROR("rc = %d left = %d errno = %d errmsg = %s",
+						Errorf("rc = %d left = %d errno = %d errmsg = %s",
 							rc, left, errno, strerror(errno));
 					}
 					break;
@@ -151,7 +151,7 @@ namespace muduo {
 					break;
 				}
 			}
-			//_LOG_DEBUG("end }}}");
+			//Debugf("end }}}");
 			return n;
 		}//writeFull
 

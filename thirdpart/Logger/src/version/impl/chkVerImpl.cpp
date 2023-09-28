@@ -22,7 +22,7 @@ namespace utils {
 		std::string::size_type pos = url.find_last_of('/');
 		std::string filename = url.substr(pos + 1, -1);
 		if (!utils::_mkDir(dir.c_str())) {
-			__PLOG_ERROR("创建下载目录失败..%s\n\t1.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t2.不要安装在中文文件夹", dir.c_str());
+			_Errorf_pure("创建下载目录失败..%s\n\t1.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t2.不要安装在中文文件夹", dir.c_str());
 			__LOG_CONSOLE_CLOSE(10000, true);
 			cb(-1);//失败，退出
 			return;
@@ -35,19 +35,19 @@ namespace utils {
 			std::vector<char> data;
 			f.Buffer(data);
 			f.Close();
-			__PLOG_DEBUG("安装包已存在! 共 %d 字节，准备校验...", data.size());
+			_Debugf_pure("安装包已存在! 共 %d 字节，准备校验...", data.size());
 			if (data.size() > 0) {
 				char md5[32 + 1] = { 0 };
 				MD5Encode32(&data.front(), data.size(), md5, 0);
 				if (atol(version["size"].c_str()) == data.size() &&
 					strncasecmp(md5, version["md5"].c_str(), strlen(md5)) == 0) {
-					__PLOG_DEBUG("校验成功，开始安装新版程序包...");
+					_Debugf_pure("校验成功，开始安装新版程序包...");
 					std::string content = version["context"];
 					utils::_replaceEscChar(content);
-					__PLOG_WARN("*******************************************");
+					_Warnf_pure("*******************************************");
 					//PLOG_WARN(content.c_str(), m["no"].c_str());
-					__PLOG_WARN(content.c_str());
-					__PLOG_WARN("*******************************************");
+					_Warnf_pure(content.c_str());
+					_Warnf_pure("*******************************************");
 					//::WinExec(path.c_str(), SW_SHOWMAXIMIZED);
 					::ShellExecuteA(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
 					__LOG_CONSOLE_CLOSE(5000);
@@ -55,10 +55,10 @@ namespace utils {
 					return;
 				}
 			}
-			__TLOG_DEBUG("校验失败，重新下载安装包... %s", url.c_str());
+			_Debugf_tmsp("校验失败，重新下载安装包... %s", url.c_str());
 		}
 		else {
-			__TLOG_DEBUG("开始下载安装包... %s", url.c_str());
+			_Debugf_tmsp("开始下载安装包... %s", url.c_str());
 		}
 		std::vector<char> data;
 		Curl::ClientImpl req(true);
@@ -80,35 +80,35 @@ namespace utils {
 				std::string path = obj->GetOperation()->Path();
 				std::string::size_type pos = path.find_last_of('\\');
 				std::string filename = path.substr(pos + 1, -1);
-				__TLOG_INFO("下载进度 %.2f%% 路径 %s", (lnow / ltotal) * 100, path.c_str());
+				_Infof_tmsp("下载进度 %.2f%% 路径 %s", (lnow / ltotal) * 100, path.c_str());
 				if (lnow == ltotal) {
 					obj->GetOperation()->Flush();
 					obj->GetOperation()->Close();
-					__PLOG_DEBUG("下载完成! 共 %.0f 字节，准备校验...", ltotal);
+					_Debugf_pure("下载完成! 共 %.0f 字节，准备校验...", ltotal);
 					char md5[32 + 1] = { 0 };
 					MD5Encode32(&data.front(), data.size(), md5, 0);
 					if (atol(version["size"].c_str()) == data.size() &&
 						strncasecmp(md5, version["md5"].c_str(), strlen(md5)) == 0) {
-						__PLOG_DEBUG("校验成功，开始安装新版程序包...");
+						_Debugf_pure("校验成功，开始安装新版程序包...");
 						std::string content = version["context"];
 						utils::_replaceEscChar(content);
-						__PLOG_WARN("*******************************************");
+						_Warnf_pure("*******************************************");
 						//PLOG_WARN(content.c_str(), version["no"].c_str());
-						__PLOG_WARN(content.c_str());
-						__PLOG_WARN("*******************************************");
+						_Warnf_pure(content.c_str());
+						_Warnf_pure("*******************************************");
 						//::WinExec(path.c_str(), SW_SHOWMAXIMIZED);
 						::ShellExecuteA(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
 						__LOG_CONSOLE_CLOSE(5000);
 						cb(0);//成功，退出
 					}
 					else {
-						__PLOG_ERROR("校验失败，请检查安装包[版本号/大小/MD5值]\n");
+						_Errorf_pure("校验失败，请检查安装包[版本号/大小/MD5值]\n");
 						__LOG_CONSOLE_CLOSE(5000);
 						cb(1);//失败，继续
 					}
 				}
 			}, NULL, false, stdout) < 0) {
-			__PLOG_ERROR("更新失败，失败原因可能：\n\t1.下载包打开失败，目录or文件?\n\t2.下载包可能被占用，请关闭后重试.\n\t3.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t4.检查下载链接%s是否有效!\n\t5.请检查本地网络.", url.c_str());
+			_Errorf_pure("更新失败，失败原因可能：\n\t1.下载包打开失败，目录or文件?\n\t2.下载包可能被占用，请关闭后重试.\n\t3.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t4.检查下载链接%s是否有效!\n\t5.请检查本地网络.", url.c_str());
 			__LOG_CONSOLE_CLOSE(10000, true);
 			cb(-1);//失败，退出
 		}
@@ -133,10 +133,10 @@ namespace utils {
 					if (req.check(config.c_str(), size) == 0) {
 						++n;
 						configs[key] = config;
-						__TLOG_DEBUG("[有效]%s=%s size=%.0f", key.c_str(), config.c_str(), size);
+						_Debugf_tmsp("[有效]%s=%s size=%.0f", key.c_str(), config.c_str(), size);
 					}
 					else {
-						__TLOG_WARN("[失效]%s=%s", key.c_str(), config.c_str());
+						_Warnf_tmsp("[失效]%s=%s", key.c_str(), config.c_str());
 					}
 				}
 			}
@@ -156,14 +156,14 @@ namespace utils {
 		conf.app_name = reader.get("config", "APP_NAME");
 		conf.app_nickname = reader.get("config", "APP_NICK_NAME");
 		conf.nim_data_pc = reader.get("config", "NIM_DATA_PC");
-		//__PLOG_INFO("server_url %s", conf.server_url.c_str());
-		//__PLOG_INFO("kefu_server_url %s", conf.kefu_server_url.c_str());
-		//__PLOG_INFO("upload_url %s", conf.upload_url.c_str());
-		//__PLOG_INFO("app_key %s", conf.app_key.c_str());
-		//__PLOG_INFO("secret %s", conf.secret.c_str());
-		//__PLOG_INFO("app_name %s", conf.app_name.c_str());
-		//__PLOG_INFO("app_nickname %s", conf.app_nickname.c_str());
-		//__PLOG_INFO("nim_data_pc %s", conf.nim_data_pc.c_str());
+		//_Infof_pure("server_url %s", conf.server_url.c_str());
+		//_Infof_pure("kefu_server_url %s", conf.kefu_server_url.c_str());
+		//_Infof_pure("upload_url %s", conf.upload_url.c_str());
+		//_Infof_pure("app_key %s", conf.app_key.c_str());
+		//_Infof_pure("secret %s", conf.secret.c_str());
+		//_Infof_pure("app_name %s", conf.app_name.c_str());
+		//_Infof_pure("app_nickname %s", conf.app_nickname.c_str());
+		//_Infof_pure("nim_data_pc %s", conf.nim_data_pc.c_str());
 	}
 	
 	static inline void _updateVCRedist(utils::INI::Section& redist, std::string const& dir, std::function<void(int rc)> cb) {
@@ -172,7 +172,7 @@ namespace utils {
 		std::string::size_type pos = url.find_last_of('/');
 		std::string filename = url.substr(pos + 1, -1);
 		if (!utils::_mkDir(dir.c_str())) {
-			__PLOG_ERROR("创建下载目录失败..%s\n\t1.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t2.不要安装在中文文件夹", dir.c_str());
+			_Errorf_pure("创建下载目录失败..%s\n\t1.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t2.不要安装在中文文件夹", dir.c_str());
 			//__LOG_CONSOLE_CLOSE(10000, true);
 			//cb(-1);//失败，退出
 			return;
@@ -185,13 +185,13 @@ namespace utils {
 			std::vector<char> data;
 			f.Buffer(data);
 			f.Close();
-			//__PLOG_DEBUG("安装包已存在! 共 %d 字节，准备校验...", data.size());
+			//_Debugf_pure("安装包已存在! 共 %d 字节，准备校验...", data.size());
 			if (data.size() > 0) {
 				char md5[32 + 1] = { 0 };
 				MD5Encode32(&data.front(), data.size(), md5, 0);
 				if (atol(redist["size"].c_str()) == data.size() &&
 					strncasecmp(md5, redist["md5"].c_str(), strlen(md5)) == 0) {
-					__PLOG_DEBUG("校验成功，开始安装...");
+					_Debugf_pure("校验成功，开始安装...");
 					::WinExec(path.c_str(), SW_SHOWNORMAL);
 					//::ShellExecuteA(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
 					//__LOG_CONSOLE_CLOSE(5000, true);
@@ -199,10 +199,10 @@ namespace utils {
 					return;
 				}
 			}
-			//__TLOG_DEBUG("校验失败，重新下载安装包... %s", url.c_str());
+			//_Debugf_tmsp("校验失败，重新下载安装包... %s", url.c_str());
 		}
 		else {
-			//__TLOG_DEBUG("开始下载安装包... %s", url.c_str());
+			//_Debugf_tmsp("开始下载安装包... %s", url.c_str());
 		}
 		std::vector<char> data;
 		Curl::ClientImpl req(true);
@@ -222,29 +222,29 @@ namespace utils {
 				std::string path = obj->GetOperation()->Path();
 				std::string::size_type pos = path.find_last_of('\\');
 				std::string filename = path.substr(pos + 1, -1);
-				__TLOG_INFO("下载进度 %.2f%% 路径 %s", (lnow / ltotal) * 100, path.c_str());
+				_Infof_tmsp("下载进度 %.2f%% 路径 %s", (lnow / ltotal) * 100, path.c_str());
 				if (lnow == ltotal) {
 					obj->GetOperation()->Flush();
 					obj->GetOperation()->Close();
-					//__PLOG_DEBUG("下载完成! 共 %.0f 字节，准备校验...", ltotal);
+					//_Debugf_pure("下载完成! 共 %.0f 字节，准备校验...", ltotal);
 					char md5[32 + 1] = { 0 };
 					MD5Encode32(&data.front(), data.size(), md5, 0);
 					if (atol(redist["size"].c_str()) == data.size() &&
 						strncasecmp(md5, redist["md5"].c_str(), strlen(md5)) == 0) {
-						__PLOG_DEBUG("校验成功，开始安装...");
+						_Debugf_pure("校验成功，开始安装...");
 						::WinExec(path.c_str(), SW_SHOWNORMAL);
 						//::ShellExecuteA(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
 						//__LOG_CONSOLE_CLOSE(5000, true);
 						//cb(0);//成功，退出
 					}
 					else {
-						//__PLOG_ERROR("校验失败，请检查安装包[版本号/大小/MD5值]\n");
+						//_Errorf_pure("校验失败，请检查安装包[版本号/大小/MD5值]\n");
 						//__LOG_CONSOLE_CLOSE(2000);
 						//cb(1);//失败，继续
 					}
 				}
 			}, NULL, false, stdout) < 0) {
-			__PLOG_ERROR("更新失败，失败原因可能：\n\t1.下载包打开失败，目录or文件?\n\t2.下载包可能被占用，请关闭后重试.\n\t3.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t4.检查下载链接%s是否有效!\n\t5.请检查本地网络.", url.c_str());
+			_Errorf_pure("更新失败，失败原因可能：\n\t1.下载包打开失败，目录or文件?\n\t2.下载包可能被占用，请关闭后重试.\n\t3.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t4.检查下载链接%s是否有效!\n\t5.请检查本地网络.", url.c_str());
 			//__LOG_CONSOLE_CLOSE(10000, true);
 			//cb(-1);//失败，退出
 		}
@@ -275,13 +275,13 @@ namespace utils {
 			}
 		}
 		if (url.empty()) {
-			__PLOG_ERROR("VERSION_URL 为空，失败原因可能：\n\t1.请检查 %s\n\t2.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t3.不要安装在中文文件夹", path.c_str());
+			_Errorf_pure("VERSION_URL 为空，失败原因可能：\n\t1.请检查 %s\n\t2.可能权限不够，请选择其它盘重新安装，不要安装在C盘，或以管理员身份重新启动!\n\t3.不要安装在中文文件夹", path.c_str());
 			__LOG_CONSOLE_CLOSE(10000, true);
 			cb(-1);//失败，退出
 			return;
 		}
-		__TLOG_DEBUG("正在检查版本信息 %s", url.c_str());
-		__PLOG_DEBUG("当前版本号 %s", v.c_str());
+		_Debugf_tmsp("正在检查版本信息 %s", url.c_str());
+		_Debugf_pure("当前版本号 %s", v.c_str());
 		__MY_TRY();
 		//text/plain
 		//text/html
@@ -292,12 +292,12 @@ namespace utils {
 		std::string vi;
 		Curl::ClientImpl req;
 		if (req.get(url.c_str(), &header, &vi) < 0) {
-			__PLOG_ERROR("下载失败，失败原因可能：\n\t1.检查链接%s是否有效!\n\t2.请检查本地网络.", url.c_str());
+			_Errorf_pure("下载失败，失败原因可能：\n\t1.检查链接%s是否有效!\n\t2.请检查本地网络.", url.c_str());
 			__LOG_CONSOLE_CLOSE(10000);
 			cb(1);//失败，继续
 		}
 		else {
-			//__LOG_WARN(vi.c_str());
+			//_Warnf(vi.c_str());
 			utils::INI::ReaderImpl reader;
 			if (reader.parse(vi.c_str(), vi.length())) {
 				_getPlatConfig(reader, conf);
@@ -305,38 +305,38 @@ namespace utils {
 				int total = 0;
 				int n = _getConfigList(req, reader, conf.configs, total);
 				if (conf.configs.empty()) {
-					__PLOG_ERROR("共检查 %d 条线路，均不可用", total);
+					_Errorf_pure("共检查 %d 条线路，均不可用", total);
 					__LOG_CONSOLE_CLOSE(10000, true);
 					cb(-1);//失败，退出
 					return;
 				}
 				else {
-					__PLOG_DEBUG("共检查 %d 条线路 %d 条可用", total, n);
+					_Debugf_pure("共检查 %d 条线路 %d 条可用", total, n);
 				}
 #endif
 				if (utils::_checkVCRedist()) {
-					__PLOG_DEBUG("系统已安装 VC 运行时库...");
+					_Debugf_pure("系统已安装 VC 运行时库...");
 				}
 				else {
-					__PLOG_DEBUG("检测到系统未安装 VC 运行时库，准备安装!");
+					_Debugf_pure("检测到系统未安装 VC 运行时库，准备安装!");
 					utils::INI::Section* redist = reader.get("redist");
 					_updateVCRedist(*redist, dir, cb);
 				}
 				utils::INI::Section* version = reader.get("version");
 				if (version && v != (*version)["no"]) {
-					__PLOG_WARN("发现新版本 %s\n文件大小 %s 字节\nMD5值 %s\n准备更新...",
+					_Warnf_pure("发现新版本 %s\n文件大小 %s 字节\nMD5值 %s\n准备更新...",
 						(*version)["no"].c_str(),
 						(*version)["size"].c_str(),
 						(*version)["md5"].c_str());
 					utils::_updateVersion(*version, dir, cb);
 					return;
 				}
-				__PLOG_INFO("版本检查完毕，没有发现新版本.");
+				_Infof_pure("版本检查完毕，没有发现新版本.");
 				__LOG_CONSOLE_CLOSE(5000);
 				cb(1);//失败，继续
 			}
 			else {
-				__PLOG_ERROR("版本配置解析失败.");
+				_Errorf_pure("版本配置解析失败.");
 				__LOG_CONSOLE_CLOSE(10000);
 				cb(1);//失败，继续
 			}

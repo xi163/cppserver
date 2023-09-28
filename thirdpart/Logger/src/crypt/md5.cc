@@ -225,10 +225,10 @@ main(int argc, char **argv)
 	char dst[32 + 1] = { 0 };
 	utils::MD5(src.c_str(), src.length(), dst, 1);
 	if (std::string(dst) == KEY) {
-		__LOG_DEBUG("md5 success");
+		_Debugf("md5 success");
 	}
 	else {
-		__LOG_ERROR("md5 Failed");
+		_Errorf("md5 Failed");
 	}
 	return 0;
 }

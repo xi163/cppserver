@@ -26,7 +26,7 @@ namespace muduo {
 				muduo::net::Buffer* buf, muduo::Timestamp receiveTime) {
 				assert(conn);
 				conn->getLoop()->assertInLoopThread();
-				_LOG_WARN("websocket::onClosed - %s", conn->peerAddress().toIpPort().c_str());
+				Warnf("websocket::onClosed - %s", conn->peerAddress().toIpPort().c_str());
 				//////////////////////////////////////////////////////////////////////////
 				//pack_unmask_close_frame
 				//////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ namespace muduo {
 			}
 			
 			void hook(
-				const muduo::net::wsValidateCallback& vcb,
+				const muduo::net::wsVerifyCallback& vcb,
 				const muduo::net::WsConnectedCallback& ccb,
 				const muduo::net::WsMessageCallback& mcb,
 				const muduo::net::TcpConnectionPtr& conn,
@@ -48,8 +48,8 @@ namespace muduo {
 				//////////////////////////////////////////////////////////////////////////
 				websocket::ContextPtr context(new muduo::net::websocket::Context(conn, path_handshake));
 				{
-					//wsValidateCallback
-					context->setWsValidateCallback(vcb);
+					//wsVerifyCallback
+					context->setWsVerifyCallback(vcb);
 					//WsConnectedCallback
 					context->setWsConnectedCallback(ccb);
 					//WsClosedCallback
@@ -122,7 +122,7 @@ namespace muduo {
 			}
 
 			void Server::hook(
-				const muduo::net::wsValidateCallback& vcb,
+				const muduo::net::wsVerifyCallback& vcb,
 				const muduo::net::WsConnectedCallback& ccb,
 				const muduo::net::WsMessageCallback& mcb,
 				const muduo::net::TcpConnectionPtr& conn,

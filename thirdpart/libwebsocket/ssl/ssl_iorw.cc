@@ -42,8 +42,8 @@ namespace muduo {
 			ssize_t SSL_read(SSL* ssl, IBytesBuffer* buf, int* savedErrno) {
 				assert(buf->writableBytes() >= 0);
 				//SSL_pending = 0
-				//_LOG_DEBUG("SSL_pending = %d", SSL_pending(ssl));
-				//_LOG_DEBUG("begin {{{");
+				//Debugf("SSL_pending = %d", SSL_pending(ssl));
+				//Debugf("begin {{{");
 				ssize_t n = 0;
 				do {
 					//make sure that writable > 0
@@ -65,7 +65,7 @@ namespace muduo {
 					//returns the number of bytes which are available inside ssl for immediate read
 					//make sure that call it after SSL_read is called
 					size_t left = (size_t)::SSL_pending(ssl);
-					//_LOG_DEBUG("rc = %d left = %lld err = %d",
+					//Debugf("rc = %d left = %lld err = %d",
 					//    rc, left, SSL_get_error(ssl, rc));
 					if (rc > 0) {
 						assert(::SSL_get_error(ssl, rc) == 0);
@@ -89,7 +89,7 @@ namespace muduo {
 					}
 					else if (rc < 0) {
 						int err = ::SSL_get_error(ssl, rc);
-						_LOG_DEBUG("rc = %d err = %d errno = %d errmsg = %s",
+						Debugf("rc = %d err = %d errno = %d errmsg = %s",
 							rc, err, errno, strerror(errno));
 						switch (err)
 						{
@@ -105,7 +105,7 @@ namespace muduo {
 							//SSL has been shutdown
 						case SSL_ERROR_ZERO_RETURN:
 							*savedErrno = SSL_ERROR_ZERO_RETURN;
-							//_LOG_DEBUG("SSL has been shutdown(%d)", err);
+							//Debugf("SSL has been shutdown(%d)", err);
 							break;
 						default:
 							if (errno != EAGAIN /*&&
@@ -138,23 +138,23 @@ namespace muduo {
 							//SSL has been shutdown
 						case SSL_ERROR_ZERO_RETURN:
 							*savedErrno = SSL_ERROR_ZERO_RETURN;
-							//_LOG_DEBUG("SSL has been shutdown(%d)", err);
+							//Debugf("SSL has been shutdown(%d)", err);
 							break;
 							//Connection has been aborted by peer
 						default:
 							*savedErrno = err;
-							//_LOG_DEBUG("Connection has been aborted(%d)", err);
+							//Debugf("Connection has been aborted(%d)", err);
 							break;
 						}
 						break;
 					}
 				} while (true);
-				//_LOG_DEBUG("end }}}");
+				//Debugf("end }}}");
 				return n;
 			}
 
 			ssize_t SSL_write(SSL* ssl, void const* data, size_t len, int* savedErrno) {
-				//_LOG_DEBUG("{{{");
+				//Debugf("{{{");
 				ssize_t left = (ssize_t)len;
 				ssize_t n = 0;
 				while (left > 0) {
@@ -162,7 +162,7 @@ namespace muduo {
 					if (rc > 0) {
 						n += (ssize_t)rc;
 						left -= (ssize_t)rc;
-						//_LOG_DEBUG("rc = %d left = %d err = %d",
+						//Debugf("rc = %d left = %d err = %d",
 						//	rc, left, SSL_get_error(ssl, rc));
 						assert(::SSL_get_error(ssl, rc) == 0);
 					}
@@ -170,7 +170,7 @@ namespace muduo {
 						//rc = -1 err = 1 errno = 0 errmsg = Success
 						int err = ::SSL_get_error(ssl, rc);
 						if (errno != EINTR || errno != EAGAIN) {
-							_LOG_ERROR("rc = %d err = %d errno = %d errmsg = %s",
+							Errorf("rc = %d err = %d errno = %d errmsg = %s",
 								rc, err, errno, strerror(errno));
 						}
 						switch (err)
@@ -205,18 +205,18 @@ namespace muduo {
 							//SSL has been shutdown
 						case SSL_ERROR_ZERO_RETURN:
 							*savedErrno = SSL_ERROR_ZERO_RETURN;
-							_LOG_DEBUG("SSL has been shutdown(%d)", err);
+							Debugf("SSL has been shutdown(%d)", err);
 							break;
 							//Connection has been aborted by peer
 						default:
 							*savedErrno = err;
-							_LOG_DEBUG("Connection has been aborted(%d)", err);
+							Debugf("Connection has been aborted(%d)", err);
 							break;
 						}
 						break;
 					}
 				}
-				//_LOG_DEBUG("end }}}");
+				//Debugf("end }}}");
 				return n;
 			}
 

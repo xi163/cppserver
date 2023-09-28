@@ -185,7 +185,7 @@ namespace mgo {
 					case bsoncxx::type::k_oid:
 						bsoncxx::oid oid = docid.get_oid().value;
 						std::string insert_id = oid.to_string();
-						//_LOG_DEBUG(insert_id.c_str());
+						//Debugf(insert_id.c_str());
 						return !insert_id.empty();
 					}
 				}
@@ -237,7 +237,7 @@ namespace mgo {
 					case bsoncxx::type::k_oid:
 						bsoncxx::oid oid = docid.get_oid().value;
 						std::string insert_id = oid.to_string();
-						//_LOG_DEBUG(insert_id.c_str());
+						//Debugf(insert_id.c_str());
 						return !insert_id.empty();
 					}
 				}
@@ -320,7 +320,7 @@ namespace mgo {
 			mgoKeys::tbl::GAME_CLUB,
 			select, where);
 		for (auto& view : cursor) {
-			//_LOG_WARN(to_json(view).c_str());
+			//Warnf(to_json(view).c_str());
 			tagGameClubInfo info;
 			//俱乐部Id 当玩家userId与clubId相同时为盟主
 			if (view["clubid"]) {
@@ -471,7 +471,7 @@ namespace mgo {
 			mgoKeys::tbl::GAME_CLUB_MEMBER,
 			select, where);
 		for (auto& view : cursor) {
-			//_LOG_WARN(to_json(view).c_str());
+			//Warnf(to_json(view).c_str());
 			UserClubInfo info;
 			if (view["userid"]) {
 				switch (view["userid"].type()) {
@@ -578,7 +578,7 @@ namespace mgo {
 					return false;
 				}
 				document::view view = result->view();
-				//_LOG_WARN(to_json(view).c_str());
+				//Warnf(to_json(view).c_str());
 				//俱乐部名称
 				if (view["clubname"]) {
 					switch (view["clubname"].type()) {
@@ -718,7 +718,7 @@ namespace mgo {
 			return false;
 		}
 		document::view view = result->view();
-		//_LOG_WARN(to_json(view).c_str());
+		//Warnf(to_json(view).c_str());
 		if (view["userid"]) {
 			switch (view["userid"].type()) {
 			case bsoncxx::type::k_int64:
@@ -824,7 +824,7 @@ namespace mgo {
 				return false;
 			}
 			document::view view = result->view();
-			//_LOG_WARN(to_json(view).c_str());
+			//Warnf(to_json(view).c_str());
 			//俱乐部名称
 			if (view["clubname"]) {
 				switch (view["clubname"].type()) {
@@ -1783,7 +1783,7 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
 				builder::stream::document{} << "clubid" << b_int64{ clubId } << finalize);//全部 会员/合伙人
 			for (auto& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 				if (view["userid"]) {
 					switch (view["userid"].type()) {
 					case bsoncxx::type::k_int64:
@@ -1832,7 +1832,7 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
 				builder::stream::document{} << "clubid" << b_int64{ clubId } << "status" << b_int64{ 2 } << finalize);//合伙人
 			for (auto& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 
 			}
 			break;
@@ -1844,7 +1844,7 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
 				builder::stream::document{} << "clubid" << b_int64{ clubId } << "status" << b_int64{ 1 } << finalize);//会员
 			for (auto& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 
 			}
 			break;
@@ -1865,7 +1865,7 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
 				builder::stream::document{} << "promoterid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << finalize);//直属所有 会员/合伙人
 			for (auto& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 
 			}
 			break;
@@ -1877,7 +1877,7 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
 				builder::stream::document{} << "promoterid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << "status" << b_int64{ 2 } << finalize);//直属合伙人
 			for (auto& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 
 			}
 			break;
@@ -1889,7 +1889,7 @@ namespace mgo {
 				builder::stream::document{} << "userid" << 1 << "status" << 1 << "ratio" << 1 << finalize,
 				builder::stream::document{} << "promoterid" << b_int64{ userId } << "clubid" << b_int64{ clubId } << "status" << b_int64{ 1 } << finalize);//直属会员
 			for (auto& view : cursor) {
-				_LOG_WARN(to_json(view).c_str());
+				Warnf(to_json(view).c_str());
 
 			}
 			break;
@@ -1906,7 +1906,7 @@ namespace mgo {
 			mgoKeys::tbl::GAME_KIND,
 			{}, {});
 		for (auto& view : cursor) {
-			//_LOG_WARN(to_json(view).c_str());
+			//Warnf(to_json(view).c_str());
 			::HallServer::GameMessage* gameinfo_ = gameinfos.add_gamemessage();
 			gameinfo_->set_gameid(view["gameid"].get_int32());
 			gameinfo_->set_gamename(view["gamename"].get_utf8().value.to_string());
@@ -1963,7 +1963,7 @@ namespace mgo {
 			CALLBACK_1([&](mongocxx::cursor const& cursor) {
 				auto& cursor_ = const_cast<mongocxx::cursor&>(cursor);
 				for (auto const& view : cursor_) {
-					//_LOG_WARN(to_json(view).c_str());
+					//Warnf(to_json(view).c_str());
 					uint32_t gameId = 0;
 					uint32_t clubId = 0;
 					if (view["gameid"]) {
@@ -2015,7 +2015,7 @@ namespace mgo {
 			CALLBACK_1([&](mongocxx::cursor const& cursor) {
 				auto& cursor_ = const_cast<mongocxx::cursor&>(cursor);
 				for (auto const& view : cursor_) {
-					//_LOG_WARN(to_json(view).c_str());
+					//Warnf(to_json(view).c_str());
 					::HallServer::GameMessage* gameinfo_ = gameinfos.add_gamemessage();
 					gameinfo_->set_gameid(view["gameid"].get_int32());
 					gameinfo_->set_gamename(view["gamename"].get_utf8().value.to_string());
@@ -2721,7 +2721,7 @@ namespace mgo {
 			return false;
 		}
 		document::view view = result->view();
-		//_LOG_WARN(to_json(view).c_str());
+		//Warnf(to_json(view).c_str());
 		if (view["userid"]) {
 			switch (view["userid"].type()) {
 			case bsoncxx::type::k_int64:
@@ -2986,7 +2986,7 @@ namespace mgo {
 			case bsoncxx::type::k_oid:
 				bsoncxx::oid oid = docid.get_oid().value;
 				std::string insert_id = oid.to_string();
-				//_LOG_DEBUG(insert_id.c_str());
+				//Debugf(insert_id.c_str());
 				return insert_id;
 
 			}
@@ -3048,7 +3048,7 @@ namespace mgo {
 			case bsoncxx::type::k_oid:
 				bsoncxx::oid oid = docid.get_oid().value;
 				std::string insert_id = oid.to_string();
-				//_LOG_DEBUG(insert_id.c_str());
+				//Debugf(insert_id.c_str());
 				return insert_id;
 			}
 		}
@@ -3070,7 +3070,7 @@ namespace mgo {
 			case bsoncxx::type::k_oid:
 				bsoncxx::oid oid = docid.get_oid().value;
 				std::string insert_id = oid.to_string();
-				//_LOG_DEBUG(insert_id.c_str());
+				//Debugf(insert_id.c_str());
 				return insert_id;
 			}
 		}
@@ -3118,7 +3118,7 @@ namespace mgo {
 			case bsoncxx::type::k_oid:
 				bsoncxx::oid oid = docid.get_oid().value;
 				std::string insert_id = oid.to_string();
-				//_LOG_DEBUG(insert_id.c_str());
+				//Debugf(insert_id.c_str());
 				return insert_id;
 			}
 		}
@@ -3137,7 +3137,7 @@ namespace mgo {
 			mgoKeys::tbl::AGENTINFO,
 			select, where);
 		for (auto& view : cursor) {
-			//_LOG_WARN(to_json(view).c_str());
+			//Warnf(to_json(view).c_str());
 			if (view["agentid"]) {
 				switch (view["agentid"].type()) {
 				case bsoncxx::type::k_int64:
@@ -3207,7 +3207,7 @@ namespace mgo {
 			mgoKeys::tbl::IP_WHITE_LIST,
 			select, where);
 		for (auto& view : cursor) {
-			//_LOG_WARN(to_json(view).c_str());
+			//Warnf(to_json(view).c_str());
 			std::string ipaddr;
 			eApiVisit ipstatus = eApiVisit::kDisable;
 			if (view["ipaddress"]) {

@@ -23,7 +23,7 @@ namespace utils {
 		}
 		__LOG_CONSOLE_OPEN();
 		std::string s = utils::_strfTime(expired, timezone);
-		__TLOG_ERROR("auth expired %s", s.c_str());
+		_Errorf_tmsp("auth expired %s", s.c_str());
 		__LOG_CONSOLE_CLOSE(5000/*, true*/);
 		noOk = true;
 		return true;

@@ -87,7 +87,7 @@ namespace muduo {
 				return "0.0.0.0";
 			}
 			
-			bool Context::onValidateCallback(http::IRequest const* request) {
+			bool Context::onVerifyCallback(http::IRequest const* request) {
 //				muduo::net::TcpConnectionPtr conn(weakConn_.lock());
 // 				if (conn) {
 // 					conn->getLoop()->assertInLoopThread();
@@ -98,8 +98,8 @@ namespace muduo {
 // 					muduo::Timestamp* preceiveTime = reinterpret_cast<muduo::Timestamp*>(receiveTime);
 // 					assert(preceiveTime);
 
-					if (wsValidateCallback_) {
-						return wsValidateCallback_(request);
+					if (wsVerifyCallback_) {
+						return wsVerifyCallback_(request);
 					}
 					return true;
 //				}

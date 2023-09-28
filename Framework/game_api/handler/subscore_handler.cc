@@ -42,7 +42,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 #endif
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " query game_user agentid." << req.p_agent_info->agentId << ".account." << req.Account << " invalid";
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_SubScoreHandleUserNotExistsError, ss.str().c_str(), rsp);
 		}
@@ -69,7 +69,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " userid." << userId
 				<< ".account." << req.Account << " redisLock failed";
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_SubScoreHandleInsertDataOutTime, ss.str().c_str(), rsp);
 		}
@@ -88,7 +88,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 #endif
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " query sub_score_order existed";
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_SubScoreHandleInsertOrderIDExists, ss.str().c_str(), rsp);
 		}
@@ -102,7 +102,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 #endif
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " query sub_score_order existed";
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_SubScoreHandleInsertOrderIDExists, ss.str().c_str(), rsp);
 		}
@@ -117,14 +117,14 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		if (REDISCLIENT.ExistOnlineInfo(userId)) {
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " " << req.Account << " is playing"/* << redisGameId << "." << redisRoomId*/;
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_SubScoreHandleInsertDataUserInGaming, ss.str().c_str(), rsp);
 		}
 		if (beforeScore < req.scoreI64) {
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " " << "score not enough, score." << beforeScore << " < deltascore." << req.scoreI64;
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			// 玩家下分超出玩家现有总分
 			return response::json::Result(ERR_SubScoreHandleInsertDataOverScore, ss.str().c_str(), rsp);
@@ -154,7 +154,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 #endif
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " insert sub_score_order error";
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_SubScoreHandleInsertDataError, ss.str().c_str(), rsp);
 		}
@@ -179,7 +179,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 #endif
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " update game_user error";
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_SubScoreHandleInsertDataError, ss.str().c_str(), rsp);
 		}
@@ -210,7 +210,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 #endif
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " insert user_score_record error";
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_SubScoreHandleInsertDataError, ss.str().c_str(), rsp);
 		}
@@ -238,7 +238,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 				std::stringstream ss;
 				ss << "orderid." << req.orderId << " agentid." << req.p_agent_info->agentId << " userid." << userId
 					<< ".account." << req.Account << " redisLock failed";
-				_LOG_ERROR(ss.str().c_str());
+				Errorf(ss.str().c_str());
 				ss << " " << _CODE_;
 				return response::json::Result(ERR_SubScoreHandleInsertDataOutTime, ss.str().c_str(), rsp);
 			}
@@ -259,7 +259,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 #endif
 				std::stringstream ss;
 				ss << "orderid." << req.orderId << " update agent_info error";
-				_LOG_ERROR(ss.str().c_str());
+				Errorf(ss.str().c_str());
 				ss << " " << _CODE_;
 				return response::json::Result(ERR_SubScoreHandleInsertDataError, ss.str().c_str(), rsp);
 			}
@@ -310,14 +310,14 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		case 11000: {
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " " << e.what();
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_SubScoreHandleInsertOrderIDExists, ss.str().c_str(), rsp);
 		}
 		default: {
 			std::stringstream ss;
 			ss << "orderid." << req.orderId << " " << e.what();
-			_LOG_ERROR(ss.str().c_str());
+			Errorf(ss.str().c_str());
 			ss << " " << _CODE_;
 			return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), rsp);
 		}
@@ -329,7 +329,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		}
 		std::stringstream ss;
 		ss << "orderid." << req.orderId << " " << e.what();
-		_LOG_ERROR(ss.str().c_str());
+		Errorf(ss.str().c_str());
 		ss << " " << _CODE_;
 		return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), rsp);
 	}
@@ -339,7 +339,7 @@ int subScore(OrderReq const& req, muduo::net::HttpResponse& rsp,
 		}
 		std::stringstream ss;
 		ss << "orderid." << req.orderId << " unknown";
-		_LOG_ERROR(ss.str().c_str());
+		Errorf(ss.str().c_str());
 		ss << " " << _CODE_;
 		return response::json::Result(ERR_InsideErrorOrNonExcutive, ss.str().c_str(), rsp);
 	}

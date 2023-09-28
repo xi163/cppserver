@@ -35,9 +35,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclient.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclientutils.cpp" />
-    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperlocker.cpp" />
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclient.cc" />
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclientutils.cc" />
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperlocker.cc" />
     <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zoo_lock.cc" />
   </ItemGroup>
   <ItemGroup>

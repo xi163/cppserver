@@ -22,7 +22,7 @@ namespace rpc {
 				rsp.set_host(gServer->http_proto_ + gServer->httpserver_ipport_/* + gServer->path_http_order_*/);
 				rsp.set_domain(gServer->http_proto_ + gServer->httpserver_ipport_ + gServer->path_http_order_);
 			}
-			//_LOG_WARN("\nreq:%s\nrsp:%s", req->DebugString().c_str(), rsp.DebugString().c_str());
+			//Warnf("\nreq:%s\nrsp:%s", req->DebugString().c_str(), rsp.DebugString().c_str());
 			done(&rsp);
 		}
 
@@ -34,10 +34,10 @@ namespace rpc {
 			if (peer) {
 				//BufferPtr buffer = GateServ::packOrderScoreMsg(req->userid(), req->score());
 				//muduo::net::websocket::send(peer, buffer->peek(), buffer->readableBytes());
-				//_LOG_WARN("succ %lld.score: %lld", req->userid(), req->score());
+				//Warnf("succ %lld.score: %lld", req->userid(), req->score());
 			}
 			else {
-				//_LOG_ERROR("failed %lld.score: %lld", req->userid(), req->score());
+				//Errorf("failed %lld.score: %lld", req->userid(), req->score());
 			}
 			done(&rsp);
 		}

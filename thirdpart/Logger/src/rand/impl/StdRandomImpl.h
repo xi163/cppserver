@@ -130,7 +130,7 @@ namespace STD {
 			assert(weight_.size() > 0);
 #ifdef DEBUG_PRINT
 			for (int i = 0; i < weight_.size(); ++i) {
-				__LOG_DEBUG("w[%d]=%d\n", indxId_[i], weight_[i]);
+				_Debugf("w[%d]=%d\n", indxId_[i], weight_[i]);
 			}
 #endif
 			int r = rand_.randInt_mt(bv), c = r;
@@ -138,8 +138,8 @@ namespace STD {
 				c -= weight_[i];
 				if (c <= 0) {
 #ifdef DEBUG_PRINT
-					__LOG_DEBUG("sum=%d r=%d i=%d\n", sum_, r, indxId_[i]);
-					__LOG_DEBUG("-------------------------\n\n\n");
+					_Debugf("sum=%d r=%d i=%d\n", sum_, r, indxId_[i]);
+					_Debugf("-------------------------\n\n\n");
 #endif
 					return indxId_[i];
 				}
@@ -232,7 +232,7 @@ namespace STD {
 			}
 			fflush(fp);
 			fclose(fp);
-			__LOG_DEBUG("c:%d:%d scale:%d ratioExC:%d exC:%d:ratio:%.02f",
+			_Debugf("c:%d:%d scale:%d ratioExC:%d exC:%d:ratio:%.02f",
 				c, exC + noExC, scale, ratioExC,
 				exC, ((float)exC) / (float)(exC + noExC));
 		}

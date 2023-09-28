@@ -89,14 +89,14 @@ namespace Operation {
 		case Mode::M_WRITE: {
 			stream_ = fopen(path_.c_str(), "wb+");
 			//if (!stream_) {
-			//	__PLOG_ERROR("文件可能被占用，写方式打开失败");
+			//	_Errorf_pure("文件可能被占用，写方式打开失败");
 			//}
 			return stream_ != NULL;
 		}
 		case Mode::M_APPEND: {
 			stream_ = fopen(path_.c_str(), "ab+");
 			//if (!stream_) {
-			//	__PLOG_ERROR("文件可能被占用，写方式打开失败");
+			//	_Errorf_pure("文件可能被占用，写方式打开失败");
 			//}
 			return stream_ != NULL;
 		}
@@ -191,7 +191,7 @@ namespace Operation {
 #pragma warning(pop)
 #endif
 				//if (!stream_) {
-				//	__PLOG_ERROR("文件可能被占用，写方式打开失败");
+				//	_Errorf_pure("文件可能被占用，写方式打开失败");
 				//}
 				return stream_ ? fwrite(ptr, size, count, stream_) : 0;
 			}

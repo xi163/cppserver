@@ -32,7 +32,7 @@ static inline void onIdleTimeout(const muduo::net::TcpConnectionPtr& conn, Entry
 #endif
 		break;
 	}
-	default: assert(false); break;
+	default: ASSERT(false); break;
 	}
 }
 
@@ -50,7 +50,7 @@ Entry::~Entry() {
 		//conn->getLoop()->assertInLoopThread();
 
 		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-		assert(!entryContext.getSession().empty());
+		ASSERT(!entryContext.getSession().empty());
 
 		//判断是否锁定了同步业务操作
 		switch (getLocked()) {
@@ -58,7 +58,7 @@ Entry::~Entry() {
 			//////////////////////////////////////////////////////////////////////////
 			//早已空闲超时，业务处理完毕，响应客户端时间(>timeout)
 			//////////////////////////////////////////////////////////////////////////
-			_LOG_WARN("%s[%s] <- %s[%s] finished processing",
+			Warnf("%s[%s] <- %s[%s] finished processing",
 				localName_.c_str(), conn->localAddress().toIpPort().c_str(),
 				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
 				entryContext.getSession().c_str());
@@ -68,7 +68,7 @@ Entry::~Entry() {
 			//////////////////////////////////////////////////////////////////////////
 			//已经空闲超时，没有业务处理，响应客户端时间(<timeout)
 			//////////////////////////////////////////////////////////////////////////
-			_LOG_WARN("%s[%s] <- %s[%s] timeout closing",
+			Warnf("%s[%s] <- %s[%s] timeout closing",
 				localName_.c_str(), conn->localAddress().toIpPort().c_str(),
 				peerName_.c_str(), conn->peerAddress().toIpPort().c_str(),
 				entryContext.getSession().c_str());
@@ -83,14 +83,14 @@ Entry::~Entry() {
 			//////////////////////////////////////////////////////////////////////////
 			//业务处理完毕，连接被提前关闭，响应客户端时间(<timeout)
 			//////////////////////////////////////////////////////////////////////////
-			//_LOG_WARN("finished, closed early");
+			//Warnf("finished, closed early");
 			break;
 		}
 		default: {
 			//////////////////////////////////////////////////////////////////////////
 			//其它非法原因，连接被提前关闭，响应客户端时间(<timeout)
 			//////////////////////////////////////////////////////////////////////////
-			//_LOG_WARN("closed early");
+			//Warnf("closed early");
 			break;
 		}
 		}

@@ -32,7 +32,7 @@ void ApiServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_[KHttpTy].incrementAndGet();
-		_LOG_INFO("API服[%s] <- WEB端[%s] %s %d",
+		Infof("API服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -68,7 +68,7 @@ void ApiServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 	else {
 		int32_t num = numConnected_[KHttpTy].decrementAndGet();
-		_LOG_INFO("API服[%s] <- WEB端[%s] %s %d",
+		Infof("API服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -83,7 +83,7 @@ void ApiServ::onHttpMessage(
 	if (!conn || conn->getContext().empty()) {
 		return;
 	}
-	_LOG_DEBUG("\n%.*s", buf->readableBytes(), buf->peek());
+	Debugf("\n%.*s", buf->readableBytes(), buf->peek());
 	//先确定是HTTP数据报文，再解析
 	//assert(buf->readableBytes() > 4 && buf->findCRLFCRLF());
 	Context& entryContext = boost::any_cast<Context&>(conn->getContext());
@@ -181,7 +181,7 @@ void ApiServ::onHttpMessage(
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			_LOG_FATAL("entry invalid");
+			Fatalf("entry invalid");
 		}
 		return;
 	}
@@ -274,7 +274,7 @@ void ApiServ::asyncHttpHandler(
 	}
 	else {
 		numTotalBadReq_.incrementAndGet();
-		_LOG_ERROR("conn invalid");
+		Errorf("conn invalid");
 	}
 }
 
@@ -384,7 +384,7 @@ void ApiServ::processHttpRequest(
 				std::stringstream s;
 				boost::property_tree::json_parser::write_json(s, latest, true);
 				std::string json = s.str();
-				_LOG_ERROR("\n%s\n" \
+				Errorf("\n%s\n" \
 					"I/O线程数[%d] 业务线程数[%d] 累计接收请求数[%d] 累计未处理请求数[%d]\n" \
 					"本次统计间隔时间[%d]s 请求超时时间[%d]s\n" \
 					"本次统计请求次数[%d] 成功[%d] 失败[%d] 命中率[%.3f]\n" \
@@ -512,13 +512,13 @@ void ApiServ::processHttpRequest(
 // 	//agent_info_t /*_agent_info = { 0 },*/* p_agent_info = NULL;
 // 	do {
 // 		HttpParams params;
-// 		_LOG_DEBUG(reqStr.c_str());
+// 		Debugf(reqStr.c_str());
 // 		utils::parseQuery(reqStr, params);
 // 		std::string keyValues;
 // 		for (auto param : params) {
 // 			keyValues += "\n" + param.first + "=" + param.second;
 // 		}
-// 		_LOG_DEBUG(keyValues.c_str());
+// 		Debugf(keyValues.c_str());
 // 		if (!isdecrypt_) {
 // 			HttpParams::const_iterator typeKey = params.find("type");
 // 			if (typeKey == params.end() || typeKey->second.empty() ||
@@ -698,7 +698,7 @@ void ApiServ::processHttpRequest(
 // 				break;
 // 			}
 // 			paraValue = utils::HTML::Decode(paraValue);
-// 			_LOG_DEBUG("utils::HTML::Decode:%s", paraValue.c_str());
+// 			Debugf("utils::HTML::Decode:%s", paraValue.c_str());
 // 			for (int c = 1; c < 3; ++c) {
 // 				paraValue = utils::URL::MultipleDecode(paraValue);
 // #if 1
@@ -711,10 +711,10 @@ void ApiServ::processHttpRequest(
 // #else
 // 				paraValue = boost::regex_replace(paraValue, boost::regex("\r\n|\r|\n"), "");
 // #endif
-// 				_LOG_DEBUG("utils::URL::MultipleDecode:%s", paraValue.c_str());
+// 				Debugf("utils::URL::MultipleDecode:%s", paraValue.c_str());
 // 				std::string const& strURL = paraValue;
 // 				decrypt = Crypto::AES_ECBDecrypt(strURL, descode);
-// 				_LOG_DEBUG("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, md5code.c_str(), descode.c_str(), decrypt.c_str());
+// 				Debugf("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, md5code.c_str(), descode.c_str(), decrypt.c_str());
 // 				if (!decrypt.empty()) {
 // 					//成功
 // 					break;
@@ -729,13 +729,13 @@ void ApiServ::processHttpRequest(
 // 		}
 // 		{
 // 			HttpParams decryptParams;
-// 			_LOG_DEBUG(decrypt.c_str());
+// 			Debugf(decrypt.c_str());
 // 			utils::parseQuery(decrypt, decryptParams);
 // 			std::string keyValues;
 // 			for (auto param : params) {
 // 				keyValues += "\n" + param.first + "=" + param.second;
 // 			}
-// 			_LOG_DEBUG(keyValues.c_str());
+// 			Debugf(keyValues.c_str());
 // 			//agentid
 // 			//HttpParams::const_iterator agentIdKey = decryptParams.find("agentid");
 // 			//if (agentIdKey == decryptParams.end() || agentIdKey->second.empty()) {
@@ -812,7 +812,7 @@ void ApiServ::processHttpRequest(
 // 		errmsg += ch;
 // 	}
 // 	std::string json = createResponse(opType, orderId, agentId, account, score, errcode, errmsg, true);
-// 	_LOG_DEBUG("\n%s", json.c_str());
+// 	Debugf("\n%s", json.c_str());
 // 	return json;
 // }
 
@@ -864,7 +864,7 @@ bool ApiServ::refreshWhiteListSync() {
 		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	//_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
+	//Debugf("IP访问白名单\n%s", s.c_str());
 	return false;
 }
 
@@ -881,13 +881,13 @@ bool ApiServ::refreshWhiteListInLoop() {
 		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	//_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
+	//Debugf("IP访问白名单\n%s", s.c_str());
 	return false;
 }
 
 //请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
 bool ApiServ::repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
-	_LOG_WARN("name[%s] status[%d]", name.c_str(), status);
+	Warnf("name[%s] status[%d]", name.c_str(), status);
 	static std::string path[kMaxContainTy] = {
 		"/GAME/game_hall/",
 		"/GAME/game_serv/",
@@ -908,7 +908,7 @@ bool ApiServ::repairServer(containTy servTy, std::string const& servname, std::s
 // 			if (clients_[servTy].exist(name) && !clients_[servTy].isRepairing(name)) {
 // 				//当前仅有一个提供服务的节点，禁止挂维护
 // 				if (clients_[servTy].remaining() <= 1) {
-// 					_LOG_ERROR("当前仅有一个提供服务的节点，禁止挂维护!!!");
+// 					Errorf("当前仅有一个提供服务的节点，禁止挂维护!!!");
 // 					rspdata = createResponse(status, servname, name, 2, "仅剩余一个服务节点，禁止挂维护");
 // 					break;
 // 				}
@@ -919,14 +919,14 @@ bool ApiServ::repairServer(containTy servTy, std::string const& servname, std::s
 // 					//zkclient_->createNode(repairnode, name, true);
 // 					//挂维护中状态
 // 				clients_[servTy].repair(name);
-// 				_LOG_ERROR("创建维护节点 %s", repairnode.c_str());
+// 				Errorf("创建维护节点 %s", repairnode.c_str());
 // 				//}
 // 				//删除 servicenode
 // 				std::string servicenode = path[servTy] + name;
 // 				//if (ZNONODE != zkclient_->existsNode(servicenode)) {
 // 					//删除服务节点
 // 					//zkclient_->deleteNode(servicenode);
-// 				_LOG_ERROR("删除服务节点 %s", servicenode.c_str());
+// 				Errorf("删除服务节点 %s", servicenode.c_str());
 // 				//}
 // 				rspdata = createResponse(status, servname, name, 0, "success");
 // 			}
@@ -951,14 +951,14 @@ bool ApiServ::repairServer(containTy servTy, std::string const& servname, std::s
 // 					//zkclient_->createNode(servicenode, name, true);
 // 					//恢复服务状态
 // 				clients_[servTy].recover(name);
-// 				_LOG_ERROR("创建服务节点 %s", servicenode.c_str());
+// 				Errorf("创建服务节点 %s", servicenode.c_str());
 // 				//}
 // 				//删除 repairnode
 // 				std::string repairnode = pathrepair[servTy] + name;
 // 				//if (ZNONODE != zkclient_->existsNode(repairnode)) {
 // 					//删除维护节点
 // 					//zkclient_->deleteNode(repairnode);
-// 				_LOG_ERROR("删除维护节点 %s", repairnode.c_str());
+// 				Errorf("删除维护节点 %s", repairnode.c_str());
 // 				//}
 // 				rspdata = createResponse(status, servname, name, 0, "success");
 // 			}
@@ -979,13 +979,13 @@ bool ApiServ::repairServer(std::string const& queryStr, std::string& rspdata) {
 	int status;
 	do {
 		HttpParams params;
-		_LOG_DEBUG(queryStr.c_str());
+		Debugf(queryStr.c_str());
 		utils::parseQuery(queryStr, params);
 		std::string keyValues;
 		for (auto param : params) {
 			keyValues += "\n" + param.first + "=" + param.second;
 		}
-		_LOG_DEBUG(keyValues.c_str());
+		Debugf(keyValues.c_str());
 		//type
 		//type=HallServer name=192.168.2.158:20001
 		//type=GameServer name=4001:192.168.0.1:5847
@@ -1067,6 +1067,6 @@ void ApiServ::repairServerNotify(std::string const& msg, std::string& rspdata) {
 		} while (0);
 	}
 	catch (boost::property_tree::ptree_error& e) {
-		_LOG_ERROR(e.what());
+		Errorf(e.what());
 	}
 }

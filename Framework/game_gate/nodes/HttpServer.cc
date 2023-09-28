@@ -34,7 +34,7 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_[KHttpTy].incrementAndGet();
-		_LOG_INFO("网关服[%s] <- WEB端[%s] %s %d",
+		Infof("网关服[%s] <- WEB端[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -69,7 +69,7 @@ void GateServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 	else {
 		int32_t num = numConnected_[KHttpTy].decrementAndGet();
-		_LOG_INFO("网关服[%s] <- WEB端[%s] %s %d %s %d",
+		Infof("网关服[%s] <- WEB端[%s] %s %d %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -84,7 +84,7 @@ void GateServ::onHttpMessage(
 	if (!conn || conn->getContext().empty()) {
 		return;
 	}
-	//_LOG_ERROR("%.*s", buf->readableBytes(), buf->peek());
+	//Errorf("%.*s", buf->readableBytes(), buf->peek());
 
 	//先确定是HTTP数据报文，再解析
 	//assert(buf->readableBytes() > 4 && buf->findCRLFCRLF());
@@ -178,7 +178,7 @@ void GateServ::onHttpMessage(
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			_LOG_ERROR("entry invalid");
+			Errorf("entry invalid");
 		}
 		return;
 	}
@@ -267,12 +267,12 @@ void GateServ::asyncHttpHandler(const muduo::net::WeakTcpConnectionPtr& weakConn
 		}
 	else {
 		numTotalBadReq_.incrementAndGet();
-		_LOG_ERROR("TcpConnectionPtr.conn invalid");
+		Errorf("TcpConnectionPtr.conn invalid");
 	}
 }
 
 void GateServ::onHttpWriteComplete(const muduo::net::TcpConnectionPtr& conn) {
-	_LOG_WARN("...");
+	Warnf("...");
 	conn->getLoop()->assertInLoopThread();
 #if 0
 	//不再发送数据
@@ -305,7 +305,7 @@ static std::string getRequestStr(muduo::net::HttpRequest const& req) {
 
 static bool parseQuery(std::string const& queryStr, HttpParams& params, std::string& errmsg) {
 	params.clear();
-	_LOG_DEBUG(queryStr.c_str());
+	Debugf(queryStr.c_str());
 	do {
 		std::string subStr;
 		std::string::size_type npos = queryStr.find_first_of('?');
@@ -349,7 +349,7 @@ static bool parseQuery(std::string const& queryStr, HttpParams& params, std::str
 	for (auto param : params) {
 		keyValues += "\n" + param.first + "=" + param.second;
 	}
-	//_LOG_DEBUG(keyValues.c_str());
+	//Debugf(keyValues.c_str());
 	return true;
 }
 
@@ -357,7 +357,7 @@ void GateServ::processHttpRequest(
 	const muduo::net::HttpRequest& req, muduo::net::HttpResponse& rsp,
 	muduo::net::InetAddress const& peerAddr,
 	muduo::Timestamp receiveTime) {
-	//_LOG_INFO(getRequestStr(req).c_str());
+	//Infof(getRequestStr(req).c_str());
 	rsp.setStatusCode(muduo::net::HttpResponse::k200Ok);
 	rsp.setStatusMessage("OK");
 	//注意要指定connection状态
@@ -375,7 +375,7 @@ void GateServ::processHttpRequest(
 #endif
 	}
 	else if (req.path() == "/GameHandle") {
-		_LOG_ERROR("%s\n%s", req.methodString(), req.query().c_str());
+		Errorf("%s\n%s", req.methodString(), req.query().c_str());
 		rsp.setContentType("application/xml;charset=utf-8");
 		rsp.setBody(getRequestStr(req));
 	}
@@ -486,7 +486,7 @@ bool GateServ::refreshWhiteListSync() {
 		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
+	Debugf("IP访问白名单\n%s", s.c_str());
 	return false;
 }
 
@@ -500,7 +500,7 @@ bool GateServ::refreshWhiteListInLoop() {
 		it != white_list_.end(); ++it) {
 		s += std::string("\nipaddr[") + utils::inetToIp(it->first) + std::string("] status[") + std::to_string(it->second) + std::string("]");
 	}
-	_LOG_DEBUG("IP访问白名单\n%s", s.c_str());
+	Debugf("IP访问白名单\n%s", s.c_str());
 	return false;
 }
 
@@ -530,7 +530,7 @@ static std::string createResponse(
 
 //请求挂维护/恢复服务 status=0挂维护 status=1恢复服务
 bool GateServ::repairServer(containTy servTy, std::string const& servname, std::string const& name, int status, std::string& rspdata) {
-	_LOG_WARN("name[%s] status[%d]", name.c_str(), status);
+	Warnf("name[%s] status[%d]", name.c_str(), status);
 	static std::string path[kMaxContainTy] = {
 		"/GAME/game_hall/",
 		"/GAME/game_serv/",
@@ -551,7 +551,7 @@ bool GateServ::repairServer(containTy servTy, std::string const& servname, std::
 			if (clients_[servTy].exist(name) && !clients_[servTy].isRepairing(name)) {
 				//当前仅有一个提供服务的节点，禁止挂维护
 				if (clients_[servTy].remaining() <= 1) {
-					_LOG_ERROR("当前仅有一个提供服务的节点，禁止挂维护!!!");
+					Errorf("当前仅有一个提供服务的节点，禁止挂维护!!!");
 					rspdata = createResponse(status, servname, name, 2, "仅剩余一个服务节点，禁止挂维护");
 					break;
 				}
@@ -562,14 +562,14 @@ bool GateServ::repairServer(containTy servTy, std::string const& servname, std::
 					//zkclient_->createNode(repairnode, name, true);
 					//挂维护中状态
 				clients_[servTy].repair(name);
-				_LOG_ERROR("创建维护节点 %s", repairnode.c_str());
+				Errorf("创建维护节点 %s", repairnode.c_str());
 				//}
 				//删除 servicenode
 				std::string servicenode = path[servTy] + name;
 				//if (ZNONODE != zkclient_->existsNode(servicenode)) {
 					//删除服务节点
 					//zkclient_->deleteNode(servicenode);
-				_LOG_ERROR("删除服务节点 %s", servicenode.c_str());
+				Errorf("删除服务节点 %s", servicenode.c_str());
 				//}
 				rspdata = createResponse(status, servname, name, 0, "success");
 			}
@@ -594,14 +594,14 @@ bool GateServ::repairServer(containTy servTy, std::string const& servname, std::
 					//zkclient_->createNode(servicenode, name, true);
 					//恢复服务状态
 				clients_[servTy].recover(name);
-				_LOG_ERROR("创建服务节点 %s", servicenode.c_str());
+				Errorf("创建服务节点 %s", servicenode.c_str());
 				//}
 				//删除 repairnode
 				std::string repairnode = pathrepair[servTy] + name;
 				//if (ZNONODE != zkclient_->existsNode(repairnode)) {
 					//删除维护节点
 					//zkclient_->deleteNode(repairnode);
-				_LOG_ERROR("删除维护节点 %s", repairnode.c_str());
+				Errorf("删除维护节点 %s", repairnode.c_str());
 				//}
 				rspdata = createResponse(status, servname, name, 0, "success");
 			}
@@ -706,6 +706,6 @@ void GateServ::repairServerNotify(std::string const& msg, std::string& rspdata) 
 		} while (0);
 	}
 	catch (boost::property_tree::ptree_error& e) {
-		_LOG_ERROR(e.what());
+		Errorf(e.what());
 	}
 }

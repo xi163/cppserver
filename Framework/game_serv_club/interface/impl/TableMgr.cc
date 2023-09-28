@@ -15,17 +15,17 @@ static TableDelegateCreator LoadLibrary(std::string const& serviceName) {
 	dllName.insert(0, "./lib");
 	dllName.append(".so");
 	dllName.insert(0, dllPath);
-	_LOG_WARN(dllName.c_str());
+	Warnf(dllName.c_str());
 	//getchar();
 	void* handle = dlopen(dllName.c_str(), RTLD_LAZY);
 	if (!handle) {
-		_LOG_ERROR("Can't Open %s, %s", dllName.c_str(), dlerror());
+		Errorf("Can't Open %s, %s", dllName.c_str(), dlerror());
 		exit(0);
 	}
 	TableDelegateCreator creator = (TableDelegateCreator)dlsym(handle, NameCreateTableDelegate);
 	if (!creator) {
 		dlclose(handle);
-		_LOG_ERROR("Can't Find %s, %s", NameCreateTableDelegate, dlerror());
+		Errorf("Can't Find %s, %s", NameCreateTableDelegate, dlerror());
 		exit(0);
 	}
 	return creator;
@@ -59,7 +59,7 @@ void CTableMgr::Init(ITableContext* tableContext) {
 		//创建桌子
 		std::shared_ptr<CTable> table(new CTable(loop, tableContext));
 		if (!table || !tableDelegate) {
-			_LOG_ERROR("table = %d Failed", i);
+			Errorf("table = %d Failed", i);
 			break;
 		}
 		TableState state = { 0 };
@@ -71,14 +71,14 @@ void CTableMgr::Init(ITableContext* tableContext) {
 		freeItems_.emplace_back(table);
 		//添加到桌子线程管理
 		boost::any_cast<LogicThreadPtr>(loop->getContext())->append(state.tableId);
-		//_LOG_DEBUG("%d:%s %d:%s tableId:%d stock:%ld",
+		//Debugf("%d:%s %d:%s tableId:%d stock:%ld",
 		//	tableContext->GetGameInfo()->gameId,
 		//	tableContext->GetGameInfo()->gameName.c_str(),
 		//	tableContext->GetRoomInfo()->roomId,
 		//	tableContext->GetRoomInfo()->roomName.c_str(),
 		//	state.tableId, tableContext->GetRoomInfo()->totalStock);
 	}
-	_LOG_WARN("%d:%s %d:%s tableCount:%d stock:%ld",
+	Warnf("%d:%s %d:%s tableCount:%d stock:%ld",
 		tableContext->GetGameInfo()->gameId,
 		tableContext->GetGameInfo()->gameName.c_str(),
 		tableContext->GetRoomInfo()->roomId,
@@ -247,7 +247,7 @@ void CTableMgr::Delete(uint16_t tableId) {
 			freeItems_.emplace_back(table);
 		}
 	}
-	_LOG_ERROR("%d used = %d free = %d", tableId, usedItems_.size(), freeItems_.size());
+	Errorf("%d used = %d free = %d", tableId, usedItems_.size(), freeItems_.size());
 }
 
 // struct CountsStat {

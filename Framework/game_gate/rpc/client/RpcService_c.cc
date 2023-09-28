@@ -54,7 +54,7 @@ namespace rpc {
 
 		::Game::Rpc::UserScoreRspPtr Service::NotifyUserScore(
 			const ::Game::Rpc::UserScoreReq& req) {
-			_LOG_WARN("userId: %lld score: %lld", req.userid(), req.score());
+			Warnf("userId: %lld score: %lld", req.userid(), req.score());
 			
 			//expired()非线程安全
 			//if (!conn_.get<1>().expired()) {

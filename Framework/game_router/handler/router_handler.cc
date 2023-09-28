@@ -100,7 +100,7 @@ int Router(
 #endif
 					std::string const& strURL = param;
 					decrypt = Crypto::AES_ECBDecrypt(strURL, descode);
-					_LOG_DEBUG("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, md5code.c_str(), descode.c_str(), decrypt.c_str());
+					Debugf("ECBDecrypt[%d] >>> md5code[%s] descode[%s] [%s]", c, md5code.c_str(), descode.c_str(), decrypt.c_str());
 					if (!decrypt.empty()) {
 						break;
 					}
@@ -132,7 +132,7 @@ int Router(
 				return doRouter(req, rsp, conn, receiveTime);
 			}
 			catch (boost::property_tree::ptree_error& e) {
-				_LOG_ERROR(e.what());
+				Errorf(e.what());
 				return response::json::Result(ERR_GameHandleParamsError, rsp);
 			}
 		}
@@ -142,7 +142,7 @@ int Router(
 		break;
 	}
 	}
-	_LOG_ERROR("error");
+	Errorf("error");
 	response::xml::Test(req, rsp);
 	return kFailed;
 }

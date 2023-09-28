@@ -64,7 +64,7 @@ bool RedisClient::initRedisCluster(std::string ip)
     redisClusterConnect2(m_redisClientContext);
     if (m_redisClientContext != NULL && m_redisClientContext->err)
     {
-        _LOG_ERROR("Error: %s\n\n\n\n", m_redisClientContext->errstr);
+        Errorf("Error: %s\n\n\n\n", m_redisClientContext->errstr);
         // handle error
         return false;
     }else
@@ -80,7 +80,7 @@ bool RedisClient::initRedisCluster(std::string ip)
     m_redisClientContext = redisConnect(ip.c_str(), 6379);
 
     if(m_redisClientContext->err)
-        _LOG_ERROR("redis %s\n\n\n\n", m_redisClientContext->errstr);
+        Errorf("redis %s\n\n\n\n", m_redisClientContext->errstr);
     return !m_redisClientContext->err;
 }
 
@@ -155,7 +155,7 @@ bool RedisClient::initRedisCluster(std::string ip, std::string password)
     m_redisClientContext = redisConnectWithTimeout(masterIp.c_str(), masterPort, timev);
     if(m_redisClientContext->err)
     {
-        _LOG_ERROR("redis %s\n\n\n\n", m_redisClientContext->errstr);
+        Errorf("redis %s\n\n\n\n", m_redisClientContext->errstr);
         return false;
     }else
     {
@@ -193,7 +193,7 @@ bool RedisClient::initRedisCluster(std::string ip, std::map<std::string, std::st
     m_redisClientContext = redisConnectWithTimeout(masterIp.c_str(), masterPort, timev);
     if(m_redisClientContext->err)
     {
-        _LOG_ERROR("redis %s\n\n\n\n", m_redisClientContext->errstr);
+        Errorf("redis %s\n\n\n\n", m_redisClientContext->errstr);
         return false;
     }else
     {
@@ -219,12 +219,12 @@ int RedisClient::getMasterAddr(const std::vector<std::string> &addVec, struct ti
         std::vector<std::string> vec;
         boost::algorithm::split(vec, addVec[i], boost::is_any_of( ":" ));
 
-        //_LOG_INFO("i[%d], ip[%s], port[%d]", i, vec[0].c_str(), std::stoi(vec[1]));
+        //Infof("i[%d], ip[%s], port[%d]", i, vec[0].c_str(), std::stoi(vec[1]));
         context = redisConnectWithTimeout(vec[0].c_str(), std::stoi(vec[1]), timeOut);
 //        context = redisConnect(vec[0].c_str(), std::stoi(vec[1]));
         if (context == NULL || context->err)
         {
-            _LOG_ERROR("Connection error: can't allocate redis context,will find next");
+            Errorf("Connection error: can't allocate redis context,will find next");
             redisFree(context);//断开连接并释放redisContext空间
             continue;
         }
@@ -233,7 +233,7 @@ int RedisClient::getMasterAddr(const std::vector<std::string> &addVec, struct ti
         reply = static_cast<redisReply*> ( redisCommand(context,"SENTINEL get-master-addr-by-name mymaster") );
         if(reply->type != REDIS_REPLY_ARRAY || reply -> elements != 2)
         {
-            //_LOG_ERROR("use sentinel to get-master-addr-by-name failure, will find next");
+            //Errorf("use sentinel to get-master-addr-by-name failure, will find next");
             freeReplyObject(reply);
             continue;
         }

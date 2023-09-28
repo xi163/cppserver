@@ -49,11 +49,13 @@
 		std::string get##varname(int varname) { \
 			TABLE_DECLARE(table_##varname##s_, MAP_, DETAIL_X_, DETAIL_Y_); \
 			RETURN_##NAME_(table_##varname##s_, varname); \
+			return ""; \
 		}
 #define STATIC_FUNCTION_IMPLEMENT(MAP_, DETAIL_X_, DETAIL_Y_, NAME_, varname) \
 		static std::string get##varname(int varname) { \
 			TABLE_DECLARE(table_##varname##s_, MAP_, DETAIL_X_, DETAIL_Y_); \
 			RETURN_##NAME_(table_##varname##s_, varname); \
+			return ""; \
 		}
 
 #define DETAIL_X(n, s) { n, #n, s },

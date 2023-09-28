@@ -64,46 +64,46 @@ int main() {
 	//int all = sysconf(_SC_NPROCESSORS_CONF);//sysconf(_SC_NPROCS_CONF) get_nprocs_conf()
 	//获取当前系统的可用CPU核数
 	//int enable = sysconf(_SC_NPROCESSORS_ONLN);//sysconf(_SC_NPROCS_ONLN) get_nprocs()
-	//_LOG_DEBUG("all:%d enable:%d", all, enable);
+	//Debugf("all:%d enable:%d", all, enable);
 	//std::string s;
 	//s.append("dsff").c_str();
 	int n = 1;
-	_ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
-	_ASSERT_S(n == 0, "");
-	_ASSERT(n == 0);
+	ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
+	ASSERT_S(n == 0, "");
+	ASSERT(n == 0);
 	//std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
-	//_ASSERT_S(pool_, "pool is nil");
-	//_LOG_DEBUG("...........");
+	//ASSERT_S(pool_, "pool is nil");
+	//Debugf("...........");
 // 	ClientConn conn;
 // 	if (conn.get<0>().empty()) {
-// 		_LOG_DEBUG(" ok");
+// 		Debugf(" ok");
 // 	}
 // 	else {
-// 		_LOG_DEBUG(" 空1");
+// 		Debugf(" 空1");
 // 	}
 // 	if (conn.get<1>().lock()) {
-// 		_LOG_DEBUG(" ok");
+// 		Debugf(" ok");
 // 	}
 // 	else {
-// 		_LOG_DEBUG(" 空1");
+// 		Debugf(" 空1");
 // 	}
 // 	if (conn.get<2>()) {
-// 		_LOG_DEBUG(" ok");
+// 		Debugf(" ok");
 // 	}
 // 	else {
-// 		_LOG_DEBUG(" 空1");
+// 		Debugf(" 空1");
 // 	}
 // 	std::shared_ptr<CPlayer> p = std::make_shared<CPlayer>();
 // 	std::shared_ptr<CPlayer> p2 = std::shared_ptr<CPlayer>();
-// 	_LOG_DEBUG("%s", p->name.c_str());
-// 	_LOG_DEBUG("%s", p2->name.c_str());
+// 	Debugf("%s", p->name.c_str());
+// 	Debugf("%s", p2->name.c_str());
 // 	//muduo::net::RpcChannel::ClientDoneCallback done;
 // 	
 // 	if (muduo::net::RpcChannel::ClientDoneCallback()) {
-// 		_LOG_DEBUG(" 有效");
+// 		Debugf(" 有效");
 // 	}
 // 	else {
-// 		_LOG_DEBUG(" 空1");
+// 		Debugf(" 空1");
 // 	}
 // 	void (*fn)(int) = foo;
 // 
@@ -117,12 +117,12 @@ int main() {
 // 	int arr[100] = { 0 };
 // 	for (int i = 0; i < 10; ++i) {
 // 		for (int k = 0; k < 10; ++k) {
-// 			_LOG_DEBUG("%d", i * 10 + k);
+// 			Debugf("%d", i * 10 + k);
 // 		//	arr[(i * k + k] = i*k + k;//(k + 1) * i;
 // 		}
 // 	}
 // 	for (int i = 0; i < 100; ++i) {
-// 	//	_LOG_DEBUG("%d", arr[i]);
+// 	//	Debugf("%d", arr[i]);
 // 	}
 // 	int* p = NULL;
 // 	switch (p) {
@@ -131,33 +131,33 @@ int main() {
 // 	default:
 // 		break;
 // 	}
-// 	_LOG_INFO("%s", getTimeZoneDesc(MY_CST).c_str());
+// 	Infof("%s", getTimeZoneDesc(MY_CST).c_str());
 // 
-// 	_LOG_WARN("tosec:%d to_time_t:%d", STD_NOW().to_sec(), STD_NOW().to_time_t());
-// 	_LOG_ERROR(STD_NOW().format(STD::SECOND,MY_CST).c_str());
-// 	_LOG_ERROR(STD_NOW().format(STD::precision::MILLISECOND, MY_CST).c_str());
-// 	_LOG_ERROR(STD_NOW().format(STD::precision::MICROSECOND, MY_CST).c_str());
+// 	Warnf("tosec:%d to_time_t:%d", STD_NOW().to_sec(), STD_NOW().to_time_t());
+// 	Errorf(STD_NOW().format(STD::SECOND,MY_CST).c_str());
+// 	Errorf(STD_NOW().format(STD::precision::MILLISECOND, MY_CST).c_str());
+// 	Errorf(STD_NOW().format(STD::precision::MICROSECOND, MY_CST).c_str());
 // 	boost::tuple<std::string,
 // 		std::shared_ptr<int>,
 // 		muduo::net::WeakTcpConnectionPtr> tup;
 // 	std::string s = tup.get<0>();
 // 	if (!s.empty()) {
-// 		_LOG_INFO("tup.get<0>() ok");
+// 		Infof("tup.get<0>() ok");
 // 	}
 // 	else {
-// 		_LOG_INFO("tup.get<0>() fail");
+// 		Infof("tup.get<0>() fail");
 // 	}
 // 	if (tup.get<1>()) {
-// 		_LOG_INFO("tup.get<1>() ok");
+// 		Infof("tup.get<1>() ok");
 // 	}
 // 	else {
-// 		_LOG_INFO("tup.get<1>() fail");
+// 		Infof("tup.get<1>() fail");
 // 	}
 // 	if (tup.get<2>()) {
-// 		_LOG_INFO("tup.get<2>() ok");
+// 		Infof("tup.get<2>() ok");
 // 	}
 // 	else {
-// 		_LOG_INFO("tup.get<2>() fail");
+// 		Infof("tup.get<2>() fail");
 // 	}
 // 	std::chrono::nanoseconds sec;
 // 	std::chrono::system_clock::time_point t1, t2(sec);
@@ -185,7 +185,7 @@ int main() {
 // 	m["roomid"] = 6301;
 
 // 	for (STD::generic_map::iterator it = m.begin(); it != m.end(); ++it) {
-// 		_LOG_ERROR("[%s] = %s length:%d", it->first.c_str(), it->second.as_string().c_str(), it->second.as_string().length());
+// 		Errorf("[%s] = %s length:%d", it->first.c_str(), it->second.as_string().c_str(), it->second.as_string().length());
 // 	}
 // 
 // 
@@ -195,34 +195,34 @@ int main() {
 // 	hmset(key, m);
 	
 
-// 	_LOG_ERROR("shutdown1................................................");
+// 	Errorf("shutdown1................................................");
 // 	char* c = "shutdown2................................................";
-// 	_LOG_ERROR(c);
+// 	Errorf(c);
 // 	c = "shutdown3................................................";
-// 	_LOG_S_ERROR(c);
+// 	Error(c);
 // 	std::string s("mongodb://root:Lcw%4012345678#!@192.168.0.113:27017");
-// 	_LOG_ERROR(s.c_str());
-// 	_LOG_S_ERROR(s);
-// 	_LOG_ERROR("%s", s.c_str());
+// 	Errorf(s.c_str());
+// 	Error(s);
+// 	Errorf("%s", s.c_str());
 // 	c = "mongodb://root:Lcw%4012345678#!@192.168.0.113:27017";
-// 	_LOG_ERROR(c);
+// 	Errorf(c);
 // 	STD::any v;
 // 	v = false;
-// 	_LOG_INFO("bool:%d", v.as_bool());
+// 	Infof("bool:%d", v.as_bool());
 // 	v = (short)10;
-// 	_LOG_INFO("short:%d", v.as_short());
+// 	Infof("short:%d", v.as_short());
 // 	v = 10;
-// 	_LOG_INFO("int:%d", v.as_int());
+// 	Infof("int:%d", v.as_int());
 // 	v = (int64_t)10;
-// 	_LOG_INFO("int:%lld", v.as_int64());
+// 	Infof("int:%lld", v.as_int64());
 // 	v = 0.5f;
-// 	_LOG_INFO("float:%f", v.as_float());
+// 	Infof("float:%f", v.as_float());
 // 	v = 0.00005;
-// 	_LOG_INFO("float:%f", v.as_double());
+// 	Infof("float:%f", v.as_double());
 // 	v = "hello,world";
-// 	_LOG_INFO("float:%s", v.as_string().c_str());
+// 	Infof("float:%s", v.as_string().c_str());
 // 	v = std::string("hello,world");
-// 	_LOG_INFO("float:%s", v.as_string().c_str());
+// 	Infof("float:%s", v.as_string().c_str());
 
 // 	char* str = "new string";
 // 	STD::generic_map m;
@@ -235,15 +235,15 @@ int main() {
 // 	m["k7"] = "hello,world";
 // 	m["k8"] = std::string("str");
 // 	m["k9"] = str;
-// 	_LOG_INFO("k1:%s", m["k1"].to_string().c_str());
-// 	_LOG_INFO("k2:%s", m["k2"].to_string().c_str());
-// 	_LOG_INFO("k3:%s", m["k3"].to_string().c_str());
-// 	_LOG_INFO("k4:%s", m["k4"].to_string().c_str());
-// 	_LOG_INFO("k5:%s", m["k5"].to_string().c_str());
-// 	_LOG_INFO("k6:%s", m["k6"].to_string().c_str());
-// 	_LOG_INFO("k7:%s", m["k7"].as_string().c_str());
-// 	_LOG_INFO("k8:%s", m["k8"].to_string().c_str());
-// 	_LOG_INFO("k9:%s", m["k9"].as_string().c_str());
+// 	Infof("k1:%s", m["k1"].to_string().c_str());
+// 	Infof("k2:%s", m["k2"].to_string().c_str());
+// 	Infof("k3:%s", m["k3"].to_string().c_str());
+// 	Infof("k4:%s", m["k4"].to_string().c_str());
+// 	Infof("k5:%s", m["k5"].to_string().c_str());
+// 	Infof("k6:%s", m["k6"].to_string().c_str());
+// 	Infof("k7:%s", m["k7"].as_string().c_str());
+// 	Infof("k8:%s", m["k8"].to_string().c_str());
+// 	Infof("k9:%s", m["k9"].as_string().c_str());
 	//tip::Hello;
 	//std::vector<Derive&> l;
 // 	Derive d;

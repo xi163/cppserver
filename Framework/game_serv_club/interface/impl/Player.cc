@@ -33,6 +33,6 @@ bool CPlayer::SendTableMessage(uint8_t subId, uint8_t const* data, size_t len) {
 }
 
 bool CPlayer::ExistOnlineInfo() {
-	_ASSERT(baseInfo_.userId > 0);
+	ASSERT(baseInfo_.userId > 0);
 	return REDISCLIENT.ExistOnlineInfo(baseInfo_.userId);
 }

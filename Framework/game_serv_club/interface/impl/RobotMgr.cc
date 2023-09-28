@@ -11,17 +11,17 @@ static RobotDelegateCreator LoadLibrary(std::string const& serviceName) {
 	dllName.insert(0, "./lib");
 	dllName.append(".so");
 	dllName.insert(0, dllPath);
-	_LOG_WARN(dllName.c_str());
+	Warnf(dllName.c_str());
 	//getchar();
 	void* handle = dlopen(dllName.c_str(), RTLD_LAZY);
 	if (!handle) {
-		_LOG_ERROR("Can't Open %s, %s", dllName.c_str(), dlerror());
+		Errorf("Can't Open %s, %s", dllName.c_str(), dlerror());
 		exit(0);
 	}
 	RobotDelegateCreator creator = (RobotDelegateCreator)dlsym(handle, NameCreateRobotDelegate);
 	if (!creator) {
 		dlclose(handle);
-		_LOG_ERROR("Can't Find %s, %s", NameCreateRobotDelegate, dlerror());
+		Errorf("Can't Find %s, %s", NameCreateRobotDelegate, dlerror());
 		exit(0);
 	}
 	return creator;
@@ -61,7 +61,7 @@ bool CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, Rob
 			return false;
 		}
 		bsoncxx::document::view view = result->view();
-		//_LOG_DEBUG(to_json(view).c_str());
+		//Debugf(to_json(view).c_str());
 		roomInfo->robotStrategy_.gameId = view["gameid"].get_int32();
 		roomInfo->robotStrategy_.roomId = view["roomid"].get_int32();
 		roomInfo->robotStrategy_.exitLowScore = view["exitLowScore"].get_int64();
@@ -85,7 +85,7 @@ bool CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, Rob
 			{},
 			document{} << "gameId" << (int32_t)roomInfo->gameId << "roomId" << (int32_t)roomInfo->roomId << finalize);
 		for (auto& view : cursor) {
-			//_LOG_WARN(to_json(view).c_str());
+			//Warnf(to_json(view).c_str());
 			UserBaseInfo userInfo;
 			userInfo.userId = view["userId"].get_int64();
 			userInfo.account = view["account"].get_utf8().value.to_string();
@@ -106,7 +106,7 @@ bool CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, Rob
 			//创建机器人
 			std::shared_ptr<CRobot> robot(new CRobot());
 			if (!robot || !robotDelegate) {
-				_LOG_ERROR("robot %d Failed", userInfo.userId);
+				Errorf("robot %d Failed", userInfo.userId);
 				break;
 			}
 			robot->SetUserBaseInfo(userInfo);
@@ -116,14 +116,14 @@ bool CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, Rob
 			if (++robotCount >= needRobotCount) {
 				break;
 			}
-			_LOG_DEBUG("%d:%s %d:%s robotId:%d score:%ld",
+			Debugf("%d:%s %d:%s robotId:%d score:%ld",
 				tableContext->GetGameInfo()->gameId,
 				tableContext->GetGameInfo()->gameName.c_str(),
 				tableContext->GetRoomInfo()->roomId,
 				tableContext->GetRoomInfo()->roomName.c_str(),
 				userInfo.userId, userInfo.userScore);
 		}
-		_LOG_WARN("%d:%s %d:%s tableCount:%d tableMaxRobotCount:%d robotCount:%d needRobotCount:%d",
+		Warnf("%d:%s %d:%s tableCount:%d tableMaxRobotCount:%d robotCount:%d needRobotCount:%d",
 			tableContext->GetGameInfo()->gameId,
 			tableContext->GetGameInfo()->gameName.c_str(),
 			tableContext->GetRoomInfo()->roomId,
@@ -132,7 +132,7 @@ bool CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, Rob
 		return true;
 	}
 	catch (const bsoncxx::exception& e) {
-		_LOG_ERROR(e.what());
+		Errorf(e.what());
 		switch (mgo::opt::getErrCode(e.what())) {
 		case 11000:
 			break;
@@ -141,7 +141,7 @@ bool CRobotMgr::load(tagGameRoomInfo* roomInfo, ITableContext* tableContext, Rob
 		}
 	}
 	catch (const std::exception& e) {
-		_LOG_ERROR(e.what());
+		Errorf(e.what());
 	}
 	catch (...) {
 	}
@@ -186,7 +186,7 @@ void CRobotMgr::Delete(int64_t userId) {
 			freeItems_.emplace_back(robot);
 		}
 	}
-	_LOG_ERROR("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
+	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
 
 void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
@@ -203,5 +203,5 @@ void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
 			freeItems_.emplace_back(robot);
 		}
 	}
-	_LOG_ERROR("%d used = %d free = %d", robot->GetUserId(), items_.size(), freeItems_.size());
+	Errorf("%d used = %d free = %d", robot->GetUserId(), items_.size(), freeItems_.size());
 }

@@ -19,14 +19,14 @@ namespace utils {
 		if (::DsRoleGetPrimaryDomainInformation(NULL,
 			DsRolePrimaryDomainInfoBasic,
 			(PBYTE*)&info) != ERROR_SUCCESS) {
-			__TLOG_ERROR("DsRoleGetPrimaryDomainInformation: %u\n", ::GetLastError());
+			_Errorf_tmsp("DsRoleGetPrimaryDomainInformation: %u\n", ::GetLastError());
 			return false;
 		}
 		if (info->DomainNameDns == NULL) {
-			__TLOG_DEBUG("DomainNameDns is NULL\n");
+			_Debugf_tmsp("DomainNameDns is NULL\n");
 		}
 		else {
-			__TLOG_DEBUG("DomainNameDns: %s\n", info->DomainNameDns);
+			_Debugf_tmsp("DomainNameDns: %s\n", info->DomainNameDns);
 		}
 #endif
 		return false;
@@ -180,7 +180,7 @@ namespace utils {
 		}
 		else if (bv) {
 			__LOG_CONSOLE_OPEN();
-			__TLOG_INFO("管理员身份启动...");
+			_Infof_tmsp("管理员身份启动...");
 			__LOG_CONSOLE_CLOSE(1000);
 		}
 #endif

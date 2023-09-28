@@ -394,10 +394,10 @@ void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, u
                 }
                 }
                 if (!OnUserStandup(player, sendState, sendToSelf)) {
-                    _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
+                    Errorf("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
                 }
                 else {
-                    _LOG_ERROR("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
+                    Errorf("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
                 }
             }
         }
@@ -432,10 +432,10 @@ void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, u
             }
             }
             if (!OnUserStandup(player, sendState, sendToSelf)) {
-                _LOG_ERROR("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
+                Errorf("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
             }
             else {
-                _LOG_ERROR("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
+                Errorf("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
             }
         }
     }
@@ -611,7 +611,7 @@ void CTable::SetUserReady(uint16_t chairId) {
 //点击离开按钮
 bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf) {
     if (!player->IsRobot()) {
-        _LOG_INFO("%d 点击离开按钮", player->GetUserId());
+        Infof("%d 点击离开按钮", player->GetUserId());
     }
 //	if (status_ >= GAME_STATUS_START && status_ < GAME_STATUS_END) {
     //tableContext_->DelContext(player->GetUserId());
@@ -630,7 +630,7 @@ bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf)
 //关闭页面
 bool CTable::OnUserOffline(std::shared_ptr<CPlayer> const& player) {
     if (!player->IsRobot()) {
-        _LOG_INFO("%d 关闭页面", player->GetUserId());
+        Infof("%d 关闭页面", player->GetUserId());
     }
     //tableContext_->DelContext(player->GetUserId());
     player->setOffline();
@@ -788,7 +788,7 @@ void CTable::SendUserSitdownFinish(std::shared_ptr<CPlayer> const& player, packe
 }
 
 bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendState, bool sendToSelf) {
-    _ASSERT(player && player->Valid() && player->GetTableId() >= 0 && player->GetChairId() >= 0);
+    ASSERT(player && player->Valid() && player->GetTableId() >= 0 && player->GetChairId() >= 0);
     //游戏中禁止起立
     if (!player->isPlaying()) {
         int64_t userId = player->GetUserId();
@@ -796,7 +796,7 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
         //assert(player->GetTableId() == GetTableId());
         //assert(player.get() == GetChairPlayer(chairId).get());
         if (player->IsRobot()) {
-            _LOG_WARN("<robot> %d %d", chairId, userId);
+            Warnf("<robot> %d %d", chairId, userId);
             //清理机器人数据
 #ifdef DEL_ROBOT_BY_USERID_
             CRobotMgr::get_mutable_instance().Delete(userId);
@@ -818,7 +818,7 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
                 response.set_errormsg("游戏维护请进入其他房间");
                 send(player, &response, mainId, subId);
             }
-            _LOG_WARN("<real> %d %d", chairId, userId);
+            Warnf("<real> %d %d", chairId, userId);
             //清理真人数据
             tableContext_->DelContext(userId);
             DelOnlineInfo(userId);
@@ -1552,7 +1552,7 @@ bool CTable::AddUserGameInfoToDB(tagSpecialScoreInfo* scoreInfo, std::string& st
 
     auto doc = after_array << bsoncxx::builder::stream::finalize;
 
-    //_LOG_DEBUG("Insert Document: %s", bsoncxx::to_json(doc).c_str());
+    //Debugf("Insert Document: %s", bsoncxx::to_json(doc).c_str());
     mongocxx::collection coll = MONGODBCLIENT["gamemain"]["play_record"];
     bsoncxx::stdx::optional<mongocxx::result::insert_one> result = coll.insert_one(doc.view());
     if (result)
@@ -2103,7 +2103,7 @@ void CTable::KickUser(std::shared_ptr<IPlayer> const& player, int32_t kickType) 
 }
 
 bool CTable::DelOnlineInfo(int64_t userId) {
-    _LOG_ERROR("%d", userId);
+    Errorf("%d", userId);
     if (false) {
         REDISCLIENT.ResetExpiredOnlineInfo(userId);
     }
@@ -2116,7 +2116,7 @@ bool CTable::DelOnlineInfo(int64_t userId) {
 }
 
 bool CTable::SetOnlineInfo(int64_t userId) {
-    _LOG_ERROR("%d %d %d", userId, tableContext_->GetGameInfo()->gameId, roomInfo_->roomId);
+    Errorf("%d %d %d", userId, tableContext_->GetGameInfo()->gameId, roomInfo_->roomId);
     REDISCLIENT.SetOnlineInfo(userId, tableContext_->GetGameInfo()->gameId, roomInfo_->roomId);
     return true;
 }

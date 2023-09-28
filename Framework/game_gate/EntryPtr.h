@@ -56,7 +56,7 @@ struct Buckets /*: public muduo::noncopyable*/ {
 		, interval_(interval) {
 		buckets_.resize(size);
 #ifdef _DEBUG_BUCKETS_
-		_LOG_WARN("timeout = %ds", size);
+		Warnf("timeout = %ds", size);
 #endif
 	}
 	//定时器弹出操作，强行关闭空闲超时连接!
@@ -69,7 +69,7 @@ struct Buckets /*: public muduo::noncopyable*/ {
 		//////////////////////////////////////////////////////////////////////////
 		buckets_.push_back(Bucket());
 #ifdef _DEBUG_BUCKETS_
-		_LOG_WARN("timeout = %ds", buckets_.size());
+		Warnf("timeout = %ds", buckets_.size());
 #endif
 		loop_->runAfter(interval_, std::bind(&Buckets::pop, this));
 	}
@@ -82,7 +82,7 @@ struct Buckets /*: public muduo::noncopyable*/ {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				_LOG_WARN("timeout = %ds %s[%s] <- %s[%s]",
+				Warnf("timeout = %ds %s[%s] <- %s[%s]",
 					buckets_.size(),
 					entry->localName_.c_str(), conn->localAddress().toIpPort().c_str(),
 					entry->peerName_.c_str(), conn->peerAddress().toIpPort().c_str());
@@ -102,7 +102,7 @@ struct Buckets /*: public muduo::noncopyable*/ {
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
-				_LOG_WARN("timeout = %ds %s[%s] <- %s[%s]",
+				Warnf("timeout = %ds %s[%s] <- %s[%s]",
 					buckets_.size(),
 					entry->localName_.c_str(), conn->localAddress().toIpPort().c_str(),
 					entry->peerName_.c_str(), conn->peerAddress().toIpPort().c_str());
@@ -210,10 +210,10 @@ struct Context /*: public muduo::noncopyable*/ {
 		client_[ty].second = weakConn;
 		switch (ty) {
 		case kHallTy:
-			_LOG_WARN("[kHallTy] %d", userid_);
+			Warnf("[kHallTy] %d", userid_);
 			break;
 		case kGameTy:
-			_LOG_TRACE("[kGameTy] %d", userid_);
+			Tracef("[kGameTy] %d", userid_);
 			break;
 		}
 	}

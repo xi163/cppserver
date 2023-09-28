@@ -86,7 +86,7 @@ bool ApiServ::InitZookeeper(std::string const& ipaddr) {
 	zkclient_->SetConnectedWatcherHandler(
 		std::bind(&ApiServ::onZookeeperConnected, this));
 	if (!zkclient_->connectServer()) {
-		_LOG_FATAL("error");
+		Fatalf("error");
 		abort();
 		return false;
 	}
@@ -126,7 +126,7 @@ void ApiServ::onZookeeperConnected() {
 		for (std::string const& name : names) {
 			s += "\n" + name;
 		}
-		_LOG_WARN("可用网关服列表%s", s.c_str());
+		Warnf("可用网关服列表%s", s.c_str());
 		rpcClients_[rpc::containTy::kRpcGateTy].add(names);
 	}
 }
@@ -147,7 +147,7 @@ void ApiServ::onGateWatcher(int type, int state,
 		for (std::string const& name : names) {
 			s += "\n" + name;
 		}
-		_LOG_WARN("可用网关服列表%s", s.c_str());
+		Warnf("可用网关服列表%s", s.c_str());
 		rpcClients_[rpc::containTy::kRpcGateTy].process(names);
 	}
 }
@@ -166,7 +166,7 @@ void ApiServ::registerZookeeper() {
 bool ApiServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
 	if (!redisClient_->initRedisCluster(ipaddr, passwd)) {
-		_LOG_FATAL("error");
+		Fatalf("error");
 		return false;
 	}
 	redisIpaddr_ = ipaddr;
@@ -182,7 +182,7 @@ bool ApiServ::InitMongoDB(std::string const& url) {
 
 void ApiServ::threadInit() {
 	if (!REDISCLIENT.initRedisCluster(redisIpaddr_, redisPasswd_)) {
-		_LOG_FATAL("initRedisCluster error");
+		Fatalf("initRedisCluster error");
 	}
 	std::string s;
 	for (std::vector<std::string>::const_iterator it = redlockVec_.begin();
@@ -193,7 +193,7 @@ void ApiServ::threadInit() {
 		s += "\n" + vec[0];
 		s += ":" + vec[1];
 	}
-	//_LOG_WARN("redisLock%s", s.c_str());
+	//Warnf("redisLock%s", s.c_str());
 }
 
 bool ApiServ::InitServer() {
@@ -219,7 +219,7 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 	
-	_LOG_WARN("ApiServ = %s http:%s rpc:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), httpserver_.ipPort().c_str(), rpcserver_.ipPort().c_str(), numThreads, numWorkerThreads);
+	Warnf("ApiServ = %s http:%s rpc:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), httpserver_.ipPort().c_str(), rpcserver_.ipPort().c_str(), numThreads, numWorkerThreads);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {

@@ -15,7 +15,7 @@ class SudokuServiceImpl : public SudokuService
                      const ::sudoku::SudokuResponse* responsePrototype,
                      const RpcDoneCallback& done)
   {
-    _LOG_DEBUG("%s", request->DebugString().c_str());
+    Debugf("%s", request->DebugString().c_str());
     SudokuResponse response;
     response.set_solved(true);
     response.set_checkerboard("1234567");

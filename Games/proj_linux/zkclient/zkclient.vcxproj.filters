@@ -9,13 +9,13 @@
     <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zoo_lock.cc">
       <Filter>zookeeperclient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclient.cpp">
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclient.cc">
       <Filter>zookeeperclient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclientutils.cpp">
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperclientutils.cc">
       <Filter>zookeeperclient</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperlocker.cpp">
+    <ClCompile Include="..\..\..\thirdpart\zookeeperclient\zookeeperlocker.cc">
       <Filter>zookeeperclient</Filter>
     </ClCompile>
   </ItemGroup>

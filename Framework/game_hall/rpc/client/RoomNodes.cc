@@ -95,7 +95,7 @@ namespace room {
 							::Game::Rpc::NodeInfoReq req;
 							::Game::Rpc::NodeInfoRspPtr rsp = client.GetNodeInfo(req);
 							if (rsp) {
-								//_LOG_ERROR("%s %s", it->c_str(), rsp->nodevalue().c_str());
+								//Errorf("%s %s", it->c_str(), rsp->nodevalue().c_str());
 								switch (mode) {
 								case kMatch:
 								case kFriend:
@@ -109,13 +109,13 @@ namespace room {
 								}
 							}
 							else {
-								_LOG_ERROR("%s", it->c_str());
+								Errorf("%s", it->c_str());
 							}
 						}
 						int i = rooms.size() > 0 ? RANDOM().betweenInt(0, rooms.size() - 1).randInt_mt() : 0;
 						int minLoads = 0;
 						for (int k = 0; k < rooms.size(); k++) {
-							_LOG_WARN("[%d] %s numOfLoads:%d", k, rooms[k].first.c_str(), rooms[k].second);
+							Warnf("[%d] %s numOfLoads:%d", k, rooms[k].first.c_str(), rooms[k].second);
 							switch (k) {
 							case 0:
 								i = k;
@@ -130,7 +130,7 @@ namespace room {
 							}
 						}
 						if (rooms.size() > 0) {
-							_LOG_DEBUG(">>> [%d] %s numOfLoads:%d", i, rooms[i].first.c_str(), rooms[i].second);
+							Debugf(">>> [%d] %s numOfLoads:%d", i, rooms[i].first.c_str(), rooms[i].second);
 							ipport = rooms[i].first;
 						}
 					}
@@ -178,7 +178,7 @@ namespace room {
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
 					bool new_roomid = true;
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
-						//_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, it->first, ir->first, ix->c_str());
+						//Warnf("clubId:%d gameId:%d roomId:%d %s", clubId, it->first, ir->first, ix->c_str());
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
 						rpc::client::Service client(conn, 3);
@@ -215,7 +215,7 @@ namespace room {
 #endif
 								}
 							}
-							//_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
+							//Debugf("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
 					}
 				}
@@ -223,7 +223,7 @@ namespace room {
 			if (info.games_size() > 0) {
 				info.set_clubid(clubId);
 			}
-			_LOG_DEBUG("\n%s", info.DebugString().c_str());
+			Debugf("\n%s", info.DebugString().c_str());
 		}
 
 		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, ::club::game::info& info, std::set<uint32_t> const& exclude) {
@@ -235,7 +235,7 @@ namespace room {
 				for (RoomNodes::const_iterator ir = it->second.begin(); ir != it->second.end(); ++ir) {
 					bool new_roomid = true;
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
-						//_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, ir->first, ix->c_str());
+						//Warnf("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, ir->first, ix->c_str());
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
 						rpc::client::Service client(conn, 3);
@@ -268,7 +268,7 @@ namespace room {
 #endif
 								}
 							}
-							//_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
+							//Debugf("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
 					}
 				}
@@ -276,7 +276,7 @@ namespace room {
 			if (info.rooms_size() > 0) {
 				info.set_gameid(gameId);
 			}
-			_LOG_DEBUG("\n%s", info.DebugString().c_str());
+			Debugf("\n%s", info.DebugString().c_str());
 		}
 
 		void RoomList::get_club_room_info(int64_t clubId, uint32_t gameId, uint32_t roomId, ::club::game::room::info& info, std::set<uint32_t> const& exclude) {
@@ -288,7 +288,7 @@ namespace room {
 				RoomNodes::const_iterator ir = it->second.find(roomId);
 				if (ir != it->second.end()) {
 					for (Nodes::const_iterator ix = ir->second.begin(); ix != ir->second.end(); ++ix) {
-						//_LOG_WARN("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, roomId, ix->c_str());
+						//Warnf("clubId:%d gameId:%d roomId:%d %s", clubId, gameId, roomId, ix->c_str());
 						rpc::ClientConn conn;
 						gServer->rpcClients_[rpc::containTy::kRpcGameTy].clients_->get(*ix, conn);
 						rpc::client::Service client(conn, 3);
@@ -315,12 +315,12 @@ namespace room {
 #endif
 								}
 							}
-							//_LOG_DEBUG("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
+							//Debugf("--- %d %d %d %s ---\n%s", clubId, it->first, ir->first, ix->c_str(), info.DebugString().c_str());
 						}
 					}
 				}
 			}
-			_LOG_DEBUG("\n%s", info.DebugString().c_str());
+			Debugf("\n%s", info.DebugString().c_str());
 		}
 
 		void add(GameMode mode, std::string const& name) {

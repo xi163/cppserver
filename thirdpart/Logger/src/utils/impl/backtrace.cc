@@ -276,7 +276,7 @@ namespace utils {
 			s_cleanupcb_.cb();
 		}
 		EXCEPTION_RECORD* rec = excp->ExceptionRecord;
-		__TLOG_FATAL_SYN(
+		_SynFatalf_tmsp(
 			"\nExceptionCode:%d" \
 			"\nExceptionAddress:%#x" \
 			"\nExceptionFlags:%d" \

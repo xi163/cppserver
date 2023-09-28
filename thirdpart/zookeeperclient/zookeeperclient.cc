@@ -32,7 +32,7 @@
 ZookeeperClient::ZookeeperClient()
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    _LOG_DEBUG("ZookeeperClient::ZookeeperClient()");
+    Debugf("ZookeeperClient::ZookeeperClient()");
 
     ZooLogLevel log_level = ZOO_LOG_LEVEL_ERROR;//ZOO_LOG_LEVEL_INFO;
     zoo_set_debug_level(log_level);
@@ -42,7 +42,7 @@ ZookeeperClient::ZookeeperClient()
 ZookeeperClient::ZookeeperClient(const std::string &server, int timeout, bool debug)
 {
 //    cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    //_LOG_DEBUG("ZookeeperClient::ZookeeperClient(%s,%d,%d)",server.c_str(),timeout,debug);
+    //Debugf("ZookeeperClient::ZookeeperClient(%s,%d,%d)",server.c_str(),timeout,debug);
 
     ZooLogLevel log_level = debug ? ZOO_LOG_LEVEL_DEBUG : ZOO_LOG_LEVEL_ERROR;
     zoo_set_debug_level(log_level);
@@ -55,7 +55,7 @@ ZookeeperClient::ZookeeperClient(const std::string &server, int timeout, bool de
 ZookeeperClient::~ZookeeperClient()
 {
 //    cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    //_LOG_DEBUG("ZookeeperClient::~ZookeeperClient()");
+    //Debugf("ZookeeperClient::~ZookeeperClient()");
 
     closeServer();
 }
@@ -76,7 +76,7 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
                                                const std::shared_ptr<ZookeeperClient> &zkClientPtr, void *context)
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    //_LOG_DEBUG("ZookeeperClient::connectingSessionWatcher()");
+    //Debugf("ZookeeperClient::connectingSessionWatcher()");
 
     if(ZOO_SESSION_EVENT == type)
     {
@@ -88,7 +88,7 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
         {
             // 连接建立
             m_session_timeout = zoo_recv_timeout(m_zkHandle);
-            //_LOG_ERROR("session_timeout=%ld\n", m_session_timeout);
+            //Errorf("session_timeout=%ld\n", m_session_timeout);
             if(m_connectedWatcherHandler)
                 m_connectedWatcherHandler();
 
@@ -110,7 +110,7 @@ void ZookeeperClient::connectingSessionWatcher(int type, int state,
 bool ZookeeperClient::connectServer()
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    //_LOG_DEBUG("ZookeeperClient::connectServer()");
+    //Debugf("ZookeeperClient::connectServer()");
 
     const clientid_t *clientid = zoo_client_id(m_zkHandle);
     ZkWatcherOperateContext *context = new ZkWatcherOperateContext(server_, (void*)"connect server", shared_from_this());
@@ -136,7 +136,7 @@ bool ZookeeperClient::connectServer()
 void ZookeeperClient::closeServer()
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    _LOG_DEBUG("ZookeeperClient::closeServer()");
+    Debugf("ZookeeperClient::closeServer()");
 
     if(m_zkHandle)
     {
@@ -148,7 +148,7 @@ void ZookeeperClient::closeServer()
 bool ZookeeperClient::reConnectServer()
 {
 //  cout<<"{ "<<__FUNCTION__<<" }"<<endl;
-    _LOG_DEBUG("ZookeeperClient::reConnectServer()");
+    Debugf("ZookeeperClient::reConnectServer()");
 
     closeServer();
     return connectServer();
@@ -213,7 +213,7 @@ int ZookeeperClient::setNodeValue(const std::string &path,
 int ZookeeperClient::existsNode(const std::string &path, struct Stat *stat)
 {
     if (!m_zkHandle) {
-        _LOG_DEBUG("ZookeeperClient::existsNode, but zkhandle=NULL,reconnect...");
+        Debugf("ZookeeperClient::existsNode, but zkhandle=NULL,reconnect...");
         reConnectServer();
     }
 
@@ -307,7 +307,7 @@ void ZookeeperClient::sessionWatcher(zhandle_t *zh, int type, int state, const c
 //  cout<<"[sessionWatcher] type:{"<<ZookeeperClientUtils::watcherEventType2String(type)<<"} ,state:{"<<ZookeeperClientUtils::state2String(state)<<"}";
 
     std::string strtype = ZookeeperClientUtils::watcherEventType2String(type);
-    //_LOG_DEBUG("ZookeeperClient::sessionWatcher(zh=%x,type=%s,state=%d)",zh,strtype.c_str(),state);
+    //Debugf("ZookeeperClient::sessionWatcher(zh=%x,type=%s,state=%d)",zh,strtype.c_str(),state);
 
     ZkWatcherOperateContext *context = (ZkWatcherOperateContext *)watcherCtx;
     if (context && context->m_sessionWatcherHandler && context->m_zkClientPtr)

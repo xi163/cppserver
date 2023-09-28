@@ -265,7 +265,7 @@ bool HallServ::InitZookeeper(std::string const& ipaddr) {
 	zkclient_->SetConnectedWatcherHandler(
 		std::bind(&HallServ::onZookeeperConnected, this));
 	if (!zkclient_->connectServer()) {
-		_LOG_FATAL("error");
+		Fatalf("error");
 		abort();
 		return false;
 	}
@@ -308,7 +308,7 @@ void HallServ::onZookeeperConnected() {
 			for (std::string const& name : names) {
 				s += "\n" + name;
 			}
-			_LOG_WARN("可用网关服列表%s", s.c_str());
+			Warnf("可用网关服列表%s", s.c_str());
 		}
 	}
 	{
@@ -325,7 +325,7 @@ void HallServ::onZookeeperConnected() {
 			for (std::string const& name : names) {
 				s += "\n" + name;
 			}
-			_LOG_WARN("可用游戏服列表%s", s.c_str());
+			Warnf("可用游戏服列表%s", s.c_str());
 			rpcClients_[rpc::containTy::kRpcGameTy].add(names);
 		}
 	}
@@ -347,7 +347,7 @@ void HallServ::onGateWatcher(int type, int state,
 		for (std::string const& name : names) {
 			s += "\n" + name;
 		}
-		_LOG_WARN("可用网关服列表%s", s.c_str());
+		Warnf("可用网关服列表%s", s.c_str());
 	}
 }
 
@@ -367,7 +367,7 @@ void HallServ::onGameWatcher(int type, int state,
 		for (std::string const& name : names) {
 			s += "\n" + name;
 		}
-		_LOG_WARN("可用游戏服列表%s", s.c_str());
+		Warnf("可用游戏服列表%s", s.c_str());
 		rpcClients_[rpc::containTy::kRpcGameTy].process(names);
 	}
 }
@@ -386,7 +386,7 @@ void HallServ::registerZookeeper() {
 bool HallServ::InitRedisCluster(std::string const& ipaddr, std::string const& passwd) {
 	redisClient_.reset(new RedisClient());
 	if (!redisClient_->initRedisCluster(ipaddr, passwd)) {
-		_LOG_FATAL("error");
+		Fatalf("error");
 		return false;
 	}
 	redisIpaddr_ = ipaddr;
@@ -406,7 +406,7 @@ bool HallServ::InitMongoDB(std::string const& url) {
 
 void HallServ::threadInit() {
 	if (!REDISCLIENT.initRedisCluster(redisIpaddr_, redisPasswd_)) {
-		_LOG_FATAL("initRedisCluster error");
+		Fatalf("initRedisCluster error");
 	}
 	std::string s;
 	for (std::vector<std::string>::const_iterator it = redlockVec_.begin();
@@ -417,7 +417,7 @@ void HallServ::threadInit() {
 		s += "\n" + vec[0];
 		s += ":" + vec[1];
 	}
-	//_LOG_WARN("redisLock%s", s.c_str());
+	//Warnf("redisLock%s", s.c_str());
 }
 
 bool HallServ::InitServer() {
@@ -443,7 +443,7 @@ void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 	
-	_LOG_WARN("HallServ = %s rpc:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), numThreads, numWorkerThreads);
+	Warnf("HallServ = %s rpc:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), numThreads, numWorkerThreads);
 
 	server_.start(true);
 
@@ -458,14 +458,14 @@ void HallServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_.incrementAndGet();
-		_LOG_INFO("大厅服[%s] <- 网关服[%s] %s %d",
+		Infof("大厅服[%s] <- 网关服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
 		int32_t num = numConnected_.decrementAndGet();
-		_LOG_INFO("大厅服[%s] <- 网关服[%s] %s %d",
+		Infof("大厅服[%s] <- 网关服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -513,7 +513,7 @@ void HallServ::onMessage(
 		}
 		//数据包不足够解析，等待下次接收再解析
 		else {
-			_LOG_ERROR("error");
+			Errorf("error");
 			break;
 		}
 	}
@@ -525,7 +525,7 @@ void HallServ::asyncLogicHandler(
 	muduo::Timestamp receiveTime) {
 	muduo::net::TcpConnectionPtr conn(weakConn.lock());
 	if (!conn) {
-		_LOG_ERROR("error");
+		Errorf("error");
 		return;
 	}
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
@@ -550,7 +550,7 @@ void HallServ::asyncLogicHandler(
 					handler(conn, buf);
 				}
 				else {
-					_LOG_ERROR("unregister handler %d:%d", header->mainId, header->subId);
+					Errorf("unregister handler %d:%d", header->mainId, header->subId);
 				}
 				break;
 			}
@@ -575,7 +575,7 @@ void HallServ::asyncLogicHandler(
 		}
 	}
 	else {
-		_LOG_ERROR("error");
+		Errorf("error");
 	}
 }
 
@@ -680,7 +680,7 @@ void HallServ::cmd_on_user_login(
 				if (REDISCLIENT.exists(key)) {
 					rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
 					rspdata.set_errormsg("频繁登陆操作");
-					_LOG_ERROR("%s ip:%s %s 频繁登陆操作",
+					Errorf("%s ip:%s %s 频繁登陆操作",
 						reqdata.session().c_str(),
 						loginIp.c_str(), location.c_str());
 					break;
@@ -708,7 +708,7 @@ void HallServ::cmd_on_user_login(
 								rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_SEAL_ACCOUNTS);
 								rspdata.set_errormsg("对不起，您的账号已冻结，请联系客服。");
 								mgo::AddLoginLog(userId, loginIp, location, now, 1);
-								_LOG_ERROR("账号 %lld %s 已冻结!", userId, info.account.c_str());
+								Errorf("账号 %lld %s 已冻结!", userId, info.account.c_str());
 								break;
 							}
 							//全服通知到各网关服顶号处理
@@ -728,7 +728,7 @@ void HallServ::cmd_on_user_login(
 							std::string uuid = utils::uuid::createUUID();
 							std::string passwd = utils::buffer2HexStr((unsigned char const*)uuid.c_str(), uuid.size());
 							REDISCLIENT.SetUserLoginInfo(userId, "dynamicPassword", passwd);
-							_LOG_ERROR("uuid:%s passwd:%s", uuid.c_str(), passwd.c_str());
+							Errorf("uuid:%s passwd:%s", uuid.c_str(), passwd.c_str());
 							
 							rspdata.set_userid(userId);
 							rspdata.set_account(account);
@@ -756,7 +756,7 @@ void HallServ::cmd_on_user_login(
 							REDISCLIENT.SetTokenInfoIP(reqdata.session(), gateIp, session);
 #endif
 							REDISCLIENT.ResetExpiredUserToken(userId);
-							_LOG_DEBUG("%d:%s:%s LOGIN SERVER OK! ip: %s %s gateIp: %s session: %s",
+							Debugf("%d:%s:%s LOGIN SERVER OK! ip: %s %s gateIp: %s session: %s",
 								userId,
 								info.account.c_str(),
 								info.nickName.c_str(),
@@ -773,7 +773,7 @@ void HallServ::cmd_on_user_login(
 					}
 					else {
 						//账号不存在
-						_LOG_ERROR("%d Not Exist Error", userId);
+						Errorf("%d Not Exist Error", userId);
 						rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
 						rspdata.set_errormsg("userId Not Exist Error.");
 						mgo::AddLoginLog(userId, loginIp, location, now, 3);
@@ -781,7 +781,7 @@ void HallServ::cmd_on_user_login(
 				}
 				else {
 					//token不存在或已过期
-					_LOG_ERROR("%s Not Exist Error", reqdata.session().c_str());
+					Errorf("%s Not Exist Error", reqdata.session().c_str());
 					rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_ACCOUNTS_NOT_EXIST);
 					rspdata.set_errormsg("Session Not Exist Error.");
 					mgo::AddLoginLog(userId, loginIp, location, now, 4);
@@ -789,7 +789,7 @@ void HallServ::cmd_on_user_login(
 			}while (0);
 		}
 		catch (std::exception& e) {
-			_LOG_ERROR(e.what());
+			Errorf(e.what());
 			rspdata.set_retcode(::HallServer::LoginMessageResponse::LOGIN_NETBREAK);
 			rspdata.set_errormsg("Database/redis Update Error.");
 		}
@@ -807,7 +807,7 @@ void HallServ::cmd_on_user_offline(
 	size_t msgLen = packet::get_msglen(buf);
 	switch (pre_header_->kicking) {
 	case KICK_REPLACE:
-		_LOG_ERROR("KICK_REPLACE %d", pre_header_->userId);
+		Errorf("KICK_REPLACE %d", pre_header_->userId);
 		break;
 	default:
 		mgo::UpdateLogout(pre_header_->userId);
@@ -856,10 +856,10 @@ void HallServ::cmd_get_game_info(
 				}
 			}
 			for (std::set<uint32_t>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-				//_LOG_INFO("%d 对俱乐部 %d 可见", *it, reqdata.clubid());
+				//Infof("%d 对俱乐部 %d 可见", *it, reqdata.clubid());
 			}
 			if (vec.empty()) {
-				//_LOG_ERROR("无private游戏对俱乐部 %d 可见", reqdata.clubid());
+				//Errorf("无private游戏对俱乐部 %d 可见", reqdata.clubid());
 			}
 			READ_LOCK(gameinfo_mutex_[reqdata.type()]);
 			rspdata.mutable_header()->set_sign(PROTOBUF_SIGN);
@@ -867,7 +867,7 @@ void HallServ::cmd_get_game_info(
 			rspdata.set_retcode(0);
 			rspdata.set_errormsg("Get Game Message OK!");
 			//if (gameinfo_[reqdata.type()].gamemessage_size() == 0) {
-			//	_LOG_ERROR("%s 游戏列表为空", getModeMsg(reqdata.type()).c_str());
+			//	Errorf("%s 游戏列表为空", getModeMsg(reqdata.type()).c_str());
 			//}
 			for (int i = 0; i < gameinfo_[reqdata.type()].gamemessage_size(); ++i) {
 				switch (gameinfo_[reqdata.type()].gamemessage(i).gameprivate()) {
@@ -879,11 +879,11 @@ void HallServ::cmd_get_game_info(
 				case 1: {
 					std::set<uint32_t>::const_iterator it = vec.find(gameinfo_[reqdata.type()].gamemessage(i).gameid());
 					if (it != vec.end()) {
-						//_LOG_WARN("%d 对俱乐部 %d 可见", gameinfo_[reqdata.type()].gamemessage(i).gameid(), reqdata.clubid());
+						//Warnf("%d 对俱乐部 %d 可见", gameinfo_[reqdata.type()].gamemessage(i).gameid(), reqdata.clubid());
 						rspdata.add_gamemessage()->CopyFrom(gameinfo_[reqdata.type()].gamemessage(i));
 					}
 					else {
-						//_LOG_ERROR("%d 对俱乐部 %d 不可见", gameinfo_[reqdata.type()].gamemessage(i).gameid(), reqdata.clubid());
+						//Errorf("%d 对俱乐部 %d 不可见", gameinfo_[reqdata.type()].gamemessage(i).gameid(), reqdata.clubid());
 					}
 					break;
 				}
@@ -1200,7 +1200,7 @@ void HallServ::cmd_get_play_record(
 			rspdata.set_errormsg("CMD GET USER SCORE OK.");
 		}
 		catch (std::exception& e) {
-			_LOG_ERROR(e.what());
+			Errorf(e.what());
 			rspdata.set_retcode(1);
 			rspdata.set_errormsg("MongoDB  Error.");
 		}
@@ -1240,7 +1240,7 @@ void HallServ::cmd_get_play_record_detail(
 						break;
 					case bsoncxx::type::k_utf8:
 						jsondata = view["detail"].get_utf8().value.to_string();
-						_LOG_ERROR(jsondata.c_str());
+						Errorf(jsondata.c_str());
 						rspdata.set_detailinfo(jsondata);
 						break;
 					case bsoncxx::type::k_binary:
@@ -1253,7 +1253,7 @@ void HallServ::cmd_get_play_record_detail(
 			}
 		}
 		catch (std::exception& e) {
-			_LOG_ERROR(e.what());
+			Errorf(e.what());
 			rspdata.set_retcode(1);
 			rspdata.set_errormsg("MongoDB Error.");
 		}
@@ -1344,12 +1344,12 @@ void HallServ::redis_update_room_player_nums() {
 // 				roomPlayerNum->set_roomid(roomid);
 // 				roomPlayerNum->set_playernum(playerNums);
 // 				const_cast<::HallServer::GameRoomMessage&>(roominfo).set_playernum(playerNums);
-// 				//_LOG_DEBUG("roomId=%d playerCount=%d", roomid, playerNums);
+// 				//Debugf("roomId=%d playerCount=%d", roomid, playerNums);
 // 			}
 // 		}
 // 	}
 // 	catch (std::exception& e) {
-// 		_LOG_ERROR(e.what());
+// 		Errorf(e.what());
 // 	}
 }
 

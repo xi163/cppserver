@@ -76,7 +76,7 @@ void CTableThread::checkUserIn() {
 		return;
 	}
 	if (CRobotMgr::get_mutable_instance().Empty()) {
-		//_LOG_ERROR("机器人没有库存了");
+		//Errorf("机器人没有库存了");
 		return;
 	}
 	std::list<std::shared_ptr<CTable>> tables = CTableMgr::get_mutable_instance().UsedTables(tableId_);
@@ -118,7 +118,7 @@ void CTableThread::checkUserIn() {
 					for (int i = 0; i < n; ++i) {
 						std::shared_ptr<CRobot> robot = CRobotMgr::get_mutable_instance().Pick();
 						if (!robot) {
-							_LOG_ERROR("机器人没有库存了");
+							Errorf("机器人没有库存了");
 							continue;
 						}
 						int64_t score = randScore(
@@ -159,7 +159,7 @@ void CTableThread::checkUserIn() {
 					for (int i = 0; i < n; ++i) {
 						std::shared_ptr<CRobot> robot = CRobotMgr::get_mutable_instance().Pick();
 						if (!robot) {
-							_LOG_ERROR("机器人没有库存了");
+							Errorf("机器人没有库存了");
 							continue;
 						}
 						int64_t score = randScore(
@@ -218,23 +218,23 @@ void CTableThreadMgr::Init(muduo::net::EventLoop* loop, std::string const& name)
 }
 
 muduo::net::EventLoop* CTableThreadMgr::getNextLoop() {
-	_ASSERT_S(pool_, "pool is nil");
+	ASSERT_S(pool_, "pool is nil");
 	return pool_->getNextLoop();
 }
 
 std::shared_ptr<muduo::net::EventLoopThreadPool> CTableThreadMgr::get() {
-	_ASSERT_S(pool_, "pool is nil");
+	ASSERT_S(pool_, "pool is nil");
 	return pool_;
 }
 
 void CTableThreadMgr::setThreadNum(int numThreads) {
-	_ASSERT_S(pool_, "pool is nil");
-	_ASSERT_V(numThreads > 0, "numThreads:%d", numThreads);
+	ASSERT_S(pool_, "pool is nil");
+	ASSERT_V(numThreads > 0, "numThreads:%d", numThreads);
 	pool_->setThreadNum(numThreads);
 }
 
 void CTableThreadMgr::start(const muduo::net::EventLoopThreadPool::ThreadInitCallback& cb, ITableContext* tableContext) {
-	_ASSERT_S(pool_, "pool is nil");
+	ASSERT_S(pool_, "pool is nil");
 	if (!pool_->started()) {
 		pool_->start(cb);
 
@@ -265,7 +265,7 @@ void CTableThreadMgr::startCheckUserIn(ITableContext* tableContext) {
 }
 
 void CTableThreadMgr::quit() {
-	_ASSERT_S(pool_, "pool is nil");
+	ASSERT_S(pool_, "pool is nil");
 	if (pool_->started()) {
 		RunInLoop(baseLoop_, std::bind(&CTableThreadMgr::quitInLoop, this));
 	}

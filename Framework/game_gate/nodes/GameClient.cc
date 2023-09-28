@@ -9,14 +9,14 @@ void GateServ::onGameConnection(const muduo::net::TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	if (conn->connected()) {
 		int32_t num = numConnected_[kGameClientTy].incrementAndGet();
-		_LOG_INFO("网关服[%s] -> 游戏服[%s] %s %d",
+		Infof("网关服[%s] -> 游戏服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
 	}
 	else {
 		int32_t num = numConnected_[kGameClientTy].decrementAndGet();
-		_LOG_INFO("网关服[%s] -> 游戏服[%s] %s %d",
+		Infof("网关服[%s] -> 游戏服[%s] %s %d",
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
@@ -68,13 +68,13 @@ void GateServ::onGameMessage(const muduo::net::TcpConnectionPtr& conn,
 						conn, peer, buffer, receiveTime));
 			}
 			else {
-				//_LOG_ERROR("error");
+				//Errorf("error");
 				//break;
 			}
 		}
 		//数据包不足够解析，等待下次接收再解析
 		else {
-			_LOG_ERROR("error");
+			Errorf("error");
 			break;
 		}
 	}
@@ -87,7 +87,7 @@ void GateServ::asyncGameHandler(
 	muduo::Timestamp receiveTime) {
 	muduo::net::TcpConnectionPtr conn(weakGameConn.lock());
 	if (!conn) {
-		_LOG_ERROR("error");
+		Errorf("error");
 		return;
 	}
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
@@ -154,12 +154,12 @@ void GateServ::asyncGameHandler(
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
 	}
 	else {
-		_LOG_ERROR("error");
+		Errorf("error");
 	}
 }
 
 void GateServ::asyncGameOfflineHandler(std::string const& ipPort) {
-	_LOG_ERROR("%s", ipPort.c_str());
+	Errorf("%s", ipPort.c_str());
 	{
 		BufferPtr buffer;
 		READ_LOCK(mutexGameUsers_);
@@ -189,7 +189,7 @@ void GateServ::asyncGameOfflineHandler(std::string const& ipPort) {
 void GateServ::sendGameMessage(
 	Context& entryContext,
 	BufferPtr const& buf, int64_t userId) {
-	//_LOG_INFO("...");
+	//Infof("...");
 	ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 	muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 	if (gameConn) {
@@ -205,7 +205,7 @@ void GateServ::sendGameMessage(
 		clients_[containTy::kGameTy].clients_->check(clientConn.first, true);
 #endif
 		if (buf) {
-			//_LOG_DEBUG("len = %d", buf->readableBytes());
+			//Debugf("len = %d", buf->readableBytes());
 			gameConn->send(buf.get());
 		}
 	}
@@ -213,10 +213,10 @@ void GateServ::sendGameMessage(
 		{
 			//用户当前游戏节点不存在/不可用，需要指定
 			if (clientConn.first.empty()) {
-				_LOG_WARN("%d 游戏节点不存在，需要指定", userId);
+				Warnf("%d 游戏节点不存在，需要指定", userId);
 			}
 			else {
-				_LOG_ERROR("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
+				Errorf("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
 			}
 			std::string serverIp;//roomid:ip:port:mode
 			if (REDISCLIENT.GetOnlineInfoIP(userId, serverIp)) {
@@ -227,15 +227,15 @@ void GateServ::sendGameMessage(
 				if (gameConn) {
 					//指定用户游戏节点
 					entryContext.setClientConn(containTy::kGameTy, clientConn);
-					_LOG_INFO("%d 游戏节点[%s]，指定成功!", userId, serverIp.c_str());
+					Infof("%d 游戏节点[%s]，指定成功!", userId, serverIp.c_str());
 				}
 				else {
 					//目标游戏节点不可用，要求zk实时监控
-					_LOG_INFO("%d 游戏节点[%s]不可用，指定失败!", userId, serverIp.c_str());
+					Infof("%d 游戏节点[%s]不可用，指定失败!", userId, serverIp.c_str());
 				}
 			}
 			else {
-				_LOG_ERROR("%d 游戏节点IP不存在!", userId);
+				Errorf("%d 游戏节点IP不存在!", userId);
 			}
 		}
 		ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
@@ -259,7 +259,7 @@ void GateServ::sendGameMessage(
 		else {
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 			packet::header_t const* header = packet::get_header(buf);
-			_LOG_ERROR("%s error", fmtMessageId(header->mainId, header->subId).c_str());
+			Errorf("%s error", fmtMessageId(header->mainId, header->subId).c_str());
 			EntryPtr entry(entryContext.getWeakEntryPtr().lock());
 			if (entry) {
 				muduo::net::TcpConnectionPtr peer(entry->getWeakConnPtr().lock());

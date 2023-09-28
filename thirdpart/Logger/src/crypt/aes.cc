@@ -138,7 +138,7 @@ namespace Crypto {
 					break;
 				--pdst;
 			}
-			__LOG_DEBUG("%.*s", strlen((const char*)dst), (char const*)dst);
+			_Debugf("%.*s", strlen((const char*)dst), (char const*)dst);
 			//正则表达式 https://tool.oschina.net/uploads/apidocs/jquery/regexp.html
 			//ASCII码表 http://www.asciima.com/ascii/12.html
 			//ASCII 非打印控制字符   0~31 
@@ -172,7 +172,7 @@ namespace Crypto {
 			}
 			ClearPadding((unsigned char*)dst, dstlen);
 			dst[len] = '\0';
-			__LOG_DEBUG("%.*s", strlen((const char*)dst), (const char*)dst);
+			_Debugf("%.*s", strlen((const char*)dst), (const char*)dst);
 			//正则表达式 https://tool.oschina.net/uploads/apidocs/jquery/regexp.html
 			//ASCII码表 http://www.asciima.com/ascii/12.html
 			//ASCII 非打印控制字符   0~31 

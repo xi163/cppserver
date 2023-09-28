@@ -38,14 +38,14 @@ class RpcClient : noncopyable
       channel_->setConnection(conn);
       sudoku::SudokuRequest request;
       request.set_checkerboard("001010");
-	  _LOG_WARN("...");
+	  Warnf("...");
       stub_.Solve(request, std::bind(&RpcClient::solved, this, std::placeholders::_1));
 	}
   }
 
   void solved(const sudoku::SudokuResponsePtr& resp)
   {
-	_LOG_DEBUG("solved:\n%s", resp->DebugString().c_str());
+	Debugf("solved:\n%s", resp->DebugString().c_str());
 	client_.disconnect();
 	//loop_->quit();
 	//muduo::net::ReactorSingleton::stop();

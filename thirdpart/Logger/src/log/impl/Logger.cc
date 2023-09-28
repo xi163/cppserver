@@ -167,10 +167,10 @@ int main() {
 	while (1) {
 		for (int i = 0; i < 10; ++i) {
 			xsleep(0);
-			_LOG_DEBUG("_______Hi%d", i);
+			Debugf("_______Hi%d", i);
 		}
 	}
-	//_LOG_FATAL("崩溃吧");
+	//Fatalf("崩溃吧");
 	return 0;
 }
 #endif
