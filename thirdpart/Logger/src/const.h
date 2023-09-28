@@ -32,7 +32,7 @@
 			return var[i].desc_; \
 		}\
 	}
-#define RETURN_STR(var, id) \
+#define RETURN_MSG(var, id) \
 	static int const l = ARRAYSIZE(var); \
 	for (int i = 0; i < l; ++i) { \
 		if (var[i].id_ == id) { \

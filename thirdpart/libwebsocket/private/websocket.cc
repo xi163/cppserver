@@ -93,157 +93,78 @@ buf[0] = 0x78  - 低地址 = 低位
 #include <openssl/sha.h>
 
 #define CRLFCRLFSZ 4
-#define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-#define MY_DESC(n, s) { n, ""#n, s },
-
-#define MY_ENUM0(n)		n,
-#define MY_ENUM1(n, s)	n,
-#define MY_ENUM2(n, s)	k##n,
-#define MY_ENUM3(n)		k##n,
-
-#define MY_ENUM_DECLARE(name, MY_ENUM_) \
-	enum name##E {	\
-		MY_MAP_##name(MY_ENUM_) \
-	}; \
-
-#define MY_DESC_TABLE_DECLARE(var, MY_MAP_) \
-	static struct { \
-		int id_; \
-		char const *name_; \
-		char const* desc_; \
-	}var[] = { \
-		MY_MAP_(MY_DESC) \
-	}
-
-#define MY_DESC_FETCH(id, var, name, desc) \
-for (int i = 0; i < ARRAYSIZE(var); ++i) { \
-	if (var[i].id_ == id) { \
-		name = var[i].name_; \
-		desc = var[i].desc_; \
-		break; \
-	}\
-}
-
-#define EXTERN_FUNCTON_DECLARE_TO_STRING(varname) \
-extern std::string varname##_to_string(int varname);
-
-#if 0
-#define STATIC_FUNCTON_DECLARE_TO_STRING(varname) \
-static std::string varname##_to_string(int varname);
-#else
-#define STATIC_FUNCTON_DECLARE_TO_STRING(varname) \
-			std::string varname##_to_string(int varname) { \
-			std::string str##varname, desc; \
-			MY_DESC_FETCH(varname, table_##varname##s_, str##varname, desc); \
-			return str##varname; \
+#define STATIC_FUNCTON_TO_STRING_IMPLEMENT(MAP_, DETAIL_X_, DETAIL_Y_, NAME_, varname) \
+			static std::string varname##_to_string(int varname) { \
+				TABLE_DECLARE(table_##varname##s_, MAP_, DETAIL_X_, DETAIL_Y_); \
+				RETURN_##NAME_(table_##varname##s_, varname); \
 			}
-#endif
-
-#define FUNCTON_DECLARE_TO_STRING(varname) \
-			std::string varname##_to_string(int varname) { \
-			std::string str##varname, desc; \
-			MY_DESC_FETCH(varname, table_##varname##s_, str##varname, desc); \
-			return str##varname; \
-			}
-
-//websocket握手
-#define MY_MAP_HANDSHAKE(XX) \
-		XX(WS_ERROR_WANT_MORE, "握手需要读取") \
-		XX(WS_ERROR_PARSE, "握手解析失败") \
-		XX(WS_ERROR_PACKSZ, "握手包非法") \
-		XX(WS_ERROR_CRLFCRLF, "握手查找CRLFCRLF") \
-		XX(WS_ERROR_CONTEXT, "无效websocket::context") \
-		XX(WS_ERROR_PATH, "握手路径错误") \
-		XX(WS_ERROR_HTTPCONTEXT, "无效websocket::httpContext") \
-		XX(WS_ERROR_HTTPVERSION, "请求头必须HTTP/1.1版本") \
-		XX(WS_ERROR_CONNECTION, "请求头字段错误:Connection") \
-		XX(WS_ERROR_UPGRADE, "请求头字段错误:Upgrade") \
-		XX(WS_ERROR_ORIGIN, "请求头字段错误:Origin") \
-		XX(WS_ERROR_SECPROTOCOL, "请求头字段错误:Sec-WebSocket-Protocol") \
-		XX(WS_ERROR_SECVERSION, "请求头字段错误:Sec-WebSocket-Version") \
-		XX(WS_ERROR_SECKEY, "请求头字段错误:Sec-WebSocket-Key") \
-		XX(WS_ERROR_SECKEYCHK, "请求头校验错误:Sec-WebSocket-Key") \
-
-#define FUNCTON_DECLARE_HANDSHAKE_TO_STRING(varname) \
-			MY_DESC_TABLE_DECLARE(table_##varname##s_, MY_MAP_HANDSHAKE); \
-			STATIC_FUNCTON_DECLARE_TO_STRING(varname);
 
 //websocket连接状态
-#define MY_MAP_STATE(XX) \
-		XX(StateE::kConnected, "") \
-		XX(StateE::kClosed, "")
+#define STATE_MAP(XX, YY) \
+		XX(Connected, "") \
+		XX(Closed, "") \
 
-#define FUNCTON_DECLARE_STATE_TO_STRING(varname) \
-			MY_DESC_TABLE_DECLARE(table_##varname##s_, MY_MAP_STATE); \
-			STATIC_FUNCTON_DECLARE_TO_STRING(varname);
+//websocket握手
+#define HANDSHAKE_MAP(XX, YY) \
+		YY(WS_ERROR_WANT_MORE,   0x1001, "握手需要读取") \
+		YY(WS_ERROR_PARSE,       0x1002, "握手解析失败") \
+		YY(WS_ERROR_PACKSZ,      0x1003, "握手包非法") \
+		YY(WS_ERROR_CRLFCRLF,    0x1004, "握手查找CRLFCRLF") \
+		YY(WS_ERROR_CONTEXT,     0x1005, "无效websocket::context") \
+		YY(WS_ERROR_PATH,        0x1006, "握手路径错误") \
+		YY(WS_ERROR_HTTPCONTEXT, 0x1007, "无效websocket::httpContext") \
+		YY(WS_ERROR_HTTPVERSION, 0x1008, "请求头必须HTTP/1.1版本") \
+		YY(WS_ERROR_CONNECTION,  0x1009, "请求头字段错误:Connection") \
+		YY(WS_ERROR_UPGRADE,     0x1010, "请求头字段错误:Upgrade") \
+		YY(WS_ERROR_ORIGIN,      0x1020, "请求头字段错误:Origin") \
+		YY(WS_ERROR_SECPROTOCOL, 0x1030, "请求头字段错误:Sec-WebSocket-Protocol") \
+		YY(WS_ERROR_SECVERSION,  0x1040, "请求头字段错误:Sec-WebSocket-Version") \
+		YY(WS_ERROR_SECKEY,      0x1050, "请求头字段错误:Sec-WebSocket-Key") \
+		YY(WS_ERROR_SECKEYCHK,   0x1060, "请求头校验错误:Sec-WebSocket-Key") \
 
 //大小端模式
-#define MY_MAP_ENDIANMODE(XX) \
+#define ENDIAN_MAP(XX, YY) \
 		XX(LittleEndian, "小端:低地址存低位") \
-		XX(BigEndian, "大端:低地址存高位")
-
-#define FUNCTON_DECLARE_ENDIANMODE_TO_STRING(varname) \
-			MY_DESC_TABLE_DECLARE(table_##varname##s_, MY_MAP_ENDIANMODE); \
-			STATIC_FUNCTON_DECLARE_TO_STRING(varname);
+		XX(BigEndian, "大端:低地址存高位") \
 
 //消息流解包步骤
-#define MY_MAP_STEP(XX) \
-			XX(StepE::ReadFrameHeader, "") \
-			XX(StepE::ReadExtendedPayloadlenU16, "") \
-			XX(StepE::ReadExtendedPayloadlenI64, "") \
-			XX(StepE::ReadMaskingkey, "") \
-			XX(StepE::ReadPayloadData, "") \
-			XX(StepE::ReadExtendedPayloadDataU16, "") \
-			XX(StepE::ReadExtendedPayloadDataI64, "")
-
-#define FUNCTON_DECLARE_STEP_TO_STRING(varname) \
-			MY_DESC_TABLE_DECLARE(table_##varname##s_, MY_MAP_STEP); \
-			STATIC_FUNCTON_DECLARE_TO_STRING(varname);
+#define STEP_MAP(XX, YY) \
+			XX(ReadFrameHeader, "") \
+			XX(ReadExtendedPayloadlenU16, "") \
+			XX(ReadExtendedPayloadlenI64, "") \
+			XX(ReadMaskingkey, "") \
+			XX(ReadPayloadData, "") \
+			XX(ReadExtendedPayloadDataU16, "") \
+			XX(ReadExtendedPayloadDataI64, "") \
 
 //FIN 帧结束标志位
-#define MY_MAP_FIN(XX) \
+#define FIN_MAP(XX, YY) \
 			XX(FrameContinue, "分片连续帧") \
-			XX(FrameFinished, "消息结束帧")
-
-#define FUNCTON_DECLARE_FIN_TO_STRING(varname) \
-			MY_DESC_TABLE_DECLARE(table_##varname##s_, MY_MAP_FIN); \
-			STATIC_FUNCTON_DECLARE_TO_STRING(varname);
+			XX(FrameFinished, "消息结束帧") \
 
 //opcode 操作码，标识消息帧类型
-#define MY_MAP_OPCODE(XX) \
-			XX(SegmentMessage, "消息片段") \
-			XX(TextMessage,    "文本消息") \
-			XX(BinaryMessage, "二进制消息") \
-			XX(CloseMessage, "连接关闭消息") \
-			XX(PingMessage, "心跳PING消息") \
-			XX(PongMessage, "心跳PONG消息")
-
-#define FUNCTON_DECLARE_OPCODE_TO_STRING(varname) \
-			MY_DESC_TABLE_DECLARE(table_##varname##s_, MY_MAP_OPCODE); \
-			STATIC_FUNCTON_DECLARE_TO_STRING(varname);
+#define OPCODE_MAP(XX, YY) \
+			YY(SegmentMessage,0x0, "消息片段") \
+			YY(TextMessage,   0x1, "文本消息") \
+			YY(BinaryMessage, 0x2, "二进制消息") \
+			YY(CloseMessage,  0x8, "连接关闭消息") \
+			YY(PingMessage,   0x9, "心跳PING消息") \
+			YY(PongMessage,   0xA, "心跳PONG消息") \
 
 //帧控制类型 控制帧/非控制帧
-#define MY_MAP_FRAMECONTROL(XX) \
-			XX(FrameInvalid, "无效帧") \
-			XX(ControlFrame, "控制帧") \
-			XX(UnControlFrame, "非控制帧")
-
-#define FUNCTON_DECLARE_FRAMECONTROL_TO_STRING(varname) \
-			MY_DESC_TABLE_DECLARE(table_##varname##s_, MY_MAP_FRAMECONTROL); \
-			STATIC_FUNCTON_DECLARE_TO_STRING(varname);
+#define FRAMECONTROL_MAP(XX, YY) \
+			YY(FrameInvalid,   0, "无效帧") \
+			YY(ControlFrame,   1, "控制帧") \
+			YY(UnControlFrame, 2, "非控制帧") \
 
 //消息帧类型
-#define MY_MAP_MESSAGEFRAME(XX) \
-			XX(UnknownFrame,"未知") \
-			XX(HeadFrame, "头帧") \
-			XX(MiddleFrame, "连续帧") \
-			XX(TailFrame, "尾帧") \
-			XX(HeadTailFrame, "头尾帧")
-
-#define FUNCTON_DECLARE_MESSAGEFRAME_TO_STRING(varname) \
-			MY_DESC_TABLE_DECLARE(table_##varname##s_, MY_MAP_MESSAGEFRAME); \
-			STATIC_FUNCTON_DECLARE_TO_STRING(varname);
+#define MESSAGEFRAME_MAP(XX, YY) \
+			YY(UnknownFrame,  0x00,                "未知帧") \
+			YY(HeadFrame,     0x01,                "头帧") \
+			YY(MiddleFrame,   0x02,                "连续帧") \
+			YY(TailFrame,     0x04,                "尾帧") \
+			YY(HeadTailFrame, HeadFrame|TailFrame, "头尾帧") \
 
 typedef uint8_t rsv123_t;
 
@@ -256,56 +177,39 @@ namespace muduo {
 			//typedef std::function<void(const TcpConnectionPtr&, Buffer*, int msgType, Timestamp receiveTime)> WsMessageCallback;
 			//typedef std::function<void(const TcpConnectionPtr&, Buffer*, Timestamp receiveTime)> WsClosedCallback;
 
-			//握手错误码
-			enum HandShakeE {
-				WS_ERROR_WANT_MORE   = 0x1001, //握手读取
-				WS_ERROR_PARSE       = 0x1002, //握手解析失败
-				WS_ERROR_PACKSZ      = 0x1003, //握手包非法
-				WS_ERROR_CRLFCRLF    = 0x1004, //握手查找CRLFCRLF
-				WS_ERROR_CONTEXT     = 0x1005, //无效websocket::Context
-				WS_ERROR_PATH        = 0x1006, //握手路径错误
-				WS_ERROR_HTTPCONTEXT = 0x1007, //无效websocket::httpContext
-				WS_ERROR_HTTPVERSION = 0x1008, //请求头必须HTTP/1.1版本
-				WS_ERROR_CONNECTION  = 0x1009, //请求头字段错误:Connection
-				WS_ERROR_UPGRADE     = 0x1010, //请求头字段错误:Upgrade
-				WS_ERROR_ORIGIN      = 0x1020, //请求头字段错误:Origin
-				WS_ERROR_SECPROTOCOL = 0x1030, //请求头字段错误:Sec-WebSocket-Protocol
-				WS_ERROR_SECVERSION  = 0x1040, //请求头字段错误:Sec-WebSocket-Version
-				WS_ERROR_SECKEY      = 0x1050, //请求头字段错误:Sec-WebSocket-Key
-				WS_ERROR_SECKEYCHK   = 0x1060, //请求头校验错误:Sec-WebSocket-Key
-			};
-
 			//连接状态
 			enum StateE {
-				kConnected,
-				kClosed,
+				STATE_MAP(K_ENUM_X, K_ENUM_Y)
 			};
-
+			
+			//握手错误码
+			enum HandShakeE {
+				HANDSHAKE_MAP(ENUM_X, ENUM_Y)
+			};
+			
 			//大小端模式
-			enum EndianModeE {
-				LittleEndian = 0,
-				BigEndian    = 1,
+			enum EndianE {
+				ENDIAN_MAP(ENUM_X, ENUM_Y)
 			};
 
 			//消息流解包步骤
 			enum StepE {
-				ReadFrameHeader,
-				ReadExtendedPayloadlenU16,
-				ReadExtendedPayloadlenI64,
-				ReadMaskingkey,
-				ReadPayloadData,
-				ReadExtendedPayloadDataU16,
-				ReadExtendedPayloadDataI64,
+				STEP_MAP(ENUM_X, ENUM_Y)
 			};
 
 			//帧结束标志位
 			enum FinE {
+#if 0
 				FrameContinue, //帧未结束
 				FrameFinished, //帧已结束(最后一个消息帧)
+#else
+				FIN_MAP(ENUM_X, ENUM_Y)
+#endif
 			};
 
 			//操作码，标识消息帧类型
 			enum OpcodeE {
+#if 0
 				//非控制帧，携带应用/扩展数据
 				SegmentMessage = 0x0, //分片消息(片段)，连续帧/中间帧/分片帧
 				TextMessage    = 0x1, //文本消息，头帧/首帧/起始帧
@@ -338,48 +242,59 @@ namespace muduo {
 				Reserved8  = 0xD,
 				Reserved9  = 0xE,
 				Reserved10 = 0xF,
+#else
+				OPCODE_MAP(ENUM_X, ENUM_Y)
+#endif
 			};
 			typedef OpcodeE MessageE;
 
 			//帧控制类型 控制帧/非控制帧
 			enum FrameControlE {
-				FrameInvalid   = 0,
-				ControlFrame   = 1,
-				UnControlFrame = 2,
+				FRAMECONTROL_MAP(ENUM_X, ENUM_Y)
 			};
 
 			//消息帧类型
 			enum MessageFrameE {
+#if 0
 				UnknownFrame                   = 0x00,
 				HeadFrame                      = 0x01, //头帧/首帧/起始帧
 				MiddleFrame                    = 0x02, //连续帧/中间帧/分片帧
 				TailFrame                      = 0x04, //尾帧/结束帧
 				HeadTailFrame = HeadFrame | TailFrame, //未分片的消息，既是头帧/首帧/起始帧，也是尾帧/结束帧
+#else
+				MESSAGEFRAME_MAP(ENUM_X, ENUM_Y)
+#endif
 			};
-
-			//格式化字符串 websocket握手
-			FUNCTON_DECLARE_HANDSHAKE_TO_STRING(Handshake);
-
+			
 			//格式化字符串 websocket连接状态
-			FUNCTON_DECLARE_STATE_TO_STRING(State);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(STATE_MAP, K_DETAIL_X, K_DETAIL_Y, NAME, State);
+			
+			//格式化字符串 websocket握手
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(HANDSHAKE_MAP, DETAIL_X, DETAIL_Y, NAME, Handshake);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(HANDSHAKE_MAP, DETAIL_X, DETAIL_Y, MSG, Msg_Handshake);
 
 			//格式化字符串 大小端模式
-			FUNCTON_DECLARE_ENDIANMODE_TO_STRING(EndianMode);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(ENDIAN_MAP, DETAIL_X, DETAIL_Y, NAME, Endian);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(ENDIAN_MAP, DETAIL_X, DETAIL_Y, MSG, Msg_Endian);
 
 			//格式化字符串 消息流解包步骤
-			FUNCTON_DECLARE_STEP_TO_STRING(Step);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(STEP_MAP, DETAIL_X, DETAIL_Y, NAME, Step);
 
 			//格式化字符串 Fin 帧结束标志位
-			FUNCTON_DECLARE_FIN_TO_STRING(Fin);
-
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(FIN_MAP, DETAIL_X, DETAIL_Y, NAME, Fin);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(FIN_MAP, DETAIL_X, DETAIL_Y, MSG, Msg_Fin);
+			
 			//格式化字符串 opcode 操作码，标识消息帧类型
-			FUNCTON_DECLARE_OPCODE_TO_STRING(Opcode);
-
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(OPCODE_MAP, DETAIL_X, DETAIL_Y, NAME, Opcode);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(OPCODE_MAP, DETAIL_X, DETAIL_Y, MSG, Msg_Opcode);
+			
 			//格式化字符串 帧控制类型 控制帧/非控制帧
-			FUNCTON_DECLARE_FRAMECONTROL_TO_STRING(FrameControl);
-
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(FRAMECONTROL_MAP, DETAIL_X, DETAIL_Y, NAME, FrameControl);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(FRAMECONTROL_MAP, DETAIL_X, DETAIL_Y, MSG, MSG_FrameControl);
+			
 			//格式化字符串 消息帧类型
-			FUNCTON_DECLARE_MESSAGEFRAME_TO_STRING(MessageFrame);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(MESSAGEFRAME_MAP, DETAIL_X, DETAIL_Y, NAME, MessageFrame);
+			STATIC_FUNCTON_TO_STRING_IMPLEMENT(MESSAGEFRAME_MAP, DETAIL_X, DETAIL_Y, MSG, MSG_MessageFrame);
 
 #ifdef _NETTOHOST_BIGENDIAN_
 			//BigEndian
@@ -456,13 +371,13 @@ namespace muduo {
 				}
 				inline void setExtendedPayloadlen(uint16_t ExtendedPayloadlen) {
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_WARN("ExtendedPayloadlen.u16 = %d", ExtendedPayloadlen);
+					_LOG_DEBUG("ExtendedPayloadlen.u16 = %d", ExtendedPayloadlen);
 #endif
 					this->ExtendedPayloadlen.u16 = ExtendedPayloadlen;
 				}
 				inline void setExtendedPayloadlen(int64_t ExtendedPayloadlen) {
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_WARN("ExtendedPayloadlen.i64 = %d", ExtendedPayloadlen);
+					_LOG_DEBUG("ExtendedPayloadlen.i64 = %d", ExtendedPayloadlen);
 #endif
 					this->ExtendedPayloadlen.i64 = ExtendedPayloadlen;
 				}
@@ -986,7 +901,7 @@ namespace muduo {
 					IHttpContextPtr& context,
 					IBytesBufferPtr& dataBuffer,
 					IBytesBufferPtr& controlBuffer,
-					EndianModeE endian = EndianModeE::LittleEndian)
+					EndianE endian = EndianE::LittleEndian)
 					: step_(StepE::ReadFrameHeader)
 					, state_(StateE::kClosed)
 					, handler_(NULL)
@@ -997,14 +912,14 @@ namespace muduo {
 					//, callbackHandler_(NULL)
 					/*, httpContext_(NULL)*/ {
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_WARN("...");
+					_LOG_DEBUG("...");
 #endif
 					init(handler, context, dataBuffer, controlBuffer);
 				}
 				
 				~Context() {
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_WARN("...");
+					_LOG_DEBUG("...");
 #endif
 					resetAll();
 				}
@@ -1096,7 +1011,7 @@ namespace muduo {
 
 				inline void resetAll() {
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_WARN("...");
+					_LOG_DEBUG("...");
 #endif
 					resetExtendedHeader();
 					dataMessage_.resetMessage();
@@ -1125,7 +1040,7 @@ namespace muduo {
 				//连接状态
 				StateE state_;
 				//大小端模式
-				EndianModeE endian_;
+				EndianE endian_;
 				//正处于解析当中的帧头(当前帧头)，uint16_t
 				websocket::extended_header_t header_;
 				//数据帧(非控制帧)，携带应用/扩展数据
@@ -2406,7 +2321,7 @@ namespace muduo {
 						break;
 					}
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_INFO("[ok][%d]: %s(%d) readableBytes(%d)",
+					_LOG_DEBUG("[ok][%d]: %s(%d) readableBytes(%d)",
 						header.Payloadlen,
 						websocket::Step_to_string(context.getWebsocketStep()).c_str(), websocket::kHeaderLen, buf->readableBytes());
 #endif
@@ -2460,7 +2375,7 @@ namespace muduo {
 						break;
 					}
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_INFO("[ok][%d]: %s(%d) readableBytes(%d)",
+					_LOG_DEBUG("[ok][%d]: %s(%d) readableBytes(%d)",
 						header.Payloadlen,
 						websocket::Step_to_string(context.getWebsocketStep()).c_str(), websocket::kExtendedPayloadlenU16, buf->readableBytes());
 #endif
@@ -2509,7 +2424,7 @@ namespace muduo {
 						break;
 					}
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_INFO("[ok][%d]: %s(%d) readableBytes(%d)",
+					_LOG_DEBUG("[ok][%d]: %s(%d) readableBytes(%d)",
 						header.Payloadlen,
 						websocket::Step_to_string(context.getWebsocketStep()).c_str(), websocket::kMaskingkeyLen, buf->readableBytes());
 #endif
@@ -2558,7 +2473,7 @@ namespace muduo {
 						break;
 					}
 #ifdef LIBWEBSOCKET_DEBUG
-					_LOG_INFO("[ok][%d]: %s(%d) readableBytes(%d)",
+					_LOG_DEBUG("[ok][%d]: %s(%d) readableBytes(%d)",
 						header.Payloadlen,
 						websocket::Step_to_string(context.getWebsocketStep()).c_str(), websocket::kMaskingkeyLen, buf->readableBytes());
 #endif
@@ -2656,7 +2571,7 @@ namespace muduo {
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_INFO("[ok][%d]: %s(%d) readableBytes(%d)",
+						_LOG_DEBUG("[ok][%d]: %s(%d) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), header.Payloadlen, buf->readableBytes());
 #endif
@@ -2779,7 +2694,7 @@ namespace muduo {
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_INFO("[ok][%d]: %s(%d) readableBytes(%d)",
+						_LOG_DEBUG("[ok][%d]: %s(%d) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenU16(), buf->readableBytes());
 #endif
@@ -2903,7 +2818,7 @@ namespace muduo {
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_INFO("[ok][%d]: %s(%lld) readableBytes(%d)",
+						_LOG_DEBUG("[ok][%d]: %s(%lld) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenI64(), buf->readableBytes());
 #endif
@@ -3026,7 +2941,7 @@ namespace muduo {
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_INFO("[ok][%d]: %s(%d) readableBytes(%d)",
+						_LOG_DEBUG("[ok][%d]: %s(%d) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), header.Payloadlen, buf->readableBytes());
 #endif
@@ -3179,7 +3094,7 @@ namespace muduo {
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_INFO("[ok][%d]: %s(%d) readableBytes(%d)",
+						_LOG_DEBUG("[ok][%d]: %s(%d) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenU16(), buf->readableBytes());
 #endif
@@ -3333,7 +3248,7 @@ namespace muduo {
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_INFO("[ok][%d]: %s(%lld) readableBytes(%d)",
+						_LOG_DEBUG("[ok][%d]: %s(%lld) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenI64(), buf->readableBytes());
 #endif
@@ -3597,7 +3512,7 @@ namespace muduo {
 					if (buf->readableBytes() <= CRLFCRLFSZ) {
 						*saveErrno = HandShakeE::WS_ERROR_PACKSZ/*WS_ERROR_WANT_MORE*/;
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+						_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 						break;
 					}
@@ -3605,7 +3520,7 @@ namespace muduo {
 					else if (buf->readableBytes() > 1024) {
 						*saveErrno = HandShakeE::WS_ERROR_PACKSZ;
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+						_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 						break;
 					}
@@ -3614,18 +3529,18 @@ namespace muduo {
 					if (!crlfcrlf) {
 						*saveErrno = HandShakeE::WS_ERROR_CRLFCRLF;
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+						_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 						break;
 					}
 //#ifdef LIBWEBSOCKET_DEBUG
-					_LOG_INFO("bufsize = %d\n\n%.*s", buf->readableBytes(), buf->readableBytes(), buf->peek());
+					_LOG_DEBUG("bufsize = %d\n\n%.*s", buf->readableBytes(), buf->readableBytes(), buf->peek());
 //#endif
 					//务必先找到CRLFCRLF结束符得到完整HTTP请求，否则unique_ptr对象失效
 					if (!context.getHttpContext()) {
 						*saveErrno = HandShakeE::WS_ERROR_HTTPCONTEXT;
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+						_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 						break;
 					}
@@ -3633,7 +3548,7 @@ namespace muduo {
 					if (!context.getHttpContext()->parseRequestPtr(buf, receiveTime)) {
 						*saveErrno = HandShakeE::WS_ERROR_PARSE;
 #ifdef LIBWEBSOCKET_DEBUG
-						_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+						_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 						break;
 					}
@@ -3644,7 +3559,7 @@ namespace muduo {
 						if (context.getHttpContext()->requestConstPtr()->path() != path_handshake) {
 							*saveErrno = HandShakeE::WS_ERROR_PATH;
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+							_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 							break;
 						}
@@ -3653,7 +3568,7 @@ namespace muduo {
 						if (version != muduo::net::http::IRequest::kHttp11) {
 							*saveErrno = HandShakeE::WS_ERROR_HTTPVERSION;
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+							_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 							break;
 						}
@@ -3662,7 +3577,7 @@ namespace muduo {
 						if (connection.empty() || connection != "Upgrade") {
 							*saveErrno = HandShakeE::WS_ERROR_CONNECTION;
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+							_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 							break;
 						}
@@ -3671,7 +3586,7 @@ namespace muduo {
 						if (upgrade.empty() || upgrade != "websocket") {
 							*saveErrno = HandShakeE::WS_ERROR_UPGRADE;
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+							_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 							break;
 						}
@@ -3680,7 +3595,7 @@ namespace muduo {
 						if (origin.empty()/* || origin != "*"*/) {
 							*saveErrno = HandShakeE::WS_ERROR_ORIGIN;
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+							_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 							break;
 						}
@@ -3693,7 +3608,7 @@ namespace muduo {
 								SecWebSocketProtocol != "chat,superchat")) {
 							*saveErrno = HandShakeE::WS_ERROR_SECPROTOCOL;
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+							_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 							break;
 						}
@@ -3702,7 +3617,7 @@ namespace muduo {
 						if (SecWebSocketVersion.empty() || SecWebSocketVersion != "13") {
 							*saveErrno = HandShakeE::WS_ERROR_SECVERSION;
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+							_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 							break;
 						}
@@ -3711,7 +3626,7 @@ namespace muduo {
 						if (SecWebSocketKey.empty()) {
 							*saveErrno = HandShakeE::WS_ERROR_SECKEY;
 #ifdef LIBWEBSOCKET_DEBUG
-							_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+							_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 							break;
 						}
@@ -3719,7 +3634,7 @@ namespace muduo {
 							if (!handler->onValidateCallback(context.getHttpContext()->requestConstPtr())) {
 								*saveErrno = HandShakeE::WS_ERROR_SECKEYCHK;
 #ifdef LIBWEBSOCKET_DEBUG
-								_LOG_ERROR(Handshake_to_string(*saveErrno).c_str());
+								_LOG_ERROR(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
 								break;
 							}
@@ -3806,7 +3721,7 @@ namespace muduo {
 				case HandShakeE::WS_ERROR_PACKSZ:
 					//握手失败
 //#ifdef LIBWEBSOCKET_DEBUG
-					_LOG_ERROR("failed[%s]", Handshake_to_string(*saveErrno).c_str());
+					_LOG_ERROR("failed: %s", Msg_Handshake_to_string(*saveErrno).c_str());
 //#endif
 					break;
 				}
