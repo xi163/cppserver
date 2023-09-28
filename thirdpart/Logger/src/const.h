@@ -39,7 +39,7 @@
 			std::string name = var[i].name_; \
 			std::string desc = var[i].desc_; \
 			return name.empty() ? \
-				desc : "[" + name + "]" + desc;\
+				desc : "[" + name + "]" + desc; \
 		}\
 	}
 
