@@ -619,7 +619,7 @@ void TcpConnection::handleWrite()
               printf("SSL_write_with_copy >>>\n%.*s\n", outputBuffer_.readableBytes(), outputBuffer_.peek());
 #endif
           int savedErrno = 0;
-      _loop:
+      //_loop:
           ssize_t n = !ssl_ ?
               /*sockets::write(channel_->fd(),
                   outputBuffer_.peek(),

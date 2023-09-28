@@ -177,7 +177,7 @@ namespace utils {
 
 		static std::string Encode_1(const std::string& d)
 		{
-#define _INLINE_C_2_H(x) (unsigned char)(x > 9 ? x + 55 : x + 48)
+#define _INLINE_C_2_H(x) (unsigned char)((x) > 9 ? ((x) + 55) : ((x) + 48))
 			std::string e = "";
 			std::size_t size = d.size();
 			for (std::size_t i = 0; i < size; ++i) {

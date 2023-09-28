@@ -191,7 +191,7 @@
       <PositionIndependentCode>true</PositionIndependentCode>
       <CppLanguageStandard>c++11</CppLanguageStandard>
       <CLanguageStandard>c11</CLanguageStandard>
-      <AdditionalOptions>-Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable [-Wno-sign-compare -Wno-return-type -Wno-switch %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable -Wno-sign-compare -Wno-return-type -Wno-switch %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib />
   </ItemDefinitionGroup>
