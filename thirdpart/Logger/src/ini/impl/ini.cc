@@ -8,7 +8,7 @@ namespace utils {
 	namespace INI {
 #ifndef USEKVMAP
 		std::string& Section::operator[](std::string const& key) {
-			Section::iterator ir = std::find_if(std::begin(*this), std::end(*this), [&](Item& kv) -> bool {
+			Section::iterator ir = std::find_if(begin(), end(), [&](Item& kv) -> bool {
 				return kv.first == key;
 				});
 			if (ir != end()) {

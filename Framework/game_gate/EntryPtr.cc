@@ -50,7 +50,7 @@ Entry::~Entry() {
 		//conn->getLoop()->assertInLoopThread();
 
 		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-		ASSERT(!entryContext.getSession().empty());
+		//ASSERT(!entryContext.getSession().empty());
 
 		//判断是否锁定了同步业务操作
 		switch (getLocked()) {

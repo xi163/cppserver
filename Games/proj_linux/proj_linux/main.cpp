@@ -54,10 +54,16 @@ void _mkDir_p(char const* dir) {
 }
 
 int main() {
-	std::string s("/home/www1/data/log");
-	size_t pos = s.find_last_of('/');
-	printf("%s\n", s.substr(0, pos).c_str());
-	printf("%s\n", s.substr(pos+1, -1).c_str());
+	if (strcasecmp("Sec-WebSocket-verify", "Sec-Websocket-Verify") == 0) {
+		Debugf("yes");
+	}
+	else {
+		Debugf("no");
+	}
+// 	std::string s("/home/www1/data/log");
+// 	size_t pos = s.find_last_of('/');
+// 	printf("%s\n", s.substr(0, pos).c_str());
+// 	printf("%s\n", s.substr(pos+1, -1).c_str());
 	//printf("创建目录\n");
 	//_mkDir_p("/home/www1/data/log");
 	//获取当前系统的所有CPU核数，包含禁用的
@@ -67,10 +73,10 @@ int main() {
 	//Debugf("all:%d enable:%d", all, enable);
 	//std::string s;
 	//s.append("dsff").c_str();
-	int n = 1;
-	ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
-	ASSERT_S(n == 0, "");
-	ASSERT(n == 0);
+// 	int n = 1;
+// 	ASSERT_S(n == 0, utils::sprintf("断言错误 n=%d", n).c_str());
+// 	ASSERT_S(n == 0, "");
+// 	ASSERT(n == 0);
 	//std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
 	//ASSERT_S(pool_, "pool is nil");
 	//Debugf("...........");

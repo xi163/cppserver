@@ -72,15 +72,11 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 }
 
 bool GateServ::onVerify(muduo::net::http::IRequest const* request) {
-	//Errorf("Sec-WebSocket-Key: %s", request->getHeader("Sec-WebSocket-Key").c_str());
-	std::string token = request->getHeader("Sec-WebSocket-Verify");
+	std::string token = request->getHeader("Sec-WebSocket-Verify", true);
+	Debugf("Token: %s", token.c_str());
 	if (token.empty()) {
-		//token = request->getHeader("Sec-Websocket-Verify");
-		//if (token.empty()) {
-			return false;
-		//}
+		return false;
 	}
-	//Errorf("Token: %s", token.c_str());
 	return true;
 }
 

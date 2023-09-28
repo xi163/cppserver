@@ -192,7 +192,7 @@ void CRobotMgr::Delete(int64_t userId) {
 void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
 	{
 		WRITE_LOCK(mutex_);
-		std::map<int64_t, std::shared_ptr<CRobot>>::iterator it = std::find_if(std::begin(items_), std::end(items_),
+		std::map<int64_t, std::shared_ptr<CRobot>>::iterator it = std::find_if(items_.begin(), items_.end(),
 			[&](Item const& kv) -> bool {
 				return kv.second.get() == robot.get();
 			});

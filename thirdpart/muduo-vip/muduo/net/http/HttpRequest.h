@@ -187,27 +187,28 @@ class HttpRequest : public muduo::copyable, public http::IRequest
     headers_[field] = value;
   }
 
-  string getHeader(const string& field) const
-  {
-#if 0
-    string result;
-    std::map<string, string>::const_iterator it = headers_.find(field);
-    if (it != headers_.end())
-    {
-      result = it->second;
-    }
-    return result;
-#else
-	  typedef std::pair<std::string, std::string> Item;
-	  std::map<std::string, std::string>::const_iterator it = std::find_if(std::begin(headers_), std::end(headers_),
-		  [&](Item const& kv) -> bool {
-			  return strcasecmp(kv.first.c_str(), field.c_str()) == 0;
-		  });
-	  if (it != headers_.end()) {
-		  return it->second;
+  string getHeader(const string& field, bool ignorecase = false) const {
+	  switch (ignorecase) {
+	  case true: {
+		  typedef std::pair<std::string, std::string> Item;
+		  std::map<std::string, std::string>::const_iterator it = std::find_if(headers_.begin(), headers_.end(),
+			  [&](Item const& kv) -> bool {
+				  return strcasecmp(kv.first.c_str(), field.c_str()) == 0;
+			  });
+		  if (it != headers_.end()) {
+			  return it->second;
+		  }
+		  break;
+	  }
+	  default: {
+		  std::map<std::string, std::string>::const_iterator it = headers_.find(field);
+		  if (it != headers_.end()) {
+			  return it->second;
+		  }
+		  break;
+	  }
 	  }
 	  return "";
-#endif
   }
 
   std::map<string, string>* headersPtr() {

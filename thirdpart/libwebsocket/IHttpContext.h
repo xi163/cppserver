@@ -44,7 +44,7 @@ namespace muduo {
 				virtual ITimestamp* receiveTimePtr() = 0;
 				virtual ITimestamp const* receiveTimeConstPtr() const = 0;
 				virtual void addHeader(const char* start, const char* colon, const char* end) = 0;
-				virtual std::string getHeader(const std::string& field) const = 0;
+				virtual std::string getHeader(const std::string& field, bool ignorecase = false) const = 0;
 				virtual std::map<std::string, std::string>* headersPtr() = 0;
 				virtual const std::map<std::string, std::string>& headers() const = 0;
 				virtual void req_swap(IRequest* that) = 0;
