@@ -75,10 +75,10 @@ bool GateServ::onVerify(muduo::net::http::IRequest const* request) {
 	//Errorf("Sec-WebSocket-Key: %s", request->getHeader("Sec-WebSocket-Key").c_str());
 	std::string token = request->getHeader("Sec-WebSocket-Verify");
 	if (token.empty()) {
-		token = request->getHeader("Sec-Websocket-Verify");
-		if (token.empty()) {
+		//token = request->getHeader("Sec-Websocket-Verify");
+		//if (token.empty()) {
 			return false;
-		}
+		//}
 	}
 	//Errorf("Token: %s", token.c_str());
 	return true;
