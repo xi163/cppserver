@@ -213,7 +213,7 @@
       <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/home/andy/cppserver/thirdpart;/home/andy/cppserver/thirdpart/muduo-vip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MUDUO_STD_STRING _MUDUO_OPTIMIZE_CHNANNEL_ LIBWEBSOCKET_DEBUG</PreprocessorDefinitions>
       <PositionIndependentCode>true</PositionIndependentCode>
-      <AdditionalOptions>-Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable -Wno-conversion-null %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib />
   </ItemDefinitionGroup>
