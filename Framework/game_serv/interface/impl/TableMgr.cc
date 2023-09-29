@@ -250,7 +250,7 @@ void CTableMgr::Delete(std::shared_ptr<CTable> const& table) {
 			});
 		if (it != usedItems_.end()) {
 			std::shared_ptr<CTable>& table = it->second;
-			items_.erase(it);
+			usedItems_.erase(it);
 			table->Reset();
 			ASSERT(table->GetTableId() >= 0);
 			ASSERT(table->GetTableId() < items_.size());
