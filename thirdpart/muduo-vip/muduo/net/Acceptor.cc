@@ -12,6 +12,7 @@
 #include "muduo/net/EventLoop.h"
 #include "muduo/net/InetAddress.h"
 #include "muduo/net/SocketsOps.h"
+#include "muduo/net/Reactor.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -64,6 +65,7 @@ void Acceptor::handleRead(int events)
       {
           // string hostport = peerAddr.toIpPort();
           // LOG_TRACE << "Accepts of " << hostport;
+#ifndef _MUDUO_ACCEPT_CONNPOOL_
           if (conditionCallback_ && !conditionCallback_(peerAddr))
           {
               sockets::close(connfd);
@@ -76,6 +78,23 @@ void Acceptor::handleRead(int events)
           {
               sockets::close(connfd);
           }
+#else
+		  EventLoop* loop = ReactorSingleton::getNextLoop();
+		  RunInLoop(loop, std::bind([this](int connfd, InetAddress const& peerAddr, EventLoop* loop) {
+			  if (conditionCallback_ && !conditionCallback_(peerAddr))
+			  {
+				  sockets::close(connfd);
+			  }
+			  else if (newConnectionCallback_)
+			  {
+				  newConnectionCallback_(connfd, peerAddr, loop);
+			  }
+			  else
+			  {
+				  sockets::close(connfd);
+			  }
+			  }, connfd, peerAddr, loop));
+#endif
       }
       else {
 		  if (errno != EAGAIN &&

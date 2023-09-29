@@ -12,6 +12,7 @@
 #include <muduo/base/BlockingQueue.h>
 #include <muduo/base/TimeZone.h>
 #include <muduo/base/Atomic.h>
+#include <muduo/base/Types.h>
 #include <muduo/net/Buffer.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/EventLoopThread.h>

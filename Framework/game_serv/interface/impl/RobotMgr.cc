@@ -190,6 +190,7 @@ void CRobotMgr::Delete(int64_t userId) {
 }
 
 void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
+	int64_t userId = robot->GetUserId();
 	{
 		WRITE_LOCK(mutex_);
 		std::map<int64_t, std::shared_ptr<CRobot>>::iterator it = std::find_if(items_.begin(), items_.end(),
@@ -203,5 +204,5 @@ void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
 			freeItems_.emplace_back(robot);
 		}
 	}
-	Errorf("%d used = %d free = %d", robot->GetUserId(), items_.size(), freeItems_.size());
+	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }

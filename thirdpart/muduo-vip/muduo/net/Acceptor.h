@@ -31,7 +31,11 @@ class Acceptor : noncopyable
 {
  public:
   typedef std::function<bool(const InetAddress&)> ConditionCallback;
-  typedef std::function<void (int sockfd, const InetAddress&)> NewConnectionCallback;
+#ifdef _MUDUO_ACCEPT_CONNPOOL_
+  typedef std::function<void (int sockfd, const InetAddress&, EventLoop*)> NewConnectionCallback;
+#else
+  typedef std::function<void(int sockfd, const InetAddress&)> NewConnectionCallback;
+#endif
 
   Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport);
   ~Acceptor();

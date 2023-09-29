@@ -20,8 +20,8 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop, const string& name
   : baseLoop_(baseLoop),
     name_(nameArg),
     started_(false),
-    numThreads_(0),
-    next_(0)
+    numThreads_(0)//,
+    //next_(0)
 {
 }
 
@@ -53,6 +53,7 @@ void EventLoopThreadPool::start(const ThreadInitCallback& cb)
 
 EventLoop* EventLoopThreadPool::getNextLoop()
 {
+#if 0
   baseLoop_->assertInLoopThread();
   assert(started_);
   EventLoop* loop = baseLoop_;
@@ -67,6 +68,26 @@ EventLoop* EventLoopThreadPool::getNextLoop()
       next_ = 0;
     }
   }
+#else
+	assert(started_);
+	EventLoop* loop = baseLoop_;
+	if (!loops_.empty())
+	{
+#if 1
+        loop = loops_[next_.getAndAdd(1)];
+		if (implicit_cast<size_t>(next_.get()) >= loops_.size()) {
+            next_.getAndSet(0);
+		}
+#else
+		int index = next_.getAndAdd(1) % loops_.size();
+		if (index < 0) {
+            next_.getAndSet(0);
+			index = next_.getAndAdd(1);
+		}
+        loop = loops_[index];
+#endif
+    }
+#endif
   return loop;
 }
 

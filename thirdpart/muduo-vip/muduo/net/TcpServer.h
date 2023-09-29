@@ -19,6 +19,8 @@
 #include <map>
 #include <openssl/ssl.h>
 
+#define _MUDUO_ACCEPT_CONNPOOL_
+
 namespace muduo
 {
 namespace net
@@ -100,14 +102,17 @@ class TcpServer : noncopyable
 
  private:
   /// Not thread safe, but in loop
+#ifndef _MUDUO_ACCEPT_CONNPOOL_
   void newConnection(int sockfd, const InetAddress& peerAddr);
+#else
+  void newConnection(int sockfd, const InetAddress& peerAddr, EventLoop* loop);
+#endif
   /// Not thread safe, but in loop
   bool newCondition(const InetAddress& peerAddr);
   /// Thread safe.
   void removeConnection(const TcpConnectionPtr& conn);
   /// Not thread safe, but in loop
   void removeConnectionInLoop(const TcpConnectionPtr& conn);
-
   typedef std::map<string, TcpConnectionPtr> ConnectionMap;
   bool enable_et_;
   SSL_CTX* ssl_ctx_;
@@ -123,7 +128,12 @@ class TcpServer : noncopyable
   AtomicInt32 started_;
   // always in loop thread
   int nextConnId_;
+#ifndef _MUDUO_ACCEPT_CONNPOOL_
   ConnectionMap connections_;
+#else
+  mutable MutexLock mutex_;
+  ConnectionMap connections_ GUARDED_BY(mutex_);
+#endif
 };
 
 }  // namespace net

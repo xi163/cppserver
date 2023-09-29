@@ -2,6 +2,7 @@
 #define INCLUDE_ENTRYPTR_H
 
 #include "public/gameConst.h"
+#include "Logger/src/utils/Assert.h"
 #include "Logger/src/log/Logger.h"
 #include "clients/Clients.h"
 #include "clients/Container.h"
@@ -163,12 +164,20 @@ struct Context /*: public muduo::noncopyable*/ {
 	inline void setWorker(
 		muduo::AtomicInt32& nextPool_,
 		std::vector<std::shared_ptr<muduo::ThreadPool>>& threadPool_) {
+#if 1
+		ASSERT(threadPool_.size() > 0);
+		thread_ = threadPool_[nextPool_.getAndAdd(1)];
+		if (muduo::implicit_cast<size_t>(nextPool_.get()) >= threadPool_.size()) {
+			nextPool_.getAndSet(0);
+		}
+#else
 		int index = nextPool_.getAndAdd(1) % threadPool_.size();
 		if (index < 0) {
-			nextPool_.getAndSet(-1);
-			index = nextPool_.addAndGet(1);
+			nextPool_.getAndSet(0);
+			index = nextPool_.getAndAdd(1);
 		}
 		thread_ = threadPool_[index];
+#endif
 	}
 	inline void setContext(const boost::any& context) {
 		context_ = context;
