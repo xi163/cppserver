@@ -32,6 +32,7 @@ CTable::CTable(muduo::net::EventLoop* loop, ITableContext* tableContext)
 }
 
 CTable::~CTable() {
+    ASSERT(false);
     items_.clear();
 }
 
@@ -439,7 +440,12 @@ void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, u
     }
     if (GetPlayerCount() == 0) {
         if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
+#define DEL_TABLE_BY_TABLEID_
+#ifdef DEL_TABLE_BY_TABLEID_
             CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
+#else
+            CTableMgr::get_mutable_instance().Delete(shared_from_this());
+#endif
         }
     }
 }

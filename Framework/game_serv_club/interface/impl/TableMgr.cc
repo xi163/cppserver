@@ -228,6 +228,9 @@ std::shared_ptr<CTable> CTableMgr::New(int64_t clubId) {
 		if (!freeItems_.empty()) {
 			std::shared_ptr<CTable> table = freeItems_.front();
 			freeItems_.pop_front();
+			ASSERT(table);
+			ASSERT(table->GetTableId() >= 0);
+			ASSERT(table->GetTableId() < items_.size());
 			table->SetClubId(clubId);
 			usedItems_[table->GetTableId()] = table;
 			return table;
@@ -244,6 +247,28 @@ void CTableMgr::Delete(uint16_t tableId) {
 			std::shared_ptr<CTable>& table = it->second;
 			usedItems_.erase(it);
 			table->Reset();
+			ASSERT(table->GetTableId() >= 0);
+			ASSERT(table->GetTableId() < items_.size());
+			freeItems_.emplace_back(table);
+		}
+	}
+	Errorf("%d used = %d free = %d", tableId, usedItems_.size(), freeItems_.size());
+}
+
+void CTableMgr::Delete(std::shared_ptr<CTable> const& table) {
+	uint16_t tableId = table->GetTableId();
+	{
+		WRITE_LOCK(mutex_);
+		std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = std::find_if(usedItems_.begin(), usedItems_.end(),
+			[&](Item const& kv) -> bool {
+				return kv.second.get() == table.get();
+			});
+		if (it != usedItems_.end()) {
+			std::shared_ptr<CTable>& table = it->second;
+			items_.erase(it);
+			table->Reset();
+			ASSERT(table->GetTableId() >= 0);
+			ASSERT(table->GetTableId() < items_.size());
 			freeItems_.emplace_back(table);
 		}
 	}

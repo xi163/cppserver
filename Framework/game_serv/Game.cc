@@ -1030,7 +1030,12 @@ void GameServ::cmd_on_user_enter_room(
 						DelContext(pre_header_->userId);
 						REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 						if (table->GetPlayerCount() == 0) {
+#define DEL_TABLE_BY_TABLEID_
+#ifdef DEL_TABLE_BY_TABLEID_
 							CTableMgr::get_mutable_instance().Delete(table->GetTableId());
+#else
+							CTableMgr::get_mutable_instance().Delete(table);
+#endif
 						}
 						muduo::net::TcpConnectionPtr conn(weakConn.lock());
 						if (conn) {

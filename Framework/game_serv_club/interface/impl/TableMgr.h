@@ -56,11 +56,13 @@ public:
 	std::shared_ptr<CTable> FindSuit(std::shared_ptr<CPlayer> const& player, int64_t clubId, uint16_t excludeId = INVALID_TABLE);
 	std::shared_ptr<CTable> New(int64_t clubId);
 	void Delete(uint16_t tableId);
+	void Delete(std::shared_ptr<CTable> const& table);
 	/// <summary>
 	/// 踢出所有桌子玩家
 	/// </summary>
 	void KickAll();
 protected:
+	typedef std::pair<uint16_t, std::shared_ptr<CTable>> Item;
 	ITableContext* tableContext_;
 	std::vector<std::shared_ptr<CTable>> items_;//items_[tableId]
 	std::list<std::shared_ptr<CTable>> freeItems_;
