@@ -29,7 +29,7 @@ int main()
 {
   //LOG_INFO << "pid = " << getpid();
   EventLoop loop;
-  muduo::net::ReactorSingleton::inst(&loop, "RWIOThreadPool");
+  muduo::net::ReactorSingleton::init(&loop, "RWIOThreadPool");
   muduo::net::ReactorSingleton::setThreadNum(2);
   muduo::net::ReactorSingleton::start();
   InetAddress listenAddr(9981);

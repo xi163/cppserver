@@ -33,7 +33,7 @@ TcpServer::TcpServer(EventLoop* loop,
     nextConnId_(1),
     ssl_ctx_(NULL)
 {
-  ReactorSingleton::inst(loop, name_);
+  ReactorSingleton::init(loop, name_);
 #ifndef _MUDUO_ACCEPT_CONNPOOL_
   acceptor_->setNewConnectionCallback(
 	  std::bind(&TcpServer::newConnection, this, _1, _2));

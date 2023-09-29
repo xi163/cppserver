@@ -16,6 +16,8 @@
 #include "muduo/net/Channel.h"
 #include "muduo/net/Socket.h"
 
+#define _MUDUO_ACCEPT_CONNPOOL_
+
 namespace muduo
 {
 namespace net

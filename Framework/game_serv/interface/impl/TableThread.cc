@@ -213,8 +213,10 @@ CTableThreadMgr::~CTableThreadMgr() {
 }
 
 void CTableThreadMgr::Init(muduo::net::EventLoop* loop, std::string const& name) {
-	pool_.reset(new muduo::net::EventLoopThreadPool(CHECK_NOTNULL(loop), name));
-	baseLoop_ = loop;
+	if (!pool_) {
+		pool_.reset(new muduo::net::EventLoopThreadPool(CHECK_NOTNULL(loop), name));
+		baseLoop_ = loop;
+	}
 }
 
 muduo::net::EventLoop* CTableThreadMgr::getNextLoop() {
@@ -266,6 +268,7 @@ void CTableThreadMgr::startCheckUserIn(ITableContext* tableContext) {
 
 void CTableThreadMgr::quit() {
 	ASSERT_S(pool_, "pool is nil");
+	ASSERT_S(baseLoop_, "loop is nil");
 	if (pool_->started()) {
 		RunInLoop(baseLoop_, std::bind(&CTableThreadMgr::quitInLoop, this));
 	}

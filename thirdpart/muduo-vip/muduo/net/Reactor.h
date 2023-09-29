@@ -22,19 +22,17 @@ namespace muduo {
 			ReactorSingleton() = delete;
 			~ReactorSingleton() = delete;
 			
-			static void inst(muduo::net::EventLoop* loop, std::string const& name);
+			static void init(muduo::net::EventLoop* loop, std::string const& name);
+
+			static muduo::net::EventLoop* getNextLoop();
+
+			static std::shared_ptr<muduo::net::EventLoopThreadPool> get();
 
 			static void setThreadNum(int numThreads);
 
 			static void start(const EventLoopThreadPool::ThreadInitCallback& cb = EventLoopThreadPool::ThreadInitCallback());
 
-			static void stop();
-
-			static std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool();
-
-			static muduo::net::EventLoop* getNextLoop();
-
-			static void reset();
+			static void quit();
 		};
 
 	}// namespace net

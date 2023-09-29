@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   if (argc > 1)
   {
     EventLoop loop;
-	muduo::net::ReactorSingleton::inst(&loop, "RWIOThreadPool");
+	muduo::net::ReactorSingleton::init(&loop, "RWIOThreadPool");
 	muduo::net::ReactorSingleton::setThreadNum(2);
 	muduo::net::ReactorSingleton::start();
     InetAddress serverAddr(argv[1], 9981);

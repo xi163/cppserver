@@ -1,6 +1,6 @@
 
 #include "Reactor.h"
-
+#include "Logger/src/utils/Assert.h"
 #include "muduo/base/Logging.h"
 #include "muduo/net/Acceptor.h"
 #include "muduo/net/EventLoop.h"
@@ -12,60 +12,54 @@
 namespace muduo {
 	namespace net {
 		static muduo::net::EventLoop* baseLoop_;
-		static std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool_;
+		static std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
 		static AtomicInt32 started_;
 
-		void ReactorSingleton::inst(muduo::net::EventLoop* loop, std::string const& name) {
-			if (!threadPool_) {
-#if 0
-				std::shared_ptr<muduo::net::EventLoopThreadPool> obj(new muduo::net::EventLoopThreadPool(loop, name));
-				threadPool_ = obj;
-#else
-				threadPool_.reset(new muduo::net::EventLoopThreadPool(loop, name));
-#endif
+		void ReactorSingleton::init(muduo::net::EventLoop* loop, std::string const& name) {
+			if (!pool_) {
+				pool_.reset(new muduo::net::EventLoopThreadPool(CHECK_NOTNULL(loop), name));
 				baseLoop_ = loop;
 			}
 		}
 
+		std::shared_ptr<muduo::net::EventLoopThreadPool> ReactorSingleton::get() {
+			ASSERT_S(pool_, "pool is nil");
+			return pool_;
+		}
+
+		muduo::net::EventLoop* ReactorSingleton::getNextLoop() {
+			ASSERT_S(pool_, "pool is nil");
+			return pool_->getNextLoop();
+		}
+		
 		void ReactorSingleton::setThreadNum(int numThreads) {
-			assert(0 <= numThreads);
-			assert(threadPool_);
-			threadPool_->setThreadNum(numThreads);
+			ASSERT_S(pool_, "pool is nil");
+			ASSERT_V(numThreads > 0, "numThreads:%d", numThreads);
+			pool_->setThreadNum(numThreads);
 		}
 
 		void ReactorSingleton::start(const EventLoopThreadPool::ThreadInitCallback& cb) {
 			if (started_.getAndSet(1) == 0) {
-				assert(threadPool_);
-				threadPool_->start(cb);
+				assert(pool_);
+				pool_->start(cb);
 			}
 		}
 
-		static void stopInLoop() {
-			std::vector<muduo::net::EventLoop*> loops = threadPool_->getAllLoops();
+		static void quitInLoop() {
+			std::vector<muduo::net::EventLoop*> loops = pool_->getAllLoops();
 			for (std::vector<muduo::net::EventLoop*>::iterator it = loops.begin();
 				it != loops.end(); ++it) {
 				(*it)->quit();
 			}
+			pool_.reset();
 		}
 
-		void ReactorSingleton::stop() {
-			if (baseLoop_) {
-				RunInLoop(baseLoop_, std::bind(&stopInLoop));
+		void ReactorSingleton::quit() {
+			ASSERT_S(pool_, "pool is nil");
+			ASSERT_S(baseLoop_, "loop is nil");
+			if (pool_->started()) {
+				RunInLoop(baseLoop_, std::bind(&quitInLoop));
 			}
-		}
-
-		std::shared_ptr<muduo::net::EventLoopThreadPool> ReactorSingleton::threadPool() {
-			assert(threadPool_);
-			return threadPool_;
-		}
-
-		muduo::net::EventLoop* ReactorSingleton::getNextLoop() {
-			assert(threadPool_);
-			return threadPool_->getNextLoop();
-		}
-
-		void ReactorSingleton::reset() {
-			threadPool_.reset();
 		}
 
 	}// namespace net

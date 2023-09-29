@@ -16,7 +16,7 @@ RouterServ::RouterServ(muduo::net::EventLoop* loop,
 	, server_state_(kRunning)
 	, ipLocator_("qqwry.dat") {
 	registerHandlers();
-	muduo::net::ReactorSingleton::inst(loop, "RWIOThreadPool");
+	muduo::net::ReactorSingleton::init(loop, "RWIOThreadPool");
 	server_.setConnectionCallback(
 		std::bind(&RouterServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
@@ -61,7 +61,7 @@ void RouterServ::Quit() {
 	if (redisClient_) {
 		redisClient_->unsubscribe();
 	}
-	muduo::net::ReactorSingleton::stop();
+	muduo::net::ReactorSingleton::quit();
 	server_.getLoop()->quit();
 	google::protobuf::ShutdownProtobufLibrary();
 }
@@ -296,7 +296,7 @@ void RouterServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	//sleep(2);
 
 	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =
-		muduo::net::ReactorSingleton::threadPool();
+		muduo::net::ReactorSingleton::get();
 	std::vector<muduo::net::EventLoop*> loops = threadPool->getAllLoops();
 	for (std::vector<muduo::net::EventLoop*>::const_iterator it = loops.begin();
 		it != loops.end(); ++it) {

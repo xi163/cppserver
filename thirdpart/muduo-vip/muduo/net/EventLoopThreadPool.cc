@@ -73,7 +73,7 @@ EventLoop* EventLoopThreadPool::getNextLoop()
 	EventLoop* loop = baseLoop_;
 	if (!loops_.empty())
 	{
-#if 1
+#if 0
         loop = loops_[next_.getAndAdd(1)];
 		if (implicit_cast<size_t>(next_.get()) >= loops_.size()) {
             next_.getAndSet(0);

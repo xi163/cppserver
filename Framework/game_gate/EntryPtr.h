@@ -164,7 +164,7 @@ struct Context /*: public muduo::noncopyable*/ {
 	inline void setWorker(
 		muduo::AtomicInt32& nextPool_,
 		std::vector<std::shared_ptr<muduo::ThreadPool>>& threadPool_) {
-#if 1
+#if 0
 		ASSERT(threadPool_.size() > 0);
 		thread_ = threadPool_[nextPool_.getAndAdd(1)];
 		if (muduo::implicit_cast<size_t>(nextPool_.get()) >= threadPool_.size()) {

@@ -74,8 +74,8 @@ class TcpServer : noncopyable
   ConditionCallback conditionCallback_;
 
   /// valid after calling start()
-  std::shared_ptr<EventLoopThreadPool> threadPool()
-  { return ReactorSingleton::threadPool();/*threadPool_;*/ }
+  //std::shared_ptr<EventLoopThreadPool> threadPool()
+  //{ return ReactorSingleton::get();/*threadPool_;*/ }
 
   /// Starts the server if it's not listening.
   ///
