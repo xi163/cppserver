@@ -51,11 +51,11 @@ public:
 		~Singleton() = delete;
 	public:
 		static void init(const ThreadInitCallback& cb = ThreadInitCallback());
-
+		
 		static EventLoop* getLoop();
-
+		
 		static void start();
-
+		
 		static void quit();
 	private:
 		static std::shared_ptr <EventLoopThread> thread_;

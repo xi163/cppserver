@@ -82,14 +82,16 @@ public:
 		
 		static EventLoop* getNextLoop_safe();
 		
-		static std::shared_ptr<EventLoopThreadPool> get();
-
+		static void getAllLoops(std::vector<EventLoop*>& vec);
+		
 		static void setThreadNum(int numThreads);
-
+		
 		static void start(const ThreadInitCallback& cb = ThreadInitCallback());
-
+		
 		static void quit();
 	private:
+		static void getAllLoopsInLoop(std::vector<EventLoop*>& vec, bool& ok);
+		static void startInLoop(const ThreadInitCallback& cb);
 		static void quitInLoop();
 		static std::shared_ptr<EventLoopThreadPool> pool_;
 		static AtomicInt32 started_;

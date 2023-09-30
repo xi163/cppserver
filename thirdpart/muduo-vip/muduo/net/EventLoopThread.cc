@@ -30,8 +30,8 @@ EventLoop* EventLoopThread::Singleton::getLoop() {
 }
 
 void EventLoopThread::Singleton::start() {
-	if (started_.getAndSet(1) == 0) {
-        ASSERT_S(thread_, "connThread is nil");
+    ASSERT_S(thread_, "connThread is nil");
+    if (!thread_->getLoop() && started_.getAndSet(1) == 0) {
 		thread_->startLoop();
 	}
 }

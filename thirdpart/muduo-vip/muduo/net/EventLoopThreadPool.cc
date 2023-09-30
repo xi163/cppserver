@@ -35,9 +35,16 @@ void EventLoopThreadPool::Singleton::init(EventLoop* loop, std::string const& na
 	}
 }
 
-std::shared_ptr<EventLoopThreadPool> EventLoopThreadPool::Singleton::get() {
+void EventLoopThreadPool::Singleton::getAllLoopsInLoop(std::vector<EventLoop*>& vec, bool& ok) {
+	vec = pool_->getAllLoops();
+	ok = true;
+}
+
+void EventLoopThreadPool::Singleton::getAllLoops(std::vector<EventLoop*>& vec) {
 	ASSERT_S(pool_, "pool is nil");
-	return pool_;
+	bool ok = false;
+	RunInLoop(pool_->getBaseLoop(), std::bind(&EventLoopThreadPool::Singleton::getAllLoopsInLoop, std::ref(vec), std::ref(ok)));
+	while (!ok);
 }
 
 EventLoop* EventLoopThreadPool::Singleton::getBaseLoop() {
@@ -61,10 +68,14 @@ void EventLoopThreadPool::Singleton::setThreadNum(int numThreads) {
 	pool_->setThreadNum(numThreads);
 }
 
+void EventLoopThreadPool::Singleton::startInLoop(const EventLoopThreadPool::ThreadInitCallback& cb) {
+	pool_->start(cb);
+}
+
 void EventLoopThreadPool::Singleton::start(const EventLoopThreadPool::ThreadInitCallback& cb) {
-	if (started_.getAndSet(1) == 0) {
-		assert(pool_);
-		pool_->start(cb);
+	ASSERT_S(pool_, "pool is nil");
+	if (!pool_->started() && started_.getAndSet(1) == 0) {
+		RunInLoop(pool_->getBaseLoop(), std::bind(&EventLoopThreadPool::Singleton::startInLoop, cb));
 	}
 }
 

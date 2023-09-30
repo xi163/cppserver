@@ -11,7 +11,7 @@ HallServ::HallServ(muduo::net::EventLoop* loop,
 	: server_(loop, listenAddr, "tcpServer")
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, gameRpcClients_(loop)
-	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&HallServ::threadInit, this), "EventLoopThreadTimer"))
+	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&HallServ::threadInit, this), "ThreadTimer"))
 	, ipLocator_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");

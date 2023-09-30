@@ -22,11 +22,11 @@ int CTable::sysChangeCardRatio_(0);
 
 
 CTable::CTable(muduo::net::EventLoop* loop, ITableContext* tableContext)
-    : loop_(CHECK_NOTNULL(loop))
+    : loop_(ASSERT_NOTNULL(loop))
     , tableDelegate_(NULL)
     , roomInfo_(NULL)
     , clubId_(INVALID_CLUB)
-    , tableContext_(CHECK_NOTNULL(tableContext))
+    , tableContext_(ASSERT_NOTNULL(tableContext))
     , status_(GAME_STATUS_INIT) {
     items_.clear();
     memset(&tableState_, 0, sizeof(tableState_));

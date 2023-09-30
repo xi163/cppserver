@@ -1,5 +1,5 @@
 #include "Logger/src/log/Logger.h"
-#include "Logger/src/utils/Assert.h"
+#include "Logger/src/log/Assert.h"
 #include "public/gameConst.h"
 
 #include "TableThread.h"
@@ -8,8 +8,8 @@
 #include "RobotMgr.h"
 
 CTableThread::CTableThread(muduo::net::EventLoop* loop, ITableContext* tableContext)
-	: loop_(ASSERT(loop))
-	, tableContext_(ASSERT(tableContext)) {
+	: loop_(ASSERT_NOTNULL(loop))
+	, tableContext_(ASSERT_NOTNULL(tableContext)) {
 	ASSERT(tableContext_->GetGameInfo());
 	ASSERT(tableContext_->GetRoomInfo());
 }
@@ -209,12 +209,12 @@ CTableThreadMgr::CTableThreadMgr() {
 }
 
 CTableThreadMgr::~CTableThreadMgr() {
-	//stop();
+	//quit();
 }
 
 void CTableThreadMgr::Init(muduo::net::EventLoop* loop, std::string const& name) {
 	if (!pool_) {
-		pool_.reset(new muduo::net::EventLoopThreadPool(ASSERT(loop), name));
+		pool_.reset(new muduo::net::EventLoopThreadPool(ASSERT_NOTNULL(loop), name));
 	}
 }
 
@@ -234,11 +234,15 @@ void CTableThreadMgr::setThreadNum(int numThreads) {
 	pool_->setThreadNum(numThreads);
 }
 
+void CTableThreadMgr::startInLoop(const muduo::net::EventLoopThreadPool::ThreadInitCallback& cb) {
+	pool_->start(cb);
+}
+
 void CTableThreadMgr::start(const muduo::net::EventLoopThreadPool::ThreadInitCallback& cb, ITableContext* tableContext) {
 	ASSERT_S(pool_, "pool is nil");
-	if (!pool_->started()) {
-		pool_->start(cb);
-
+	if (!pool_->started() && started_.getAndSet(1) == 0) {
+		RunInLoop(pool_->getBaseLoop(), std::bind(&CTableThreadMgr::startInLoop, this, cb));
+		
 		std::vector<muduo::net::EventLoop*> loops = pool_->getAllLoops();
 		for (std::vector<muduo::net::EventLoop*>::const_iterator it = loops.begin(); it != loops.end(); ++it) {
 			(*it)->setContext(LogicThreadPtr(new CTableThread(*it, tableContext)));

@@ -12,7 +12,7 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	, rpcserver_(loop, listenAddrRpc, "rpcServer")
 	, httpserver_(loop, listenAddrHttp, "httpServer")
 	, gateRpcClients_(loop)
-	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&ApiServ::threadInit, this), "EventLoopThreadTimer"))
+	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&ApiServ::threadInit, this), "ThreadTimer"))
 	, idleTimeout_(3)
 	, isdecrypt_(false)
 	, whiteListControl_(eApiCtrl::kClose)
@@ -239,9 +239,8 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	
 	//sleep(2);
 
-	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =
-		muduo::net::EventLoopThreadPool::Singleton::get();
-	std::vector<muduo::net::EventLoop*> loops = threadPool->getAllLoops();
+	std::vector<muduo::net::EventLoop*> loops;
+	muduo::net::EventLoopThreadPool::Singleton::getAllLoops(loops);
 	for (std::vector<muduo::net::EventLoop*>::const_iterator it = loops.begin();
 		it != loops.end(); ++it) {
 		(*it)->setContext(Buckets(*it, idleTimeout_, interval_));
