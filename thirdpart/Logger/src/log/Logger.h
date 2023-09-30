@@ -50,7 +50,7 @@ namespace LOGGER {
 		void init(char const* dir, char const* logname = NULL, size_t logsize = 100000000);
 		void write(int level, char const* file, int line, char const* func, char const* stack, int flag, char const* format, ...);
 		void write_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
-		void write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
+		void write_fatal_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
 		void wait();
 		void enable();
 		void disable(int delay = 0, bool sync = false);
@@ -67,9 +67,9 @@ namespace LOGGER {
 		LoggerImpl* impl_;
 	};
 	template <typename T>
-	T* FatalNotNull(int level, char const* file, int line, char const* func, char const* stack, char const* msg, T* ptr) {
+	T* FatalNotNull(int level, char const* file, int line, char const* func, char const* stack, T* ptr, char const* msg) {
 		if (ptr == NULL) {
-			::LOGGER::Logger::instance()->write_s_fatal(level, file, line, func, stack, F_DETAIL | F_SYNC, msg);
+			::LOGGER::Logger::instance()->write_fatal_s(level, file, line, func, stack, F_DETAIL | F_SYNC, msg);
 		}
 		return ptr;
 	}
@@ -78,7 +78,7 @@ namespace LOGGER {
 #define _LOG_INIT LOGGER::Logger::instance()->init
 #define _LOG LOGGER::Logger::instance()->write
 #define _LOG_S LOGGER::Logger::instance()->write_s
-#define _LOG_F LOGGER::Logger::instance()->write_s_fatal
+#define _LOG_F LOGGER::Logger::instance()->write_fatal_s
 #define _LOG_SET_TIMEZONE LOGGER::Logger::instance()->setTimezone
 #define _LOG_SET_LEVEL LOGGER::Logger::instance()->setLevel
 #define _LOG_SET_MODE LOGGER::Logger::instance()->setMode

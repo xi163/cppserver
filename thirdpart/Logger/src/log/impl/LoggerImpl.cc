@@ -442,7 +442,7 @@ namespace LOGGER {
 		write(level, file, line, func, stack, flag, "%s", msg.c_str());
 	}
 
-	void LoggerImpl::write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg) {
+	void LoggerImpl::write_fatal_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg) {
 		write(level, file, line, func, stack, flag, "%s", msg.c_str());
 		wait();
 		std::abort();

@@ -7,7 +7,7 @@
 	#define ASSERT_NOTNULL(ptr) (ptr)
 #else
 	#define ASSERT_NOTNULL(ptr) \
-		LOGGER::FatalNotNull(PARAM_FATAL, "'" #ptr "' Must be non NULL", (ptr))
+		LOGGER::FatalNotNull(PARAM_FATAL, (ptr), "'" #ptr "' Must be non NULL")
 #endif
 
 // ASSERT

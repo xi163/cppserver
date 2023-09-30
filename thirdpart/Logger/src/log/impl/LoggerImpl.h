@@ -72,7 +72,7 @@ namespace LOGGER {
 		void init(char const* dir, char const* logname, size_t logsize);
 		void write(int level, char const* file, int line, char const* func, char const* stack, int flag, char const* format, ...);
 		void write_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
-		void write_s_fatal(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
+		void write_fatal_s(int level, char const* file, int line, char const* func, char const* stack, int flag, std::string const& msg);
 		void wait();
 		void enable();
 		void disable(int delay = 0, bool sync = false);
@@ -143,9 +143,9 @@ namespace LOGGER {
 		utils::Timer timer_;
 	};
 	template <typename T>
-	T* _FatalNotNull(int level, char const* file, int line, char const* func, char const* stack, char const* msg, T* ptr) {
+	T* _FatalNotNull(int level, char const* file, int line, char const* func, char const* stack, T* ptr, char const* msg) {
 		if (ptr == NULL) {
-			::LOGGER::LoggerImpl::instance()->write_s_fatal(level, file, line, func, stack, F_DETAIL | F_SYNC, msg);
+			::LOGGER::LoggerImpl::instance()->write_fatal_s(level, file, line, func, stack, F_DETAIL | F_SYNC, msg);
 		}
 		return ptr;
 	}
@@ -154,7 +154,7 @@ namespace LOGGER {
 #define __LOG_INIT LOGGER::LoggerImpl::instance()->init
 #define __LOG LOGGER::LoggerImpl::instance()->write
 #define __LOG_S LOGGER::LoggerImpl::instance()->write_s
-#define __LOG_F LOGGER::LoggerImpl::instance()->write_s_fatal
+#define __LOG_F LOGGER::LoggerImpl::instance()->write_fatal_s
 #define __LOG_SET_TIMEZONE LOGGER::LoggerImpl::instance()->setTimezone
 #define __LOG_SET_LEVEL LOGGER::LoggerImpl::instance()->setLevel
 #define __LOG_SET_MODE LOGGER::LoggerImpl::instance()->setMode
