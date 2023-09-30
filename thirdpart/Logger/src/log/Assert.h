@@ -17,7 +17,7 @@
 	#define ASSERT(expr) \
 	  (expr) \
 	   ? __ASSERT_VOID_CAST (0) \
-	   : Fatal("ASSERT: " + std::string(#expr))
+	   : Fatal(std::string("ASSERT: ").append(#expr))
 #endif
 
 // ASSERT_S
