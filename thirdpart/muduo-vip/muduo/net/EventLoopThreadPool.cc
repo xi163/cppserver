@@ -20,6 +20,9 @@
 using namespace muduo;
 using namespace muduo::net;
 
+std::shared_ptr<EventLoopThreadPool> EventLoopThreadPool::Singleton::pool_;
+AtomicInt32 EventLoopThreadPool::Singleton::started_;
+
 void EventLoopThreadPool::Singleton::init(EventLoop* loop, std::string const& name) {
 	if (!pool_) {
 #ifdef _MUDUO_ASYNC_CONN_

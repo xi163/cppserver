@@ -30,9 +30,10 @@ protected:
 typedef std::shared_ptr<CTableThread> LogicThreadPtr;
 
 class CTableThreadMgr : public boost::serialization::singleton<CTableThreadMgr> {
+private:
+	CTableThreadMgr() = delete;
+	virtual ~CTableThreadMgr() = delete;
 public:
-	CTableThreadMgr();
-	virtual ~CTableThreadMgr();
 	void Init(muduo::net::EventLoop* loop, std::string const& name);
 
 	muduo::net::EventLoop* getNextLoop();
@@ -50,7 +51,6 @@ public:
 private:
 	void quitInLoop();
 private:
-	muduo::net::EventLoop* baseLoop_;
 	std::shared_ptr<muduo::net::EventLoopThreadPool> pool_;
 };
 

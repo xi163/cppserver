@@ -14,7 +14,7 @@ HallServ::HallServ(muduo::net::EventLoop* loop,
 	, thisTimer_(new muduo::net::EventLoopThread(std::bind(&HallServ::threadInit, this), "EventLoopThreadTimer"))
 	, ipLocator_("qqwry.dat") {
 	registerHandlers();
-	muduo::net::ReactorSingleton::init(loop, "RWIOThreadPool");
+	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
 	server_.setConnectionCallback(
 		std::bind(&HallServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
@@ -39,7 +39,7 @@ void HallServ::Quit() {
 	if (redisClient_) {
 		redisClient_->unsubscribe();
 	}
-	muduo::net::ReactorSingleton::quit();
+	muduo::net::EventLoopThreadPool::Singleton::quit();
 	server_.getLoop()->quit();
 	google::protobuf::ShutdownProtobufLibrary();
 }
@@ -430,8 +430,8 @@ bool HallServ::InitServer() {
 }
 
 void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
-	muduo::net::ReactorSingleton::setThreadNum(numThreads);
-	muduo::net::ReactorSingleton::start();
+	muduo::net::EventLoopThreadPool::Singleton::setThreadNum(numThreads);
+	muduo::net::EventLoopThreadPool::Singleton::start();
 	
 	thisTimer_->startLoop();
 	

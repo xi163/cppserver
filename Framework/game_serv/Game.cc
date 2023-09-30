@@ -27,7 +27,7 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 	, roomId_(roomId) {
 	CTableThreadMgr::get_mutable_instance().Init(loop, "TableThread");
 	registerHandlers();
-	muduo::net::ReactorSingleton::init(loop, "IOThread");
+	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
 	rpcserver_.registerService(&rpcservice_);
 	server_.setConnectionCallback(
 		std::bind(&GameServ::onConnection, this, std::placeholders::_1));
@@ -50,7 +50,7 @@ void GameServ::Quit() {
 	if (redisClient_) {
 		redisClient_->unsubscribe();
 	}
-	muduo::net::ReactorSingleton::quit();
+	muduo::net::EventLoopThreadPool::Singleton::quit();
 	server_.getLoop()->quit();
 	google::protobuf::ShutdownProtobufLibrary();
 }
@@ -269,8 +269,8 @@ bool GameServ::InitServer() {
 }
 
 void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
-	muduo::net::ReactorSingleton::setThreadNum(numThreads);
-	muduo::net::ReactorSingleton::start();
+	muduo::net::EventLoopThreadPool::Singleton::setThreadNum(numThreads);
+	muduo::net::EventLoopThreadPool::Singleton::start();
 	
 	thisThread_->startLoop();
 	thisTimer_->startLoop();

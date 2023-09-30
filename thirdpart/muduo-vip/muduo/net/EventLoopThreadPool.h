@@ -70,10 +70,10 @@ class EventLoopThreadPool : noncopyable
 
 public:
 	class Singleton : noncopyable {
-	public:
+	private:
 		Singleton() = delete;
 		~Singleton() = delete;
-
+	public:
 		static void init(EventLoop* loop, std::string const& name);
 		
 		static EventLoop* getBaseLoop();

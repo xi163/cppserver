@@ -46,10 +46,10 @@ class EventLoopThread : noncopyable
 
 public:
 	class Singleton : noncopyable {
-	public:
+	private:
 		Singleton() = delete;
 		~Singleton() = delete;
-
+	public:
 		static void init(const ThreadInitCallback& cb = ThreadInitCallback());
 
 		static EventLoop* getLoop();

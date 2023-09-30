@@ -2,7 +2,7 @@
 #define INCLUDE_ENTRYPTR_H
 
 #include "public/gameConst.h"
-#include "Logger/src/utils/Assert.h"
+#include "Logger/src/log/Assert.h"
 #include "Logger/src/log/Logger.h"
 #include "clients/Clients.h"
 #include "clients/Container.h"
@@ -53,7 +53,7 @@ typedef std::unordered_set<EntryPtr> Bucket;
 
 struct Buckets /*: public muduo::noncopyable*/ {
 	explicit Buckets(muduo::net::EventLoop* loop, size_t size, int interval)
-		: loop_(CHECK_NOTNULL(loop))
+		: loop_(ASSERT_NOTNULL(loop))
 		, interval_(interval) {
 		buckets_.resize(size);
 #ifdef _DEBUG_BUCKETS_

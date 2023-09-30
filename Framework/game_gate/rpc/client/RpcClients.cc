@@ -1,3 +1,4 @@
+#include "Logger/src/log/Assert.h"
 #include "RpcClients.h"
 
 namespace rpc {
@@ -84,7 +85,7 @@ namespace rpc {
 
 	Connector::Connector(
 		muduo::net::EventLoop* loop)
-		: loop_(CHECK_NOTNULL(loop)) {
+		: loop_(ASSERT_NOTNULL(loop)) {
 	}
 
 	Connector::~Connector() {

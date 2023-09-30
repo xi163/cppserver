@@ -1,7 +1,7 @@
 #ifndef INCLUDE_INCMUDUO_H
 #define INCLUDE_INCMUDUO_H
 
-#include <muduo/base/Logging.h>
+//#include <muduo/base/Logging.h>
 //#include <muduo/base/AsyncLogging.h>
 #include <muduo/base/noncopyable.h>
 #include <muduo/base/Exception.h>
@@ -23,7 +23,6 @@
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/TimerId.h>
-#include <muduo/net/Reactor.h>
 //#include <muduo/net/protorpc/RpcServer.h>
 //#include <muduo/net/protorpc/RpcChannel.h>
 #include <muduo/protorpc2/service.h>

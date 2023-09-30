@@ -54,9 +54,6 @@
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Poller.cc">
       <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Reactor.cc">
-      <Filter>net</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Socket.cc">
       <Filter>net</Filter>
     </ClCompile>
@@ -204,9 +201,6 @@
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Poller.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Reactor.h">
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Socket.h">
@@ -373,6 +367,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\BufferStream.h">
       <Filter>protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Define.h">
+      <Filter>net</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

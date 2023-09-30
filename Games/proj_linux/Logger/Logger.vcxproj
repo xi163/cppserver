@@ -54,6 +54,8 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\lock\impl\SpinLockImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\lock\mutex.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\lock\SpinLock.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Assert.h" />
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\AssertImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_linux.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\color_win.h" />
@@ -75,8 +77,6 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\timer\timer.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\time\time.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\track\MemTrack.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\Assert.h" />
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\assertImpl.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\backtrace.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\Console.h" />
     <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\gettimeofday.h" />
@@ -191,7 +191,7 @@
       <PositionIndependentCode>true</PositionIndependentCode>
       <CppLanguageStandard>c++11</CppLanguageStandard>
       <CLanguageStandard>c11</CLanguageStandard>
-      <AdditionalOptions>-Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable -Wno-sign-compare -Wno-return-type -Wno-switch %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable -Wno-sign-compare -Wno-return-type -Wno-switch -Wno-unknown-pragmas -Wno-varargs %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib />
   </ItemDefinitionGroup>

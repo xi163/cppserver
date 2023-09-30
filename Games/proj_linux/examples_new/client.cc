@@ -48,7 +48,7 @@ class RpcClient : noncopyable
 	Debugf("solved:\n%s", resp->DebugString().c_str());
 	client_.disconnect();
 	//loop_->quit();
-	//muduo::net::ReactorSingleton::stop();
+	//muduo::net::EventLoopThreadPool::Singleton::stop();
   }
 
   EventLoop* loop_;
@@ -65,9 +65,9 @@ int main(int argc, char* argv[])
   if (argc > 1)
   {
     EventLoop loop;
-	muduo::net::ReactorSingleton::init(&loop, "RWIOThreadPool");
-	muduo::net::ReactorSingleton::setThreadNum(2);
-	muduo::net::ReactorSingleton::start();
+	muduo::net::EventLoopThreadPool::Singleton::init(&loop, "IOThread");
+	muduo::net::EventLoopThreadPool::Singleton::setThreadNum(2);
+	muduo::net::EventLoopThreadPool::Singleton::start();
     InetAddress serverAddr(argv[1], 9981);
 
     RpcClient rpcClient(&loop, serverAddr);

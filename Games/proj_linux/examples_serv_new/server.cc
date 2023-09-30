@@ -29,9 +29,9 @@ int main()
 {
   //LOG_INFO << "pid = " << getpid();
   EventLoop loop;
-  muduo::net::ReactorSingleton::init(&loop, "RWIOThreadPool");
-  muduo::net::ReactorSingleton::setThreadNum(2);
-  muduo::net::ReactorSingleton::start();
+  muduo::net::EventLoopThreadPool::Singleton::init(&loop, "IOThread");
+  muduo::net::EventLoopThreadPool::Singleton::setThreadNum(2);
+  muduo::net::EventLoopThreadPool::Singleton::start();
   InetAddress listenAddr(9981);
   sudoku::SudokuServiceImpl impl;
   RpcServer server(&loop, listenAddr);

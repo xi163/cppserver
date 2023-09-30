@@ -26,7 +26,7 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	, ttlExpired_(30 * 60)
 	, ipLocator_("qqwry.dat") {
 	registerHandlers();
-	muduo::net::ReactorSingleton::init(loop, "RWIOThreadPool");
+	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
 	rpcserver_.registerService(&rpcservice_);
 	server_.setConnectionCallback(
 		std::bind(&ApiServ::onConnection, this, std::placeholders::_1));
@@ -68,7 +68,7 @@ void ApiServ::Quit() {
 	if (redisClient_) {
 		redisClient_->unsubscribe();
 	}
-	muduo::net::ReactorSingleton::quit();
+	muduo::net::EventLoopThreadPool::Singleton::quit();
 	server_.getLoop()->quit();
 	google::protobuf::ShutdownProtobufLibrary();
 }
@@ -206,8 +206,8 @@ bool ApiServ::InitServer() {
 }
 
 void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
-	muduo::net::ReactorSingleton::setThreadNum(numThreads);
-	muduo::net::ReactorSingleton::start();
+	muduo::net::EventLoopThreadPool::Singleton::setThreadNum(numThreads);
+	muduo::net::EventLoopThreadPool::Singleton::start();
 	
 	thisTimer_->startLoop();
 	
@@ -240,7 +240,7 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	//sleep(2);
 
 	std::shared_ptr<muduo::net::EventLoopThreadPool> threadPool =
-		muduo::net::ReactorSingleton::get();
+		muduo::net::EventLoopThreadPool::Singleton::get();
 	std::vector<muduo::net::EventLoop*> loops = threadPool->getAllLoops();
 	for (std::vector<muduo::net::EventLoop*>::const_iterator it = loops.begin();
 		it != loops.end(); ++it) {

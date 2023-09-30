@@ -139,11 +139,11 @@
     <ClInclude Include="..\..\..\thirdpart\Logger\src\generic\variant.h">
       <Filter>src\generic</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\Assert.h">
-      <Filter>src\utils</Filter>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\Assert.h">
+      <Filter>src\log</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\thirdpart\Logger\src\utils\impl\assertImpl.h">
-      <Filter>src\utils\impl</Filter>
+    <ClInclude Include="..\..\..\thirdpart\Logger\src\log\impl\AssertImpl.h">
+      <Filter>src\log\impl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

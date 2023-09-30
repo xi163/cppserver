@@ -1,3 +1,4 @@
+#include "Logger/src/log/Assert.h"
 #include "Clients.h"
 
 TcpClient::TcpClient(
@@ -74,7 +75,7 @@ void TcpClient::onMessage(
 
 Connector::Connector(
 	muduo::net::EventLoop* loop)
-	: loop_(CHECK_NOTNULL(loop)) {
+	: loop_(ASSERT_NOTNULL(loop)) {
 }
 
 Connector::~Connector() {

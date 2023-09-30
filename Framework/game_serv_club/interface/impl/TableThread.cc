@@ -1,4 +1,5 @@
 #include "Logger/src/log/Logger.h"
+#include "Logger/src/utils/Assert.h"
 #include "public/gameConst.h"
 
 #include "TableThread.h"
@@ -7,10 +8,10 @@
 #include "RobotMgr.h"
 
 CTableThread::CTableThread(muduo::net::EventLoop* loop, ITableContext* tableContext)
-	: loop_(CHECK_NOTNULL(loop))
-	, tableContext_(CHECK_NOTNULL(tableContext)) {
-	CHECK_NOTNULL(tableContext_->GetGameInfo());
-	CHECK_NOTNULL(tableContext_->GetRoomInfo());
+	: loop_(ASSERT(loop))
+	, tableContext_(ASSERT(tableContext)) {
+	ASSERT(tableContext_->GetGameInfo());
+	ASSERT(tableContext_->GetRoomInfo());
 }
 
 CTableThread::~CTableThread() {
@@ -204,8 +205,7 @@ void CTableThread::hourtimer(tagGameRoomInfo* roomInfo) {
 	}
 }
 
-CTableThreadMgr::CTableThreadMgr()
-	: baseLoop_(NULL) {
+CTableThreadMgr::CTableThreadMgr() {
 }
 
 CTableThreadMgr::~CTableThreadMgr() {
@@ -214,8 +214,7 @@ CTableThreadMgr::~CTableThreadMgr() {
 
 void CTableThreadMgr::Init(muduo::net::EventLoop* loop, std::string const& name) {
 	if (!pool_) {
-		pool_.reset(new muduo::net::EventLoopThreadPool(CHECK_NOTNULL(loop), name));
-		baseLoop_ = loop;
+		pool_.reset(new muduo::net::EventLoopThreadPool(ASSERT(loop), name));
 	}
 }
 
@@ -268,9 +267,8 @@ void CTableThreadMgr::startCheckUserIn(ITableContext* tableContext) {
 
 void CTableThreadMgr::quit() {
 	ASSERT_S(pool_, "pool is nil");
-	ASSERT_S(baseLoop_, "loop is nil");
 	if (pool_->started()) {
-		RunInLoop(baseLoop_, std::bind(&CTableThreadMgr::quitInLoop, this));
+		RunInLoop(pool_->getBaseLoop(), std::bind(&CTableThreadMgr::quitInLoop, this));
 	}
 }
 

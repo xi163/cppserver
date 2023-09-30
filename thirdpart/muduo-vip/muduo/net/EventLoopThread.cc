@@ -15,6 +15,9 @@
 using namespace muduo;
 using namespace muduo::net;
 
+std::shared_ptr<EventLoopThread> EventLoopThread::Singleton::thread_;
+AtomicInt32 EventLoopThread::Singleton::started_;
+
 void EventLoopThread::Singleton::init(const EventLoopThread::ThreadInitCallback& cb) {
 	if (!thread_) {
 		thread_.reset(new EventLoopThread(cb, "connThread"));
