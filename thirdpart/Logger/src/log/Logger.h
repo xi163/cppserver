@@ -66,6 +66,13 @@ namespace LOGGER {
 	private:
 		LoggerImpl* impl_;
 	};
+	template <typename T>
+	T* FatalNotNull(int level, char const* file, int line, char const* func, char const* stack, char const* msg, T* ptr) {
+		if (ptr == NULL) {
+			::LOGGER::Logger::instance()->write_s_fatal(level, file, line, func, stack, F_DETAIL | F_SYNC, msg);
+		}
+		return ptr;
+	}
 }
 
 #define _LOG_INIT LOGGER::Logger::instance()->init

@@ -142,6 +142,13 @@ namespace LOGGER {
 		std::atomic_flag isDoing_{ ATOMIC_FLAG_INIT };
 		utils::Timer timer_;
 	};
+	template <typename T>
+	T* _FatalNotNull(int level, char const* file, int line, char const* func, char const* stack, char const* msg, T* ptr) {
+		if (ptr == NULL) {
+			::LOGGER::LoggerImpl::instance()->write_s_fatal(level, file, line, func, stack, F_DETAIL | F_SYNC, msg);
+		}
+		return ptr;
+	}
 }
 
 #define __LOG_INIT LOGGER::LoggerImpl::instance()->init

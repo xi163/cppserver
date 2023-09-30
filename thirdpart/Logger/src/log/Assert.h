@@ -3,16 +3,6 @@
 
 #include "Logger/src/log/Logger.h"
 
-namespace LOGGER {
-	template <typename T>
-	T* FatalNotNull(int level, char const* file, int line, char const* func, char const* stack, char const* names, T* ptr) {
-		if (ptr == NULL) {
-			::LOGGER::Logger::instance()->write_s_fatal(level, file, line, func, stack, F_DETAIL | F_SYNC, names);
-		}
-		return ptr;
-	}
-}
-
 #ifdef NDEBUG
 	#define ASSERT_NOTNULL(ptr) (ptr)
 #else
