@@ -15,28 +15,29 @@
 using namespace muduo;
 using namespace muduo::net;
 
-void EventLoopThread::Singleton::init(const ThreadInitCallback& cb) {
-	if (!accept_) {
-		accept_.reset(new EventLoopThread(cb, "acceptThread"));
+void EventLoopThread::Singleton::init(const EventLoopThread::ThreadInitCallback& cb) {
+	if (!thread_) {
+		thread_.reset(new EventLoopThread(cb, "connThread"));
 	}
 }
 
-EventLoop* EventLoopThread::Singleton::getAcceptLoop() {
-	ASSERT_S(accept_, "accept thread is nil");
-	return accept_->getLoop();
+EventLoop* EventLoopThread::Singleton::getLoop() {
+	ASSERT_S(thread_, "connThread is nil");
+	return thread_->getLoop();
 }
 
 void EventLoopThread::Singleton::start() {
 	if (started_.getAndSet(1) == 0) {
-        ASSERT_S(accept_, "accept thread is nil");
-		accept_->startLoop();
+        ASSERT_S(thread_, "connThread is nil");
+		thread_->startLoop();
 	}
 }
 
 void EventLoopThread::Singleton::quit() {
     if (started_.getAndSet(0) == 1) {
-        ASSERT_S(accept_, "accept thread is nil");
-        accept_->quit();
+        ASSERT_S(thread_, "connThread is nil");
+        ASSERT_S(thread_->getLoop(), "connThread::getLoop is nil");
+        thread_->getLoop()->quit();
     }
 }
 

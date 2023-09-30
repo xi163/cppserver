@@ -10,6 +10,7 @@
 
 #include "muduo/base/Logging.h"
 #include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThread.h"
 #include "muduo/net/EventLoopThreadPool.h"
 #include "muduo/net/InetAddress.h"
 #include "muduo/net/SocketsOps.h"
@@ -65,8 +66,7 @@ void Acceptor::handleRead(int events)
       {
           // string hostport = peerAddr.toIpPort();
           // LOG_TRACE << "Accepts of " << hostport;
-#ifdef _MUDUO_ACCEPT_CONNPOOL_
-          //The IO threads is shared with the accept threads
+#ifdef _MUDUO_ASYNC_CONN_POOL_
 		  EventLoop* loop = EventLoopThreadPool::Singleton::getNextLoop_safe();
 		  RunInLoop(loop, std::bind([this](int connfd, InetAddress const& peerAddr, EventLoop* loop) {
 			  if (conditionCallback_ && !conditionCallback_(peerAddr))
@@ -82,9 +82,8 @@ void Acceptor::handleRead(int events)
 				  sockets::close(connfd);
 			  }
 		  }, connfd, peerAddr, loop));
-#elif defined(_MUDUO_ACCEPT_CONNASYN_)
-          //Asynchronous accept thread
-		  RunInLoop(EventLoopThread::Singleton::getAcceptLoop(), std::bind([this](int connfd, InetAddress const& peerAddr) {
+#elif defined(_MUDUO_ASYNC_CONN_)
+		  RunInLoop(EventLoopThread::Singleton::getLoop(), std::bind([this](int connfd, InetAddress const& peerAddr) {
 			  if (conditionCallback_ && !conditionCallback_(peerAddr))
 			  {
 				  sockets::close(connfd);

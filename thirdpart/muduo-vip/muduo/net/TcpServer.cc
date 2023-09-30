@@ -11,6 +11,7 @@
 #include "muduo/base/Logging.h"
 #include "muduo/net/Acceptor.h"
 #include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThread.h"
 #include "muduo/net/EventLoopThreadPool.h"
 #include "muduo/net/SocketsOps.h"
 
@@ -34,7 +35,7 @@ TcpServer::TcpServer(EventLoop* loop,
     ssl_ctx_(NULL)
 {
   EventLoopThreadPool::Singleton::init(loop, name_);
-#ifdef _MUDUO_ACCEPT_CONNPOOL_
+#ifdef _MUDUO_ASYNC_CONN_POOL_
   acceptor_->setNewConnectionCallback(
 	  std::bind(&TcpServer::newConnection, this, _1, _2, _3));
 #else
@@ -80,8 +81,8 @@ void TcpServer::start(bool et)
   }
 }
 
-#ifdef _MUDUO_ACCEPT_CONNPOOL_
-//The IO threads is shared with the accept threads
+#ifdef _MUDUO_ASYNC_CONN_POOL_
+
 void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr, EventLoop* ioLoop) {
 	ioLoop->assertInLoopThread();
 	char buf[64];
@@ -144,10 +145,10 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
 		std::bind(&TcpConnection::connectDestroyed, conn));
 }
 
-#elif defined(_MUDUO_ACCEPT_CONNASYN_)
-//Asynchronous accept thread
+#elif defined(_MUDUO_ASYNC_CONN_)
+
 void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr) {
-	EventLoopThread::Singleton::getAcceptLoop()->assertInLoopThread();
+	EventLoopThread::Singleton::getLoop()->assertInLoopThread();
 	EventLoop* ioLoop = EventLoopThreadPool::Singleton::getNextLoop();//threadPool_->getNextLoop();
 	char buf[64];
 	snprintf(buf, sizeof buf, "-%s#%d", ipPort_.c_str(), nextConnId_);
@@ -179,11 +180,11 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr) {
 void TcpServer::removeConnection(const TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	// FIXME: unsafe
-	RunInLoop(EventLoopThread::Singleton::getAcceptLoop(), std::bind(&TcpServer::removeConnectionInLoop, this, conn));
+	RunInLoop(EventLoopThread::Singleton::getLoop(), std::bind(&TcpServer::removeConnectionInLoop, this, conn));
 }
 
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
-	EventLoopThread::Singleton::getAcceptLoop()->assertInLoopThread();
+	EventLoopThread::Singleton::getLoop()->assertInLoopThread();
 	//LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
 	//         << "] - connection " << conn->name();
 	//////////////////////////////////////////////////////////////////////////

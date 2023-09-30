@@ -10,8 +10,10 @@
 
 //#define _MUDUO_OPTIMIZE_CHNANNEL_
 
-//The IO threads is shared with the accept threads
-//#define _MUDUO_ACCEPT_CONNPOOL_
+//The IO threads is shared with the accept/connect threads
+//#define _MUDUO_ASYNC_CONN_POOL_
 
-//Asynchronous accept thread
-#define _MUDUO_ACCEPT_CONNASYN_
+//Asynchronous accept/connect thread
+#ifndef _MUDUO_ASYNC_CONN_
+#define _MUDUO_ASYNC_CONN_
+#endif

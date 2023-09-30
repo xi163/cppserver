@@ -11,6 +11,8 @@
 #ifndef MUDUO_NET_TCPCLIENT_H
 #define MUDUO_NET_TCPCLIENT_H
 
+#include "muduo/net/Define.h"
+
 #include "muduo/base/Mutex.h"
 #include "muduo/net/TcpConnection.h"
 
@@ -20,6 +22,10 @@ namespace net
 {
 
 class Connector;
+//class EventLoop;
+//class EventLoopThreadPool;
+//class InetAddress;
+
 typedef std::shared_ptr<Connector> ConnectorPtr;
 
 class TcpClient : noncopyable
@@ -37,12 +43,12 @@ class TcpClient : noncopyable
   void disconnect();
   void stop();
 
-  TcpConnectionPtr connection() const
-  {
-    //MutexLockGuard lock(mutex_);
-    loop_->assertInLoopThread();
-    return connection_;
-  }
+  TcpConnectionPtr connection() const;
+  //{
+  //  //MutexLockGuard lock(mutex_);
+  //  loop_->assertInLoopThread();
+  //  return connection_;
+  //}
 
   EventLoop* getLoop() const { return loop_; }
   bool retry() const { return retry_; }
@@ -68,7 +74,11 @@ class TcpClient : noncopyable
 
  private:
   /// Not thread safe, but in loop
+#ifdef _MUDUO_ASYNC_CONN_POOL_
+  void newConnection(int sockfd, EventLoop* loop);
+#else
   void newConnection(int sockfd);
+#endif
   /// Not thread safe, but in loop
   void removeConnection(const TcpConnectionPtr& conn);
   /// Not thread safe, but in loop
@@ -86,8 +96,13 @@ class TcpClient : noncopyable
   bool connect_; // atomic
   // always in loop thread
   int nextConnId_;
+#ifdef _MUDUO_ASYNC_CONN_POOL_
+  mutable MutexLock mutex_;
+  TcpConnectionPtr connection_ GUARDED_BY(mutex_);
+#else
   //mutable MutexLock mutex_;
   TcpConnectionPtr connection_ /*GUARDED_BY(mutex_)*/;
+#endif
 };
 
 }  // namespace net

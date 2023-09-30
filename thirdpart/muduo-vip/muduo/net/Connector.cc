@@ -12,6 +12,8 @@
 #include "muduo/base/Logging.h"
 #include "muduo/net/Channel.h"
 #include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThread.h"
+#include "muduo/net/EventLoopThreadPool.h"
 #include "muduo/net/SocketsOps.h"
 
 #include <errno.h>
@@ -183,7 +185,18 @@ void Connector::handleWrite()
       setState(kConnected);
       if (connect_)
       {
+#ifdef _MUDUO_ASYNC_CONN_POOL_
+          EventLoop* loop = EventLoopThreadPool::Singleton::getNextLoop_safe();
+		  RunInLoop(loop, std::bind([this](int sockfd, EventLoop* loop) {
+			  newConnectionCallback_(sockfd, loop);
+		  }, sockfd, loop));
+#elif defined(_MUDUO_ASYNC_CONN_)
+		  RunInLoop(EventLoopThread::Singleton::getLoop(), std::bind([this](int sockfd) {
+              newConnectionCallback_(sockfd);
+	      }, sockfd));
+#else
         newConnectionCallback_(sockfd);
+#endif
       }
       else
       {

@@ -11,6 +11,8 @@
 #ifndef MUDUO_NET_CONNECTOR_H
 #define MUDUO_NET_CONNECTOR_H
 
+#include "muduo/net/Define.h"
+
 #include "muduo/base/noncopyable.h"
 #include "muduo/net/InetAddress.h"
 
@@ -24,13 +26,19 @@ namespace net
 
 class Channel;
 class EventLoop;
+//class EventLoopThread;
+//class EventLoopThreadPool;
+//class InetAddress;
 
 class Connector : noncopyable,
                   public std::enable_shared_from_this<Connector>
 {
  public:
+#ifdef _MUDUO_ASYNC_CONN_POOL_
+  typedef std::function<void(int sockfd, EventLoop*)> NewConnectionCallback;
+#else
   typedef std::function<void (int sockfd)> NewConnectionCallback;
-
+#endif
   Connector(EventLoop* loop, const InetAddress& serverAddr);
   ~Connector();
 

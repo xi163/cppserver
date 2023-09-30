@@ -1,3 +1,5 @@
+#include <muduo/net/EventLoop.h>
+
 #include <libwebsocket/websocket.h>
 //#include <libwebsocket/ssl.h>
 #include <muduo/net/websocket/context.h>

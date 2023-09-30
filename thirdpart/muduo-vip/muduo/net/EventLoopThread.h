@@ -52,13 +52,13 @@ public:
 
 		static void init(const ThreadInitCallback& cb = ThreadInitCallback());
 
-		static EventLoop* getAcceptLoop();
+		static EventLoop* getLoop();
 
 		static void start();
 
 		static void quit();
 	private:
-		static std::shared_ptr <EventLoopThread> accept_;
+		static std::shared_ptr <EventLoopThread> thread_;
 		static AtomicInt32 started_;
 	};
 };

@@ -12,12 +12,11 @@
 #include "muduo/base/Logging.h"
 #include "muduo/net/Connector.h"
 #include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThread.h"
 #include "muduo/net/EventLoopThreadPool.h"
 #include "muduo/net/SocketsOps.h"
 
 #include <stdio.h>  // snprintf
-
-#include "muduo/net/Define.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -99,8 +98,13 @@ TcpClient::TcpClient(EventLoop* loop,
     connect_(true),
     nextConnId_(1)
 {
+#ifdef _MUDUO_ASYNC_CONN_POOL_
+  connector_->setNewConnectionCallback(
+	  std::bind(&TcpClient::newConnection, this, _1, _2));
+#else
   connector_->setNewConnectionCallback(
       std::bind(&TcpClient::newConnection, this, _1));
+#endif
   // FIXME setConnectFailedCallback
   //LOG_INFO << "TcpClient::TcpClient[" << name_
   //         << "] - connector " << get_pointer(connector_);
@@ -137,6 +141,13 @@ TcpClient::~TcpClient()
 //     // FIXME: HACK
 //     loop_->runAfter(1, std::bind(&detail::removeConnector, connector_));
 //   }
+}
+
+TcpConnectionPtr TcpClient::connection() const
+{
+  //MutexLockGuard lock(mutex_);
+  loop_->assertInLoopThread();
+  return connection_;
 }
 
 void TcpClient::connect()
@@ -178,14 +189,129 @@ void TcpClient::stop()
   connector_->stop();
 }
 
+#ifdef _MUDUO_ASYNC_CONN_POOL_
+
+void TcpClient::newConnection(int sockfd, EventLoop* ioLoop) {
+	ioLoop->assertInLoopThread();
+	InetAddress peerAddr(sockets::getPeerAddr(sockfd));
+	char buf[32];
+	snprintf(buf, sizeof buf, ":%s#%d", peerAddr.toIpPort().c_str(), nextConnId_);
+	++nextConnId_;
+	string connName = name_ + buf;
+
+	InetAddress localAddr(sockets::getLocalAddr(sockfd));
+	// FIXME poll with zero timeout to double confirm the new connection
+	// FIXME use make_shared if necessary
+	TcpConnectionPtr conn(new TcpConnection(ioLoop/*loop_*/,
+		connName,
+		sockfd,
+		localAddr,
+		peerAddr));
+	{
+		MutexLockGuard lock(mutex_);
+		connection_ = conn;
+	}
+	conn->setConnectionCallback(connectionCallback_);
+	conn->setMessageCallback(messageCallback_);
+	conn->setWriteCompleteCallback(writeCompleteCallback_);
+	conn->setCloseCallback(
+		std::bind(&TcpClient::removeConnection, this, _1)); // FIXME: unsafe
+	//conn->connectEstablished();
+	RunInLoop(ioLoop, std::bind(&TcpConnection::connectEstablished, conn));
+}
+
+void TcpClient::removeConnection(const TcpConnectionPtr& conn) {
+	conn->getLoop()->assertInLoopThread();
+	// FIXME: unsafe
+	RunInLoop(conn->getLoop(), std::bind(&TcpClient::removeConnectionInLoop, this, conn));
+}
+
+void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn) {
+	conn->getLoop()->assertInLoopThread();
+	{
+		MutexLockGuard lock(mutex_);
+		assert(connection_ == conn);
+		connection_.reset();
+	}
+	EventLoop* ioLoop = conn->getLoop();
+	QueueInLoop(/*loop_*/ioLoop,
+		std::bind(&TcpConnection::connectDestroyed, conn));
+	if (retry_ && connect_)
+	{
+		//LOG_WARN << "TcpClient::connect[" << name_ << "] - Reconnecting to "
+		//         << connector_->serverAddress().toIpPort();
+
+		//maybe that connector_->restart after TcpClient::dtor
+		RunInLoop(loop_, std::bind(&Connector::restart, connector_));
+	}
+}
+
+#elif defined(_MUDUO_ASYNC_CONN_)
+
+void TcpClient::newConnection(int sockfd) {
+	EventLoopThread::Singleton::getLoop()->assertInLoopThread();
+	EventLoop* ioLoop = EventLoopThreadPool::Singleton::getNextLoop();
+	InetAddress peerAddr(sockets::getPeerAddr(sockfd));
+	char buf[32];
+	snprintf(buf, sizeof buf, ":%s#%d", peerAddr.toIpPort().c_str(), nextConnId_);
+	++nextConnId_;
+	string connName = name_ + buf;
+
+	InetAddress localAddr(sockets::getLocalAddr(sockfd));
+	// FIXME poll with zero timeout to double confirm the new connection
+	// FIXME use make_shared if necessary
+	TcpConnectionPtr conn(new TcpConnection(ioLoop/*loop_*/,
+											connName,
+											sockfd,
+											localAddr,
+											peerAddr));
+	{
+		//MutexLockGuard lock(mutex_);
+		connection_ = conn;
+	}
+	conn->setConnectionCallback(connectionCallback_);
+	conn->setMessageCallback(messageCallback_);
+	conn->setWriteCompleteCallback(writeCompleteCallback_);
+	conn->setCloseCallback(
+		std::bind(&TcpClient::removeConnection, this, _1)); // FIXME: unsafe
+	//conn->connectEstablished();
+	RunInLoop(ioLoop, std::bind(&TcpConnection::connectEstablished, conn));
+}
+
+void TcpClient::removeConnection(const TcpConnectionPtr& conn)
+{
+	conn->getLoop()->assertInLoopThread();
+	// FIXME: unsafe
+	RunInLoop(EventLoopThread::Singleton::getLoop(), std::bind(&TcpClient::removeConnectionInLoop, this, conn));
+}
+
+void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn)
+{
+	EventLoopThread::Singleton::getLoop()->assertInLoopThread();
+	{
+		//MutexLockGuard lock(mutex_);
+		assert(connection_ == conn);
+		connection_.reset();
+	}
+	EventLoop* ioLoop = conn->getLoop();
+	QueueInLoop(/*loop_*/ioLoop,
+		std::bind(&TcpConnection::connectDestroyed, conn));
+	if (retry_ && connect_)
+	{
+		//LOG_WARN << "TcpClient::connect[" << name_ << "] - Reconnecting to "
+		//         << connector_->serverAddress().toIpPort();
+
+		//maybe that connector_->restart after TcpClient::dtor
+		RunInLoop(loop_, std::bind(&Connector::restart, connector_));
+	}
+}
+
+#else
+
 void TcpClient::newConnection(int sockfd)
 {
   loop_->assertInLoopThread();
-#ifdef _MUDUO_ACCEPT_CONNPOOL_
-  EventLoop* ioLoop = EventLoopThreadPool::Singleton::getNextLoop_safe();
-#else
   EventLoop* ioLoop = EventLoopThreadPool::Singleton::getNextLoop();
-#endif
   InetAddress peerAddr(sockets::getPeerAddr(sockfd));
   char buf[32];
   snprintf(buf, sizeof buf, ":%s#%d", peerAddr.toIpPort().c_str(), nextConnId_);
@@ -243,3 +369,4 @@ void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn)
   }
 }
 
+#endif

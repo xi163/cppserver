@@ -13,10 +13,10 @@
 
 #include <functional>
 
+#include "muduo/net/Define.h"
+
 #include "muduo/net/Channel.h"
 #include "muduo/net/Socket.h"
-
-#include "muduo/net/Define.h"
 
 namespace muduo
 {
@@ -24,6 +24,8 @@ namespace net
 {
 
 class EventLoop;
+//class EventLoopThread;
+//class EventLoopThreadPool;
 class InetAddress;
 
 ///
@@ -33,7 +35,7 @@ class Acceptor : noncopyable
 {
  public:
   typedef std::function<bool(const InetAddress&)> ConditionCallback;
-#ifdef _MUDUO_ACCEPT_CONNPOOL_
+#ifdef _MUDUO_ASYNC_CONN_POOL_
   typedef std::function<void (int sockfd, const InetAddress&, EventLoop*)> NewConnectionCallback;
 #else
   typedef std::function<void(int sockfd, const InetAddress&)> NewConnectionCallback;

@@ -11,14 +11,14 @@
 #ifndef MUDUO_NET_TCPSERVER_H
 #define MUDUO_NET_TCPSERVER_H
 
+#include "muduo/net/Define.h"
+
 #include "muduo/base/Atomic.h"
 #include "muduo/base/Types.h"
 #include "muduo/net/TcpConnection.h"
 
 #include <map>
 #include <openssl/ssl.h>
-
-#include "muduo/net/Define.h"
 
 namespace muduo
 {
@@ -27,8 +27,9 @@ namespace net
 
 class Acceptor;
 class EventLoop;
-class EventLoopThreadPool;
-class InetAddress;
+//class EventLoopThread;
+//class EventLoopThreadPool;
+//class InetAddress;
 
 ///
 /// TCP server, supports single-threaded and thread-pool models.
@@ -101,7 +102,7 @@ class TcpServer : noncopyable
 
  private:
   /// Not thread safe, but in loop
-#ifdef _MUDUO_ACCEPT_CONNPOOL_
+#ifdef _MUDUO_ASYNC_CONN_POOL_
   void newConnection(int sockfd, const InetAddress& peerAddr, EventLoop* loop);
 #else
   void newConnection(int sockfd, const InetAddress& peerAddr);
@@ -127,7 +128,7 @@ class TcpServer : noncopyable
   AtomicInt32 started_;
   // always in loop thread
   int nextConnId_;
-#ifdef _MUDUO_ACCEPT_CONNPOOL_
+#ifdef _MUDUO_ASYNC_CONN_POOL_
   mutable MutexLock mutex_;
   ConnectionMap connections_ GUARDED_BY(mutex_);
 #else

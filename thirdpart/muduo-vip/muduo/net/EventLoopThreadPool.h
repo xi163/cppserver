@@ -38,7 +38,7 @@ class EventLoopThreadPool : noncopyable
   void setThreadNum(int numThreads) { numThreads_ = numThreads; }
   void start(const ThreadInitCallback& cb = ThreadInitCallback());
   
-  EventLoop* getBaseLoop();
+  EventLoop* getBaseLoop() { return baseLoop_; }
   
   // valid after calling start()
   /// round-robin
@@ -79,7 +79,9 @@ public:
 		static EventLoop* getBaseLoop();
 		
 		static EventLoop* getNextLoop();
-
+		
+		static EventLoop* getNextLoop_safe();
+		
 		static std::shared_ptr<EventLoopThreadPool> get();
 
 		static void setThreadNum(int numThreads);

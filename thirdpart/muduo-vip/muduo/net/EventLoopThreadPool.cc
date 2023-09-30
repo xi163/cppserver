@@ -22,12 +22,12 @@ using namespace muduo::net;
 
 void EventLoopThreadPool::Singleton::init(EventLoop* loop, std::string const& name) {
 	if (!pool_) {
-#ifdef _MUDUO_ACCEPT_CONNASYN_
+#ifdef _MUDUO_ASYNC_CONN_
 		EventLoopThread::Singleton::init();
 		EventLoopThread::Singleton::start();
-		pool_.reset(new EventLoopThreadPool(CHECK_NOTNULL(EventLoopThread::Singleton::getAcceptLoop()), name));
+		pool_.reset(new EventLoopThreadPool(ASSERT_NOTNULL(EventLoopThread::Singleton::getLoop()), name));
 #else
-		pool_.reset(new EventLoopThreadPool(CHECK_NOTNULL(loop), name));
+		pool_.reset(new EventLoopThreadPool(ASSERT_NOTNULL(loop), name));
 #endif
 	}
 }
@@ -47,6 +47,11 @@ EventLoop* EventLoopThreadPool::Singleton::getNextLoop() {
 	return pool_->getNextLoop();
 }
 
+EventLoop* EventLoopThreadPool::Singleton::getNextLoop_safe() {
+	ASSERT_S(pool_, "pool is nil");
+	return pool_->getNextLoop_safe();
+}
+
 void EventLoopThreadPool::Singleton::setThreadNum(int numThreads) {
 	ASSERT_S(pool_, "pool is nil");
 	ASSERT_V(numThreads > 0, "numThreads:%d", numThreads);
@@ -60,14 +65,14 @@ void EventLoopThreadPool::Singleton::start(const EventLoopThreadPool::ThreadInit
 	}
 }
 
-static void EventLoopThreadPool::Singleton::quitInLoop() {
+void EventLoopThreadPool::Singleton::quitInLoop() {
 	std::vector<EventLoop*> loops = pool_->getAllLoops();
 	for (std::vector<EventLoop*>::iterator it = loops.begin();
 		it != loops.end(); ++it) {
 		(*it)->quit();
 	}
 	pool_.reset();
-#ifdef _MUDUO_ACCEPT_CONNASYN_
+#ifdef _MUDUO_ASYNC_CONN_
 	EventLoopThread::Singleton::quit();
 #endif
 }
