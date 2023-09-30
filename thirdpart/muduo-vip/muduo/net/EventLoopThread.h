@@ -43,6 +43,24 @@ class EventLoopThread : noncopyable
   MutexLock mutex_;
   Condition cond_ GUARDED_BY(mutex_);
   ThreadInitCallback callback_;
+
+public:
+	class Singleton : noncopyable {
+	public:
+		Singleton() = delete;
+		~Singleton() = delete;
+
+		static void init(const ThreadInitCallback& cb = ThreadInitCallback());
+
+		static EventLoop* getAcceptLoop();
+
+		static void start();
+
+		static void quit();
+	private:
+		static std::shared_ptr <EventLoopThread> accept_;
+		static AtomicInt32 started_;
+	};
 };
 
 }  // namespace net

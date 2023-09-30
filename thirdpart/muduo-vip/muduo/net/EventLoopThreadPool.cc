@@ -13,15 +13,78 @@
 
 #include <stdio.h>
 
+#include "Logger/src/utils/Assert.h"
+
+#include "muduo/net/Define.h"
+
 using namespace muduo;
 using namespace muduo::net;
+
+void EventLoopThreadPool::Singleton::init(EventLoop* loop, std::string const& name) {
+	if (!pool_) {
+#ifdef _MUDUO_ACCEPT_CONNASYN_
+		EventLoopThread::Singleton::init();
+		EventLoopThread::Singleton::start();
+		pool_.reset(new EventLoopThreadPool(CHECK_NOTNULL(EventLoopThread::Singleton::getAcceptLoop()), name));
+#else
+		pool_.reset(new EventLoopThreadPool(CHECK_NOTNULL(loop), name));
+#endif
+	}
+}
+
+std::shared_ptr<EventLoopThreadPool> EventLoopThreadPool::Singleton::get() {
+	ASSERT_S(pool_, "pool is nil");
+	return pool_;
+}
+
+EventLoop* EventLoopThreadPool::Singleton::getBaseLoop() {
+	ASSERT_S(pool_, "pool is nil");
+	return pool_->getBaseLoop();
+}
+
+EventLoop* EventLoopThreadPool::Singleton::getNextLoop() {
+	ASSERT_S(pool_, "pool is nil");
+	return pool_->getNextLoop();
+}
+
+void EventLoopThreadPool::Singleton::setThreadNum(int numThreads) {
+	ASSERT_S(pool_, "pool is nil");
+	ASSERT_V(numThreads > 0, "numThreads:%d", numThreads);
+	pool_->setThreadNum(numThreads);
+}
+
+void EventLoopThreadPool::Singleton::start(const EventLoopThreadPool::ThreadInitCallback& cb) {
+	if (started_.getAndSet(1) == 0) {
+		assert(pool_);
+		pool_->start(cb);
+	}
+}
+
+static void EventLoopThreadPool::Singleton::quitInLoop() {
+	std::vector<EventLoop*> loops = pool_->getAllLoops();
+	for (std::vector<EventLoop*>::iterator it = loops.begin();
+		it != loops.end(); ++it) {
+		(*it)->quit();
+	}
+	pool_.reset();
+#ifdef _MUDUO_ACCEPT_CONNASYN_
+	EventLoopThread::Singleton::quit();
+#endif
+}
+
+void EventLoopThreadPool::Singleton::quit() {
+	ASSERT_S(pool_, "pool is nil");
+	if (pool_->started()) {
+		RunInLoop(pool_->getBaseLoop(), std::bind(&EventLoopThreadPool::Singleton::quitInLoop));
+	}
+}
 
 EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop, const string& nameArg)
   : baseLoop_(baseLoop),
     name_(nameArg),
     started_(false),
-    numThreads_(0)//,
-    //next_(0)
+    numThreads_(0),
+    next_(0)
 {
 }
 
@@ -53,7 +116,6 @@ void EventLoopThreadPool::start(const ThreadInitCallback& cb)
 
 EventLoop* EventLoopThreadPool::getNextLoop()
 {
-#if 0
   baseLoop_->assertInLoopThread();
   assert(started_);
   EventLoop* loop = baseLoop_;
@@ -68,27 +130,30 @@ EventLoop* EventLoopThreadPool::getNextLoop()
       next_ = 0;
     }
   }
-#else
+  return loop;
+}
+
+EventLoop* EventLoopThreadPool::getNextLoop_safe()
+{
 	assert(started_);
 	EventLoop* loop = baseLoop_;
 	if (!loops_.empty())
 	{
 #if 0
-        loop = loops_[next_.getAndAdd(1)];
-		if (implicit_cast<size_t>(next_.get()) >= loops_.size()) {
-            next_.getAndSet(0);
+		loop = loops_[atomic_next_.getAndAdd(1)];
+		if (implicit_cast<size_t>(atomic_next_.get()) >= loops_.size()) {
+            atomic_next_.getAndSet(0);
 		}
 #else
-		int index = next_.getAndAdd(1) % loops_.size();
+		int index = atomic_next_.getAndAdd(1) % loops_.size();
 		if (index < 0) {
-            next_.getAndSet(0);
-			index = next_.getAndAdd(1);
+            atomic_next_.getAndSet(0);
+			index = atomic_next_.getAndAdd(1);
 		}
-        loop = loops_[index];
+		loop = loops_[index];
 #endif
-    }
-#endif
-  return loop;
+	}
+	return loop;
 }
 
 EventLoop* EventLoopThreadPool::getLoopForHash(size_t hashCode)

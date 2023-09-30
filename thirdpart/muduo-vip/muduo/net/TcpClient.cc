@@ -12,9 +12,12 @@
 #include "muduo/base/Logging.h"
 #include "muduo/net/Connector.h"
 #include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThreadPool.h"
 #include "muduo/net/SocketsOps.h"
 
 #include <stdio.h>  // snprintf
+
+#include "muduo/net/Define.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -178,7 +181,11 @@ void TcpClient::stop()
 void TcpClient::newConnection(int sockfd)
 {
   loop_->assertInLoopThread();
-  EventLoop* ioLoop = ReactorSingleton::getNextLoop();
+#ifdef _MUDUO_ACCEPT_CONNPOOL_
+  EventLoop* ioLoop = EventLoopThreadPool::Singleton::getNextLoop_safe();
+#else
+  EventLoop* ioLoop = EventLoopThreadPool::Singleton::getNextLoop();
+#endif
   InetAddress peerAddr(sockets::getPeerAddr(sockfd));
   char buf[32];
   snprintf(buf, sizeof buf, ":%s#%d", peerAddr.toIpPort().c_str(), nextConnId_);

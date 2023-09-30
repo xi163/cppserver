@@ -14,12 +14,11 @@
 #include "muduo/base/Atomic.h"
 #include "muduo/base/Types.h"
 #include "muduo/net/TcpConnection.h"
-#include "muduo/net/Reactor.h"
 
 #include <map>
 #include <openssl/ssl.h>
 
-#define _MUDUO_ACCEPT_CONNPOOL_
+#include "muduo/net/Define.h"
 
 namespace muduo
 {
@@ -75,7 +74,7 @@ class TcpServer : noncopyable
 
   /// valid after calling start()
   //std::shared_ptr<EventLoopThreadPool> threadPool()
-  //{ return ReactorSingleton::get();/*threadPool_;*/ }
+  //{ return EventLoopThreadPool::Singleton::get();/*threadPool_;*/ }
 
   /// Starts the server if it's not listening.
   ///
@@ -102,10 +101,10 @@ class TcpServer : noncopyable
 
  private:
   /// Not thread safe, but in loop
-#ifndef _MUDUO_ACCEPT_CONNPOOL_
-  void newConnection(int sockfd, const InetAddress& peerAddr);
-#else
+#ifdef _MUDUO_ACCEPT_CONNPOOL_
   void newConnection(int sockfd, const InetAddress& peerAddr, EventLoop* loop);
+#else
+  void newConnection(int sockfd, const InetAddress& peerAddr);
 #endif
   /// Not thread safe, but in loop
   bool newCondition(const InetAddress& peerAddr);
@@ -128,11 +127,11 @@ class TcpServer : noncopyable
   AtomicInt32 started_;
   // always in loop thread
   int nextConnId_;
-#ifndef _MUDUO_ACCEPT_CONNPOOL_
-  ConnectionMap connections_;
-#else
+#ifdef _MUDUO_ACCEPT_CONNPOOL_
   mutable MutexLock mutex_;
   ConnectionMap connections_ GUARDED_BY(mutex_);
+#else
+  ConnectionMap connections_;
 #endif
 };
 

@@ -13,7 +13,6 @@
 
 #include "muduo/base/Mutex.h"
 #include "muduo/net/TcpConnection.h"
-#include "muduo/net/Reactor.h"
 
 namespace muduo
 {

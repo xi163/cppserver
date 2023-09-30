@@ -22,6 +22,8 @@
 #include <unistd.h>
 #include <sstream>
 
+#include "muduo/net/Define.h"
+
 using namespace muduo;
 using namespace muduo::net;
 

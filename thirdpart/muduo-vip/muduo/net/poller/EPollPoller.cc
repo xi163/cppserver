@@ -17,6 +17,8 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
+#include "muduo/net/Define.h"
+
 using namespace muduo;
 using namespace muduo::net;
 

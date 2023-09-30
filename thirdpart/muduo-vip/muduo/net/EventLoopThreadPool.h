@@ -37,11 +37,15 @@ class EventLoopThreadPool : noncopyable
   ~EventLoopThreadPool();
   void setThreadNum(int numThreads) { numThreads_ = numThreads; }
   void start(const ThreadInitCallback& cb = ThreadInitCallback());
-
+  
+  EventLoop* getBaseLoop();
+  
   // valid after calling start()
   /// round-robin
   EventLoop* getNextLoop();
-
+  
+  EventLoop* getNextLoop_safe();
+  
   /// with the same hash code, it will always return the same EventLoop
   EventLoop* getLoopForHash(size_t hashCode);
 
@@ -59,10 +63,35 @@ class EventLoopThreadPool : noncopyable
   string name_;
   bool started_;
   int numThreads_;
-  //int next_;
-  AtomicInt32 next_;
+  int next_;
+  AtomicInt32 atomic_next_;
   std::vector<std::unique_ptr<EventLoopThread>> threads_;
   std::vector<EventLoop*> loops_;
+
+public:
+	class Singleton : noncopyable {
+	public:
+		Singleton() = delete;
+		~Singleton() = delete;
+
+		static void init(EventLoop* loop, std::string const& name);
+		
+		static EventLoop* getBaseLoop();
+		
+		static EventLoop* getNextLoop();
+
+		static std::shared_ptr<EventLoopThreadPool> get();
+
+		static void setThreadNum(int numThreads);
+
+		static void start(const ThreadInitCallback& cb = ThreadInitCallback());
+
+		static void quit();
+	private:
+		static void quitInLoop();
+		static std::shared_ptr<EventLoopThreadPool> pool_;
+		static AtomicInt32 started_;
+	};
 };
 
 }  // namespace net

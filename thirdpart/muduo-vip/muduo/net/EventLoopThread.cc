@@ -10,8 +10,35 @@
 
 #include "muduo/net/EventLoop.h"
 
+#include "Logger/src/utils/Assert.h"
+
 using namespace muduo;
 using namespace muduo::net;
+
+void EventLoopThread::Singleton::init(const ThreadInitCallback& cb) {
+	if (!accept_) {
+		accept_.reset(new EventLoopThread(cb, "acceptThread"));
+	}
+}
+
+EventLoop* EventLoopThread::Singleton::getAcceptLoop() {
+	ASSERT_S(accept_, "accept thread is nil");
+	return accept_->getLoop();
+}
+
+void EventLoopThread::Singleton::start() {
+	if (started_.getAndSet(1) == 0) {
+        ASSERT_S(accept_, "accept thread is nil");
+		accept_->startLoop();
+	}
+}
+
+void EventLoopThread::Singleton::quit() {
+    if (started_.getAndSet(0) == 1) {
+        ASSERT_S(accept_, "accept thread is nil");
+        accept_->quit();
+    }
+}
 
 EventLoopThread::EventLoopThread(const ThreadInitCallback& cb,
                                  const string& name)
