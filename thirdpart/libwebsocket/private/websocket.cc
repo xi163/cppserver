@@ -3456,7 +3456,7 @@ namespace muduo {
 			* User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36
 			* Upgrade: websocket
 			* Origin: http://localhost:7456
-			* Sec-WebSocket-Protocol: chat, superchat
+			* Sec-WebSocket-Protocol: chat, superchat, default-protocol
 			* Sec-WebSocket-Version: 13
 			* Accept-Encoding: gzip, deflate, br
 			* Accept-Language: zh-CN,zh;q=0.9
@@ -3470,7 +3470,7 @@ namespace muduo {
 			* Upgrade: websocket
 			* Sec-WebSocket-Version: 13
 			* Sec-WebSocket-Accept: RnZfgbNALFZVuKAtOjstw6SacYU=
-			* Sec-WebSocket-Protocol: chat, superchat
+			* Sec-WebSocket-Protocol: chat, superchat, default-protocol
 			* Server: cppserver
 			* Timing-Allow-Origin: *
 			* Date: Sat, 29 Feb 2020 07:07:34 GMT
@@ -3596,7 +3596,7 @@ namespace muduo {
 #endif
 							break;
 						}
-						//Sec-WebSocket-Protocol: chat, superchat
+						//Sec-WebSocket-Protocol: chat, superchat, default-protocol
 						std::string SecWebSocketProtocol = context.getHttpContext()->requestConstPtr()->getHeader("Sec-WebSocket-Protocol");
 						if (SecWebSocketProtocol.empty() ||
 							(SecWebSocketProtocol != "chat" &&
