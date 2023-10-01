@@ -237,7 +237,7 @@ namespace muduo {
 					return true;
 #endif
 				}
-				assert(false);
+				ASSERT(false);
 				return false;
 			}
 
@@ -313,7 +313,7 @@ namespace muduo {
 
 			//SSL_CTX_Get
 			SSL_CTX* SSL_CTX_Get() {
-				//assert(ssl_ctx_);
+				//ASSERT(ssl_ctx_);
 				return ssl_ctx_;
 			}
 
@@ -394,7 +394,7 @@ namespace muduo {
 					::EC_KEY_free(ecdh);
 #endif
 				}
-				assert(ssl_ctx_);
+				ASSERT(ssl_ctx_);
 				return true;
 			}
 
@@ -473,7 +473,7 @@ namespace muduo {
 						NULL);
 #if 0
 					std::string sid_ctx = "134123322131##@adxd!";
-					assert(sid_ctx.length() <= SSL_MAX_SSL_SESSION_ID_LENGTH);
+					ASSERT(sid_ctx.length() <= SSL_MAX_SSL_SESSION_ID_LENGTH);
 					::SSL_CTX_set_session_id_context(ssl_ctx_,
 						(uint8_t const*)sid_ctx.c_str(),
 						std::min<size_t>(SSL_MAX_SSL_SESSION_ID_LENGTH, sid_ctx.length()));

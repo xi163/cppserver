@@ -90,11 +90,9 @@ void GateServ::onHttpMessage(
 	if (!conn || conn->getContext().empty()) {
 		return;
 	}
-	//Errorf("%.*s", buf->readableBytes(), buf->peek());
-
+	Debugf("%.*s", buf->readableBytes(), buf->peek());
 	//先确定是HTTP数据报文，再解析
 	//assert(buf->readableBytes() > 4 && buf->findCRLFCRLF());
-
 	Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 	muduo::net::HttpContext& httpContext = boost::any_cast<muduo::net::HttpContext&>(entryContext.getContext());
 	if (!httpContext.parseRequest(buf, receiveTime)) {
@@ -188,6 +186,7 @@ void GateServ::onHttpMessage(
 		}
 		return;
 	}
+	Errorf("error");
 	muduo::net::HttpResponse rsp(false);
 	setFailedResponse(rsp,
 		muduo::net::HttpResponse::k404NotFound,

@@ -85,8 +85,8 @@ void Connector::connect()
 {
   int sockfd = sockets::createNonblockingOrDie(serverAddr_.family());
   int ret = sockets::connect(sockfd, serverAddr_.getSockAddr());
-  int savedErrno = (ret == 0) ? 0 : errno;
-  switch (savedErrno)
+  int saveErrno = (ret == 0) ? 0 : errno;
+  switch (saveErrno)
   {
     case 0:
     case EINPROGRESS:
@@ -110,12 +110,12 @@ void Connector::connect()
     case EBADF:
     case EFAULT:
     case ENOTSOCK:
-      //LOG_SYSERR << "connect error in Connector::startInLoop " << savedErrno;
+      //LOG_SYSERR << "connect error in Connector::startInLoop " << saveErrno;
       sockets::close(sockfd);
       break;
 
     default:
-      //LOG_SYSERR << "Unexpected error in Connector::startInLoop " << savedErrno;
+      //LOG_SYSERR << "Unexpected error in Connector::startInLoop " << saveErrno;
       sockets::close(sockfd);
       // connectErrorCallback_();
       break;

@@ -39,9 +39,9 @@ __thread char t_errnobuf[512];
 __thread char t_time[64];
 __thread time_t t_lastSecond;
 
-const char* strerror_tl(int savedErrno)
+const char* strerror_tl(int saveErrno)
 {
-  return strerror_r(savedErrno, t_errnobuf, sizeof t_errnobuf);
+  return strerror_r(saveErrno, t_errnobuf, sizeof t_errnobuf);
 }
 
 Logger::LogLevel initLogLevel()
@@ -113,7 +113,7 @@ TimeZone g_logTimeZone;
 
 using namespace muduo;
 
-Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile& file, int line)
+Logger::Impl::Impl(LogLevel level, int saveErrno, const SourceFile& file, int line)
   : time_(Timestamp::now()),
     stream_(),
     level_(level),
@@ -124,9 +124,9 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile& file, int l
   CurrentThread::tid();
   stream_ << T(CurrentThread::tidString(), CurrentThread::tidStringLength());
   stream_ << T(LogLevelName[level], 6);
-  if (savedErrno != 0)
+  if (saveErrno != 0)
   {
-    stream_ << strerror_tl(savedErrno) << " (errno=" << savedErrno << ") ";
+    stream_ << strerror_tl(saveErrno) << " (errno=" << saveErrno << ") ";
   }
 }
 

@@ -133,7 +133,7 @@ inline Logger::LogLevel Logger::logLevel()
 #define LOG_SYSERR muduo::Logger(__FILE__, __LINE__, false).stream()
 #define LOG_SYSFATAL muduo::Logger(__FILE__, __LINE__, true).stream()
 
-const char* strerror_tl(int savedErrno);
+const char* strerror_tl(int saveErrno);
 
 // Taken from glog/logging.h
 //

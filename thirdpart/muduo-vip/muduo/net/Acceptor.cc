@@ -58,7 +58,7 @@ void Acceptor::handleRead(int events)
 {
   loop_->assertInLoopThread();
   InetAddress peerAddr;
-  bool et = acceptChannel_.isETReading();/* EPOLLET */
+  bool et = acceptChannel_.isETReading(); //EPOLLET
   do {
       //FIXME loop until no more
       int connfd = acceptSocket_.accept(&peerAddr);
@@ -67,7 +67,7 @@ void Acceptor::handleRead(int events)
           // string hostport = peerAddr.toIpPort();
           // LOG_TRACE << "Accepts of " << hostport;
 #ifdef _MUDUO_ASYNC_CONN_POOL_
-		  EventLoop* loop = EventLoopThreadPool::Singleton::getNextLoop_safe();
+		  EventLoop* loop = EventLoopThreadPool::Singleton::getNextLoop();
 		  RunInLoop(loop, std::bind([this](int connfd, InetAddress const& peerAddr, EventLoop* loop) {
 			  if (conditionCallback_ && !conditionCallback_(peerAddr))
 			  {

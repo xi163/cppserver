@@ -25,7 +25,7 @@ const char Buffer::kCRLFCRLF[] = "\r\n\r\n";
 const size_t Buffer::kCheapPrepend;
 const size_t Buffer::kInitialSize;
 
-ssize_t Buffer::readFd(int fd, int* savedErrno)
+ssize_t Buffer::readFd(int fd, int* saveErrno)
 {
   // saved an ioctl()/FIONREAD call to tell how much to read
   char extrabuf[65536];
@@ -41,7 +41,7 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
   const ssize_t n = sockets::readv(fd, vec, iovcnt);
   if (n < 0)
   {
-    *savedErrno = errno;
+    *saveErrno = errno;
   }
   else if (implicit_cast<size_t>(n) <= writable)
   {
@@ -60,21 +60,21 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
 }
 
 //readFull for EPOLLET
-ssize_t Buffer::readFull(int sockfd, int* savedErrno) {
-    return IBytesBuffer::readFull(sockfd, this, savedErrno);
+ssize_t Buffer::readFull(int sockfd, int* saveErrno) {
+    return IBytesBuffer::readFull(sockfd, this, saveErrno);
 }
 
 //writeFull for EPOLLET
-ssize_t Buffer::writeFull(int sockfd, void const* data, size_t len, int* savedErrno) {
-    return IBytesBuffer::writeFull(sockfd, data, len, savedErrno);
+ssize_t Buffer::writeFull(int sockfd, void const* data, size_t len, int* saveErrno) {
+    return IBytesBuffer::writeFull(sockfd, data, len, saveErrno);
 }
 
 //SSL_read
-ssize_t Buffer::SSL_read(SSL* ssl, int* savedErrno) {
-    return ssl::SSL_read(ssl, this, savedErrno);
+ssize_t Buffer::SSL_read(SSL* ssl, int* saveErrno) {
+    return ssl::SSL_read(ssl, this, saveErrno);
 }
 
 //SSL_write
-ssize_t Buffer::SSL_write(SSL* ssl, void const* data, size_t len, int* savedErrno) {
-    return ssl::SSL_write(ssl, data, len, savedErrno);
+ssize_t Buffer::SSL_write(SSL* ssl, void const* data, size_t len, int* saveErrno) {
+    return ssl::SSL_write(ssl, data, len, saveErrno);
 }

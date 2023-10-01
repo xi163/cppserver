@@ -187,10 +187,11 @@ void ApiServ::onHttpMessage(
 		}
 		else {
 			numTotalBadReq_.incrementAndGet();
-			Fatalf("entry invalid");
+			Errorf("entry invalid");
 		}
 		return;
 	}
+	Errorf("error");
 	muduo::net::HttpResponse rsp(false);
 	response::text::Result(
 		muduo::net::HttpResponse::k404NotFound,

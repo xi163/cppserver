@@ -124,6 +124,7 @@ void RouterServ::onMessage(
 	if (likely(len > packet::kMaxPacketSZ ||
 		len < packet::kHeaderLen)) {
 		if (conn) {
+			Errorf("bufsize:%d len:%d", buf->readableBytes(), len);
 #if 0
 			//不再发送数据
 			conn->shutdown();
@@ -161,6 +162,7 @@ void RouterServ::onMessage(
 	//数据包不足够解析，等待下次接收再解析
 	else {
 		if (conn) {
+			Errorf("bufsize:%d len:%d", buf->readableBytes(), len);
 #if 0
 			//不再发送数据
 			conn->shutdown();

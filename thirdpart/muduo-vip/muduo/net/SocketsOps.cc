@@ -124,10 +124,10 @@ int sockets::accept(int sockfd, struct sockaddr_in6* addr)
 #endif
   if (connfd < 0)
   {
-    int savedErrno = errno;
+    int saveErrno = errno;
     //ERROR Too many open files (errno=24) Socket::accept - SocketsOps.cc:128
     //LOG_SYSERR << "Socket::accept";
-    switch (savedErrno)
+    switch (saveErrno)
     {
       case EAGAIN:
       case ECONNABORTED:
@@ -136,7 +136,7 @@ int sockets::accept(int sockfd, struct sockaddr_in6* addr)
       case EPERM:
       case EMFILE: // per-process lmit of open file desctiptor ???
         // expected errors
-        errno = savedErrno;
+        errno = saveErrno;
         break;
       case EBADF:
       case EFAULT:
@@ -147,10 +147,10 @@ int sockets::accept(int sockfd, struct sockaddr_in6* addr)
       case ENOTSOCK:
       case EOPNOTSUPP:
         // unexpected errors
-        LOG_FATAL << "unexpected error of ::accept " << savedErrno;
+        LOG_FATAL << "unexpected error of ::accept " << saveErrno;
         break;
       default:
-        LOG_FATAL << "unknown error of ::accept " << savedErrno;
+        LOG_FATAL << "unknown error of ::accept " << saveErrno;
         break;
     }
   }

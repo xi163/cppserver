@@ -39,8 +39,8 @@ namespace muduo {
 		/// @endcode
 		///
 		//readFull for EPOLLET
-		ssize_t IBytesBuffer::readFull(int sockfd, IBytesBuffer* buf, int* savedErrno) {
-			assert(buf->writableBytes() >= 0);
+		ssize_t IBytesBuffer::readFull(int sockfd, IBytesBuffer* buf, int* saveErrno) {
+			ASSERT(buf->writableBytes() >= 0);
 			//Debugf("begin {{{");
 			ssize_t n = 0;
 			do {
@@ -57,7 +57,7 @@ namespace muduo {
 				const size_t writable = buf->writableBytes();
 #endif
 				const ssize_t rc = ::read(sockfd, buf->beginWrite(), writable);
-				*savedErrno = (int)rc;
+				*saveErrno = (int)rc;
 				if (rc > 0) {
 					//
 					//rc > 0 errno = EAGAIN(11)
@@ -96,8 +96,8 @@ namespace muduo {
 					//rc = 0 errno = 0 peer close
 					//
 					//Connection has been aborted by peer
-					//Errorf("Connection has been aborted by peer rc = %d errno = %d errmsg = %s",
-					//	rc, errno, strerror(errno));
+					Debugf("Connection has been aborted by peer rc = %d errno = %d errmsg = %s",
+						rc, errno, strerror(errno));
 					break;
 				}
 			} while (true);
@@ -106,13 +106,13 @@ namespace muduo {
 		}//readFull
 			
 		//writeFull for EPOLLET
-		ssize_t IBytesBuffer::writeFull(int sockfd, void const* data, size_t len, int* savedErrno) {
+		ssize_t IBytesBuffer::writeFull(int sockfd, void const* data, size_t len, int* saveErrno) {
 			//printf("\nbegin {{{");
 			ssize_t left = (ssize_t)len;
 			ssize_t n = 0;
 			while (left > 0) {
 				const ssize_t rc = ::write(sockfd, (char const*)data + n, left);
-				*savedErrno = (int)rc;
+				*saveErrno = (int)rc;
 				if (rc > 0) {
 					//
 					//rc > 0 errno = EAGAIN(11)
@@ -146,8 +146,10 @@ namespace muduo {
 					//rc = 0 errno = EAGAIN(11)
 					//rc = 0 errno = 0 peer close
 					//
-					//assert(left == 0);
+					//ASSERT(left == 0);
 					//Connection has been aborted by peer
+					Debugf("Connection has been aborted by peer rc = %d errno = %d errmsg = %s",
+						rc, errno, strerror(errno));
 					break;
 				}
 			}

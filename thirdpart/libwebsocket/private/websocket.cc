@@ -2019,7 +2019,7 @@ namespace muduo {
 // 			static bool parse_control_frame_body_payload_data(
 // 				websocket::Context& context,
 // 				IBytesBuffer /*const*/* buf,
-// 				ITimestamp* receiveTime, int* savedErrno) {
+// 				ITimestamp* receiveTime, int* saveErrno) {
 // 				
 // 				
 // 			}
@@ -2028,7 +2028,7 @@ namespace muduo {
 			static bool validate_message_frame(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
@@ -2171,52 +2171,52 @@ namespace muduo {
 			static int parse_frame_ReadExtendedPayloadlenU16(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 			
 			static int parse_frame_ReadExtendedPayloadlenI64(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 			
 			static int parse_frame_ReadMaskingkey(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 			
 			static bool parse_control_frame_ReadPayloadData(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 			
 			static bool parse_uncontrol_frame_ReadPayloadData(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_uncontrol_frame_ReadExtendedPayloadDataU16(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_uncontrol_frame_ReadExtendedPayloadDataI64(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_control_frame_ReadPayloadData(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_control_frame_ReadExtendedPayloadDataU16(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_control_frame_ReadExtendedPayloadDataI64(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			// 更新帧体(body)消息流解析步骤step
 			//	非控制帧(数据帧) frame body
@@ -2230,7 +2230,7 @@ namespace muduo {
 			static bool update_frame_body_parse_step(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -2247,7 +2247,7 @@ namespace muduo {
 						//////////////////////////////////////////////////////////////////////////
 						context.setWebsocketStep(websocket::StepE::ReadExtendedPayloadlenU16);
 						{
-							parse_frame_ReadExtendedPayloadlenU16(context, buf, receiveTime, savedErrno);
+							parse_frame_ReadExtendedPayloadlenU16(context, buf, receiveTime, saveErrno);
 						}
 						break;
 					}
@@ -2257,7 +2257,7 @@ namespace muduo {
 						//////////////////////////////////////////////////////////////////////////
 						context.setWebsocketStep(websocket::StepE::ReadExtendedPayloadlenI64);
 						{
-							parse_frame_ReadExtendedPayloadlenI64(context, buf, receiveTime, savedErrno);
+							parse_frame_ReadExtendedPayloadlenI64(context, buf, receiveTime, saveErrno);
 						}
 						break;
 					}
@@ -2270,7 +2270,7 @@ namespace muduo {
 							//////////////////////////////////////////////////////////////////////////
 							context.setWebsocketStep(websocket::StepE::ReadMaskingkey);
 							{
-								parse_frame_ReadMaskingkey(context, buf, receiveTime, savedErrno);
+								parse_frame_ReadMaskingkey(context, buf, receiveTime, saveErrno);
 							}
 							break;
 						}
@@ -2279,7 +2279,7 @@ namespace muduo {
 						//////////////////////////////////////////////////////////////////////////
 						context.setWebsocketStep(websocket::StepE::ReadPayloadData);
 						{
-							parse_control_frame_ReadPayloadData(context, buf, receiveTime, savedErrno);
+							parse_control_frame_ReadPayloadData(context, buf, receiveTime, saveErrno);
 						}
 						break;
 					}
@@ -2296,7 +2296,7 @@ namespace muduo {
 			static bool parse_frame_ReadFrameHeader(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -2330,7 +2330,7 @@ namespace muduo {
 #endif
 					//消息帧有效性安全检查
 					//判断并指定帧消息类型
-					validate_message_frame(context, buf, receiveTime, savedErrno);
+					validate_message_frame(context, buf, receiveTime, saveErrno);
 					//更新帧体(body)消息流解析步骤step
 					//	非控制帧(数据帧) frame body
 					//		Maybe include Extended payload length
@@ -2340,7 +2340,7 @@ namespace muduo {
 					//		Maybe include Extended payload length(<=126)
 					//		Maybe include Masking-key
 					//		Maybe include Payload data
-					update_frame_body_parse_step(context, buf, receiveTime, savedErrno);
+					update_frame_body_parse_step(context, buf, receiveTime, saveErrno);
 				} while (0);
 				return enough;
 			}
@@ -2348,7 +2348,7 @@ namespace muduo {
 			static int parse_frame_ReadExtendedPayloadlenU16(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -2397,7 +2397,7 @@ namespace muduo {
 			static int parse_frame_ReadExtendedPayloadlenI64(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -2446,7 +2446,7 @@ namespace muduo {
 			static int parse_frame_ReadMaskingkey(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -2488,8 +2488,8 @@ namespace muduo {
 							std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
 							ASSERT(ty.first != FrameControlE::FrameInvalid);
 							enough = (ty.first == FrameControlE::UnControlFrame) ?
-								parse_uncontrol_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, savedErrno) :
-								parse_control_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, savedErrno);
+								parse_uncontrol_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, saveErrno) :
+								parse_control_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, saveErrno);
 						}
 						break;
 					}
@@ -2502,8 +2502,8 @@ namespace muduo {
 							std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
 							ASSERT(ty.first != FrameControlE::FrameInvalid);
 							enough = (ty.first == FrameControlE::UnControlFrame) ?
-								parse_uncontrol_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, savedErrno) :
-								parse_control_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, savedErrno);
+								parse_uncontrol_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, saveErrno) :
+								parse_control_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, saveErrno);
 						}
 						break;
 					}
@@ -2517,8 +2517,8 @@ namespace muduo {
 							std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
 							ASSERT(ty.first != FrameControlE::FrameInvalid);
 							enough = (ty.first == FrameControlE::UnControlFrame) ?
-								parse_uncontrol_frame_ReadPayloadData(context, buf, receiveTime, savedErrno) :
-								parse_control_frame_ReadPayloadData(context, buf, receiveTime, savedErrno);
+								parse_uncontrol_frame_ReadPayloadData(context, buf, receiveTime, saveErrno) :
+								parse_control_frame_ReadPayloadData(context, buf, receiveTime, saveErrno);
 						}
 						break;
 					}
@@ -2530,7 +2530,7 @@ namespace muduo {
 			static bool parse_uncontrol_frame_ReadPayloadData(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -2653,7 +2653,7 @@ namespace muduo {
 			static bool parse_uncontrol_frame_ReadExtendedPayloadDataU16(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -2776,7 +2776,7 @@ namespace muduo {
 			static bool parse_uncontrol_frame_ReadExtendedPayloadDataI64(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -2900,7 +2900,7 @@ namespace muduo {
 			static bool parse_control_frame_ReadPayloadData(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -3053,7 +3053,7 @@ namespace muduo {
 			static bool parse_control_frame_ReadExtendedPayloadDataU16(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -3206,7 +3206,7 @@ namespace muduo {
 			static bool parse_control_frame_ReadExtendedPayloadDataI64(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -3360,7 +3360,7 @@ namespace muduo {
 			static int parse_frame(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno) {
+				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
 				websocket::extended_header_t& extended_header = context.getExtendedHeader();
 				//websocket::header_t，uint16_t
@@ -3401,39 +3401,39 @@ namespace muduo {
 						//输出基础协议头信息
 						//消息帧有效性安全检查
 						//更新帧体(body)消息流解析步骤step
-						enough = parse_frame_ReadFrameHeader(context, buf, receiveTime, savedErrno);
+						enough = parse_frame_ReadFrameHeader(context, buf, receiveTime, saveErrno);
 						break;
 					}
 					case StepE::ReadExtendedPayloadlenU16: {
-						enough = parse_frame_ReadExtendedPayloadlenU16(context, buf, receiveTime, savedErrno);
+						enough = parse_frame_ReadExtendedPayloadlenU16(context, buf, receiveTime, saveErrno);
 						break;
 					}
 					case StepE::ReadExtendedPayloadlenI64: {
-						enough = parse_frame_ReadExtendedPayloadlenI64(context, buf, receiveTime, savedErrno);
+						enough = parse_frame_ReadExtendedPayloadlenI64(context, buf, receiveTime, saveErrno);
 						break;
 					}
 					case StepE::ReadMaskingkey: {
-						enough = parse_frame_ReadMaskingkey(context, buf, receiveTime, savedErrno);
+						enough = parse_frame_ReadMaskingkey(context, buf, receiveTime, saveErrno);
 						break;
 					}
 					case StepE::ReadPayloadData: {
 						ASSERT(ty.first != FrameControlE::FrameInvalid);
 						enough = (ty.first == FrameControlE::UnControlFrame) ?
-							parse_uncontrol_frame_ReadPayloadData(context, buf, receiveTime, savedErrno):
-							parse_control_frame_ReadPayloadData(context, buf, receiveTime, savedErrno);
+							parse_uncontrol_frame_ReadPayloadData(context, buf, receiveTime, saveErrno):
+							parse_control_frame_ReadPayloadData(context, buf, receiveTime, saveErrno);
 						break;
 					}
 					case StepE::ReadExtendedPayloadDataU16:
 						ASSERT(ty.first != FrameControlE::FrameInvalid);
 						enough = (ty.first == FrameControlE::UnControlFrame) ?
-							parse_uncontrol_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, savedErrno) :
-							parse_control_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, savedErrno);
+							parse_uncontrol_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, saveErrno) :
+							parse_control_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, saveErrno);
 						break;
 					case StepE::ReadExtendedPayloadDataI64:
 						ASSERT(ty.first != FrameControlE::FrameInvalid);
 						enough = (ty.first == FrameControlE::UnControlFrame) ?
-							parse_uncontrol_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, savedErrno) :
-							parse_control_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, savedErrno);
+							parse_uncontrol_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, saveErrno) :
+							parse_control_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, saveErrno);
 						break;
 					default:
 						ASSERT(false);

@@ -199,7 +199,7 @@ namespace muduo {
 			bool validate_message_frame(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			// 更新帧体(body)消息流解析步骤step
 			//	非控制帧(数据帧) frame body
@@ -213,7 +213,7 @@ namespace muduo {
 			bool update_frame_body_parse_step(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			//	解析基础协议头/帧头(header)
 			//	输出基础协议头信息
@@ -222,57 +222,57 @@ namespace muduo {
 			bool parse_frame_ReadFrameHeader(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			int parse_frame_ReadExtendedPayloadlenU16(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			int parse_frame_ReadExtendedPayloadlenI64(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			int parse_frame_ReadMaskingkey(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			bool parse_uncontrol_frame_ReadPayloadData(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			bool parse_uncontrol_frame_ReadExtendedPayloadDataU16(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			bool parse_uncontrol_frame_ReadExtendedPayloadDataI64(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			bool parse_control_frame_ReadPayloadData(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			bool parse_control_frame_ReadExtendedPayloadDataU16(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			bool parse_control_frame_ReadExtendedPayloadDataI64(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			int parse_frame(
 				websocket::Context& context,
 				IBytesBuffer* buf,
-				ITimestamp* receiveTime, int* savedErrno);
+				ITimestamp* receiveTime, int* saveErrno);
 
 			void create_websocket_response(
 				http::IRequest const* req, std::string& rsp);

@@ -62,7 +62,7 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels)
                                &*events_.begin(),
                                static_cast<int>(events_.size()),
                                timeoutMs);
-  int savedErrno = errno;
+  int saveErrno = errno;
   Timestamp now(Timestamp::now());
   if (numEvents > 0)
   {
@@ -80,9 +80,9 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels)
   else
   {
     // error happens, log uncommon ones
-    if (savedErrno != EINTR)
+    if (saveErrno != EINTR)
     {
-      errno = savedErrno;
+      errno = saveErrno;
       //LOG_SYSERR << "EPollPoller::poll()";
     }
   }
