@@ -347,6 +347,7 @@ void GateServ::sendHallMessage(
 		//异步获取全部有效大厅连接
 		clients_[containTy::kHallTy].clients_->getAll(clients);
 		if (clients.size() > 0) {
+			int retry_c = 0;
 			bool ok = false;
 			std::map<std::string, bool> repairs;
 			do {
@@ -384,7 +385,7 @@ void GateServ::sendHallMessage(
 						}
 					}
 				}
-			} while (!ok && repairs.size() != clients.size());
+			} while (!ok && repairs.size() != clients.size() && ++retry_c < 3);
 		}
 		else {
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
