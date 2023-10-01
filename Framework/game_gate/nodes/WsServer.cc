@@ -9,7 +9,7 @@ bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 	std::string country, location;
 	std::string ipaddr = peerAddr.toIp();
 	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-	Infof("*** ip: %s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
+	Infof("*** %s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 	return true;
 }
 
@@ -105,12 +105,12 @@ void GateServ::onConnected(
 		entities_.add(session, conn);
 		std::string country, location;
 		ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-		Infof("ip: %s %s %s session[%s]", ipaddr.c_str(), country.c_str(), location.c_str(), session.c_str());
+		Infof("%s %s %s session[%s]", ipaddr.c_str(), country.c_str(), location.c_str(), session.c_str());
 	}
 	else {
 		std::string country, location;
 		ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-		Errorf("ip: %s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
+		Errorf("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 	}
 }
 

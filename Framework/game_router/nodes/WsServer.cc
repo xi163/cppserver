@@ -6,7 +6,7 @@ bool RouterServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 	std::string country, location;
 	std::string ipaddr = peerAddr.toIp();
 	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-	Infof("*** ip: %s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
+	Infof("*** %s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 	return true;
 }
 
@@ -38,7 +38,8 @@ void RouterServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		//websocket::Context::ctor
 		//////////////////////////////////////////////////////////////////////////
 		muduo::net::websocket::hook(
-			NULL,
+			std::bind(&RouterServ::onVerify, this,
+				std::placeholders::_1),
 			std::bind(&RouterServ::onConnected, this,
 				std::placeholders::_1, std::placeholders::_2),
 			std::bind(&RouterServ::onMessage, this,
@@ -71,13 +72,20 @@ void RouterServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 	}
 }
 
+bool RouterServ::onVerify(muduo::net::http::IRequest const* request) {
+	std::string token = request->getHeader("Sec-WebSocket-Verify", true);
+	Debugf("Token: %s", token.c_str());
+	if (token.empty()) {
+		return false;
+	}
+	return true;
+}
+
 void RouterServ::onConnected(
 	const muduo::net::TcpConnectionPtr& conn,
 	std::string const& ipaddr) {
 
 	conn->getLoop()->assertInLoopThread();
-
-	Infof("客户端真实IP[%s]", ipaddr.c_str());
 
 	assert(!conn->getContext().empty());
 	Context& entryContext = boost::any_cast<Context&>(conn->getContext());
@@ -92,10 +100,14 @@ void RouterServ::onConnected(
 		entryContext.setWorker(session, hash_session_, threadPool_);
 		//map[session] = weakConn
 		entities_.add(session, conn);
-		Infof("session[%s]", session.c_str());
+		std::string country, location;
+		ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
+		Infof("%s %s %s session[%s]", ipaddr.c_str(), country.c_str(), location.c_str(), session.c_str());
 	}
 	else {
-		Errorf("error");
+		std::string country, location;
+		ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
+		Errorf("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 	}
 }
 

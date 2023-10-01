@@ -17,11 +17,15 @@ RouterServ::RouterServ(muduo::net::EventLoop* loop,
 	, ipLocator_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
+	server_.setConditionCallback(
+		std::bind(&RouterServ::onCondition, this, std::placeholders::_1));
 	server_.setConnectionCallback(
 		std::bind(&RouterServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
 		std::bind(&muduo::net::websocket::onMessage,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	httpserver_.setConditionCallback(
+		std::bind(&RouterServ::onHttpCondition, this, std::placeholders::_1));
 	httpserver_.setConnectionCallback(
 		std::bind(&RouterServ::onHttpConnection, this, std::placeholders::_1));
 	httpserver_.setMessageCallback(

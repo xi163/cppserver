@@ -7,7 +7,7 @@ bool ApiServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	std::string country, location;
 	std::string ipaddr = peerAddr.toIp();
 	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-	Infof("*** ip: %s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
+	Infof("*** %s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
 	httpserver_.getLoop()->assertInLoopThread();
