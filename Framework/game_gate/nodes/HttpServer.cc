@@ -10,9 +10,10 @@ bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	std::string ipaddr = peerAddr.toIp();
 	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
 	Infof("*** %s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
+#if 0
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
-	httpserver_.getLoop()->assertInLoopThread();
+	//assert(whiteListControl_ == eApiCtrl::kOpenAccept);
+	//httpserver_.getLoop()->assertInLoopThread();
 	{
 		//管理员挂维护/恢复服务
 		std::map<in_addr_t, eApiVisit>::const_iterator it = admin_list_.find(peerAddr.ipv4NetEndian());
@@ -30,6 +31,7 @@ bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	if (server_state_ == kRepairing) {
 		return false;
 	}
+#endif
 #endif
 	return true;
 }
