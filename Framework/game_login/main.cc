@@ -140,6 +140,7 @@ int main(int argc, char* argv[]) {
 	server.maxConnections_ = kMaxConnections;
 	server.idleTimeout_ = kTimeoutSeconds;
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
+	server.verify_ = pt.get<int>(config + ".verify", 1);
 	server.registscore_ = pt.get<int64_t>(config + ".registscore", 400000);
 	//管理员ip地址列表
 	{

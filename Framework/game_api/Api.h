@@ -322,6 +322,8 @@ public:
 	
 	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
+	bool verify_ = true;
+
 #ifdef _STAT_ORDER_QPS_
 	//性能测试指标 间隔输出时间(s)
 	int deltaTime_;

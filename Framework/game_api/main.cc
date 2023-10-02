@@ -140,6 +140,7 @@ int main(int argc, char* argv[]) {
 	server.maxConnections_ = kMaxConnections;
 	server.idleTimeout_ = kTimeoutSeconds;
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
+	server.verify_ = pt.get<int>(config + ".verify", 1);
 	//管理员ip地址列表
 	{
 		std::vector<std::string> vec;

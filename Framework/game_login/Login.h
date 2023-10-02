@@ -297,6 +297,7 @@ public:
 	mutable boost::shared_mutex black_list_mutex_;
 	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
+	bool verify_ = true;
 	int64_t registscore_ = 0;
 };
 

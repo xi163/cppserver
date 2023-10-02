@@ -73,10 +73,15 @@ void LoginServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 }
 
 bool LoginServ::onVerify(muduo::net::http::IRequest const* request) {
-	std::string token = request->getHeader("Sec-WebSocket-Verify", true);
-	Debugf("Token: %s", token.c_str());
-	if (token.empty()) {
-		return false;
+	switch (verify_) {
+	case true: {
+		std::string token = request->getHeader("Sec-WebSocket-Verify", true);
+		Debugf("Token: %s", token.c_str());
+		if (token.empty()) {
+			return false;
+		}
+		break;
+	}
 	}
 	return true;
 }
