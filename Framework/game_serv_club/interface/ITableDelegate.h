@@ -13,7 +13,7 @@ class ITableDelegate {
 public:
 	ITableDelegate() = default;
 	virtual ~ITableDelegate() = default;
-
+public:
 	/// <summary>
 	/// 重置归位
 	/// </summary>
