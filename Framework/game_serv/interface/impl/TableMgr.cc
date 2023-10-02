@@ -41,6 +41,10 @@ CTableMgr::~CTableMgr() {
 	freeItems_.clear();
 }
 
+/// <summary>
+/// 初始化
+/// </summary>
+/// <param name="tableContext"></param>
 void CTableMgr::Init(ITableContext* tableContext) {
 	if (!tableContext->GetGameInfo() || !tableContext->GetRoomInfo()) {
 		return;
@@ -86,6 +90,10 @@ void CTableMgr::Init(ITableContext* tableContext) {
 		tableContext->GetRoomInfo()->tableCount, tableContext->GetRoomInfo()->totalStock);
 }
 
+/// <summary>
+/// 返回使用中桌子
+/// </summary>
+/// <returns></returns>
 std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
@@ -105,6 +113,11 @@ std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
 	return usedItems;
 }
 
+/// <summary>
+/// 返回使用中桌子
+/// </summary>
+/// <param name="tableId"></param>
+/// <returns></returns>
 std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables(std::vector<uint16_t>& tableId) {
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
@@ -122,6 +135,7 @@ std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables(std::vector<uint16_t>& 
 /// <summary>
 /// 返回桌子数量
 /// </summary>
+/// <returns></returns>
 size_t CTableMgr::Count() {
 	return items_.size();
 }
@@ -129,6 +143,7 @@ size_t CTableMgr::Count() {
 /// <summary>
 /// 返回空闲的桌子数量
 /// </summary>
+/// <returns></returns>
 size_t CTableMgr::FreeCount() {
 	{
 		READ_LOCK(mutex_);
@@ -139,6 +154,7 @@ size_t CTableMgr::FreeCount() {
 /// <summary>
 /// 返回有人的桌子数量
 /// </summary>
+/// <returns></returns>
 size_t CTableMgr::UsedCount() {
 	{
 		READ_LOCK(mutex_);
@@ -146,6 +162,11 @@ size_t CTableMgr::UsedCount() {
 	}
 }
 
+/// <summary>
+/// 直接返回指定桌子
+/// </summary>
+/// <param name="tableId"></param>
+/// <returns></returns>
 std::shared_ptr<CTable> CTableMgr::Get(uint16_t tableId) {
 	{
 		//READ_LOCK(mutex_);
@@ -156,6 +177,12 @@ std::shared_ptr<CTable> CTableMgr::Get(uint16_t tableId) {
 	return std::shared_ptr<CTable>();
 }
 
+/// <summary>
+/// 直接返回指定桌子，如果能加入的话
+/// </summary>
+/// <param name="player"></param>
+/// <param name="tableId"></param>
+/// <returns></returns>
 std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& player, uint16_t tableId) {
 	{
 		//READ_LOCK(mutex_);
@@ -175,6 +202,8 @@ std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& playe
 /// <summary>
 /// 返回指定桌子，前提是桌子未满
 /// </summary>
+/// <param name="tableId"></param>
+/// <returns></returns>
 std::shared_ptr<CTable> CTableMgr::Find(uint16_t tableId) {
 	{
 		READ_LOCK(mutex_);
@@ -191,6 +220,9 @@ std::shared_ptr<CTable> CTableMgr::Find(uint16_t tableId) {
 /// <summary>
 /// 查找能进的桌子，没有则取空闲桌子
 /// </summary>
+/// <param name="player"></param>
+/// <param name="excludeId"></param>
+/// <returns></returns>
 std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& player, uint16_t excludeId) {
 	std::list<std::shared_ptr<CTable>> usedItems;
 	{
@@ -208,6 +240,10 @@ std::shared_ptr<CTable> CTableMgr::FindSuit(std::shared_ptr<CPlayer> const& play
 	return New();
 }
 
+/// <summary>
+/// 取一个空闲桌子
+/// </summary>
+/// <returns></returns>
 std::shared_ptr<CTable> CTableMgr::New() {
 	{
 		WRITE_LOCK(mutex_);
@@ -224,6 +260,10 @@ std::shared_ptr<CTable> CTableMgr::New() {
 	return std::shared_ptr<CTable>();
 }
 
+/// <summary>
+/// 回收
+/// </summary>
+/// <param name="tableId"></param>
 void CTableMgr::Delete(uint16_t tableId) {
 	{
 		WRITE_LOCK(mutex_);
@@ -240,6 +280,10 @@ void CTableMgr::Delete(uint16_t tableId) {
 	Errorf("%d used = %d free = %d", tableId, usedItems_.size(), freeItems_.size());
 }
 
+/// <summary>
+/// 回收
+/// </summary>
+/// <param name="table"></param>
 void CTableMgr::Delete(std::shared_ptr<CTable> const& table) {
 	uint16_t tableId = table->GetTableId();
 	{

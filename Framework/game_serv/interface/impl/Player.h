@@ -21,10 +21,19 @@ public:
 	/// <summary>
 	/// IRobotDelegate消息回调
 	/// </summary>
+	/// <param name="mainId"></param>
+	/// <param name="subId"></param>
+	/// <param name="data"></param>
+	/// <param name="len"></param>
+	/// <returns></returns>
 	virtual bool SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data, size_t len);
 	/// <summary>
 	/// ITableDelegate消息回调
 	/// </summary>
+	/// <param name="subId"></param>
+	/// <param name="data"></param>
+	/// <param name="len"></param>
+	/// <returns></returns>
 	virtual bool SendTableMessage(uint8_t subId, uint8_t const* data, size_t len);
 	virtual inline int64_t  GetUserId() { return baseInfo_.userId; }
 	virtual inline const std::string GetAccount() { return baseInfo_.account; }

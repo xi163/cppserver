@@ -21,6 +21,11 @@ void CPlayer::Reset() {
 /// <summary>
 /// IRobotDelegate消息回调
 /// </summary>
+/// <param name="mainId"></param>
+/// <param name="subId"></param>
+/// <param name="data"></param>
+/// <param name="len"></param>
+/// <returns></returns>
 bool CPlayer::SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data, size_t len) {
 	return false;
 }
@@ -28,6 +33,10 @@ bool CPlayer::SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data
 /// <summary>
 /// ITableDelegate消息回调
 /// </summary>
+/// <param name="subId"></param>
+/// <param name="data"></param>
+/// <param name="len"></param>
+/// <returns></returns>
 bool CPlayer::SendTableMessage(uint8_t subId, uint8_t const* data, size_t len) {
 	return false;
 }

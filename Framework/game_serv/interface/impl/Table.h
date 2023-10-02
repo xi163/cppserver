@@ -60,9 +60,18 @@ public:
 	virtual void SetUserTrustee(uint16_t chairId, bool trustee);
 	virtual bool GetUserTrustee(uint16_t chairId);
 	virtual void SetUserReady(uint16_t chairId);
-	//点击离开按钮
+	/// <summary>
+	/// 点击离开按钮
+	/// </summary>
+	/// <param name="player"></param>
+	/// <param name="sendToSelf"></param>
+	/// <returns></returns>
 	virtual bool OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf = true);
-	//关闭页面
+	/// <summary>
+	/// 关闭页面
+	/// </summary>
+	/// <param name="player"></param>
+	/// <returns></returns>
 	virtual bool OnUserOffline(std::shared_ptr<CPlayer> const& player);
 	virtual bool CanJoinTable(std::shared_ptr<CPlayer> const& player);
 	virtual bool CanJoinTable(std::shared_ptr<CPlayer> const& player, uint16_t excludeId/* = INVALID_TABLE*/);

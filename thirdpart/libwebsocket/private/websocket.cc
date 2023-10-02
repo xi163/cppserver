@@ -3477,13 +3477,19 @@ namespace muduo {
 			*
 			*/
 			// 填充websocket握手成功响应头信息
-			static inline void create_websocket_response(http::IRequest const* req, std::string const& SecWebSocketKey, std::string& rsp) {
+			static inline void create_websocket_response(http::IRequest const* req, std::string const& SecWebSocketProtocol, std::string const& SecWebSocketKey, std::string& rsp) {
 				rsp = "HTTP/1.1 101 Switching Protocols\r\n";
 				rsp.append("Connection: Upgrade\r\n");
 				rsp.append("Content-Type: application/octet-stream\r\n");
 				rsp.append("Upgrade: websocket\r\n");
 				rsp.append("Sec-WebSocket-Version: 13\r\n");
+#if 0
 				rsp.append("Sec-WebSocket-Protocol: chat, superchat\r\n");
+#else
+				if (!SecWebSocketProtocol.empty()) {
+					rsp.append("Sec-WebSocket-Protocol: ").append(SecWebSocketProtocol).append("\r\n");
+				}
+#endif
 				rsp.append("Sec-WebSocket-Accept: ");
 				rsp.append(getAcceptKey(SecWebSocketKey)).append("\r\n");
  				//rsp.append("Sec-WebSocket-Extensions: " + context.request().getHeader("Sec-WebSocket-Extensions") + "\r\n");
@@ -3598,8 +3604,9 @@ namespace muduo {
 						}
 						//Sec-WebSocket-Protocol: chat, superchat, default-protocol
 						std::string SecWebSocketProtocol = context.getHttpContext()->requestConstPtr()->getHeader("Sec-WebSocket-Protocol");
-						if (SecWebSocketProtocol.empty() ||
-							(SecWebSocketProtocol != "chat" &&
+						if (!SecWebSocketProtocol.empty() &&
+							(SecWebSocketProtocol != "default-protocol" &&
+								SecWebSocketProtocol != "chat" &&
 								SecWebSocketProtocol != "superchat" &&
 								SecWebSocketProtocol != "chat, superchat" &&
 								SecWebSocketProtocol != "chat,superchat")) {
@@ -3641,7 +3648,7 @@ namespace muduo {
 						//if (SecWebSocketExtensions.empty()) {
 						//	break;
 						//}
-						create_websocket_response(context.getHttpContext()->requestConstPtr(), SecWebSocketKey, rspdata);
+						create_websocket_response(context.getHttpContext()->requestConstPtr(), SecWebSocketProtocol, SecWebSocketKey, rspdata);
 						std::string ipaddrs = context.getHttpContext()->requestPtr()->getHeader("X-Forwarded-For");
 						if (ipaddrs.empty()) {
 							if (handler) {

@@ -223,9 +223,16 @@ muduo::net::EventLoop* CTableThreadMgr::getNextLoop() {
 	return pool_->getNextLoop();
 }
 
-std::shared_ptr<muduo::net::EventLoopThreadPool> CTableThreadMgr::get() {
+void CTableThreadMgr::getAllLoopsInLoop(std::vector<muduo::net::EventLoop*>& vec, bool& ok) {
+	vec = pool_->getAllLoops();
+	ok = true;
+}
+
+void CTableThreadMgr::getAllLoops(std::vector<muduo::net::EventLoop*>& vec) {
 	ASSERT_S(pool_, "pool is nil");
-	return pool_;
+	bool ok = false;
+	RunInLoop(pool_->getBaseLoop(), std::bind(&CTableThreadMgr::getAllLoopsInLoop, std::ref(vec), std::ref(ok)));
+	while (!ok);
 }
 
 void CTableThreadMgr::setThreadNum(int numThreads) {

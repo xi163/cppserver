@@ -20,7 +20,6 @@ int CTable::sysKillAllRatio_(0);
 int CTable::sysReduceRatio_(0);
 int CTable::sysChangeCardRatio_(0);
 
-
 CTable::CTable(muduo::net::EventLoop* loop, ITableContext* tableContext)
     : loop_(ASSERT_NOTNULL(loop))
     , tableDelegate_(NULL)

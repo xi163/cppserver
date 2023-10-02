@@ -8,7 +8,13 @@
 namespace muduo {
 	namespace net {
 		namespace websocket {
-
+			
+			/// <summary>
+			/// Only connects but does not send messages, It should be closed after a timeout
+			/// </summary>
+			/// <param name="conn"></param>
+			/// <param name="buf"></param>
+			/// <param name="receiveTime"></param>
 			void onMessage(
 				const muduo::net::TcpConnectionPtr& conn,
 				muduo::net::Buffer* buf, muduo::Timestamp receiveTime) {
