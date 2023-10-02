@@ -131,7 +131,7 @@ void RouterServ::onMessage(
 		std::string country, location;
 		std::string ipaddr = conn->peerAddress().toIp();
 		ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-		std::string s = utils::sprintf("来自 %s %s %s 的兄弟, what the fuck are you doing ?!\n想踩缝纫机?", ipaddr.c_str(), country.c_str(), location.c_str());
+		std::string s = utils::sprintf("来自 %s %s %s 的老6, 想踩缝纫机吗?!", ipaddr.c_str(), country.c_str(), location.c_str());
 		muduo::net::websocket::send(conn, s.data(), s.length(), muduo::net::websocket::MessageT::TyTextMessage);
 		break;
 	}
