@@ -128,56 +128,81 @@ void GateServ::onMessage(
 		return;
 	}
 	conn->getLoop()->assertInLoopThread();
-	const uint16_t len = buf->peekInt16(true);
-	if (likely(len > packet::kMaxPacketSZ ||
-		len < packet::kHeaderLen)) {
-		if (conn) {
-			Errorf("len:%d bufsize:%d", len, buf->readableBytes());
-#if 0
-			//不再发送数据
-			conn->shutdown();
-#else
-			conn->forceClose();
-#endif
-		}
-		numTotalBadReq_.incrementAndGet();
+	switch (msgType) {
+	case muduo::net::websocket::MessageT::TyTextMessage: {
+		Debugf("%.*s", buf->readableBytes(), buf->peek());
+		break;
 	}
-	else if (likely(len <= buf->readableBytes())) {
-		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
-		EntryPtr entry(entryContext.getWeakEntryPtr().lock());
-		if (entry) {
-			RunInLoop(conn->getLoop(),
-				std::bind(&Buckets::update, &boost::any_cast<Buckets&>(conn->getLoop()->getContext()), entry));
+	case muduo::net::websocket::MessageT::TyBinaryMessage: {
+		const uint16_t len = buf->peekInt16(true);
+		if (likely(len > packet::kMaxPacketSZ ||
+			len < packet::kHeaderLen)) {
+			if (conn) {
+				Errorf("len:%d bufsize:%d", len, buf->readableBytes());
 #if 0
-			BufferPtr buffer(new muduo::net::Buffer(buf->readableBytes()));
-			buffer->swap(*buf);
+				//不再发送数据
+				conn->shutdown();
 #else
-			BufferPtr buffer(new muduo::net::Buffer(buf->readableBytes()));
-			buffer->append(buf->peek(), static_cast<size_t>(buf->readableBytes()));
-			buf->retrieve(buf->readableBytes());
+				conn->forceClose();
 #endif
-			entryContext.getWorker()->run(
-				std::bind(
-					&GateServ::asyncClientHandler,
-					this, conn, buffer, receiveTime));
-		}
-		else {
+			}
 			numTotalBadReq_.incrementAndGet();
-			Errorf("entry invalid");
 		}
-	}
-	//数据包不足够解析，等待下次接收再解析
-	else {
-		if (conn) {
-			Errorf("len:%d bufsize:%d", len, buf->readableBytes());
+		else if (likely(len <= buf->readableBytes())) {
+			Context& entryContext = boost::any_cast<Context&>(conn->getContext());
+			EntryPtr entry(entryContext.getWeakEntryPtr().lock());
+			if (entry) {
+				RunInLoop(conn->getLoop(),
+					std::bind(&Buckets::update, &boost::any_cast<Buckets&>(conn->getLoop()->getContext()), entry));
 #if 0
-			//不再发送数据
-			conn->shutdown();
+				BufferPtr buffer(new muduo::net::Buffer(buf->readableBytes()));
+				buffer->swap(*buf);
 #else
-			conn->forceClose();
+				BufferPtr buffer(new muduo::net::Buffer(buf->readableBytes()));
+				buffer->append(buf->peek(), static_cast<size_t>(buf->readableBytes()));
+				buf->retrieve(buf->readableBytes());
 #endif
+				entryContext.getWorker()->run(
+					std::bind(
+						&GateServ::asyncClientHandler,
+						this, conn, buffer, receiveTime));
+			}
+			else {
+				numTotalBadReq_.incrementAndGet();
+				Errorf("entry invalid");
+			}
 		}
-		numTotalBadReq_.incrementAndGet();
+		//数据包不足够解析，等待下次接收再解析
+		else {
+			if (conn) {
+				Errorf("len:%d bufsize:%d", len, buf->readableBytes());
+#if 0
+				//不再发送数据
+				conn->shutdown();
+#else
+				conn->forceClose();
+#endif
+			}
+			numTotalBadReq_.incrementAndGet();
+		}
+		return;
+	}
+	case muduo::net::websocket::MessageT::TyCloseMessage: {
+		Debugf("%.*s", buf->readableBytes(), buf->peek());
+		break;
+	}
+	case muduo::net::websocket::MessageT::TyPingMessage: {
+		Debugf("%.*s", buf->readableBytes(), buf->peek());
+		break;
+	}
+	}
+	if (conn) {
+#if 0
+		//不再发送数据
+		conn->shutdown();
+#else
+		conn->forceClose();
+#endif
 	}
 }
 
