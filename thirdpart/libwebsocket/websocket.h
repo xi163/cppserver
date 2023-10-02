@@ -98,8 +98,11 @@ namespace muduo {
         namespace websocket {
 			
 			enum MessageT {
-				TyTextMessage = 0, //文本消息
-				TyBinaryMessage = 1, //二进制消息
+				TyTextMessage   = 0x1, //文本消息
+				TyBinaryMessage = 0x2, //二进制消息
+				TyCloseMessage  = 0x8,
+				TyPingMessage   = 0x9,
+				TyPongMessage   = 0xA,
 			};
 
 			IContext* create(

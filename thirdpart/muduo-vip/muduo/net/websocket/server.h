@@ -33,9 +33,9 @@ namespace muduo {
 				const muduo::net::TcpConnectionPtr& conn,
 				muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
 
-			void send(const muduo::net::TcpConnectionPtr& conn, char const* data, size_t len);
-			void send(const muduo::net::TcpConnectionPtr& conn, uint8_t const* data, size_t len);
-			void send(const muduo::net::TcpConnectionPtr& conn, std::vector<uint8_t> const& data);
+			void send(const muduo::net::TcpConnectionPtr& conn, char const* data, size_t len, MessageT msgType = MessageT::TyBinaryMessage);
+			void send(const muduo::net::TcpConnectionPtr& conn, uint8_t const* data, size_t len, MessageT msgType = MessageT::TyBinaryMessage);
+			void send(const muduo::net::TcpConnectionPtr& conn, std::vector<uint8_t> const& data, MessageT msgType = MessageT::TyBinaryMessage);
 
 			class Server : muduo::noncopyable {
 			public:
@@ -59,9 +59,9 @@ namespace muduo {
 
 				static void reset(const muduo::net::TcpConnectionPtr& conn);
 
-				static void send(const muduo::net::TcpConnectionPtr& conn, char const* data, size_t len);
-				static void send(const muduo::net::TcpConnectionPtr& conn, uint8_t const* data, size_t len);
-				static void send(const muduo::net::TcpConnectionPtr& conn, std::vector<uint8_t> const& data);
+				static void send(const muduo::net::TcpConnectionPtr& conn, char const* data, size_t len, MessageT msgType = MessageT::TyBinaryMessage);
+				static void send(const muduo::net::TcpConnectionPtr& conn, uint8_t const* data, size_t len, MessageT msgType = MessageT::TyBinaryMessage);
+				static void send(const muduo::net::TcpConnectionPtr& conn, std::vector<uint8_t> const& data, MessageT msgType = MessageT::TyBinaryMessage);
 
 			public:
 				muduo::net::TcpServer server_;

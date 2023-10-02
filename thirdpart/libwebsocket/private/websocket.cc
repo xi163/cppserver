@@ -1767,11 +1767,13 @@ namespace muduo {
 				IBytesBuffer* buf,
 				char const* data, size_t len,
 				MessageT msgType /*= MessageT::TyTextMessage*/, bool chunk/* = false*/) {
-				websocket::MessageE messageType = 
-					msgType == MessageT::TyTextMessage ?
-					websocket::MessageE::TextMessage :
-					websocket::MessageE::BinaryMessage;
-
+				MessageE messageType = (MessageE)msgType;
+				ASSERT(
+					messageType == MessageE::TextMessage ||
+					messageType == MessageE::BinaryMessage ||
+					messageType == MessageE::CloseMessage ||
+					messageType == MessageE::PingMessage ||
+					messageType == MessageE::PongMessage);
 				static const size_t chunksz = 1024;
 				if (chunk && len > chunksz) {
 					pack_unmask_data_frame_chunk(

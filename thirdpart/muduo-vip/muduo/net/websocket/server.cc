@@ -39,8 +39,7 @@ namespace muduo {
 				//pack_unmask_close_frame
 				//////////////////////////////////////////////////////////////////////////
 				muduo::net::Buffer rspdata;
-				websocket::pack_unmask_close_frame(
-					&rspdata, buf->peek(), buf->readableBytes());
+				websocket::pack_unmask_close_frame(&rspdata, buf->peek(), buf->readableBytes());
 				conn->send(&rspdata);
 			}
 			
@@ -79,23 +78,21 @@ namespace muduo {
 				conn->getWsContext().reset();
 			}
 
-			void send(const muduo::net::TcpConnectionPtr& conn, char const* data, size_t len) {
+			void send(const muduo::net::TcpConnectionPtr& conn, char const* data, size_t len, MessageT msgType) {
 				//////////////////////////////////////////////////////////////////////////
 				//pack_unmask_data_frame
 				//////////////////////////////////////////////////////////////////////////
 				muduo::net::Buffer rspdata;
-				websocket::pack_unmask_data_frame(
-					&rspdata, data, len,
-					muduo::net::websocket::MessageT::TyBinaryMessage, false);
+				websocket::pack_unmask_data_frame(&rspdata, data, len, msgType, false);
 				conn->send(&rspdata);
 			}
 
-			void send(const muduo::net::TcpConnectionPtr& conn, uint8_t const* data, size_t len) {
-				websocket::send(conn, (char const*)data, len);
+			void send(const muduo::net::TcpConnectionPtr& conn, uint8_t const* data, size_t len, MessageT msgType) {
+				websocket::send(conn, (char const*)data, len, msgType);
 			}
 
-			void send(const muduo::net::TcpConnectionPtr& conn, std::vector<uint8_t> const& data) {
-				websocket::send(conn, (char const*)&data[0], data.size());
+			void send(const muduo::net::TcpConnectionPtr& conn, std::vector<uint8_t> const& data, MessageT msgType) {
+				websocket::send(conn, (char const*)&data[0], data.size(), msgType);
 			}
 			
 			Server::Server(muduo::net::EventLoop* loop,
@@ -143,16 +140,16 @@ namespace muduo {
 				muduo::net::websocket::reset(conn);
 			}
 
-			void Server::send(const muduo::net::TcpConnectionPtr& conn, char const* data, size_t len) {
-				muduo::net::websocket::send(conn, data, len);
+			void Server::send(const muduo::net::TcpConnectionPtr& conn, char const* data, size_t len, MessageT msgType) {
+				muduo::net::websocket::send(conn, data, len, msgType);
 			}
 
-			void Server::send(const muduo::net::TcpConnectionPtr& conn, uint8_t const* data, size_t len) {
-				send(conn, (char const*)data, len);
+			void Server::send(const muduo::net::TcpConnectionPtr& conn, uint8_t const* data, size_t len, MessageT msgType) {
+				send(conn, (char const*)data, len, msgType);
 			}
 			
-			void Server::send(const muduo::net::TcpConnectionPtr& conn, std::vector<uint8_t> const& data) {
-				send(conn, (char const*)&data[0], data.size());
+			void Server::send(const muduo::net::TcpConnectionPtr& conn, std::vector<uint8_t> const& data, MessageT msgType) {
+				send(conn, (char const*)&data[0], data.size(), msgType);
 			}
 
 		}//namespace websocket
