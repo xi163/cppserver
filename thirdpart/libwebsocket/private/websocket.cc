@@ -110,19 +110,20 @@ buf[0] = 0x78  - 低地址 = 低位
 #define HANDSHAKE_MAP(XX, YY) \
 		YY(WS_ERROR_WANT_MORE,   0x1001, "握手需要读取") \
 		YY(WS_ERROR_PARSE,       0x1002, "握手解析失败") \
-		YY(WS_ERROR_PACKSZ,      0x1003, "握手包非法") \
-		YY(WS_ERROR_CRLFCRLF,    0x1004, "握手查找CRLFCRLF") \
-		YY(WS_ERROR_CONTEXT,     0x1005, "无效websocket::context") \
-		YY(WS_ERROR_PATH,        0x1006, "握手路径错误") \
-		YY(WS_ERROR_HTTPCONTEXT, 0x1007, "无效websocket::httpContext") \
-		YY(WS_ERROR_HTTPVERSION, 0x1008, "请求头必须HTTP/1.1版本") \
-		YY(WS_ERROR_CONNECTION,  0x1009, "请求头字段错误:Connection") \
-		YY(WS_ERROR_UPGRADE,     0x1010, "请求头字段错误:Upgrade") \
-		YY(WS_ERROR_ORIGIN,      0x1020, "请求头字段错误:Origin") \
-		YY(WS_ERROR_SECPROTOCOL, 0x1030, "请求头字段错误:Sec-WebSocket-Protocol") \
-		YY(WS_ERROR_SECVERSION,  0x1040, "请求头字段错误:Sec-WebSocket-Version") \
-		YY(WS_ERROR_SECKEY,      0x1050, "请求头字段错误:Sec-WebSocket-Key") \
-		YY(WS_ERROR_VERIFY,      0x1060, "请求头校验错误:Sec-WebSocket-Verify") \
+		YY(WS_ERROR_PACKSZ_LOW,  0x1003, "握手请求头长度限制") \
+		YY(WS_ERROR_PACKSZ_HIG,  0x1004, "握手请求头长度限制") \
+		YY(WS_ERROR_CRLFCRLF,    0x1005, "握手查找CRLFCRLF") \
+		YY(WS_ERROR_CONTEXT,     0x1006, "无效websocket::context") \
+		YY(WS_ERROR_PATH,        0x1007, "握手路径错误") \
+		YY(WS_ERROR_HTTPCONTEXT, 0x1008, "无效websocket::httpContext") \
+		YY(WS_ERROR_HTTPVERSION, 0x1009, "请求头必须HTTP/1.1版本") \
+		YY(WS_ERROR_CONNECTION,  0x100A, "请求头字段错误:Connection") \
+		YY(WS_ERROR_UPGRADE,     0x100B, "请求头字段错误:Upgrade") \
+		YY(WS_ERROR_ORIGIN,      0x100C, "请求头字段错误:Origin") \
+		YY(WS_ERROR_SECPROTOCOL, 0x100D, "请求头字段错误:Sec-WebSocket-Protocol") \
+		YY(WS_ERROR_SECVERSION,  0x100E, "请求头字段错误:Sec-WebSocket-Version") \
+		YY(WS_ERROR_SECKEY,      0x100F, "请求头字段错误:Sec-WebSocket-Key") \
+		YY(WS_ERROR_VERIFY,      0x1010, "请求头校验错误:Sec-WebSocket-Verify") \
 
 //大小端模式
 #define ENDIAN_MAP(XX, YY) \
@@ -854,7 +855,7 @@ namespace muduo {
 						segmentOffset_ = 0;
 						//unMask_c_ = 0;
 						//断开连接析构时候调用释放
-						//messageBuffer_.reset();
+						messageBuffer_.reset();
 					}
 				}
 				// 打印全部帧头信息
@@ -915,9 +916,9 @@ namespace muduo {
 				}
 				
 				~Context() {
-#ifdef LIBWEBSOCKET_DEBUG
+//#ifdef LIBWEBSOCKET_DEBUG
 					Debugf("...");
-#endif
+//#endif
 					resetAll();
 				}
 
@@ -1010,6 +1011,7 @@ namespace muduo {
 #ifdef LIBWEBSOCKET_DEBUG
 					Debugf("...");
 #endif
+					resetHttpContext();
 					resetExtendedHeader();
 					dataMessage_.resetMessage();
 					controlMessage_.resetMessage();
@@ -3512,10 +3514,12 @@ namespace muduo {
 				do {
 					//先确定是HTTP数据报文，再解析
 					//ASSERT(buf->readableBytes() > 4 && buf->findCRLFCRLF());
-
+//#ifdef LIBWEBSOCKET_DEBUG
+					Debugf("bufsize=%d\n\n%.*s", buf->readableBytes(), buf->readableBytes(), buf->peek());
+//#endif
 					//数据包太小
 					if (buf->readableBytes() <= CRLFCRLFSZ) {
-						*saveErrno = HandShakeE::WS_ERROR_PACKSZ/*WS_ERROR_WANT_MORE*/;
+						*saveErrno = HandShakeE::WS_ERROR_PACKSZ_LOW/*WS_ERROR_WANT_MORE*/;
 #ifdef LIBWEBSOCKET_DEBUG
 						Errorf(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
@@ -3523,7 +3527,7 @@ namespace muduo {
 					}
 					//数据包太大
 					else if (buf->readableBytes() > 1024) {
-						*saveErrno = HandShakeE::WS_ERROR_PACKSZ;
+						*saveErrno = HandShakeE::WS_ERROR_PACKSZ_HIG;
 #ifdef LIBWEBSOCKET_DEBUG
 						Errorf(Msg_Handshake_to_string(*saveErrno).c_str());
 #endif
@@ -3538,9 +3542,6 @@ namespace muduo {
 #endif
 						break;
 					}
-//#ifdef LIBWEBSOCKET_DEBUG
-					Debugf("bufsize = %d\n\n%.*s", buf->readableBytes(), buf->readableBytes(), buf->peek());
-//#endif
 					//务必先找到CRLFCRLF结束符得到完整HTTP请求，否则unique_ptr对象失效
 					if (!context.getHttpContext()) {
 						*saveErrno = HandShakeE::WS_ERROR_HTTPCONTEXT;
@@ -3707,6 +3708,7 @@ namespace muduo {
 						//new时内部引用计数递增，reset时递减，递减为0时销毁对象释放资源
 						//////////////////////////////////////////////////////////////////////////
 						//释放HttpContext资源
+						Debugf("free websocket::httpContext");
 						context.getHttpContext().reset();
 						return true;
 					}
@@ -3724,7 +3726,8 @@ namespace muduo {
 				case HandShakeE::WS_ERROR_VERIFY:
 				case HandShakeE::WS_ERROR_PATH:
 				case HandShakeE::WS_ERROR_PARSE:
-				case HandShakeE::WS_ERROR_PACKSZ:
+				case HandShakeE::WS_ERROR_PACKSZ_LOW:
+				case HandShakeE::WS_ERROR_PACKSZ_HIG:
 					//握手失败
 //#ifdef LIBWEBSOCKET_DEBUG
 					Errorf("failed: %s", Msg_Handshake_to_string(*saveErrno).c_str());
@@ -3737,6 +3740,7 @@ namespace muduo {
 				//new时内部引用计数递增，reset时递减，递减为0时销毁对象释放资源
 				//////////////////////////////////////////////////////////////////////////
 				//释放HttpContext资源
+				Debugf("free websocket::httpContext");
 				context.getHttpContext().reset();
 				return false;
 			}
@@ -3769,7 +3773,8 @@ namespace muduo {
 						case HandShakeE::WS_ERROR_VERIFY:
 						case HandShakeE::WS_ERROR_PATH:
 						case HandShakeE::WS_ERROR_PARSE:
-						case HandShakeE::WS_ERROR_PACKSZ: {
+						case HandShakeE::WS_ERROR_PACKSZ_LOW:
+						case HandShakeE::WS_ERROR_PACKSZ_HIG: {
 							websocket::ICallbackHandler* handler(context->getCallbackHandler());
 							if (handler) {
 								handler->sendMessage("HTTP/1.1 400 Bad Request\r\n\r\n");
@@ -3806,6 +3811,7 @@ namespace muduo {
 			}
 			
 			void free(IContext* context) {
+				Debugf("websocket::context");
 				ASSERT(context);
 				context->resetAll();
 				delete context;

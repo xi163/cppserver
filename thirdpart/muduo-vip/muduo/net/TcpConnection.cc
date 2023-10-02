@@ -86,6 +86,8 @@ TcpConnection::~TcpConnection()
   //LOG_WARN << "TcpConnection::dtor[" <<  name_ << "] at " << this
   //          << " fd=" << channel_->fd()
   //          << " state=" << stateToString();
+  ASSERT(socket_->fd() == channel_->fd());
+  Debugf("fd=%d", channel_->fd());
   assert(state_ == kDisconnected ||
          state_ == kDisconnecting);
 }

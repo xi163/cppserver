@@ -4,6 +4,8 @@
 //#include <libwebsocket/ssl.h>
 #include <muduo/net/websocket/context.h>
 
+#include "Logger/src/log/Logger.h"
+
 namespace muduo {
 	namespace net {
 		namespace websocket {
@@ -20,7 +22,6 @@ namespace muduo {
 			}
 			
 			Context::Holder::~Holder() {
-				//printf("%s %s(%d)\n", __FUNCTION__, __FILE__, __LINE__);
 				websocket::free(ptr_);
 				ptr_ = NULL;
 			}
@@ -35,13 +36,13 @@ namespace muduo {
 			}
 			
 			Context::~Context() {
-				//printf("%s %s(%d)\n", __FUNCTION__, __FILE__, __LINE__);
+				holder_.reset();
+				Debugf("...");
 			}
 			
 			void Context::send(const void* data, int len) {
 				muduo::net::TcpConnectionPtr conn(weakConn_.lock());
 				if (conn) {
-					//printf("%s %s(%d)\n", __FUNCTION__, __FILE__, __LINE__);
 					conn->send(data, len);
 				}
 			}
@@ -54,8 +55,6 @@ namespace muduo {
 				assert(message);
 				Buffer* buf = reinterpret_cast<Buffer*>(message);
 				assert(buf);
-				//printf("%s %s(%d)\n", __FUNCTION__, __FILE__, __LINE__);
-				//printf("len = %d\n", buf->readableBytes());
 				send(buf->peek(), buf->readableBytes());
 			}
 

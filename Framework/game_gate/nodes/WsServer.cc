@@ -64,7 +64,7 @@ void GateServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 		//////////////////////////////////////////////////////////////////////////
 		//websocket::Context::dtor
 		//////////////////////////////////////////////////////////////////////////
-		muduo::net::websocket::reset(conn);
+		//muduo::net::websocket::reset(conn);
 		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 		if (entryContext.getWorker()) {
 			entryContext.getWorker()->run(

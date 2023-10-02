@@ -16,12 +16,15 @@
 #include <netinet/tcp.h>
 #include <stdio.h>  // snprintf
 
+#include "Logger/src/log/Logger.h"
+
 using namespace muduo;
 using namespace muduo::net;
 
 Socket::~Socket()
 {
   //LOG_INFO << "Socket::dtor fd = [" << sockfd_ << "]";
+  Debugf("fd=%d", sockfd_);
   sockets::close(sockfd_);
 }
 
