@@ -4,8 +4,6 @@
 //#include <libwebsocket/ssl.h>
 #include <muduo/net/websocket/context.h>
 
-#include "Logger/src/log/Logger.h"
-
 namespace muduo {
 	namespace net {
 		namespace websocket {
@@ -52,9 +50,9 @@ namespace muduo {
 			}
 
 			void Context::sendMessage(IBytesBuffer* message) {
-				assert(message);
+				ASSERT(message);
 				Buffer* buf = reinterpret_cast<Buffer*>(message);
-				assert(buf);
+				ASSERT(buf);
 				send(buf->peek(), buf->readableBytes());
 			}
 
@@ -94,10 +92,10 @@ namespace muduo {
 // 					conn->getLoop()->assertInLoopThread();
 // 
 // 					muduo::net::Buffer* buff = reinterpret_cast<muduo::net::Buffer*>(buf);
-// 					assert(buff);
+// 					ASSERT(buff);
 // 
 // 					muduo::Timestamp* preceiveTime = reinterpret_cast<muduo::Timestamp*>(receiveTime);
-// 					assert(preceiveTime);
+// 					ASSERT(preceiveTime);
 
 					if (wsVerifyCallback_) {
 						return wsVerifyCallback_(request);
@@ -122,10 +120,10 @@ namespace muduo {
 					conn->getLoop()->assertInLoopThread();
 
 					muduo::net::Buffer* buff = reinterpret_cast<muduo::net::Buffer*>(buf);
-					assert(buff);
+					ASSERT(buff);
 
 					muduo::Timestamp* preceiveTime = reinterpret_cast<muduo::Timestamp*>(receiveTime);
-					assert(preceiveTime);
+					ASSERT(preceiveTime);
 
 					if (wsMessageCallback_) {
 						wsMessageCallback_(conn, buff, msgType, *preceiveTime);
@@ -139,10 +137,10 @@ namespace muduo {
 					conn->getLoop()->assertInLoopThread();
 
 					muduo::net::Buffer* buff = reinterpret_cast<muduo::net::Buffer*>(buf);
-					assert(buff);
+					ASSERT(buff);
 
 					muduo::Timestamp* preceiveTime = reinterpret_cast<muduo::Timestamp*>(receiveTime);
-					assert(preceiveTime);
+					ASSERT(preceiveTime);
 
 					if (wsClosedCallback_) {
 						wsClosedCallback_(conn, buff, *preceiveTime);

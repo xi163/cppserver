@@ -18,11 +18,11 @@ namespace muduo {
 			void onMessage(
 				const muduo::net::TcpConnectionPtr& conn,
 				muduo::net::Buffer* buf, muduo::Timestamp receiveTime) {
-				assert(conn);
+				ASSERT(conn);
 				conn->getLoop()->assertInLoopThread();
 
 				websocket::ContextPtr& context = conn->getWsContext();
-				assert(context);
+				ASSERT(context);
 				//////////////////////////////////////////////////////////////////////////
 				//parse_message_frame
 				//////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ namespace muduo {
 			void onClosed(
 				const muduo::net::TcpConnectionPtr& conn,
 				muduo::net::Buffer* buf, muduo::Timestamp receiveTime) {
-				assert(conn);
+				ASSERT(conn);
 				conn->getLoop()->assertInLoopThread();
 				Warnf("websocket::onClosed - %s", conn->peerAddress().toIpPort().c_str());
 				//////////////////////////////////////////////////////////////////////////

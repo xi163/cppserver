@@ -800,7 +800,7 @@ namespace muduo {
 				// 完整websocket消息体(body)
 				inline IBytesBufferPtr& getMessageBuffer() {
 					//assert must not be NULL
-					ASSERT(messageBuffer_);
+					//ASSERT(messageBuffer_);
 					return messageBuffer_;
 				}
 				// 指定消息类型
@@ -2636,9 +2636,9 @@ namespace muduo {
 							else {
 								//context.getDataMessage().getMessageBuffer()必是分片消息
 							}
+							ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 							//重置数据帧消息buffer
 							context.resetDataMessage();
-							ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 							break;
 						}
 						}
@@ -2760,8 +2760,8 @@ namespace muduo {
 								//context.getDataMessage().getMessageBuffer()必是分片消息
 							}
 							//重置数据帧消息buffer
-							context.resetDataMessage();
 							ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
+							context.resetDataMessage();
 							break;
 						}
 						}
@@ -2884,8 +2884,8 @@ namespace muduo {
 								//context.getDataMessage().getMessageBuffer()必是分片消息
 							}
 							//重置数据帧消息buffer
-							context.resetDataMessage();
 							ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
+							context.resetDataMessage();
 							break;
 						}
 						}
@@ -3000,9 +3000,9 @@ namespace muduo {
 									//延迟0.2s强制关闭连接
 									handler->forceCloseWithDelay(0.2f);
 #endif
+									ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 									//重置数据帧消息buffer
 									context.resetDataMessage();
-									ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 									//设置连接关闭状态
 									context.setWebsocketState(websocket::StateE::kClosed);
 								}
@@ -3036,9 +3036,9 @@ namespace muduo {
 							else {
 								//context.getControlMessage().getMessageBuffer()->readableBytes()必是分片消息
 							}
+							ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
 							//重置控制帧消息buffer
 							context.resetControlMessage();
-							ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
 							break;
 						}
 						}
@@ -3153,9 +3153,9 @@ namespace muduo {
 									//延迟0.2s强制关闭连接
 									handler->forceCloseWithDelay(0.2f);
 #endif
+									ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 									//重置数据帧消息buffer
 									context.resetDataMessage();
-									ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 									//设置连接关闭状态
 									context.setWebsocketState(websocket::StateE::kClosed);
 								}
@@ -3189,9 +3189,9 @@ namespace muduo {
 							else {
 								//context.getControlMessage().getMessageBuffer()必是分片消息
 							}
+							ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
 							//重置控制帧消息buffer
 							context.resetControlMessage();
-							ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
 							break;
 						}
 						}
@@ -3307,9 +3307,9 @@ namespace muduo {
 									//延迟0.2s强制关闭连接
 									handler->forceCloseWithDelay(0.2f);
 #endif
+									ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 									//重置数据帧消息buffer
 									context.resetDataMessage();
-									ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 									//设置连接关闭状态
 									context.setWebsocketState(websocket::StateE::kClosed);
 								}
@@ -3343,9 +3343,9 @@ namespace muduo {
 							else {
 								//context.getControlMessage().getMessageBuffer()必是分片消息
 							}
+							ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
 							//重置控制帧消息buffer
 							context.resetControlMessage();
-							ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
 							break;
 						}
 						}

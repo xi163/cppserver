@@ -54,11 +54,11 @@ namespace muduo {
 				void onClosedCallback(IBytesBuffer* buf, ITimestamp* receiveTime);
 			private:
 				inline websocket::IContext* getContext() {
-					assert(holder_);
+					ASSERT(holder_);
 #if 1
 					return holder_.get();
 #else
-					assert(holder_->ptr_);
+					ASSERT(holder_->ptr_);
 					return holder_->ptr_;
 #endif
 				}
