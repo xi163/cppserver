@@ -6,7 +6,7 @@ bool RouterServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 	std::string country, location;
 	std::string ipaddr = peerAddr.toIp();
 	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-	Infof("*** %s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
+	Infof("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 	return true;
 }
 
