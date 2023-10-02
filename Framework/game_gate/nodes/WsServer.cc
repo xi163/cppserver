@@ -132,7 +132,7 @@ void GateServ::onMessage(
 	if (likely(len > packet::kMaxPacketSZ ||
 		len < packet::kHeaderLen)) {
 		if (conn) {
-			Errorf("bufsize:%d len:%d", buf->readableBytes(), len);
+			Errorf("len:%d bufsize:%d", len, buf->readableBytes());
 #if 0
 			//不再发送数据
 			conn->shutdown();
@@ -169,7 +169,7 @@ void GateServ::onMessage(
 	//数据包不足够解析，等待下次接收再解析
 	else {
 		if (conn) {
-			Errorf("bufsize:%d len:%d", buf->readableBytes(), len);
+			Errorf("len:%d bufsize:%d", len, buf->readableBytes());
 #if 0
 			//不再发送数据
 			conn->shutdown();
@@ -200,7 +200,20 @@ void GateServ::asyncClientHandler(
 		}
 		packet::header_t* header = (packet::header_t*)buf->peek();
 		uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
-		assert(header->crc == crc);
+		//ASSERT(header->crc == crc);
+		switch (header->crc == crc) {
+		case true:
+			break;
+		default:
+			Errorf("getCheckSum error");
+#if 0
+			//不再发送数据
+			conn->shutdown();
+#else
+			conn->forceClose();
+#endif
+			return;
+		}
 		size_t len = buf->readableBytes();
 		if (header->len == len &&
 			header->ver == 1 &&
@@ -299,11 +312,11 @@ void GateServ::asyncClientHandler(
 				break;
 			}
 		}
-	}
+		}
 		else {
 			numTotalBadReq_.incrementAndGet();
 		}
-}
+	}
 	else {
 		numTotalBadReq_.incrementAndGet();
 		Errorf("TcpConnectionPtr.conn invalid");
