@@ -24,7 +24,7 @@ using namespace muduo::net;
 Socket::~Socket()
 {
   //LOG_INFO << "Socket::dtor fd = [" << sockfd_ << "]";
-  Debugf("fd=%d", sockfd_);
+  //Debugf("fd=%d", sockfd_);
   sockets::close(sockfd_);
 }
 

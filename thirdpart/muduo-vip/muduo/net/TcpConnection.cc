@@ -87,7 +87,7 @@ TcpConnection::~TcpConnection()
   //          << " fd=" << channel_->fd()
   //          << " state=" << stateToString();
   ASSERT(socket_->fd() == channel_->fd());
-  Debugf("fd=%d", channel_->fd());
+  //Debugf("fd=%d", channel_->fd());
   //ssl::SSL_free(ssl_);
   assert(state_ == kDisconnected ||
          state_ == kDisconnecting);
@@ -324,6 +324,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
 
 void TcpConnection::shutdown()
 {
+  Debugf("fd=%d", socket_->fd());
   // FIXME: use compare and swap
   if (state_ == kConnected)
   {
@@ -338,7 +339,6 @@ void TcpConnection::shutdownInLoop()
   loop_->assertInLoopThread();
   if (!channel_->isWriting())
   {
-	Debugf("fd=%d", socket_->fd());
     //ssl::SSL_free(ssl_);
     // we are not writing
     socket_->shutdownWrite();
@@ -371,6 +371,7 @@ void TcpConnection::shutdownInLoop()
 
 void TcpConnection::forceClose()
 {
+  Debugf("fd=%d", socket_->fd());
   // FIXME: use compare and swap
   if (state_ == kConnected || state_ == kDisconnecting)
   {
@@ -381,6 +382,7 @@ void TcpConnection::forceClose()
 
 void TcpConnection::forceCloseWithDelay(double seconds)
 {
+  Debugf("fd=%d", socket_->fd());
   if (state_ == kConnected || state_ == kDisconnecting)
   {
     setState(kDisconnecting);
@@ -397,7 +399,6 @@ void TcpConnection::forceCloseInLoop()
   if (state_ == kConnected || state_ == kDisconnecting)
   {
     // as if we received 0 byte in handleRead();
-	Debugf("fd=%d", socket_->fd());
     handleClose();
   }
 }
@@ -468,7 +469,7 @@ void TcpConnection::connectEstablished()
 void TcpConnection::connectDestroyed()
 {
   loop_->assertInLoopThread();
-  ASSERT_V(state_ == kConnected || state_ == kDisconnecting, "state_=%s", stateToString());
+  //ASSERT_V(state_ == kConnected || state_ == kDisconnecting, "state_=%s", stateToString());//kDisconnected
   if (state_ == kConnected)
   {
     setState(kDisconnected);
