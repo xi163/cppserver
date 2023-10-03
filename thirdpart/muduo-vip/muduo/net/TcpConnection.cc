@@ -88,6 +88,7 @@ TcpConnection::~TcpConnection()
   //          << " state=" << stateToString();
   ASSERT(socket_->fd() == channel_->fd());
   Debugf("fd=%d", channel_->fd());
+  //ssl::SSL_free(ssl_);
   assert(state_ == kDisconnected ||
          state_ == kDisconnecting);
 }
@@ -456,7 +457,7 @@ void TcpConnection::stopReadInLoop()
 void TcpConnection::connectEstablished()
 {
   loop_->assertInLoopThread();
-  assert(state_ == kConnecting);
+  ASSERT_V(state_ == kConnecting, "state_=%s", stateToString());
   setState(kConnected);
   channel_->tie(shared_from_this());
   channel_->enableReading(enable_et_);
@@ -467,6 +468,7 @@ void TcpConnection::connectEstablished()
 void TcpConnection::connectDestroyed()
 {
   loop_->assertInLoopThread();
+  ASSERT_V(state_ == kConnected || state_ == kDisconnecting, "state_=%s", stateToString());
   if (state_ == kConnected)
   {
     setState(kDisconnected);
@@ -592,8 +594,8 @@ void TcpConnection::handleRead(Timestamp receiveTime)
 			  default:
 				  //LOG_SYSERR << "TcpConnection::handleRead";
 				  //handleError();
-				  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-				  handleClose();
+				  //Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+				  //handleClose();
 				  break;
 			  }
 		  }
@@ -705,8 +707,8 @@ void TcpConnection::handleWrite()
 				  default:
 					  //LOG_SYSERR << "TcpConnection::handleWrite";
 					  //handleError();
-					  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-					  handleClose();
+					  //Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+					  //handleClose();
 					  break;
 				  }
 			  }
@@ -733,8 +735,8 @@ void TcpConnection::handleWrite()
 				  default:
 					  //LOG_SYSERR << "TcpConnection::handleWrite";
 					  //handleError();
-					  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-					  handleClose();
+					  //Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+					  //handleClose();
 					  break;
 				  }
 			  }
@@ -761,7 +763,7 @@ void TcpConnection::handleClose()
   loop_->assertInLoopThread();
   ssl::SSL_free(ssl_);
   //LOG_TRACE << "fd = " << channel_->fd() << " state = " << stateToString();
-  assert(state_ == kConnected || state_ == kDisconnecting);
+  ASSERT_V(state_ == kConnected || state_ == kDisconnecting, "state_=%s", stateToString());
   // we don't close fd, leave it to dtor, so we can find leaks easily.
   setState(kDisconnected);
   channel_->disableAll();
