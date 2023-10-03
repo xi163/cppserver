@@ -33,8 +33,8 @@ namespace muduo {
 #endif
 			}
 			
+			// ~Context -> ~Context_ -> ~IContext
 			Context::~Context() {
-				holder_.reset();
 				Debugf("...");
 			}
 			

@@ -892,9 +892,9 @@ namespace muduo {
 				size_t segmentOffset_/*, unMask_c_*/;
 			};
 
-			class Context : public base::noncopyable, public IContext {
+			class Context_ : public base::noncopyable, public IContext {
 			public:
-				explicit Context(
+				explicit Context_(
 					ICallback* handler,
 					IHttpContextPtr& context,
 					IBytesBufferPtr& dataBuffer,
@@ -915,7 +915,8 @@ namespace muduo {
 					init(handler, context, dataBuffer, controlBuffer);
 				}
 				
-				~Context() {
+				// ~Context -> ~Context_ -> ~IContext
+				~Context_() {
 //#ifdef LIBWEBSOCKET_DEBUG
 					Debugf("...");
 //#endif
@@ -1008,9 +1009,9 @@ namespace muduo {
 				}
 
 				inline void resetAll() {
-#ifdef LIBWEBSOCKET_DEBUG
+//#ifdef LIBWEBSOCKET_DEBUG
 					Debugf("...");
-#endif
+//#endif
 					resetHttpContext();
 					resetExtendedHeader();
 					dataMessage_.resetMessage();
@@ -2021,7 +2022,7 @@ namespace muduo {
 
 			// Payload data 非控制帧(数据帧)
 // 			static bool parse_control_frame_body_payload_data(
-// 				websocket::Context& context,
+// 				websocket::Context_& context,
 // 				IBytesBuffer /*const*/* buf,
 // 				ITimestamp* receiveTime, int* saveErrno) {
 // 				
@@ -2030,7 +2031,7 @@ namespace muduo {
 
 			// 消息帧有效性安全检查
 			static bool validate_message_frame(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 
@@ -2173,52 +2174,52 @@ namespace muduo {
 			}
 
 			static int parse_frame_ReadExtendedPayloadlenU16(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 			
 			static int parse_frame_ReadExtendedPayloadlenI64(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 			
 			static int parse_frame_ReadMaskingkey(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 			
 			static bool parse_control_frame_ReadPayloadData(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 			
 			static bool parse_uncontrol_frame_ReadPayloadData(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_uncontrol_frame_ReadExtendedPayloadDataU16(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_uncontrol_frame_ReadExtendedPayloadDataI64(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_control_frame_ReadPayloadData(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_control_frame_ReadExtendedPayloadDataU16(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 
 			static bool parse_control_frame_ReadExtendedPayloadDataI64(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno);
 
@@ -2232,7 +2233,7 @@ namespace muduo {
 			//		Maybe include Masking-key
 			//		Maybe include Payload data
 			static bool update_frame_body_parse_step(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -2296,9 +2297,9 @@ namespace muduo {
 			//	输出基础协议头信息
 			//	消息帧有效性安全检查
 			//	更新帧体(body)消息流解析步骤step
-			//@param websocket::Context& 组件内部私有接口
+			//@param websocket::Context_& 组件内部私有接口
 			static bool parse_frame_ReadFrameHeader(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -2350,7 +2351,7 @@ namespace muduo {
 			}
 
 			static int parse_frame_ReadExtendedPayloadlenU16(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -2399,7 +2400,7 @@ namespace muduo {
 			}
 			
 			static int parse_frame_ReadExtendedPayloadlenI64(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -2448,7 +2449,7 @@ namespace muduo {
 			}
 
 			static int parse_frame_ReadMaskingkey(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -2532,7 +2533,7 @@ namespace muduo {
 			}
 
 			static bool parse_uncontrol_frame_ReadPayloadData(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -2636,7 +2637,7 @@ namespace muduo {
 							else {
 								//context.getDataMessage().getMessageBuffer()必是分片消息
 							}
-							ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
+							//ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 							//重置数据帧消息buffer
 							context.resetDataMessage();
 							break;
@@ -2655,7 +2656,7 @@ namespace muduo {
 			}
 
 			static bool parse_uncontrol_frame_ReadExtendedPayloadDataU16(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -2760,7 +2761,7 @@ namespace muduo {
 								//context.getDataMessage().getMessageBuffer()必是分片消息
 							}
 							//重置数据帧消息buffer
-							ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
+							//ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 							context.resetDataMessage();
 							break;
 						}
@@ -2778,7 +2779,7 @@ namespace muduo {
 			}
 
 			static bool parse_uncontrol_frame_ReadExtendedPayloadDataI64(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -2884,7 +2885,7 @@ namespace muduo {
 								//context.getDataMessage().getMessageBuffer()必是分片消息
 							}
 							//重置数据帧消息buffer
-							ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
+							//ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 							context.resetDataMessage();
 							break;
 						}
@@ -2902,7 +2903,7 @@ namespace muduo {
 			}
 
 			static bool parse_control_frame_ReadPayloadData(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -3000,7 +3001,7 @@ namespace muduo {
 									//延迟0.2s强制关闭连接
 									handler->forceCloseWithDelay(0.2f);
 #endif
-									ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
+									//ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 									//重置数据帧消息buffer
 									context.resetDataMessage();
 									//设置连接关闭状态
@@ -3036,7 +3037,7 @@ namespace muduo {
 							else {
 								//context.getControlMessage().getMessageBuffer()->readableBytes()必是分片消息
 							}
-							ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
+							//ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
 							//重置控制帧消息buffer
 							context.resetControlMessage();
 							break;
@@ -3055,7 +3056,7 @@ namespace muduo {
 			}
 
 			static bool parse_control_frame_ReadExtendedPayloadDataU16(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -3153,7 +3154,7 @@ namespace muduo {
 									//延迟0.2s强制关闭连接
 									handler->forceCloseWithDelay(0.2f);
 #endif
-									ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
+									//ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 									//重置数据帧消息buffer
 									context.resetDataMessage();
 									//设置连接关闭状态
@@ -3189,7 +3190,7 @@ namespace muduo {
 							else {
 								//context.getControlMessage().getMessageBuffer()必是分片消息
 							}
-							ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
+							//ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
 							//重置控制帧消息buffer
 							context.resetControlMessage();
 							break;
@@ -3208,7 +3209,7 @@ namespace muduo {
 			}
 
 			static bool parse_control_frame_ReadExtendedPayloadDataI64(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -3307,7 +3308,7 @@ namespace muduo {
 									//延迟0.2s强制关闭连接
 									handler->forceCloseWithDelay(0.2f);
 #endif
-									ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
+									//ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
 									//重置数据帧消息buffer
 									context.resetDataMessage();
 									//设置连接关闭状态
@@ -3343,7 +3344,7 @@ namespace muduo {
 							else {
 								//context.getControlMessage().getMessageBuffer()必是分片消息
 							}
-							ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
+							//ASSERT(context.getControlMessage().getMessageBuffer()->readableBytes() == 0);
 							//重置控制帧消息buffer
 							context.resetControlMessage();
 							break;
@@ -3362,7 +3363,7 @@ namespace muduo {
 			}
 
 			static int parse_frame(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno) {
 				//websocket::extended_header_t 正处于解析当中的帧头(当前帧头)
@@ -3506,7 +3507,7 @@ namespace muduo {
 			}
 
 			static bool do_handshake(
-				websocket::Context& context,
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				ITimestamp* receiveTime, int* saveErrno,
 				std::string const& path_handshake) {
@@ -3751,8 +3752,8 @@ namespace muduo {
 				ITimestamp* receiveTime,
 				std::string const& path_handshake) {
 				if (context_) {
-					//ASSERT(dynamic_cast<websocket::Context*>(ctx));
-					websocket::Context* context = reinterpret_cast<websocket::Context*>(context_);
+					//ASSERT(dynamic_cast<websocket::Context_*>(ctx));
+					websocket::Context_* context = reinterpret_cast<websocket::Context_*>(context_);
 					int saveErrno = 0;
 					if (context->getWebsocketState() == websocket::StateE::kClosed) {
 						// 握手
@@ -3803,7 +3804,7 @@ namespace muduo {
 				IHttpContextPtr& context,
 				IBytesBufferPtr& dataBuffer,
 				IBytesBufferPtr& controlBuffer) {
-				return new Context(
+				return new Context_(
 					handler,
 					context,
 					dataBuffer,

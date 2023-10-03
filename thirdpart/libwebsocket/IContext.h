@@ -15,7 +15,9 @@ namespace muduo {
 			class IContext {
 			public:
 				virtual void resetAll() = 0;
+				// ~Context_ -> ~IContext
 				virtual ~IContext() {
+					Debugf("...");
 				}
 			};
 

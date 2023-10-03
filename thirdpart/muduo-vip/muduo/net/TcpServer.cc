@@ -138,7 +138,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
 		MutexLockGuard lock(mutex_);
 		size_t n = connections_.erase(conn->name());
 		(void)n;
-		assert(n == 1);
+		ASSERT_V(n == 1, "n=%d", n);
 	}
 	EventLoop* ioLoop = conn->getLoop();
 	QueueInLoop(ioLoop,
@@ -198,7 +198,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
 	//////////////////////////////////////////////////////////////////////////
 	size_t n = connections_.erase(conn->name());
 	(void)n;
-	assert(n == 1);
+	ASSERT_V(n == 1, "n=%d", n);
 	EventLoop* ioLoop = conn->getLoop();
 	QueueInLoop(ioLoop,
 		std::bind(&TcpConnection::connectDestroyed, conn));
@@ -260,7 +260,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   //////////////////////////////////////////////////////////////////////////
   size_t n = connections_.erase(conn->name());
   (void)n;
-  assert(n == 1);
+  ASSERT_V(n == 1, "n=%d", n);
   EventLoop* ioLoop = conn->getLoop();
   QueueInLoop(ioLoop,
       std::bind(&TcpConnection::connectDestroyed, conn));
