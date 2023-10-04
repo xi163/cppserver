@@ -674,6 +674,7 @@ void HallServ::cmd_on_user_login(
 		try {
 			do {
 				std::string country, location;
+				//dead loop bug???
 				ipLocator_.GetAddressByIp(ntohl(pre_header_->clientIp), location, country);
 				std::string loginIp = utils::inetToIp(pre_header_->clientIp);
 				std::string key = redisKeys::prefix_token_limit + reqdata.session();

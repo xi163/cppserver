@@ -5,7 +5,8 @@
 bool LoginServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 	std::string country, location;
 	std::string ipaddr = peerAddr.toIp();
-	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
+	//dead loop bug???
+	//ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
 	Infof("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 	return true;
 }
@@ -106,12 +107,14 @@ void LoginServ::onConnected(
 		//map[session] = weakConn
 		entities_.add(session, conn);
 		std::string country, location;
-		ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
+		//dead loop bug???
+		//ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
 		Infof("%s %s %s session[%s]", ipaddr.c_str(), country.c_str(), location.c_str(), session.c_str());
 	}
 	else {
 		std::string country, location;
-		ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
+		//dead loop bug???
+		//ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
 		Errorf("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 	}
 }
@@ -130,7 +133,8 @@ void LoginServ::onMessage(
 		Debugf("%.*s", buf->readableBytes(), buf->peek());
 		std::string country, location;
 		std::string ipaddr = conn->peerAddress().toIp();
-		ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
+		//dead loop bug???
+		//ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
 		std::string s = utils::sprintf("来自 %s %s %s 的老6, 干啥呢, 想踩缝纫机了?!", ipaddr.c_str(), country.c_str(), location.c_str());
 		muduo::net::websocket::send(conn, s.data(), s.length(), muduo::net::websocket::MessageT::TyTextMessage);
 		break;
