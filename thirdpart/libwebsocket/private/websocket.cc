@@ -2995,10 +2995,8 @@ namespace muduo {
 									//不再发送数据
 									handler->shutdown();
 #elif 1
-									//直接强制关闭连接
 									handler->forceClose();
 #else
-									//延迟0.2s强制关闭连接
 									handler->forceCloseWithDelay(0.2f);
 #endif
 									//ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
@@ -3148,10 +3146,8 @@ namespace muduo {
 									//不再发送数据
 									handler->shutdown();
 #elif 1
-									//直接强制关闭连接
 									handler->forceClose();
 #else
-									//延迟0.2s强制关闭连接
 									handler->forceCloseWithDelay(0.2f);
 #endif
 									//ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
@@ -3302,10 +3298,8 @@ namespace muduo {
 									//不再发送数据
 									handler->shutdown();
 #elif 1
-									//直接强制关闭连接
 									handler->forceClose();
 #else
-									//延迟0.2s强制关闭连接
 									handler->forceCloseWithDelay(0.2f);
 #endif
 									//ASSERT(context.getDataMessage().getMessageBuffer()->readableBytes() == 0);
@@ -3779,7 +3773,14 @@ namespace muduo {
 							websocket::ICallbackHandler* handler(context->getCallbackHandler());
 							if (handler) {
 								handler->sendMessage("HTTP/1.1 400 Bad Request\r\n\r\n");
+#if 0
+								//不再发送数据
 								handler->shutdown();
+#elif 1
+								handler->forceClose();
+#else
+								handler->forceCloseWithDelay(0.2f);
+#endif
 							}
 							break;
 						}

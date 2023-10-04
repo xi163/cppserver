@@ -44,6 +44,7 @@ namespace muduo {
 			//Debugf("begin {{{");
 			ssize_t n = 0;
 			do {
+				Debugf("...");
 				//make sure that writable > 0
 				if (buf->writableBytes() == 0) {
 					buf->ensureWritableBytes(implicit_cast<size_t>(4096));
@@ -104,13 +105,14 @@ namespace muduo {
 			//Debugf("end }}}");
 			return n;
 		}//readFull
-			
+		
 		//writeFull for EPOLLET
 		ssize_t IBytesBuffer::writeFull(int sockfd, void const* data, size_t len, int* saveErrno) {
 			//printf("\nbegin {{{");
 			ssize_t left = (ssize_t)len;
 			ssize_t n = 0;
 			while (left > 0) {
+				Debugf("...");
 				const ssize_t rc = ::write(sockfd, (char const*)data + n, left);
 				*saveErrno = (int)rc;
 				if (rc > 0) {
