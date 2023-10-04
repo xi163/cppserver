@@ -90,6 +90,8 @@ int sockets::createNonblockingOrDie(sa_family_t family)
   {
     LOG_SYSFATAL << "sockets::createNonblockingOrDie";
   }
+
+  //setNonBlockAndCloseOnExec(sockfd);
 #endif
   return sockfd;
 }
@@ -121,11 +123,12 @@ int sockets::accept(int sockfd, struct sockaddr_in6* addr)
 #else
   int connfd = ::accept4(sockfd, sockaddr_cast(addr),
                          &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+  //setNonBlockAndCloseOnExec(connfd);
 #endif
   if (connfd < 0)
   {
     int saveErrno = errno;
-    Debugf("errno = %d errmsg = %s", errno, strerror(errno));
+    Errorf("errno = %d errmsg = %s", saveErrno, strerror(saveErrno));
     //ERROR Too many open files (errno=24) Socket::accept - SocketsOps.cc:128
     //LOG_SYSERR << "Socket::accept";
     switch (saveErrno)

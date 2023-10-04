@@ -21,8 +21,13 @@ public:
 	}
 };
 
+
 int main() {
 	
+	int a = 0,b = 0;
+
+	ASSERT_V_IF(a == 0, b>0, "b=%d", b);
+
 	IContext* p = new Context(1);
 	delete p;
 	//std::string src = "zXkB8PsKv1oTDfWuXoL4P-EtHaNz5qei5uurv1qKecP6ATtZ7TRIB2KOLVdxpITOS1oifFd-4-FrIwrgjz5U8uAOhiTEl-GWtPctzDcczTTZlSLuARLVI_pwP3WE03TxPT4HfD8V3tlDNxMIMNRGD3Gh3wqBoLCmniTFUe5U2jmF-FTqBBvO9summnxsnM-qdv3qCZqOw1FZp7m5yoaOXmSDzVd6kFRmGS5mH6OBQhkdmN4aPlQVhJutLGxlBrll7xGvT1eqzQpXMXb6Jhxp6KpmA5dU_USVyFOo5EkUiQXf-64OtMMEhrJb7d7Rp0qv";

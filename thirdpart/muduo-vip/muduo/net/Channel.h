@@ -55,22 +55,23 @@ class Channel : noncopyable
   /// prevent the owner object being destroyed in handleEvent.
   void tie(const std::shared_ptr<void>&);
 
-  int fd() const { return fd_; }
-  int events() const { return events_; }
-  void set_revents(int revt) { revents_ = revt; } // used by pollers
-  // int revents() const { return revents_; }
-  bool isNoneEvent() const { return events_ == kNoneEvent; }
+  inline int fd() const { return fd_; }
+  inline int events() const { return events_; }
+  inline void set_revents(int revt) { revents_ = revt; } // used by pollers
+  //inline int revents() const { return revents_; }
+  inline bool isNoneEvent() const { return events_ == kNoneEvent; }
   inline int const readEvent(bool et) { return et ? kReadEventET : kReadEvent; }
   inline int const writeEvent(bool et) { return et ? kWriteEventET : kWriteEvent; }
-  void enableReading(bool et = false) { events_ |= readEvent(et); update(); }
-  void disableReading(bool et = false) { events_ &= ~readEvent(et); update(); }
-  void enableWriting(bool et = false) { events_ |= writeEvent(et); update(); }
-  void disableWriting(bool et = false) { events_ &= ~writeEvent(et); update(); }
-  void disableAll() { events_ = kNoneEvent; update(); }
-  bool isWriting() const { return events_ & kWriteEvent; }
-  bool isReading() const { return events_ & kReadEvent; }
-  bool isETReading() { return events_ & ~kReadEvent; }
-  bool isETWriting() { return events_ & ~kWriteEvent; }
+  inline void enableReading(bool et = false) { events_ |= readEvent(et); update(); }
+  inline void disableReading(bool et = false) { events_ &= ~readEvent(et); update(); }
+  inline void enableWriting(bool et = false) { events_ |= writeEvent(et); update(); }
+  inline void disableWriting(bool et = false) { events_ &= ~writeEvent(et); update(); }
+  inline void disableAll() { events_ = kNoneEvent; update(); }
+  inline bool isWriting() const { return events_ & kWriteEvent; }
+  inline bool isReading() const { return events_ & kReadEvent; }
+  inline bool isETReading() { return events_ & ~kReadEvent; }
+  inline bool isETWriting() { return events_ & ~kWriteEvent; }
+  
   // for Poller
   int index() { return index_; }
   void set_index(int idx) { index_ = idx; }
@@ -89,6 +90,7 @@ class Channel : noncopyable
 
   void update();
   void handleEventWithGuard(Timestamp receiveTime, short revents);
+
   static const int kNoneEvent;
   static const int kReadEvent;
   static const int kReadEventET;

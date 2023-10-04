@@ -28,7 +28,7 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reusepor
   : loop_(loop),
     acceptSocket_(sockets::createNonblockingOrDie(listenAddr.family())),
     acceptChannel_(loop, acceptSocket_.fd()),
-    listening_(false),
+    listening_(false), et_(false),
     idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
   assert(idleFd_ >= 0);
@@ -49,6 +49,7 @@ Acceptor::~Acceptor()
 void Acceptor::listen(bool et)
 {
   loop_->assertInLoopThread();
+  et_ = et;
   listening_ = true;
   acceptSocket_.listen();
   acceptChannel_.enableReading(et);
@@ -58,12 +59,16 @@ void Acceptor::handleRead(int events)
 {
   loop_->assertInLoopThread();
   InetAddress peerAddr;
-  bool et = acceptChannel_.isETReading(); //EPOLLET
+  ASSERT_IF(et_, acceptChannel_.isETReading()); //EPOLLET
   do {
       //FIXME loop until no more
       int connfd = acceptSocket_.accept(&peerAddr);
+      //errno = 115 errmsg = Operation now in progress
+      //errno = 11 errmsg = Resource temporarily unavailable
+      //errno = 24 errmsg = Too many open files
       if (connfd >= 0)
       {
+		  Debugf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
           // string hostport = peerAddr.toIpPort();
           // LOG_TRACE << "Accepts of " << hostport;
 #ifdef _MUDUO_ASYNC_CONN_POOL_
@@ -113,14 +118,7 @@ void Acceptor::handleRead(int events)
 #endif
       }
       else {
-		  if (errno != EAGAIN &&
-			  errno != EWOULDBLOCK &&
-			  errno != ECONNABORTED &&
-			  errno != EPROTO &&
-			  errno != EINTR) {
-			  //break;
-		  }
-          //ERROR Too many open files (errno=24) in Acceptor::handleRead - Acceptor.cc:80
+          Errorf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
           //LOG_SYSERR << "in Acceptor::handleRead";
           // Read the section named "The special problem of
           // accept()ing when you can't" in libev's doc.
@@ -132,8 +130,14 @@ void Acceptor::handleRead(int events)
               ::close(idleFd_);
               idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
           }
-          break;
+		  if (errno != EAGAIN &&
+			  errno != EWOULDBLOCK &&
+			  errno != ECONNABORTED &&
+			  errno != EPROTO &&
+			  errno != EINTR) {
+			  break;
+		  }
       }
-  } while (et);
+  } while (et_);
 }
 

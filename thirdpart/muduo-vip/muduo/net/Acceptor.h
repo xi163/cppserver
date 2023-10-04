@@ -64,7 +64,7 @@ class Acceptor : noncopyable
   Channel acceptChannel_;
   ConditionCallback conditionCallback_;
   NewConnectionCallback newConnectionCallback_;
-  bool listening_;
+  bool listening_, et_;
   int idleFd_;
 };
 
