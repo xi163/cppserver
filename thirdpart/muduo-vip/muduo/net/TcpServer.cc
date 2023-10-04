@@ -125,20 +125,19 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	//LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
 	//         << "] - connection " << conn->name();
-	//////////////////////////////////////////////////////////////////////////
-	//释放conn连接对象sockfd资源流程 ///
+	//释放conn连接对象sockfd资源流程
 	//TcpConnection::handleClose ->
 	//TcpConnection::closeCallback_ ->
 	//TcpServer::removeConnection ->
 	//TcpServer::removeConnectionInLoop ->
 	//TcpConnection::dtor ->
 	//Socket::dtor -> sockets::close(sockfd_)
-	//////////////////////////////////////////////////////////////////////////
 	{
 		MutexLockGuard lock(mutex_);
 		size_t n = connections_.erase(conn->name());
 		(void)n;
 		ASSERT_V(n == 1, "n=%d", n);
+		Debugf("%d", connections_.size());
 	}
 	EventLoop* ioLoop = conn->getLoop();
 	QueueInLoop(ioLoop,
@@ -187,18 +186,17 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
 	EventLoopThread::Singleton::getLoop()->assertInLoopThread();
 	//LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
 	//         << "] - connection " << conn->name();
-	//////////////////////////////////////////////////////////////////////////
-	//释放conn连接对象sockfd资源流程 ///
+	//释放conn连接对象sockfd资源流程
 	//TcpConnection::handleClose ->
 	//TcpConnection::closeCallback_ ->
 	//TcpServer::removeConnection ->
 	//TcpServer::removeConnectionInLoop ->
 	//TcpConnection::dtor ->
 	//Socket::dtor -> sockets::close(sockfd_)
-	//////////////////////////////////////////////////////////////////////////
 	size_t n = connections_.erase(conn->name());
 	(void)n;
 	ASSERT_V(n == 1, "n=%d", n);
+	Debugf("%d", connections_.size());
 	EventLoop* ioLoop = conn->getLoop();
 	QueueInLoop(ioLoop,
 		std::bind(&TcpConnection::connectDestroyed, conn));
@@ -249,18 +247,17 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   loop_->assertInLoopThread();
   //LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
   //         << "] - connection " << conn->name();
-  //////////////////////////////////////////////////////////////////////////
-  //释放conn连接对象sockfd资源流程 ///
+  //释放conn连接对象sockfd资源流程
   //TcpConnection::handleClose ->
   //TcpConnection::closeCallback_ ->
   //TcpServer::removeConnection ->
   //TcpServer::removeConnectionInLoop ->
   //TcpConnection::dtor ->
   //Socket::dtor -> sockets::close(sockfd_)
-  //////////////////////////////////////////////////////////////////////////
   size_t n = connections_.erase(conn->name());
   (void)n;
   ASSERT_V(n == 1, "n=%d", n);
+  Debugf("%d", connections_.size());
   EventLoop* ioLoop = conn->getLoop();
   QueueInLoop(ioLoop,
       std::bind(&TcpConnection::connectDestroyed, conn));
