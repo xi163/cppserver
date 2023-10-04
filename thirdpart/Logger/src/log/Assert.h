@@ -50,4 +50,33 @@
 
 #endif
 
+// ASSERT_IF
+#define ASSERT_IF(cond, expr) \
+	(cond) \
+	? ASSERT(expr) \
+	: __ASSERT_VOID_CAST (0)
+
+// ASSERT_S_IF
+#define ASSERT_S_IF(cond, expr, s) \
+	(cond) \
+	? ASSERT_S(expr, s) \
+	: __ASSERT_VOID_CAST (0)
+
+// ASSERT_V_IF
+#ifdef _windows_
+
+#define ASSERT_V_IF(cond, expr, fmt,...) \
+	(cond) \
+	? ASSERT_V(expr, fmt, ##__VA_ARGS__) \
+	: __ASSERT_VOID_CAST (0)
+
+#else
+
+#define ASSERT_V_IF(cond, expr, args...) \
+	(cond) \
+	? ASSERT_V(expr, ##args) \
+	: __ASSERT_VOID_CAST (0)
+
+#endif
+
 #endif
