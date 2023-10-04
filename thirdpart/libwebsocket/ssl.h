@@ -33,9 +33,9 @@ namespace muduo {
 
 			void SSL_CTX_free();
 
-			ssize_t SSL_read(SSL* ssl, IBytesBuffer* buf, int* saveErrno);
+			ssize_t SSL_readFull(SSL* ssl, IBytesBuffer* buf, ssize_t& rc, int* saveErrno);
 
-			ssize_t SSL_write(SSL* ssl, void const* data, size_t len, int* saveErrno);
+			ssize_t SSL_writeFull(SSL* ssl, void const* data, size_t len, ssize_t& rc, int* saveErrno);
 
 			bool SSL_handshake(SSL_CTX* ctx, SSL*& ssl, int sockfd, int& saveErrno);
 

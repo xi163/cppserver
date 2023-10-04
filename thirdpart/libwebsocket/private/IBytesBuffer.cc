@@ -39,7 +39,7 @@ namespace muduo {
 		/// @endcode
 		///
 		//readFull for EPOLLET
-		ssize_t IBytesBuffer::readFull(int sockfd, IBytesBuffer* buf, int* saveErrno) {
+		ssize_t IBytesBuffer::readFull(int sockfd, IBytesBuffer* buf, ssize_t& rc, int* saveErrno) {
 			ASSERT(buf->writableBytes() >= 0);
 			//Debugf("begin {{{");
 			ssize_t n = 0;
@@ -57,8 +57,8 @@ namespace muduo {
 #else
 				const size_t writable = buf->writableBytes();
 #endif
-				const ssize_t rc = ::read(sockfd, buf->beginWrite(), writable);
-				*saveErrno = (int)rc;
+				/*const ssize_t */rc = ::read(sockfd, buf->beginWrite(), writable);
+				//*saveErrno = errno;
 				if (rc > 0) {
 					//
 					//rc > 0 errno = EAGAIN(11)
@@ -77,6 +77,7 @@ namespace muduo {
 					continue;
 				}
 				else if (rc < 0) {
+					*saveErrno = errno;
 					//
 					//rc = -1 errno = EAGAIN(11)
 					//rc = -1 errno = 0
@@ -107,14 +108,14 @@ namespace muduo {
 		}//readFull
 		
 		//writeFull for EPOLLET
-		ssize_t IBytesBuffer::writeFull(int sockfd, void const* data, size_t len, int* saveErrno) {
+		ssize_t IBytesBuffer::writeFull(int sockfd, void const* data, size_t len, ssize_t& rc, int* saveErrno) {
 			//printf("\nbegin {{{");
 			ssize_t left = (ssize_t)len;
 			ssize_t n = 0;
 			while (left > 0) {
 				Debugf("...");
-				const ssize_t rc = ::write(sockfd, (char const*)data + n, left);
-				*saveErrno = (int)rc;
+				/*const ssize_t */rc = ::write(sockfd, (char const*)data + n, left);
+				//*saveErrno = errno;
 				if (rc > 0) {
 					//
 					//rc > 0 errno = EAGAIN(11)
@@ -129,6 +130,7 @@ namespace muduo {
 					continue;
 				}
 				else if (rc < 0) {
+					*saveErrno = errno;
 					//
 					//rc = -1 errno = EAGAIN(11)
 					//rc = -1 errno = 0

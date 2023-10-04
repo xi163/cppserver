@@ -114,7 +114,7 @@ class TcpServer : noncopyable
   /// Not thread safe, but in loop
   void removeConnectionInLoop(const TcpConnectionPtr& conn);
   typedef std::map<string, TcpConnectionPtr> ConnectionMap;
-  bool enable_et_;
+  bool et_;
   SSL_CTX* ssl_ctx_;
   EventLoop* loop_;  // the acceptor loop
   const string ipPort_;

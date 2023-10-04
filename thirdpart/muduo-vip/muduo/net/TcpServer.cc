@@ -75,9 +75,9 @@ void TcpServer::start(bool et)
     {
       acceptor_->setConditionCallback(conditionCallback_);
     }
-    enable_et_ = et;
+    et_ = et;
     RunInLoop(loop_,
-        std::bind(&Acceptor::listen, get_pointer(acceptor_), enable_et_));
+        std::bind(&Acceptor::listen, get_pointer(acceptor_), et_));
   }
 }
 
@@ -102,7 +102,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr, EventLoop
 											localAddr,
 											peerAddr,
 											ssl_ctx_,
-											enable_et_));
+											et_));
 	{
 		MutexLockGuard lock(mutex_);
 		connections_[connName] = conn;
@@ -166,7 +166,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr) {
 											localAddr,
 											peerAddr,
 											ssl_ctx_,
-											enable_et_));
+											et_));
 	connections_[connName] = conn;
 	conn->setConnectionCallback(connectionCallback_);
 	conn->setMessageCallback(messageCallback_);
@@ -225,7 +225,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
                                           localAddr,
                                           peerAddr,
                                           ssl_ctx_,
-                                          enable_et_));
+                                          et_));
   connections_[connName] = conn;
   conn->setConnectionCallback(connectionCallback_);
   conn->setMessageCallback(messageCallback_);

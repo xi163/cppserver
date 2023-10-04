@@ -39,7 +39,7 @@ namespace muduo {
 			/// 0      <=      readerIndex   <=   writerIndex    <=     size
 			/// @endcode
 			///
-			ssize_t SSL_read(SSL* ssl, IBytesBuffer* buf, int* saveErrno) {
+			ssize_t SSL_readFull(SSL* ssl, IBytesBuffer* buf, ssize_t& rc, int* saveErrno) {
 				ASSERT(buf->writableBytes() >= 0);
 				//SSL_pending = 0
 				//Debugf("SSL_pending = %d", SSL_pending(ssl));
@@ -58,7 +58,7 @@ namespace muduo {
 #else
 					const size_t writable = buf->writableBytes();
 #endif
-					int rc = ::SSL_read(ssl, buf->beginWrite(), writable);
+					/*int */rc = (ssize_t)::SSL_read(ssl, buf->beginWrite(), writable);
 					if (rc > 0) {
 						ASSERT(::SSL_get_error(ssl, rc) == 0);
 					}
@@ -69,7 +69,7 @@ namespace muduo {
 					//    rc, left, SSL_get_error(ssl, rc));
 					if (rc > 0) {
 						ASSERT(::SSL_get_error(ssl, rc) == 0);
-						//IBytesBuffer::SSL_read() been called first time
+						//SSL_read been called first time
 						n += (ssize_t)rc;
 						buf->hasWritten(rc);
 						if (left > 0) {
@@ -121,7 +121,7 @@ namespace muduo {
 						break;
 					}
 					else /*if (rc == 0)*/ {
-						//IBytesBuffer::SSL_read() been called last time
+						//SSL_read been called last time
 						ASSERT(left == 0);
 						int err = ::SSL_get_error(ssl, rc);
 						switch (err)
@@ -153,12 +153,12 @@ namespace muduo {
 				return n;
 			}
 
-			ssize_t SSL_write(SSL* ssl, void const* data, size_t len, int* saveErrno) {
+			ssize_t SSL_writeFull(SSL* ssl, void const* data, size_t len, ssize_t& rc, int* saveErrno) {
 				//Debugf("{{{");
 				ssize_t left = (ssize_t)len;
 				ssize_t n = 0;
 				while (left > 0) {
-					int rc = ::SSL_write(ssl, (char const*)data + n, left);
+					/*int */rc = (ssize_t)::SSL_write(ssl, (char const*)data + n, left);
 					if (rc > 0) {
 						n += (ssize_t)rc;
 						left -= (ssize_t)rc;

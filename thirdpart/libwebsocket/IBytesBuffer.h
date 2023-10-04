@@ -66,10 +66,10 @@ namespace muduo {
 			virtual ssize_t readFd(int fd, int* saveErrno) = 0;
 
 			//readFull for EPOLLET
-			static ssize_t readFull(int sockfd, IBytesBuffer* buf, int* saveErrno);
+			static ssize_t readFull(int sockfd, IBytesBuffer* buf, ssize_t& rc, int* saveErrno);
 
 			//writeFull for EPOLLET
-			static ssize_t writeFull(int sockfd, void const* data, size_t len, int* saveErrno);
+			static ssize_t writeFull(int sockfd, void const* data, size_t len, ssize_t& rc, int* saveErrno);
 		};
 
 		typedef std::unique_ptr<IBytesBuffer> IBytesBufferPtr;
