@@ -59,22 +59,26 @@ ssize_t Buffer::readFd(int fd, int* saveErrno)
   return n;
 }
 
-//readFull for EPOLLET
 ssize_t Buffer::readFull(int sockfd, ssize_t& rc, int* saveErrno) {
     return IBytesBuffer::readFull(sockfd, this, rc, saveErrno);
 }
 
-//writeFull for EPOLLET
 ssize_t Buffer::writeFull(int sockfd, void const* data, size_t len, ssize_t& rc, int* saveErrno) {
     return IBytesBuffer::writeFull(sockfd, data, len, rc, saveErrno);
 }
 
-//SSL_readFull for EPOLLET
+ssize_t Buffer::SSL_read(SSL* ssl, IBytesBuffer* buf, int* saveErrno) {
+    return ssl::SSL_read(ssl, this, saveErrno);
+}
+
+ssize_t Buffer::SSL_write(SSL* ssl, void const* data, size_t len, int* saveErrno) {
+    return ssl::SSL_write(ssl, data, len, saveErrno);
+}
+
 ssize_t Buffer::SSL_readFull(SSL* ssl, ssize_t& rc, int* saveErrno) {
     return ssl::SSL_readFull(ssl, this, rc, saveErrno);
 }
 
-//SSL_writeFull for EPOLLET
 ssize_t Buffer::SSL_writeFull(SSL* ssl, void const* data, size_t len, ssize_t& rc, int* saveErrno) {
     return ssl::SSL_writeFull(ssl, data, len, rc, saveErrno);
 }

@@ -433,16 +433,16 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   /// @return result of read(2), @c errno is saved
   ssize_t readFd(int fd, int* saveErrno);
   
-  //readFull for EPOLLET
   ssize_t readFull(int sockfd, ssize_t& rc, int* saveErrno);
   
-  //writeFull for EPOLLET
   static ssize_t writeFull(int sockfd, void const* data, size_t len, ssize_t& rc, int* saveErrno);
+  
+  ssize_t SSL_read(SSL* ssl, IBytesBuffer* buf, int* saveErrno);
 
-  //SSL_readFull for EPOLLET
+  static ssize_t SSL_write(SSL* ssl, void const* data, size_t len, int* saveErrno);
+  
   ssize_t SSL_readFull(SSL* ssl, ssize_t& rc, int* saveErrno);
   
-  //SSL_writeFull for EPOLLET
   static ssize_t SSL_writeFull(SSL* ssl, void const* data, size_t len, ssize_t& rc, int* saveErrno);
 
 private:

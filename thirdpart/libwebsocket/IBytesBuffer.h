@@ -65,10 +65,8 @@ namespace muduo {
 			virtual size_t internalCapacity() const = 0;
 			virtual ssize_t readFd(int fd, int* saveErrno) = 0;
 
-			//readFull for EPOLLET
 			static ssize_t readFull(int sockfd, IBytesBuffer* buf, ssize_t& rc, int* saveErrno);
 
-			//writeFull for EPOLLET
 			static ssize_t writeFull(int sockfd, void const* data, size_t len, ssize_t& rc, int* saveErrno);
 		};
 

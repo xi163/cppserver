@@ -134,7 +134,7 @@ class TcpConnection : noncopyable,
   WsContextPtr& getWsContext();
 
 private:
-  bool enable_et_;
+  bool et_;
   SSL* ssl_;
   SSL_CTX* ssl_ctx_;
   bool sslConnected_;
