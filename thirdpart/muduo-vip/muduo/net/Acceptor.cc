@@ -63,14 +63,13 @@ void Acceptor::handleRead(int events)
   do {
       //FIXME loop until no more
       int connfd = acceptSocket_.accept(&peerAddr);
-      //errno = 115 errmsg = Operation now in progress
-      //errno = 11 errmsg = Resource temporarily unavailable
-      //errno = 24 errmsg = Too many open files
       if (connfd >= 0)
       {
-		  Debugf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
           // string hostport = peerAddr.toIpPort();
           // LOG_TRACE << "Accepts of " << hostport;
+
+		  //errno = 115 errmsg = Operation now in progress
+		  Debugf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
 #ifdef _MUDUO_ASYNC_CONN_POOL_
 		  EventLoop* loop = EventLoopThreadPool::Singleton::getNextLoop();
 		  RunInLoop(loop, std::bind([this](int connfd, InetAddress const& peerAddr, EventLoop* loop) {
@@ -118,6 +117,8 @@ void Acceptor::handleRead(int events)
 #endif
       }
       else {
+		  //errno = 11 errmsg = Resource temporarily unavailable
+		  //errno = 24 errmsg = Too many open files
           Errorf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
           //LOG_SYSERR << "in Acceptor::handleRead";
           // Read the section named "The special problem of
