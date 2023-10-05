@@ -437,7 +437,7 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   
   static ssize_t writeFull(int sockfd, void const* data, size_t len, ssize_t& rc, int* saveErrno);
   
-  ssize_t SSL_read(SSL* ssl, IBytesBuffer* buf, int* saveErrno);
+  ssize_t SSL_read(SSL* ssl, int* saveErrno);
 
   static ssize_t SSL_write(SSL* ssl, void const* data, size_t len, int* saveErrno);
   

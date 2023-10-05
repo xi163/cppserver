@@ -67,7 +67,7 @@ ssize_t Buffer::writeFull(int sockfd, void const* data, size_t len, ssize_t& rc,
     return IBytesBuffer::writeFull(sockfd, data, len, rc, saveErrno);
 }
 
-ssize_t Buffer::SSL_read(SSL* ssl, IBytesBuffer* buf, int* saveErrno) {
+ssize_t Buffer::SSL_read(SSL* ssl, int* saveErrno) {
     return ssl::SSL_read(ssl, this, saveErrno);
 }
 
