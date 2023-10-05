@@ -443,7 +443,7 @@ void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 	
-	Warnf("HallServ = %s rpc:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), numThreads, numWorkerThreads);
+	Warnf("HallServ = %s rpc:%s numThreads: I/O = %d worker = %d et[%d]", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), numThreads, numWorkerThreads, et_);
 
 	server_.start(et_);
 

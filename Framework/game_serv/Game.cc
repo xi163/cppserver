@@ -281,7 +281,7 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	CTableMgr::get_mutable_instance().Init(this);
 	CRobotMgr::get_mutable_instance().Init(this);
 	
-	Warnf("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), roomId_, getModeMsg(kMatch).c_str(), numThreads, numWorkerThreads);
+	Warnf("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d et[%d]", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), roomId_, getModeMsg(kMatch).c_str(), numThreads, numWorkerThreads, et_);
 
 	server_.start(et_);
 	rpcserver_.start(et_);

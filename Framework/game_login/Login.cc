@@ -213,7 +213,7 @@ void LoginServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		threadPool_.push_back(threadPool);
 	}
 	
-	Warnf("LoginServ = %s http:%s rpc:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), httpserver_.ipPort().c_str(), rpcserver_.ipPort().c_str(), numThreads, numWorkerThreads);
+	Warnf("LoginServ = %s http:%s rpc:%s numThreads: I/O = %d worker = %d et[%d]", server_.ipPort().c_str(), httpserver_.ipPort().c_str(), rpcserver_.ipPort().c_str(), numThreads, numWorkerThreads, et_);
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {

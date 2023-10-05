@@ -6,7 +6,7 @@ bool ApiServ::onCondition(const muduo::net::InetAddress& peerAddr) {
 	std::string country, location;
 	std::string ipaddr = peerAddr.toIp();
 	//dead loop bug???
-	//ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
+	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
 	Infof("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 	return true;
 }

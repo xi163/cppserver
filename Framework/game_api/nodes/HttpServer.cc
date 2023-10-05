@@ -7,7 +7,7 @@ bool ApiServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
 	std::string country, location;
 	std::string ipaddr = peerAddr.toIp();
 	//dead loop bug???
-	//ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
+	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
 	Infof("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
 #if 0
 	//Accept时候判断，socket底层控制，否则开启异步检查
