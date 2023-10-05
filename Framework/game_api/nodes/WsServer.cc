@@ -6,7 +6,16 @@ bool ApiServ::onCondition(const muduo::net::InetAddress& peerAddr, muduo::net::I
 	std::string ipaddr = peerAddr.toIp();
 	//dead loop bug???
 	ipLocator_.GetAddressByIp(ipaddr.c_str(), peerRegion.location, peerRegion.country);
-	Infof("%s %s %s", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+	if (peerRegion.location.find("相同") != std::string::npos ||
+		peerRegion.location.find("同一") != std::string::npos ||
+		peerRegion.location.find("局域") != std::string::npos ||
+		peerRegion.location.find("湖南") != std::string::npos) {
+		Infof("%s %s %s [放行正常IP]", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+		return true;
+	}
+	else {
+		Infof("%s %s %s [过滤非法IP]", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+	}
 	return true;
 }
 
@@ -105,16 +114,10 @@ void ApiServ::onConnected(
 		entryContext.setWorker(session, hash_session_, threadPool_);
 		//map[session] = weakConn
 		entities_.add(session, conn);
-		std::string country, location;
-		//dead loop bug???
-		//ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-		Infof("%s %s %s session[%s]", ipaddr.c_str(), country.c_str(), location.c_str(), session.c_str());
+		Infof("%s %s %s session[%s]", ipaddr.c_str(), conn->peerRegion().country.c_str(), conn->peerRegion().location.c_str(), session.c_str());
 	}
 	else {
-		std::string country, location;
-		//dead loop bug???
-		//ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-		Errorf("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
+		Errorf("%s %s %s", ipaddr.c_str(), conn->peerRegion().country.c_str(), conn->peerRegion().location.c_str());
 	}
 }
 
@@ -130,12 +133,20 @@ void ApiServ::onMessage(
 	switch (msgType) {
 	case muduo::net::websocket::MessageT::TyTextMessage: {
 		Debugf("%.*s", buf->readableBytes(), buf->peek());
-		std::string country, location;
 		std::string ipaddr = conn->peerAddress().toIp();
-		//dead loop bug???
-		//ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-		std::string s = utils::sprintf("来自 %s %s %s 的老6, 干啥呢, 想踩缝纫机了?!", ipaddr.c_str(), country.c_str(), location.c_str());
-		muduo::net::websocket::send(conn, s.data(), s.length(), muduo::net::websocket::MessageT::TyTextMessage);
+		if (conn->peerRegion().location.find("相同") != std::string::npos ||
+			conn->peerRegion().location.find("同一") != std::string::npos ||
+			conn->peerRegion().location.find("局域") != std::string::npos ||
+			conn->peerRegion().location.find("湖南") != std::string::npos) {
+			std::string s = utils::sprintf("您的IP %s %s %s, websocket TextMessage:%.*s",
+				ipaddr.c_str(), conn->peerRegion().country.c_str(), conn->peerRegion().location.c_str(), buf->readableBytes(), buf->peek());
+			muduo::net::websocket::send(conn, s.data(), s.length(), muduo::net::websocket::MessageT::TyTextMessage);
+		}
+		else {
+			std::string s = utils::sprintf("来自 %s %s %s 的老6, 干啥呢, 想踩缝纫机了?!",
+				ipaddr.c_str(), conn->peerRegion().country.c_str(), conn->peerRegion().location.c_str());
+			muduo::net::websocket::send(conn, s.data(), s.length(), muduo::net::websocket::MessageT::TyTextMessage);
+		}
 		break;
 	}
 	case muduo::net::websocket::MessageT::TyBinaryMessage: {
