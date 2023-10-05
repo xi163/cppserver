@@ -14,11 +14,11 @@ bool GateServ::onHttpCondition(const muduo::net::InetAddress& peerAddr, muduo::n
 		peerRegion.location.find("内部") != std::string::npos ||
 		peerRegion.location.find("局域") != std::string::npos ||
 		peerRegion.location.find("湖南") != std::string::npos) {
-		Infof("%s %s %s ✅[通行]", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+		Infof("%s %s %s [√]通行", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
 		return true;
 	}
 	else {
-		Infof("%s %s %s ❎[阻断]", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+		Infof("%s %s %s [×]阻断", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
 	}
 #if 0
 	//Accept时候判断，socket底层控制，否则开启异步检查
