@@ -17,6 +17,7 @@
 #include "muduo/net/Callbacks.h"
 #include "muduo/net/Buffer.h"
 #include "muduo/net/InetAddress.h"
+#include "muduo/net/InetRegion.h"
 #include "muduo/net/http/HttpContext.h"
 
 #include <memory>
@@ -62,12 +63,21 @@ class TcpConnection : noncopyable,
                 const InetAddress& peerAddr,
                 SSL_CTX* ctx = NULL,
                 bool et = false);
+  explicit TcpConnection(EventLoop* loop,
+				const string& name,
+				int sockfd,
+				const InetAddress& localAddr,
+				const InetAddress& peerAddr,
+				const InetRegion& peerRegion,
+				SSL_CTX* ctx = NULL,
+				bool et = false);
   ~TcpConnection();
 
   EventLoop* getLoop() const { return loop_; }
   const string& name() const { return name_; }
   const InetAddress& localAddress() const { return localAddr_; }
   const InetAddress& peerAddress() const { return peerAddr_; }
+  const InetRegion& peerRegion() const { return peerRegion_; }
   bool connected() const { return state_ == kConnected; }
   bool disconnected() const { return state_ == kDisconnected; }
   // return true if success.
@@ -178,6 +188,7 @@ private:
   std::unique_ptr<Channel> channel_;
   const InetAddress localAddr_;
   const InetAddress peerAddr_;
+  const InetRegion peerRegion_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;

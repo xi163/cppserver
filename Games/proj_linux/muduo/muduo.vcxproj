@@ -131,6 +131,7 @@
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpResponse.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\http\HttpServer.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\InetAddress.h" />
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\InetRegion.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Poller.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\EPollPoller.h" />
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\poller\PollPoller.h" />

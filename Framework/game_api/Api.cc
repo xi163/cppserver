@@ -29,14 +29,14 @@ ApiServ::ApiServ(muduo::net::EventLoop* loop,
 	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
 	rpcserver_.registerService(&rpcservice_);
 	server_.setConditionCallback(
-		std::bind(&ApiServ::onCondition, this, std::placeholders::_1));
+		std::bind(&ApiServ::onCondition, this, std::placeholders::_1, std::placeholders::_2));
 	server_.setConnectionCallback(
 		std::bind(&ApiServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
 		std::bind(&muduo::net::websocket::onMessage,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	httpserver_.setConditionCallback(
-		std::bind(&ApiServ::onHttpCondition, this, std::placeholders::_1));
+		std::bind(&ApiServ::onHttpCondition, this, std::placeholders::_1, std::placeholders::_2));
 	httpserver_.setConnectionCallback(
 		std::bind(&ApiServ::onHttpConnection, this, std::placeholders::_1));
 	httpserver_.setMessageCallback(
@@ -227,12 +227,12 @@ void ApiServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {
-		server_.setConditionCallback(std::bind(&ApiServ::onCondition, this, std::placeholders::_1));
+		server_.setConditionCallback(std::bind(&ApiServ::onCondition, this, std::placeholders::_1, std::placeholders::_2));
 	}
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
-		httpserver_.setConditionCallback(std::bind(&ApiServ::onHttpCondition, this, std::placeholders::_1));
+		httpserver_.setConditionCallback(std::bind(&ApiServ::onHttpCondition, this, std::placeholders::_1, std::placeholders::_2));
 	}
 
 	server_.start(et_);

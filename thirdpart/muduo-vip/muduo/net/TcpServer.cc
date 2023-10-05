@@ -37,10 +37,10 @@ TcpServer::TcpServer(EventLoop* loop,
   EventLoopThreadPool::Singleton::init(loop, name_);
 #ifdef _MUDUO_ASYNC_CONN_POOL_
   acceptor_->setNewConnectionCallback(
-	  std::bind(&TcpServer::newConnection, this, _1, _2, _3));
+	  std::bind(&TcpServer::newConnection, this, _1, _2, _3, _4));
 #else
   acceptor_->setNewConnectionCallback(
-	  std::bind(&TcpServer::newConnection, this, _1, _2));
+	  std::bind(&TcpServer::newConnection, this, _1, _2, _3));
 #endif
 }
 
@@ -83,7 +83,7 @@ void TcpServer::start(bool et)
 
 #ifdef _MUDUO_ASYNC_CONN_POOL_
 
-void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr, EventLoop* ioLoop) {
+void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr, const InetRegion& peerRegion, EventLoop* ioLoop) {
 	ioLoop->assertInLoopThread();
 	char buf[64];
 	snprintf(buf, sizeof buf, "-%s#%d", ipPort_.c_str(), nextConnId_);
@@ -101,6 +101,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr, EventLoop
 											sockfd,
 											localAddr,
 											peerAddr,
+											peerRegion,
 											ssl_ctx_,
 											et_));
 	{
@@ -146,7 +147,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
 
 #elif defined(_MUDUO_ASYNC_CONN_)
 
-void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr) {
+void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr, const InetRegion& peerRegion) {
 	EventLoopThread::Singleton::getLoop()->assertInLoopThread();
 	EventLoop* ioLoop = EventLoopThreadPool::Singleton::getNextLoop();//threadPool_->getNextLoop();
 	char buf[64];
@@ -165,6 +166,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr) {
 											sockfd,
 											localAddr,
 											peerAddr,
+											peerRegion,
 											ssl_ctx_,
 											et_));
 	connections_[connName] = conn;
@@ -204,7 +206,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
 
 #else
 
-void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
+void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr, const InetRegion& peerRegion)
 {
   loop_->assertInLoopThread();
   EventLoop* ioLoop = EventLoopThreadPool::Singleton::getNextLoop();//threadPool_->getNextLoop();
@@ -224,6 +226,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
                                           sockfd,
                                           localAddr,
                                           peerAddr,
+										  peerRegion,
                                           ssl_ctx_,
                                           et_));
   connections_[connName] = conn;

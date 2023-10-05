@@ -203,10 +203,10 @@ void TcpClient::newConnection(int sockfd, EventLoop* ioLoop) {
 	// FIXME poll with zero timeout to double confirm the new connection
 	// FIXME use make_shared if necessary
 	TcpConnectionPtr conn(new TcpConnection(ioLoop/*loop_*/,
-		connName,
-		sockfd,
-		localAddr,
-		peerAddr));
+											connName,
+											sockfd,
+											localAddr,
+											peerAddr));
 	{
 		MutexLockGuard lock(mutex_);
 		connection_ = conn;

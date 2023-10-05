@@ -380,5 +380,8 @@
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\Define.h">
       <Filter>net</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\InetRegion.h">
+      <Filter>net</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

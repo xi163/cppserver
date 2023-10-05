@@ -3,12 +3,11 @@
 #include "public/mgoOperation.h"
 #include "handler/router_handler.h"
 
-bool RouterServ::onHttpCondition(const muduo::net::InetAddress& peerAddr) {
-	std::string country, location;
+bool RouterServ::onHttpCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion) {
 	std::string ipaddr = peerAddr.toIp();
 	//dead loop bug???
-	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
-	Infof("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
+	ipLocator_.GetAddressByIp(ipaddr.c_str(), peerRegion.location, peerRegion.country);
+	Infof("%s %s %s", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
 #if 0
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	//assert(whiteListControl_ == eApiCtrl::kOpenAccept);

@@ -103,9 +103,9 @@ class TcpServer : noncopyable
  private:
   /// Not thread safe, but in loop
 #ifdef _MUDUO_ASYNC_CONN_POOL_
-  void newConnection(int sockfd, const InetAddress& peerAddr, EventLoop* loop);
+  void newConnection(int sockfd, const InetAddress& peerAddr, const InetRegion& peerRegion, EventLoop* loop);
 #else
-  void newConnection(int sockfd, const InetAddress& peerAddr);
+  void newConnection(int sockfd, const InetAddress& peerAddr, const InetRegion& peerRegion);
 #endif
   /// Not thread safe, but in loop
   bool newCondition(const InetAddress& peerAddr);

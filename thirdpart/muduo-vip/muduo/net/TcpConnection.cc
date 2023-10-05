@@ -53,6 +53,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
     channel_(new Channel(loop, sockfd)),
     localAddr_(localAddr),
     peerAddr_(peerAddr),
+    peerRegion_(),
     highWaterMark_(64*1024*1024),
     ssl_ctx_(ctx),
     ssl_(NULL),
@@ -70,6 +71,42 @@ TcpConnection::TcpConnection(EventLoop* loop,
   //LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this
   //          << " fd=" << sockfd;
   socket_->setKeepAlive(true);
+}
+
+TcpConnection::TcpConnection(EventLoop* loop,
+    const string& nameArg,
+    int sockfd,
+    const InetAddress& localAddr,
+    const InetAddress& peerAddr,
+    const InetRegion& peerRegion,
+    SSL_CTX* ctx,
+    bool et)
+    : loop_(CHECK_NOTNULL(loop)),
+    name_(nameArg),
+    state_(kConnecting),
+    reading_(true),
+    socket_(new Socket(sockfd)),
+    channel_(new Channel(loop, sockfd)),
+    localAddr_(localAddr),
+    peerAddr_(peerAddr),
+    peerRegion_(peerRegion),
+    highWaterMark_(64 * 1024 * 1024),
+    ssl_ctx_(ctx),
+    ssl_(NULL),
+    sslConnected_(false),
+    et_(et)
+{
+    channel_->setReadCallback(
+        std::bind(&TcpConnection::handleRead, this, _1));
+    channel_->setWriteCallback(
+        std::bind(&TcpConnection::handleWrite, this));
+    channel_->setCloseCallback(
+        std::bind(&TcpConnection::handleClose, this));
+    channel_->setErrorCallback(
+        std::bind(&TcpConnection::handleError, this));
+    //LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this
+    //          << " fd=" << sockfd;
+    socket_->setKeepAlive(true);
 }
 
 TcpConnection::~TcpConnection()

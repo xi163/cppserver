@@ -70,7 +70,7 @@ public:
 	bool InitServer();
 	void Start(int numThreads, int numWorkerThreads, int maxSize);
 public:
-	bool onCondition(const muduo::net::InetAddress& peerAddr);
+	bool onCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
 	void onConnection(const muduo::net::TcpConnectionPtr& conn);
 	bool onVerify(muduo::net::http::IRequest const* request);
 	void onConnected(
@@ -146,7 +146,7 @@ private:
 		BufferPtr const& buf, int64_t userId);
 	void onUserOfflineGame(Context& entryContext);
 private:
-	bool onHttpCondition(const muduo::net::InetAddress& peerAddr);
+	bool onHttpCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
 	void onHttpConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onHttpMessage(const muduo::net::TcpConnectionPtr& conn, muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
 	void asyncHttpHandler(const muduo::net::WeakTcpConnectionPtr& weakConn, muduo::Timestamp receiveTime);

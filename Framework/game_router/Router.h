@@ -200,7 +200,7 @@ public:
 	bool InitServer();
 	void Start(int numThreads, int numWorkerThreads, int maxSize);
 private:
-	bool onCondition(const muduo::net::InetAddress& peerAddr);
+	bool onCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
 	void onConnection(const muduo::net::TcpConnectionPtr& conn);
 	bool onVerify(muduo::net::http::IRequest const* request);
 	void onConnected(
@@ -219,7 +219,7 @@ private:
 	bool refreshBlackListSync();
 	bool refreshBlackListInLoop();
 private:
-	bool onHttpCondition(const muduo::net::InetAddress& peerAddr);
+	bool onHttpCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
 	void onHttpConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onHttpMessage(const muduo::net::TcpConnectionPtr& conn, muduo::net::Buffer* buf, muduo::Timestamp receiveTime);
 	void asyncHttpHandler(

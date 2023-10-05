@@ -30,7 +30,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
 	rpcserver_.registerService(&rpcservice_);
 	server_.setConditionCallback(
-		std::bind(&GateServ::onCondition, this, std::placeholders::_1));
+		std::bind(&GateServ::onCondition, this, std::placeholders::_1, std::placeholders::_2));
 	server_.setConnectionCallback(
 		std::bind(&GateServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
@@ -42,7 +42,7 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 		std::bind(&GateServ::onTcpMessage, this,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	httpserver_.setConditionCallback(
-		std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1));
+		std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1, std::placeholders::_2));
 	httpserver_.setConnectionCallback(
 		std::bind(&GateServ::onHttpConnection, this, std::placeholders::_1));
 	httpserver_.setMessageCallback(
@@ -360,12 +360,12 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (blackListControl_ == eApiCtrl::kOpenAccept) {
-		server_.setConditionCallback(std::bind(&GateServ::onCondition, this, std::placeholders::_1));
+		server_.setConditionCallback(std::bind(&GateServ::onCondition, this, std::placeholders::_1, std::placeholders::_2));
 	}
 
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	if (whiteListControl_ == eApiCtrl::kOpenAccept) {
-		httpserver_.setConditionCallback(std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1));
+		httpserver_.setConditionCallback(std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1, std::placeholders::_2));
 	}
 
 	server_.start(et_);

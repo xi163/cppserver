@@ -60,9 +60,11 @@ namespace net
 class Buffer;
 class TcpConnection;
 class InetAddress;
+class InetRegion;
+
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 typedef std::weak_ptr<TcpConnection> WeakTcpConnectionPtr, TcpConnectionWeakPtr;
-typedef std::function<bool(const InetAddress&)> ConditionCallback;
+typedef std::function<bool(const InetAddress&, InetRegion&)> ConditionCallback;
 typedef std::function<void (const TcpConnectionPtr& conn)> TcpConnectionCallback;
 typedef std::function<void()> TimerCallback;
 typedef std::function<void (const TcpConnectionPtr&)> ConnectionCallback;

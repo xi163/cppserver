@@ -27,6 +27,7 @@ class EventLoop;
 //class EventLoopThread;
 //class EventLoopThreadPool;
 class InetAddress;
+class InetRegion;
 
 ///
 /// Acceptor of incoming TCP connections.
@@ -34,11 +35,11 @@ class InetAddress;
 class Acceptor : noncopyable
 {
  public:
-  typedef std::function<bool(const InetAddress&)> ConditionCallback;
+  typedef std::function<bool(const InetAddress&, InetRegion&)> ConditionCallback;
 #ifdef _MUDUO_ASYNC_CONN_POOL_
-  typedef std::function<void (int sockfd, const InetAddress&, EventLoop*)> NewConnectionCallback;
+  typedef std::function<void (int sockfd, const InetAddress&, const InetRegion&, EventLoop*)> NewConnectionCallback;
 #else
-  typedef std::function<void(int sockfd, const InetAddress&)> NewConnectionCallback;
+  typedef std::function<void(int sockfd, const InetAddress&, const InetRegion&)> NewConnectionCallback;
 #endif
 
   Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport);

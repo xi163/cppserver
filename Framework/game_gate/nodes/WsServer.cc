@@ -5,12 +5,11 @@
 
 #include "../Gate.h"
 
-bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr) {
- 	std::string country, location;
+bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion) {
  	std::string ipaddr = peerAddr.toIp();
 	//dead loop bug???
- 	ipLocator_.GetAddressByIp(ipaddr.c_str(), location, country);
- 	Infof("%s %s %s", ipaddr.c_str(), country.c_str(), location.c_str());
+ 	ipLocator_.GetAddressByIp(ipaddr.c_str(), peerRegion.location, peerRegion.country);
+ 	Infof("%s %s %s", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
 	return true;
 }
 

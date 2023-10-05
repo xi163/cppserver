@@ -13,6 +13,7 @@
 #include "muduo/net/EventLoopThread.h"
 #include "muduo/net/EventLoopThreadPool.h"
 #include "muduo/net/InetAddress.h"
+#include "muduo/net/InetRegion.h"
 #include "muduo/net/SocketsOps.h"
 
 #include <errno.h>
@@ -74,13 +75,14 @@ void Acceptor::handleRead(int events)
 #ifdef _MUDUO_ASYNC_CONN_POOL_
 		  EventLoop* loop = EventLoopThreadPool::Singleton::getNextLoop();
 		  RunInLoop(loop, std::bind([this](int connfd, InetAddress const& peerAddr, EventLoop* loop) {
-			  if (conditionCallback_ && !conditionCallback_(peerAddr))
+			  InetRegion peerRegion;
+			  if (conditionCallback_ && !conditionCallback_(peerAddr, peerRegion))
 			  {
 				  sockets::close(connfd);
 			  }
 			  else if (newConnectionCallback_)
 			  {
-				  newConnectionCallback_(connfd, peerAddr, loop);
+				  newConnectionCallback_(connfd, peerAddr, peerRegion, loop);
 			  }
 			  else
 			  {
@@ -89,13 +91,14 @@ void Acceptor::handleRead(int events)
 		  }, connfd, peerAddr, loop));
 #elif defined(_MUDUO_ASYNC_CONN_)
 		  RunInLoop(EventLoopThread::Singleton::getLoop(), std::bind([this](int connfd, InetAddress const& peerAddr) {
-			  if (conditionCallback_ && !conditionCallback_(peerAddr))
+			  InetRegion peerRegion;
+			  if (conditionCallback_ && !conditionCallback_(peerAddr, peerRegion))
 			  {
 				  sockets::close(connfd);
 			  }
 			  else if (newConnectionCallback_)
 			  {
-				  newConnectionCallback_(connfd, peerAddr);
+				  newConnectionCallback_(connfd, peerAddr, peerRegion);
 			  }
 			  else
 			  {
@@ -103,13 +106,14 @@ void Acceptor::handleRead(int events)
 			  }
 	      }, connfd, peerAddr));
 #else
-          if (conditionCallback_ && !conditionCallback_(peerAddr))
+		  InetRegion peerRegion;
+          if (conditionCallback_ && !conditionCallback_(peerAddr, peerRegion))
           {
               sockets::close(connfd);
           }
           else if (newConnectionCallback_)
           {
-              newConnectionCallback_(connfd, peerAddr);
+              newConnectionCallback_(connfd, peerAddr, peerRegion);
           }
           else
           {
