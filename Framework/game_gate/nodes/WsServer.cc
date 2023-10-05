@@ -9,6 +9,27 @@ bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr, muduo::net::
  	std::string ipaddr = peerAddr.toIp();
 	//dead loop bug???
  	ipLocator_.GetAddressByIp(ipaddr.c_str(), peerRegion.location, peerRegion.country);
+#if 0
+	//country
+	if (peerRegion.country.find("移动") != std::string::npos ||
+		peerRegion.country.find("电信") != std::string::npos ||
+		peerRegion.country.find("联通") != std::string::npos ||
+		peerRegion.country.find("铁通") != std::string::npos ||
+		peerRegion.country.find("相同") != std::string::npos ||
+		peerRegion.country.find("同一") != std::string::npos ||
+		peerRegion.country.find("内部") != std::string::npos ||
+		peerRegion.country.find("局域") != std::string::npos) {
+		//location
+		if (peerRegion.location.find("相同") != std::string::npos ||
+			peerRegion.location.find("同一") != std::string::npos ||
+			peerRegion.location.find("内部") != std::string::npos ||
+			peerRegion.location.find("局域") != std::string::npos ||
+			peerRegion.location.find("湖南") != std::string::npos) {
+			Infof("%s %s %s [√]通行", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+			return true;
+		}
+	}
+#else
 	if (peerRegion.location.find("相同") != std::string::npos ||
 		peerRegion.location.find("同一") != std::string::npos ||
 		peerRegion.location.find("内部") != std::string::npos ||
@@ -17,9 +38,8 @@ bool GateServ::onCondition(const muduo::net::InetAddress& peerAddr, muduo::net::
 		Infof("%s %s %s [√]通行", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
 		return true;
 	}
-	else {
-		Infof("%s %s %s [×]阻断", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
-	}
+#endif
+	Infof("%s %s %s [×]阻断", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
 	return true;
 }
 
