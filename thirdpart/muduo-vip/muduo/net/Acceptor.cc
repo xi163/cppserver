@@ -69,7 +69,7 @@ void Acceptor::handleRead(int events)
           // LOG_TRACE << "Accepts of " << hostport;
 
 		  //errno = 115 errmsg = Operation now in progress
-		  Debugf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
+		  //Debugf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
 #ifdef _MUDUO_ASYNC_CONN_POOL_
 		  EventLoop* loop = EventLoopThreadPool::Singleton::getNextLoop();
 		  RunInLoop(loop, std::bind([this](int connfd, InetAddress const& peerAddr, EventLoop* loop) {
@@ -117,28 +117,33 @@ void Acceptor::handleRead(int events)
 #endif
       }
       else {
-		  //errno = 11 errmsg = Resource temporarily unavailable
-		  //errno = 24 errmsg = Too many open files
-          Errorf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
-          //LOG_SYSERR << "in Acceptor::handleRead";
-          // Read the section named "The special problem of
-          // accept()ing when you can't" in libev's doc.
-          // By Marc Lehmann, author of libev.
-          if (errno == EMFILE)
-          {
-              ::close(idleFd_);
-              idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL);
-              ::close(idleFd_);
-              idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-          }
-		  if (errno != EAGAIN &&
-			  errno != EWOULDBLOCK &&
-			  errno != ECONNABORTED &&
-			  errno != EPROTO &&
-			  errno != EINTR) {
+		  switch (errno) {
+		  case EMFILE: {
+			  //errno = 24 errmsg = Too many open files
+			  Errorf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
+			  //LOG_SYSERR << "in Acceptor::handleRead";
+			  // Read the section named "The special problem of
+			  // accept()ing when you can't" in libev's doc.
+			  // By Marc Lehmann, author of libev.
+			  ::close(idleFd_);
+			  idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL);
+			  ::close(idleFd_);
+			  idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+			  break;
+		  }
+		  case EAGAIN:
+			  //errno = 11 errmsg = Resource temporarily unavailable
+			  //Errorf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
+			  return;
+		  //case EWOULDBLOCK:
+		  //case ECONNABORTED:
+		  //case EPROTO:
+		  //case EINTR:
+			//  break;
+		  default:
+			  Errorf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
 			  break;
 		  }
       }
   } while (et_);
 }
-
