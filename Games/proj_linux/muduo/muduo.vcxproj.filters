@@ -168,6 +168,15 @@
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\protobuf\ProtobufCodecLite.cc">
       <Filter>protobuf</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection_et.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection_ssl.cc">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection_ssl_et.cc">
+      <Filter>net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\thirdpart\muduo-vip\muduo\net\BoilerPlate.h">

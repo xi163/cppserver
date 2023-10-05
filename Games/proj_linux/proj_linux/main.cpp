@@ -24,8 +24,14 @@ public:
 
 int main() {
 	
+	
 	int a = 0,b = 0;
-
+	switch (a) {
+	case 1:
+		break;
+	default:
+		break;
+	}
 	ASSERT_V_IF(a == 0, b>0, "b=%d", b);
 
 	IContext* p = new Context(1);

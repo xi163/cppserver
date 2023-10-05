@@ -142,13 +142,25 @@ private:
  private:
   enum StateE { kDisconnected, kConnecting, kConnected, kDisconnecting };
   void handleRead(Timestamp receiveTime);
+  void handleRead_(Timestamp receiveTime);
+  void handleRead_et(Timestamp receiveTime);
+  void handleRead_ssl(Timestamp receiveTime);
+  void handleRead_ssl_et(Timestamp receiveTime);
   void handleWrite();
+  void handleWrite_();
+  void handleWrite_et();
+  void handleWrite_ssl();
+  void handleWrite_ssl_et();
   void handleClose();
   void handleError();
   // void sendInLoop(string&& message);
   void sendInLoop(const StringPiece& message);
   void sendInLoop_(const std::string& message);
   void sendInLoop(const void* message, size_t len);
+  void sendInLoop_(const void* message, size_t len);
+  void sendInLoop_et(const void* message, size_t len);
+  void sendInLoop_ssl(const void* message, size_t len);
+  void sendInLoop_ssl_et(const void* message, size_t len);
   void shutdownInLoop();
   // void shutdownAndForceCloseInLoop(double seconds);
   void forceCloseInLoop();

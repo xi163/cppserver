@@ -73,6 +73,9 @@
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\SocketsOps.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpClient.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection_et.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection_ssl.cc" />
+    <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpConnection_ssl_et.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TcpServer.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\Timer.cc" />
     <ClCompile Include="..\..\..\thirdpart\muduo-vip\muduo\net\TimerQueue.cc" />
