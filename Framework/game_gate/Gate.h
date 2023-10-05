@@ -235,6 +235,7 @@ public:
 	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
 	bool verify_ = true;
+	bool et_ = false;
 };
 
 #endif

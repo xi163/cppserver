@@ -120,6 +120,7 @@ int main(int argc, char* argv[]) {
 	muduo::net::InetAddress listenAddrRpc(ip, rpcPort);//rpc
 	HallServ server(&loop, listenAddr, listenAddrRpc);
 	server.tracemsg_ = pt.get<int>(config + ".tracemsg", 0);
+	server.et_ = pt.get<int>(config + ".et", 0);
 	boost::algorithm::split(server.redlockVec_, strRedisLockIps, boost::is_any_of(","));
 	if (
 		server.InitZookeeper(strZookeeperIps) &&

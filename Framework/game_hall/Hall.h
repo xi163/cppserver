@@ -347,6 +347,7 @@ public:
 	rpc::Container rpcClients_[rpc::kMaxRpcTy];
 	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
+	bool et_ = false;
 };
 
 #endif

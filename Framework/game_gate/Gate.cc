@@ -368,10 +368,10 @@ void GateServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		httpserver_.setConditionCallback(std::bind(&GateServ::onHttpCondition, this, std::placeholders::_1));
 	}
 
-	server_.start(true);
-	tcpserver_.start(true);
-	rpcserver_.start(true);
-	httpserver_.start(true);
+	server_.start(et_);
+	tcpserver_.start(et_);
+	rpcserver_.start(et_);
+	httpserver_.start(et_);
 
 	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&GateServ::registerZookeeper, this));
 

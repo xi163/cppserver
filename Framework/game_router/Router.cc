@@ -292,8 +292,8 @@ void RouterServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		httpserver_.setConditionCallback(std::bind(&RouterServ::onHttpCondition, this, std::placeholders::_1));
 	}
 
-	server_.start(true);
-	httpserver_.start(true);
+	server_.start(et_);
+	httpserver_.start(et_);
 
 	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&RouterServ::registerZookeeper, this));
 

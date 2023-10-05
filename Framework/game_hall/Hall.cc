@@ -445,7 +445,7 @@ void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	
 	Warnf("HallServ = %s rpc:%s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), numThreads, numWorkerThreads);
 
-	server_.start(true);
+	server_.start(et_);
 
 	thisTimer_->getLoop()->runAfter(5.0f, OBJ_CALLBACK_0(this, &HallServ::registerZookeeper));
 	thisTimer_->getLoop()->runEvery(3.0f, CALLBACK_0([&]() {

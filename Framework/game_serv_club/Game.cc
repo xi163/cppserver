@@ -288,8 +288,8 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 
 	Warnf("GameServ = %s rpc:%s 房间号[%d] %s numThreads: I/O = %d worker = %d", server_.ipPort().c_str(), rpcserver_.ipPort().c_str(), roomId_, getModeMsg(kClub).c_str(), numThreads, numWorkerThreads);
 
-	server_.start(true);
-	rpcserver_.start(true);
+	server_.start(et_);
+	rpcserver_.start(et_);
 
 	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
 	//thisTimer_->getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
