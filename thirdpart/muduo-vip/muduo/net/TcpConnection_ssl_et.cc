@@ -39,7 +39,7 @@ void TcpConnection::sendInLoop_ssl_et(const void* data, size_t len)
   {
 	ssize_t rc = 0;
 	int saveErrno = 0;
-    nwrote = Buffer::SSL_writeFull(ssl_, data, len, rc, &saveErrno);
+    nwrote = Buffer::SSL_writeFull(ssl_, data, len, rc, &saveErrno);//SSL_writeFull
     if (nwrote >= 0)
     {
       remaining = len - nwrote;
@@ -83,8 +83,34 @@ void TcpConnection::sendInLoop_ssl_et(const void* data, size_t len)
 void TcpConnection::handleRead_ssl_et(Timestamp receiveTime)
 {
   loop_->assertInLoopThread();
+  if (ssl_ctx_ && !sslConnected_) {
+	  int saveErrno = 0;
+	  sslConnected_ = ssl::SSL_handshake(ssl_ctx_, ssl_, socket_->fd(), saveErrno);//SSL_handshake
+	  switch (saveErrno)
+	  {
+	  case SSL_ERROR_WANT_READ:
+		  channel_->enableReading(et_);
+		  break;
+	  case SSL_ERROR_WANT_WRITE:
+		  channel_->enableWriting(et_);
+		  break;
+	  case SSL_ERROR_SSL:
+		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+		  handleClose();
+		  break;
+	  case 0:
+		  //succ
+		  break;
+	  default:
+		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+		  handleClose();
+		  break;
+	  }
+	  return;
+  }
+  ssize_t rc = 0;
   int saveErrno = 0;
-  ssize_t n = inputBuffer_.readFd(channel_->fd(), &saveErrno);
+  ssize_t n = inputBuffer_.SSL_readFull(ssl_, rc, &saveErrno);//SSL_readFull
   if (n > 0)
   {
     messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
@@ -104,11 +130,38 @@ void TcpConnection::handleRead_ssl_et(Timestamp receiveTime)
 void TcpConnection::handleWrite_ssl_et()
 {
   loop_->assertInLoopThread();
+  if (ssl_ctx_ && !sslConnected_) {
+	  int saveErrno = 0;
+	  sslConnected_ = ssl::SSL_handshake(ssl_ctx_, ssl_, socket_->fd(), saveErrno);//SSL_handshake
+	  switch (saveErrno)
+	  {
+	  case SSL_ERROR_WANT_READ:
+		  channel_->enableReading(et_);
+		  break;
+	  case SSL_ERROR_WANT_WRITE:
+		  channel_->enableWriting(et_);
+		  break;
+	  case SSL_ERROR_SSL:
+		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+		  handleClose();
+		  break;
+	  case 0:
+		  //succ
+		  break;
+	  default:
+		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+		  handleClose();
+		  break;
+	  }
+	  return;
+  }
   if (channel_->isWriting())
   {
-    ssize_t n = sockets::write(channel_->fd(),
-                               outputBuffer_.peek(),
-                               outputBuffer_.readableBytes());
+    ssize_t rc = 0;
+    int saveErrno = 0;
+    ssize_t n = Buffer::SSL_writeFull(ssl_,
+                outputBuffer_.peek(),
+                outputBuffer_.readableBytes(), rc, &saveErrno);//SSL_writeFull
     if (n > 0)
     {
       outputBuffer_.retrieve(n);

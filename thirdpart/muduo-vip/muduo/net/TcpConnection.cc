@@ -57,7 +57,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
     ssl_ctx_(ctx),
     ssl_(NULL),
     sslConnected_(false),
-    enable_et_(et)
+    et_(et)
 {
   channel_->setReadCallback(
       std::bind(&TcpConnection::handleRead, this, _1));
@@ -74,22 +74,21 @@ TcpConnection::TcpConnection(EventLoop* loop,
 
 TcpConnection::~TcpConnection()
 {
-	//////////////////////////////////////////////////////////////////////////
-	//释放conn连接对象sockfd资源流程
-	//TcpConnection::handleClose ->
-	//TcpConnection::closeCallback_ ->
-	//TcpServer::removeConnection ->
-	//TcpServer::removeConnectionInLoop ->
-	//TcpConnection::dtor ->
-	//Socket::dtor -> sockets::close(sockfd_)
-	//////////////////////////////////////////////////////////////////////////
+  //释放conn连接对象sockfd资源流程
+  //TcpConnection::handleClose ->
+  //TcpConnection::closeCallback_ ->
+  //TcpServer::removeConnection ->
+  //TcpServer::removeConnectionInLoop ->
+  //TcpConnection::dtor ->
+  //Socket::dtor -> sockets::close(sockfd_)
   //LOG_WARN << "TcpConnection::dtor[" <<  name_ << "] at " << this
   //          << " fd=" << channel_->fd()
   //          << " state=" << stateToString();
   ASSERT(socket_->fd() == channel_->fd());
-  //Debugf("fd=%d", channel_->fd());
+  Debugf("fd=%d", channel_->fd());
   //ssl::SSL_free(ssl_);
-  assert(state_ == kDisconnected ||
+  //ASSERT(state_ == kDisconnected);
+  ASSERT(state_ == kDisconnected ||
          state_ == kDisconnecting);
 }
 
@@ -188,7 +187,35 @@ void TcpConnection::sendInLoop_(const std::string& message) {
   sendInLoop(message.data(), message.size());
 }
 
-void TcpConnection::sendInLoop(const void* data, size_t len)
+void TcpConnection::sendInLoop(const void* data, size_t len) {
+    bool no_ssl = !ssl_;
+	switch (no_ssl) {
+	case true: {
+		switch (et_) {
+		case true:
+            sendInLoop_et(data, len);
+			break;
+		default:
+            sendInLoop_(data, len);
+			break;
+		}
+		break;
+	}
+	default: {
+		switch (et_) {
+		case true:
+            sendInLoop_ssl_et(data, len);
+			break;
+		default:
+            sendInLoop_ssl(data, len);
+			break;
+		}
+		break;
+	}
+	}
+}
+
+void TcpConnection::sendInLoop_(const void* data, size_t len)
 {
   loop_->assertInLoopThread();
   ssize_t nwrote = 0;
@@ -202,17 +229,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
   // if no thing in output queue, try writing directly
   if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0)
   {
-#if 0
-      printf("\n----------------------------------------------\n");
-      !ssl_ ?
-          printf("write_with_no_copy >>>\n%.*s\n", len, data) :
-          printf("SSL_write_with_no_copy >>>\n%.*s\n", len, data);
-#endif
-      int saveErrno = 0;
-      nwrote = !ssl_ ?
-          /*sockets::write(channel_->fd(), data, len)*/
-          Buffer::writeFull(channel_->fd(), data, len, &saveErrno) :
-          Buffer::SSL_write(ssl_, data, len, &saveErrno);
+    nwrote = sockets::write(channel_->fd(), data, len);
     if (nwrote >= 0)
     {
       remaining = len - nwrote;
@@ -221,90 +238,21 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
         QueueInLoop(loop_, std::bind(writeCompleteCallback_, shared_from_this()));
       }
     }
-	if (ssl_) {
-		switch (saveErrno)
-		{
-		case SSL_ERROR_WANT_WRITE:
-			break;
-		case SSL_ERROR_ZERO_RETURN:
-			//SSL has been shutdown
-			Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-			handleClose();
-			break;
-		case 0:
-			break;
-		default:
-			Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-			handleClose();
-			break;
-		}
-	}
-    else { // nwrote < 0
-		if (saveErrno > 0) {
-			//rc > 0 errno = EAGAIN(11)
-			//rc > 0 errno = 0
-            //rc > 0 errno = EINPROGRESS(115)
-			switch (errno)
-			{
-            case EINPROGRESS:
-			case EAGAIN:
-            case EINTR:
-				//make sure that reset errno after callback
-				errno = 0;
-				break;
-            case 0:
-                break;
-			default:
-				//LOG_SYSERR << "TcpConnection::handleWrite";
-				//handleError();
-				Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-				handleClose();
-				break;
-			}
-		}
-		else if (saveErrno == 0) { // n = 0
-			//rc = 0 errno = EAGAIN(11)
-			//rc = 0 errno = 0 peer close
-			Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-			handleClose();
-		}
-		else /*if (saveErrno < 0)*/ {
-			//rc = -1 errno = EAGAIN(11)
-			//rc = -1 errno = 0
-			switch (errno)
-			{
-			case EAGAIN:
-			case EINTR:
-				//make sure that reset errno after callback
-				errno = 0;
-				break;
-			case 0:
-				break;
-			default:
-				//LOG_SYSERR << "TcpConnection::handleWrite";
-				//handleError();
-				Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-				handleClose();
-				break;
-			}
-		}
-		nwrote = 0;
-        if (errno != EAGAIN /*&&
-            errno != EWOULDBLOCK &&
-            errno != ECONNABORTED*/ &&
-            errno != EINTR)
-		{
-			//ERROR Broken pipe (errno=32) TcpConnection::sendInLoop - TcpConnection.cc:170
-			//LOG_SYSERR << "TcpConnection::sendInLoop";
-			if (errno == EPIPE || errno == ECONNRESET) // FIXME: any others?
-			{
-				faultError = true;
-			}
-		}
+    else // nwrote < 0
+    {
+      nwrote = 0;
+      if (errno != EWOULDBLOCK)
+      {
+        LOG_SYSERR << "TcpConnection::sendInLoop";
+        if (errno == EPIPE || errno == ECONNRESET) // FIXME: any others?
+        {
+          faultError = true;
+        }
+      }
     }
   }
 
-  assert(remaining <= len);
+  ASSERT(remaining <= len);
   if (!faultError && remaining > 0)
   {
     size_t oldLen = outputBuffer_.readableBytes();
@@ -317,7 +265,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
     outputBuffer_.append(static_cast<const char*>(data)+nwrote, remaining);
     if (!channel_->isWriting())
     {
-      channel_->enableWriting(enable_et_);
+      channel_->enableWriting(et_);
     }
   }
 }
@@ -435,7 +383,7 @@ void TcpConnection::startReadInLoop()
   loop_->assertInLoopThread();
   if (!reading_ || !channel_->isReading())
   {
-    channel_->enableReading(enable_et_);
+    channel_->enableReading(et_);
     reading_ = true;
   }
 }
@@ -450,7 +398,7 @@ void TcpConnection::stopReadInLoop()
   loop_->assertInLoopThread();
   if (reading_ || channel_->isReading())
   {
-    channel_->disableReading(enable_et_);
+    channel_->disableReading(et_);
     reading_ = false;
   }
 }
@@ -461,7 +409,7 @@ void TcpConnection::connectEstablished()
   ASSERT_V(state_ == kConnecting, "state_=%s", stateToString());
   setState(kConnected);
   channel_->tie(shared_from_this());
-  channel_->enableReading(enable_et_);
+  channel_->enableReading(et_);
 
   connectionCallback_(shared_from_this());
 }
@@ -480,282 +428,120 @@ void TcpConnection::connectDestroyed()
   channel_->remove();
 }
 
-void TcpConnection::handleRead(Timestamp receiveTime)
+void TcpConnection::handleRead(Timestamp receiveTime) {
+	bool no_ssl = !ssl_;
+	switch (no_ssl) {
+	case true: {
+		switch (et_) {
+		case true:
+            handleRead_et(receiveTime);
+			break;
+		default:
+            handleRead_(receiveTime);
+			break;
+		}
+		break;
+	}
+    default: {
+		switch (et_) {
+		case true:
+            handleRead_ssl_et(receiveTime);
+			break;
+		default:
+            handleRead_ssl(receiveTime);
+			break;
+		}
+        break;
+    }
+    }
+}
+
+void TcpConnection::handleRead_(Timestamp receiveTime)
 {
   loop_->assertInLoopThread();
-  if (ssl_ctx_ && !sslConnected_) {
-	  int saveErrno = 0;
-	  //SSL握手连接
-	  sslConnected_ = ssl::SSL_handshake(ssl_ctx_, ssl_, socket_->fd(), saveErrno);
-	  switch (saveErrno)
-	  {
-	  case SSL_ERROR_WANT_READ:
-		  channel_->enableReading(enable_et_);
-		  break;
-	  case SSL_ERROR_WANT_WRITE:
-		  channel_->enableWriting(enable_et_);
-		  break;
-	  case SSL_ERROR_SSL:
-		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-		  handleClose();
-		  break;
-	  case 0:
-		  //succ
-		  break;
-	  default:
-		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-		  handleClose();
-		  break;
-	  }
+  int saveErrno = 0;
+  ssize_t n = inputBuffer_.readFd(channel_->fd(), &saveErrno);
+  if (n > 0)
+  {
+    messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
   }
-  else {
-	  int saveErrno = 0;
-	  ssize_t n = !ssl_ ?
-		  /* inputBuffer_.readFd(channel_->fd(), &saveErrno)*/
-		  inputBuffer_.readFull(channel_->fd(), &saveErrno) :
-		  inputBuffer_.SSL_read(ssl_, &saveErrno);
-	  if (n > 0)
-	  {
-		  if (errno == EAGAIN ||
-			  errno == EINTR) {
-			  errno = 0;
-		  }
-		  messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
-	  }
-      if (ssl_) {
-		  switch (saveErrno)
-		  {
-		  case SSL_ERROR_WANT_READ:
-			  channel_->enableReading(enable_et_);
-			  break;
-		  case SSL_ERROR_WANT_WRITE:
-			  channel_->enableWriting(enable_et_);
-			  break;
-          case SSL_ERROR_ZERO_RETURN:
-			  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-			  handleClose();
-			  break;
-		  case SSL_ERROR_SSL:
-			  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-			  handleClose();
-			  break;
-		  case 0:
-              //SSL_read for EPOLLET
-              if (channel_->isETReading()) {
-                  channel_->enableReading(enable_et_);
-              }
-			  break;
-		  default:
-			  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-			  handleClose();
-			  break;
-		  }
-      }
-      else {
-		  if (saveErrno > 0) {
-			  //rc > 0 errno = EAGAIN(11)
-			  //rc > 0 errno = 0
-			  switch (errno)
-			  {
-			  case EAGAIN:
-			  case EINTR:
-				  //make sure that reset errno after callback
-				  errno = 0;
-                  channel_->enableReading(enable_et_);
-				  break;
-			  case 0:
-				  break;
-			  default:
-				  //LOG_SYSERR << "TcpConnection::handleRead";
-				  //handleError();
-				  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-				  handleClose();
-				  break;
-			  }
-		  }
-		  else if (saveErrno == 0) { // n = 0
-			  //rc = 0 errno = EAGAIN(11)
-			  //rc = 0 errno = 0 peer close
-			  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-			  handleClose();
-		  }
-		  else /*if (saveErrno < 0)*/ {
-			  //rc = -1 errno = EAGAIN(11)
-			  //rc = -1 errno = 0
-			  switch (errno)
-			  {
-			  case EAGAIN:
-			  case EINTR:
-				  //make sure that reset errno after callback
-				  errno = 0;
-                  channel_->enableReading(enable_et_);
-				  break;
-			  case 0:
-				  break;
-			  default:
-				  //LOG_SYSERR << "TcpConnection::handleRead";
-				  //handleError();
-				  //Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-				  //handleClose();
-				  break;
-			  }
-		  }
-      }
+  else if (n == 0)
+  {
+    handleClose();
+  }
+  else
+  {
+    errno = saveErrno;
+    LOG_SYSERR << "TcpConnection::handleRead";
+    handleError();
   }
 }
 
-void TcpConnection::handleWrite()
+void TcpConnection::handleWrite() {
+	bool no_ssl = !ssl_;
+	switch (no_ssl) {
+	case true: {
+		switch (et_) {
+		case true:
+            handleWrite_et();
+			break;
+		default:
+            handleWrite_();
+			break;
+		}
+		break;
+	}
+	default: {
+		switch (et_) {
+		case true:
+            handleWrite_ssl_et();
+			break;
+		default:
+            handleWrite_ssl();
+			break;
+		}
+		break;
+	}
+	}
+}
+
+void TcpConnection::handleWrite_()
 {
   loop_->assertInLoopThread();
-  if (ssl_ctx_ && !sslConnected_) {
-	  int saveErrno = 0;
-	  sslConnected_ = ssl::SSL_handshake(ssl_ctx_, ssl_, socket_->fd(), saveErrno);
-	  switch (saveErrno)
-	  {
-	  case SSL_ERROR_WANT_READ:
-		  channel_->enableReading(enable_et_);
-		  break;
-	  case SSL_ERROR_WANT_WRITE:
-		  channel_->enableWriting(enable_et_);
-		  break;
-	  case SSL_ERROR_SSL:
-		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-		  handleClose();
-		  break;
-	  case 0:
-		  //succ
-		  break;
-	  default:
-		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-          handleClose();
-		  break;
-	  }
+  if (channel_->isWriting())
+  {
+    ssize_t n = sockets::write(channel_->fd(),
+                               outputBuffer_.peek(),
+                               outputBuffer_.readableBytes());
+    if (n > 0)
+    {
+      outputBuffer_.retrieve(n);
+      if (outputBuffer_.readableBytes() == 0)
+      {
+        channel_->disableWriting(et_);
+        if (writeCompleteCallback_)
+        {
+            QueueInLoop(loop_, std::bind(writeCompleteCallback_, shared_from_this()));
+        }
+        if (state_ == kDisconnecting)
+        {
+          shutdownInLoop();
+        }
+      }
+    }
+    else
+    {
+      LOG_SYSERR << "TcpConnection::handleWrite";
+      // if (state_ == kDisconnecting)
+      // {
+      //   shutdownInLoop();
+      // }
+    }
   }
-  else {
-      if (channel_->isWriting())
-      {
-#if 0
-          printf("\n----------------------------------------------\n");
-          !ssl_ ?
-              printf("write_with_copy >>>\n%.*s\n", outputBuffer_.readableBytes(), outputBuffer_.peek()) :
-              printf("SSL_write_with_copy >>>\n%.*s\n", outputBuffer_.readableBytes(), outputBuffer_.peek());
-#endif
-          int saveErrno = 0;
-      //_loop:
-          ssize_t n = !ssl_ ?
-              /*sockets::write(channel_->fd(),
-                  outputBuffer_.peek(),
-                  outputBuffer_.readableBytes())*/
-              Buffer::writeFull(channel_->fd(),
-                  outputBuffer_.peek(),
-                  outputBuffer_.readableBytes(), &saveErrno) :
-              Buffer::SSL_write(ssl_,
-                  outputBuffer_.peek(),
-                  outputBuffer_.readableBytes(), &saveErrno);
-          if (n > 0)
-          {
-              outputBuffer_.retrieve(n);
-              if (outputBuffer_.readableBytes() == 0)
-              {
-                  channel_->disableWriting(enable_et_);
-                  if (writeCompleteCallback_)
-                  {
-                      QueueInLoop(loop_, std::bind(writeCompleteCallback_, shared_from_this()));
-                  }
-                  if (state_ == kDisconnecting)
-                  {
-                      shutdownInLoop();
-                  }
-              }
-          }
-		  if (ssl_) {
-			  switch (saveErrno)
-			  {
-			  case SSL_ERROR_WANT_WRITE:
-				  channel_->enableWriting(enable_et_);
-				  //goto _loop;
-				  break;
-			  case SSL_ERROR_ZERO_RETURN:
-				  //SSL has been shutdown
-				  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-				  handleClose();
-				  break;
-              case 0:
-                  break;
-			  default:
-				  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-				  handleClose();
-				  break;
-			  }
-		  }
-		  else {
-			  if (saveErrno > 0) {
-				  //rc > 0 errno = EAGAIN(11)
-				  //rc > 0 errno = 0
-                  //rc > 0 errno = EINPROGRESS(115)
-				  switch (errno)
-				  {
-                  case EINPROGRESS:
-				  case EAGAIN:
-                  case EINTR:
-                      //make sure that reset errno after callback
-                      errno = 0;
-					  channel_->enableWriting(enable_et_);
-					  //goto _loop;
-					  break;
-                  case 0:
-                      break;
-				  default:
-					  //LOG_SYSERR << "TcpConnection::handleWrite";
-					  //handleError();
-					  //Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-					  //handleClose();
-					  break;
-				  }
-			  }
-			  else if (saveErrno == 0) { // n = 0
-				  //rc = 0 errno = EAGAIN(11)
-				  //rc = 0 errno = 0 peer close
-				  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-				  handleClose();
-			  }
-			  else /*if (saveErrno < 0)*/ {
-				  //rc = -1 errno = EAGAIN(11)
-				  //rc = -1 errno = 0
-				  switch (errno)
-				  {
-				  case EAGAIN:
-                  case EINTR:
-					  //make sure that reset errno after callback
-					  errno = 0;
-					  channel_->enableWriting(enable_et_);
-					  //goto _loop;
-					  break;
-				  case 0:
-					  break;
-				  default:
-					  //LOG_SYSERR << "TcpConnection::handleWrite";
-					  //handleError();
-					  //Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
-					  //handleClose();
-					  break;
-				  }
-			  }
-		  }
-          //else
-          //{
-          //    LOG_SYSERR << "TcpConnection::handleWrite";
-          //    // if (state_ == kDisconnecting)
-          //    // {
-          //    //   shutdownInLoop();
-          //    // }
-          //}
-      }
-      else
-      {
-          //LOG_TRACE << "Connection fd = " << channel_->fd()
-          //    << " is down, no more writing";
-      }
+  else
+  {
+    LOG_TRACE << "Connection fd = " << channel_->fd()
+              << " is down, no more writing";
   }
 }
 
@@ -778,7 +564,6 @@ void TcpConnection::handleClose()
 void TcpConnection::handleError()
 {
   int err = sockets::getSocketError(channel_->fd());
-  //LOG_ERROR << "TcpConnection::handleError [" << name_
-  //          << "] - SO_ERROR = " << err << " " << strerror_tl(err);
+  LOG_ERROR << "TcpConnection::handleError [" << name_
+            << "] - SO_ERROR = " << err << " " << strerror_tl(err);
 }
-

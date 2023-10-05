@@ -39,7 +39,7 @@ void TcpConnection::sendInLoop_et(const void* data, size_t len)
   {
 	ssize_t rc = 0;
 	int saveErrno = 0;
-    nwrote = Buffer::writeFull(channel_->fd(), data, len, rc, &saveErrno);
+    nwrote = Buffer::writeFull(channel_->fd(), data, len, rc, &saveErrno);//writeFull
     if (nwrote >= 0)
     {
       remaining = len - nwrote;
@@ -83,8 +83,9 @@ void TcpConnection::sendInLoop_et(const void* data, size_t len)
 void TcpConnection::handleRead_et(Timestamp receiveTime)
 {
   loop_->assertInLoopThread();
+  ssize_t rc = 0;
   int saveErrno = 0;
-  ssize_t n = inputBuffer_.readFd(channel_->fd(), &saveErrno);
+  ssize_t n = inputBuffer_.readFull(channel_->fd(), rc, &saveErrno);//readFull
   if (n > 0)
   {
     messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
@@ -106,9 +107,10 @@ void TcpConnection::handleWrite_et()
   loop_->assertInLoopThread();
   if (channel_->isWriting())
   {
-    ssize_t n = sockets::write(channel_->fd(),
+    ssize_t rc = 0;
+    ssize_t n = Buffer::writeFull(channel_->fd(),
                                outputBuffer_.peek(),
-                               outputBuffer_.readableBytes());
+                               outputBuffer_.readableBytes(), rc, &saveErrno);//writeFull
     if (n > 0)
     {
       outputBuffer_.retrieve(n);
