@@ -23,6 +23,7 @@ const int Channel::kReadEvent = POLLIN | POLLPRI;
 const int Channel::kReadEventET = POLLIN | POLLPRI | EPOLLET;
 const int Channel::kWriteEvent = POLLOUT;
 const int Channel::kWriteEventET = POLLOUT | EPOLLET;
+const int Channel::kEventET = EPOLLET;
 
 Channel::Channel(EventLoop* loop, int fd)
   : loop_(loop),

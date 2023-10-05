@@ -59,7 +59,8 @@ void Acceptor::handleRead(int events)
 {
   loop_->assertInLoopThread();
   InetAddress peerAddr;
-  ASSERT_IF(et_, acceptChannel_.isETReading()); //EPOLLET
+  ASSERT(acceptChannel_.isReading());
+  ASSERT_IF(et_, acceptChannel_.isET()); //EPOLLET
   do {
       //FIXME loop until no more
       int connfd = acceptSocket_.accept(&peerAddr);

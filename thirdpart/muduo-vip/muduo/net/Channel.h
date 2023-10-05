@@ -69,8 +69,7 @@ class Channel : noncopyable
   inline void disableAll() { events_ = kNoneEvent; update(); }
   inline bool isWriting() const { return events_ & kWriteEvent; }
   inline bool isReading() const { return events_ & kReadEvent; }
-  inline bool isETReading() { return events_ & ~kReadEvent; }
-  inline bool isETWriting() { return events_ & ~kWriteEvent; }
+  inline bool isET() const { return events_ & kEventET; }
   
   // for Poller
   int index() { return index_; }
@@ -96,6 +95,7 @@ class Channel : noncopyable
   static const int kReadEventET;
   static const int kWriteEvent;
   static const int kWriteEventET;
+  static const int kEventET;
 
   EventLoop* loop_;
   const int  fd_;
