@@ -128,7 +128,7 @@ int sockets::accept(int sockfd, struct sockaddr_in6* addr)
   if (connfd < 0)
   {
     int saveErrno = errno;
-    Errorf("errno = %d errmsg = %s", saveErrno, strerror(saveErrno));
+    //Errorf("errno = %d errmsg = %s", saveErrno, strerror(saveErrno));
     //ERROR Too many open files (errno=24) Socket::accept - SocketsOps.cc:128
     //LOG_SYSERR << "Socket::accept";
     switch (saveErrno)
