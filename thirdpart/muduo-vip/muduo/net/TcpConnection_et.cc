@@ -108,6 +108,7 @@ void TcpConnection::handleWrite_et()
   if (channel_->isWriting())
   {
     ssize_t rc = 0;
+    int saveErrno = 0;
     ssize_t n = Buffer::writeFull(channel_->fd(),
                                outputBuffer_.peek(),
                                outputBuffer_.readableBytes(), rc, &saveErrno);//writeFull
