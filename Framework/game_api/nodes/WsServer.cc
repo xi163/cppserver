@@ -8,6 +8,7 @@ bool ApiServ::onCondition(const muduo::net::InetAddress& peerAddr, muduo::net::I
 	ipLocator_.GetAddressByIp(ipaddr.c_str(), peerRegion.location, peerRegion.country);
 	if (peerRegion.location.find("相同") != std::string::npos ||
 		peerRegion.location.find("同一") != std::string::npos ||
+		peerRegion.location.find("内部") != std::string::npos ||
 		peerRegion.location.find("局域") != std::string::npos ||
 		peerRegion.location.find("湖南") != std::string::npos) {
 		Infof("%s %s %s [放行正常IP]", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
