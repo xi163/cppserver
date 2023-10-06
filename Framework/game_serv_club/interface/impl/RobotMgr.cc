@@ -32,6 +32,7 @@ CRobotMgr::CRobotMgr()
 }
 
 CRobotMgr::~CRobotMgr() {
+	ASSERT(false);
 	//WRITE_LOCK(mutex_); {
 	//	freeItems_.clear();
 	//	items_.clear();

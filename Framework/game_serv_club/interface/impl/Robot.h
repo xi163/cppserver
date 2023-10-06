@@ -9,7 +9,7 @@
 class CRobot : public CPlayer {
 public:
 	CRobot();
-	virtual ~CRobot();
+	virtual ~CRobot()/* = default*/;
 public:
 	/// <summary>
 	/// 初始化

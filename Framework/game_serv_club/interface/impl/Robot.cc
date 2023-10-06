@@ -12,7 +12,7 @@ CRobot::CRobot() {
 }
 
 CRobot::~CRobot() {
-	official_ = false;
+	ASSERT(false);
 }
 
 void CRobot::Init(std::shared_ptr<IRobotDelegate> const& robotDelegate) {

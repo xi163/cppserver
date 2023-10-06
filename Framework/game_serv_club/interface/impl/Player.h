@@ -12,7 +12,7 @@
 class CPlayer : public IPlayer {
 public:
 	CPlayer();
-	virtual ~CPlayer() = default;
+	virtual ~CPlayer()/* = default*/;
 	virtual void Reset();
 	virtual void AssertReset();
 	virtual bool ExistOnlineInfo();

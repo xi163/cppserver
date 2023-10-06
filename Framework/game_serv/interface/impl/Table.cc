@@ -32,7 +32,6 @@ CTable::CTable(muduo::net::EventLoop* loop, ITableContext* tableContext)
 
 CTable::~CTable() {
     ASSERT(false);
-    items_.clear();
 }
 
 void CTable::Reset() {
@@ -96,6 +95,7 @@ std::string const& CTable::ServId() {
 }
 
 std::string CTable::NewRoundId() {
+    loop_->assertInLoopThread();
 	//roomid-pid-tid-timestamp-tableid
 	std::string strRoundId = std::to_string(roomInfo_->roomId) + "-";
 	strRoundId += std::to_string(::getpid()) + "-";
@@ -364,6 +364,7 @@ bool CTable::SendGameMessage(uint16_t chairId, std::string const& msg, uint8_t m
 }
 
 void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, uint8_t sendErrCode) {
+    loop_->assertInLoopThread();
     if (INVALID_CHAIR == chairId) {
         for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
             std::shared_ptr<CPlayer> player = items_[i];
@@ -441,6 +442,7 @@ void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, u
         if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
 #define DEL_TABLE_BY_TABLEID_
 #ifdef DEL_TABLE_BY_TABLEID_
+            //桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
             CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
 #else
             CTableMgr::get_mutable_instance().Delete(shared_from_this());
@@ -480,6 +482,7 @@ int64_t CTable::CalculateRevenue(int64_t score) {
 }
 
 std::shared_ptr<IPlayer> CTable::GetChairPlayer(uint16_t chairId) {
+    loop_->assertInLoopThread();
     if (chairId < roomInfo_->maxPlayerNum) {
         return items_[chairId];
     }
@@ -487,6 +490,7 @@ std::shared_ptr<IPlayer> CTable::GetChairPlayer(uint16_t chairId) {
 }
 
 std::shared_ptr<IPlayer> CTable::GetPlayer(int64_t userId) {
+    loop_->assertInLoopThread();
 //     for (std::vector<std::shared_ptr<IPlayer>>::iterator it = items_.begin();
 //         it != items_.end(); ++it) {
 //         if (*it && (*it)->GetUserId() == userId) {
@@ -537,6 +541,7 @@ std::string CTable::StrGameStatus() {
 }
 
 bool CTable::CanJoinTable(std::shared_ptr<CPlayer> const& player) {
+    loop_->assertInLoopThread();
     if (roomInfo_->serverStatus == kStopped || roomInfo_->serverStatus == kRepairing) {
         return false;
     }
@@ -566,10 +571,12 @@ void CTable::CanJoinTableInLoop(std::shared_ptr<CPlayer> const& player, uint16_t
 }
 
 bool CTable::CanLeftTable(int64_t userId) {
+    loop_->assertInLoopThread();
     return tableDelegate_->CanLeftTable(userId);
 }
 
 void CTable::SetUserTrustee(uint16_t chairId, bool trustee) {
+    loop_->assertInLoopThread();
     if (chairId < roomInfo_->maxPlayerNum) {
         std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
@@ -579,6 +586,7 @@ void CTable::SetUserTrustee(uint16_t chairId, bool trustee) {
 }
 
 bool CTable::GetUserTrustee(uint16_t chairId) {
+    loop_->assertInLoopThread();
     bool trustee = false;
     if (chairId < roomInfo_->maxPlayerNum) {
         std::shared_ptr<CPlayer> player = items_[chairId];
@@ -590,6 +598,7 @@ bool CTable::GetUserTrustee(uint16_t chairId) {
 }
 
 void CTable::SetUserReady(uint16_t chairId) {
+    loop_->assertInLoopThread();
     if (chairId < roomInfo_->maxPlayerNum) {
         std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
@@ -601,6 +610,7 @@ void CTable::SetUserReady(uint16_t chairId) {
 
 //点击离开按钮
 bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf) {
+    loop_->assertInLoopThread();
     if (!player->IsRobot()) {
         Infof("%d 点击离开按钮", player->GetUserId());
     }
@@ -609,7 +619,19 @@ bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf)
     player->setOffline();
     player->setTrustee(true);
     //BroadcastUserStatus(player, sendToSelf);
-    return tableDelegate_->OnUserLeft(player->GetUserId(), false);
+    bool rc = tableDelegate_->OnUserLeft(player->GetUserId(), false);
+	if (GetPlayerCount() == 0) {
+		if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
+#define DEL_TABLE_BY_TABLEID_
+#ifdef DEL_TABLE_BY_TABLEID_
+			//桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
+			CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
+#else
+			CTableMgr::get_mutable_instance().Delete(shared_from_this());
+#endif
+		}
+	}
+    return rc;
 //	}
 // 	if (tableDelegate_->OnUserLeft(player->GetUserId(), false)) {
 // 		OnUserStandup(player, true, sendToSelf);
@@ -620,6 +642,7 @@ bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf)
 
 //关闭页面
 bool CTable::OnUserOffline(std::shared_ptr<CPlayer> const& player) {
+    loop_->assertInLoopThread();
     if (!player->IsRobot()) {
         Infof("%d 关闭页面", player->GetUserId());
     }
@@ -627,10 +650,23 @@ bool CTable::OnUserOffline(std::shared_ptr<CPlayer> const& player) {
     player->setOffline();
     player->setTrustee(true);
     //BroadcastUserStatus(player, false);
-    return tableDelegate_->OnUserLeft(player->GetUserId(), false);
+    bool rc = tableDelegate_->OnUserLeft(player->GetUserId(), false);
+	if (GetPlayerCount() == 0) {
+		if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
+#define DEL_TABLE_BY_TABLEID_
+#ifdef DEL_TABLE_BY_TABLEID_
+			//桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
+			CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
+#else
+			CTableMgr::get_mutable_instance().Delete(shared_from_this());
+#endif
+		}
+	}
+    return rc;
 }
 
 size_t CTable::GetPlayerCount() {
+    loop_->assertInLoopThread();
     size_t count = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         std::shared_ptr<CPlayer> player = items_[i];
@@ -642,6 +678,7 @@ size_t CTable::GetPlayerCount() {
 }
 
 size_t CTable::GetPlayerCount(bool includeRobot) {
+    loop_->assertInLoopThread();
     size_t count = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         std::shared_ptr<CPlayer> player = items_[i];
@@ -658,6 +695,7 @@ size_t CTable::GetPlayerCount(bool includeRobot) {
 }
 
 size_t CTable::GetRobotPlayerCount() {
+    loop_->assertInLoopThread();
     size_t count = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         std::shared_ptr<CPlayer> player = items_[i];
@@ -669,6 +707,7 @@ size_t CTable::GetRobotPlayerCount() {
 }
 
 size_t CTable::GetRealPlayerCount() {
+    loop_->assertInLoopThread();
     size_t count = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         std::shared_ptr<CPlayer> player = items_[i];
@@ -680,6 +719,7 @@ size_t CTable::GetRealPlayerCount() {
 }
 
 void CTable::GetPlayerCount(size_t& realCount, size_t& robotCount) {
+    loop_->assertInLoopThread();
     realCount = 0;
     robotCount = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
@@ -696,6 +736,7 @@ void CTable::GetPlayerCount(size_t& realCount, size_t& robotCount) {
 }
 
 size_t CTable::GetMaxPlayerCount() {
+    loop_->assertInLoopThread();
     return roomInfo_->maxPlayerNum;
 }
 
@@ -704,6 +745,7 @@ tagGameRoomInfo* CTable::GetRoomInfo() {
 }
 
 bool CTable::IsRobot(uint16_t chairId) {
+    loop_->assertInLoopThread();
     if (chairId < roomInfo_->maxPlayerNum) {
         std::shared_ptr<CPlayer> player = items_[chairId];
         if (player) {
@@ -714,6 +756,7 @@ bool CTable::IsRobot(uint16_t chairId) {
 }
 
 bool CTable::IsOfficial(uint16_t chairId) {
+    loop_->assertInLoopThread();
     if (chairId < roomInfo_->maxPlayerNum) {
         std::shared_ptr<CPlayer> player = items_[chairId];
         if (player) {
@@ -724,10 +767,12 @@ bool CTable::IsOfficial(uint16_t chairId) {
 }
 
 bool CTable::OnGameEvent(uint16_t chairId, uint8_t subId, uint8_t const* data, size_t len) {
+    loop_->assertInLoopThread();
     return tableDelegate_->OnGameMessage(chairId, subId, data, len);
 }
 
 void CTable::OnStartGame() {
+    loop_->assertInLoopThread();
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         std::shared_ptr<CPlayer> player = items_[i];
         if (player && player->Valid()) {
@@ -743,6 +788,7 @@ void CTable::OnStartGame() {
 }
 
 bool CTable::CheckGameStart() {
+    loop_->assertInLoopThread();
     int playerCount = 0;
     for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
         std::shared_ptr<CPlayer> player = items_[i];
@@ -761,6 +807,7 @@ bool CTable::CheckGameStart() {
 }
 
 bool CTable::OnUserEnterAction(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
+    loop_->assertInLoopThread();
     SendUserSitdownFinish(player, pre_header, header);
     //BroadcastUserInfoToOther(player);
     //SendAllOtherUserInfoToUser(player);
@@ -769,6 +816,7 @@ bool CTable::OnUserEnterAction(std::shared_ptr<CPlayer> const& player, packet::i
 }
 
 void CTable::SendUserSitdownFinish(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
+    loop_->assertInLoopThread();
     uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
     uint8_t subId = GameServer::SUB_S2C_ENTER_ROOM_RES;
     GameServer::MSG_S2C_UserEnterMessageResponse rspdata;
@@ -779,6 +827,7 @@ void CTable::SendUserSitdownFinish(std::shared_ptr<CPlayer> const& player, packe
 }
 
 bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendState, bool sendToSelf) {
+    loop_->assertInLoopThread();
     ASSERT(player && player->Valid() && player->GetTableId() >= 0 && player->GetChairId() >= 0);
     //游戏中禁止起立
     if (!player->isPlaying()) {
@@ -2113,9 +2162,8 @@ bool CTable::SetOnlineInfo(int64_t userId) {
 }
 
 bool CTable::RoomSitChair(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header/*, bool bDistribute*/) {
-    if (!player || player->GetUserId() <= 0) {
-        return false;
-    }
+    loop_->assertInLoopThread();
+    ASSERT(player && player->Valid());
     uint16_t chairId = 0;
     uint32_t maxPlayerNum = roomInfo_->maxPlayerNum;
     uint32_t startIndex = 0;

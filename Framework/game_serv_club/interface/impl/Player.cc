@@ -10,6 +10,10 @@ CPlayer::CPlayer()
 	official_ = false;
 }
 
+CPlayer::~CPlayer() {
+	ASSERT(false);
+}
+
 void CPlayer::Reset() {
 	tableId_ = INVALID_TABLE;
 	chairId_ = INVALID_CHAIR;

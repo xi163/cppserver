@@ -36,9 +36,12 @@ CTableMgr::CTableMgr()
 }
 
 CTableMgr::~CTableMgr() {
-	items_.clear();
-	usedItems_.clear();
-	freeItems_.clear();
+	ASSERT(false);
+	//READ_LOCK(mutex_); {
+	//	items_.clear();
+	//	usedItems_.clear();
+	//	freeItems_.clear();
+	//}
 }
 
 /// <summary>
@@ -289,7 +292,7 @@ void CTableMgr::Delete(uint16_t tableId) {
 	{
 		WRITE_LOCK(mutex_);
 		std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
-		ASSERT_V(it != usedItems_.end(), "tableId=%d", tableId);
+		//ASSERT_V(it != usedItems_.end(), "tableId=%d", tableId);
 		if (it != usedItems_.end()) {
 			std::shared_ptr<CTable>& table = it->second;
 			usedItems_.erase(it);
@@ -298,9 +301,12 @@ void CTableMgr::Delete(uint16_t tableId) {
 			ASSERT(table->GetTableId() < items_.size());
 			freeItems_.emplace_back(table);
 		}
-		size_t n = usedItems_.erase(tableId);
-		(void)n;
-		ASSERT_V(n == 0, "n=%d", n);
+		else {
+			ASSERT((usedItems_.size() + freeItems_.size()) == items_.size());
+		}
+		//size_t n = usedItems_.erase(tableId);
+		//(void)n;
+		//ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", tableId, usedItems_.size(), freeItems_.size());
 }
@@ -318,7 +324,7 @@ void CTableMgr::Delete(std::shared_ptr<CTable> const& table) {
 			[&](Item const& kv) -> bool {
 				return kv.second.get() == table.get();
 			});
-		ASSERT_V(it != usedItems_.end(), "tableId=%d", tableId);
+		//ASSERT_V(it != usedItems_.end(), "tableId=%d", tableId);
 		if (it != usedItems_.end()) {
 			std::shared_ptr<CTable>& table = it->second;
 			ASSERT(table->GetTableId() == tableId);
@@ -328,9 +334,12 @@ void CTableMgr::Delete(std::shared_ptr<CTable> const& table) {
 			ASSERT(table->GetTableId() < items_.size());
 			freeItems_.emplace_back(table);
 		}
-		size_t n = usedItems_.erase(tableId);
-		(void)n;
-		ASSERT_V(n == 0, "n=%d", n);
+		else {
+			ASSERT((usedItems_.size() + freeItems_.size()) == items_.size());
+		}
+		//size_t n = usedItems_.erase(tableId);
+		//(void)n;
+		//ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", tableId, usedItems_.size(), freeItems_.size());
 }

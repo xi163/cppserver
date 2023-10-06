@@ -6,6 +6,7 @@ CPlayerMgr::CPlayerMgr() {
 }
 
 CPlayerMgr::~CPlayerMgr() {
+	ASSERT(false);
 	//WRITE_LOCK(mutex_); {
 	//	items_.clear();
 	//	freeItems_.clear();
@@ -135,9 +136,9 @@ void CPlayerMgr::Delete(int64_t userId) {
 			player->Reset();
 			freeItems_.emplace_back(player);
 		}
-		size_t n = items_.erase(userId);
-		(void)n;
-		ASSERT_V(n == 0, "n=%d", n);
+		//size_t n = items_.erase(userId);
+		//(void)n;
+		//ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
@@ -165,9 +166,9 @@ void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 			player->Reset();
 			freeItems_.emplace_back(player);
 		}
-		size_t n = items_.erase(userId);
-		(void)n;
-		ASSERT_V(n == 0, "n=%d", n);
+		//size_t n = items_.erase(userId);
+		//(void)n;
+		//ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
