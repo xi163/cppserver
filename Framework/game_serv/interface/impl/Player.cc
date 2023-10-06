@@ -1,8 +1,9 @@
 #include "public/Inc.h"
 #include "Player.h"
 
-CPlayer::CPlayer()
-	: baseInfo_(new UserBaseInfo()) {
+CPlayer::CPlayer(bool robot)
+	: robot_(robot)
+	, baseInfo_(new UserBaseInfo()) {
 	tableId_ = INVALID_TABLE;
 	chairId_ = INVALID_CHAIR;
 	status_ = sFree;

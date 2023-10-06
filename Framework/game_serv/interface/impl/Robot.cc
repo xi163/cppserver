@@ -6,7 +6,8 @@
 
 #include "../../proto/Game.Common.pb.h"
 
-CRobot::CRobot() {
+CRobot::CRobot()
+	: CPlayer(true) {
 	official_ = false;
 }
 

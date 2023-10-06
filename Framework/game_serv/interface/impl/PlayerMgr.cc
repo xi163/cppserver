@@ -59,7 +59,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 	}
 	else {
 		player = std::shared_ptr<CPlayer>(new CPlayer());
-		{
+		if (player) {
 			WRITE_LOCK(mutex_);
 			items_[userId] = player;
 		}
@@ -87,7 +87,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 	}
 	if (!player) {
 		player = std::shared_ptr<CPlayer>(new CPlayer());
-		{
+		if (player) {
 #ifdef _USE_MUDUO_MUTEX_
 			muduo::MutexLockGuard lock(mutex_);
 #else

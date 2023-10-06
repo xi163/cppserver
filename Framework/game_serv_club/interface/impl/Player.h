@@ -11,13 +11,13 @@
 
 class CPlayer : public IPlayer {
 public:
-	CPlayer();
+	CPlayer(bool robot = false);
 	virtual ~CPlayer()/* = default*/;
 	virtual void Reset();
 	virtual void AssertReset();
 	virtual bool ExistOnlineInfo();
 	virtual inline bool Valid() { return /*tableId_ != INVALID_TABLE && chairId_ != INVALID_CHAIR && */GetUserId() > 0; }
-	virtual inline bool IsRobot() { return false; }
+	virtual inline bool IsRobot() { return robot_; }
 	virtual inline bool IsOfficial() { return official_; }
 	virtual inline std::shared_ptr<IRobotDelegate> GetDelegate() { return std::shared_ptr<IRobotDelegate>(); }
 	/// <summary>
@@ -75,6 +75,7 @@ public:
 	virtual inline void setTrustee(bool trustship) { trustee_ = trustship; }
 	virtual inline bool getTrustee() { return trustee_; }
 protected:
+	bool robot_;
 	bool trustee_;//托管状态
 	bool official_;//官方账号
 	uint8_t status_; //玩家状态
