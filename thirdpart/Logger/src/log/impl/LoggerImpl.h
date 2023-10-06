@@ -131,11 +131,11 @@ namespace LOGGER {
 		bool started_ = false;
 		std::atomic_bool done_{ false };
 		std::atomic_flag starting_{ ATOMIC_FLAG_INIT };
-		std::mutex start_mutex_, mutex_;
+		mutable std::mutex start_mutex_, mutex_;
 		std::condition_variable start_cond_, cond_;
 		Messages messages_;
 		bool sync_ = false;
-		std::mutex sync_mutex_;
+		mutable std::mutex sync_mutex_;
 		std::condition_variable sync_cond_;
 		bool isConsoleOpen_ = false;
 		std::atomic_bool enable_{ false };

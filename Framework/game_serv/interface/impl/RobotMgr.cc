@@ -205,6 +205,9 @@ void CRobotMgr::Delete(int64_t userId) {
 			robot->Reset();
 			freeItems_.emplace_back(robot);
 		}
+		size_t n = items_.erase(userId);
+		(void)n;
+		ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
@@ -224,6 +227,9 @@ void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
 			robot->Reset();
 			freeItems_.emplace_back(robot);
 		}
+		size_t n = items_.erase(userId);
+		(void)n;
+		ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }

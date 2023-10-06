@@ -14,6 +14,7 @@ CPlayerMgr::~CPlayerMgr() {
 
 std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 	std::shared_ptr<CPlayer> player;
+#ifdef _USE_SHARED_MUTEX_
 	MY_TRY(); {
 		READ_LOCK(mutex_);
 		ASSERT(items_.find(userId) == items_.end());
@@ -63,12 +64,49 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 		}
 	}
 	MY_CATCH();
+#else
+	{
+#ifdef _USE_MUDUO_MUTEX_
+		MutexLockGuard lock(mutex_);
+#else
+		std::unique_lock<std::mutex> lock(mutex_);
+#endif
+		if (!freeItems_.empty()) {
+			player = freeItems_.front();
+			freeItems_.pop_front();
+			if (player) {
+				ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+					return kv.second.get() == player.get();
+					}) == items_.end());
+				player->AssertReset();
+				items_[userId] = player;
+			}
+		}
+	}
+	if (!player) {
+		player = std::shared_ptr<CPlayer>(new CPlayer());
+		{
+#ifdef _USE_MUDUO_MUTEX_
+			MutexLockGuard lock(mutex_);
+#else
+			std::unique_lock<std::mutex> lock(mutex_);
+#endif
+			items_[userId] = player;
+		}
+	}
+#endif
 	return player;
 }
 
 std::shared_ptr<CPlayer> CPlayerMgr::Get(int64_t userId) {
 	{
+#ifdef _USE_SHARED_MUTEX_
 		READ_LOCK(mutex_);
+#elif defined(_USE_MUDUO_MUTEX_)
+		MutexLockGuard lock(mutex_);
+#else
+		std::unique_lock<std::mutex> lock(mutex_);
+#endif
 		std::map<int64_t, std::shared_ptr<CPlayer>>::iterator  it = items_.find(userId);
 		if (it != items_.end()) {
 			return it->second;
@@ -80,7 +118,13 @@ std::shared_ptr<CPlayer> CPlayerMgr::Get(int64_t userId) {
 //一个userId占用多个CPlayer对象?
 void CPlayerMgr::Delete(int64_t userId) {
 	{
+#ifdef _USE_SHARED_MUTEX_
 		WRITE_LOCK(mutex_);
+#elif defined(_USE_MUDUO_MUTEX_)
+		MutexLockGuard lock(mutex_);
+#else
+		std::unique_lock<std::mutex> lock(mutex_);
+#endif
 		std::map<int64_t, std::shared_ptr<CPlayer>>::iterator it = items_.find(userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CPlayer>& player = it->second;
@@ -88,6 +132,9 @@ void CPlayerMgr::Delete(int64_t userId) {
 			player->Reset();
 			freeItems_.emplace_back(player);
 		}
+		size_t n = items_.erase(userId);
+		(void)n;
+		ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
@@ -95,7 +142,13 @@ void CPlayerMgr::Delete(int64_t userId) {
 void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 	int64_t userId = player->GetUserId();
 	{
+#ifdef _USE_SHARED_MUTEX_
 		WRITE_LOCK(mutex_);
+#elif defined(_USE_MUDUO_MUTEX_)
+		MutexLockGuard lock(mutex_);
+#else
+		std::unique_lock<std::mutex> lock(mutex_);
+#endif
 		std::map<int64_t, std::shared_ptr<CPlayer>>::iterator it = std::find_if(items_.begin(), items_.end(),
 			[&](Item const& kv) -> bool {
 				return kv.second.get() == player.get();
@@ -107,6 +160,9 @@ void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 			player->Reset();
 			freeItems_.emplace_back(player);
 		}
+		size_t n = items_.erase(userId);
+		(void)n;
+		ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }

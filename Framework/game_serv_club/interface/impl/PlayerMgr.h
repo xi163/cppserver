@@ -39,7 +39,13 @@ protected:
 	typedef std::pair<int64_t, std::shared_ptr<CPlayer>> Item;
 	std::map<int64_t, std::shared_ptr<CPlayer>> items_;
 	std::list<std::shared_ptr<CPlayer>> freeItems_;
+#ifdef _USE_SHARED_MUTEX_
 	mutable boost::shared_mutex mutex_;
+#elif defined(_USE_MUDUO_MUTEX_)
+	mutable MutexLock mutex_;
+#else
+	mutable std::mutex mutex_;
+#endif
 };
 
 #endif

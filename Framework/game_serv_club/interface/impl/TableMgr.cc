@@ -296,6 +296,9 @@ void CTableMgr::Delete(uint16_t tableId) {
 			ASSERT(table->GetTableId() < items_.size());
 			freeItems_.emplace_back(table);
 		}
+		size_t n = usedItems_.erase(tableId);
+		(void)n;
+		ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", tableId, usedItems_.size(), freeItems_.size());
 }
@@ -321,6 +324,9 @@ void CTableMgr::Delete(std::shared_ptr<CTable> const& table) {
 			ASSERT(table->GetTableId() < items_.size());
 			freeItems_.emplace_back(table);
 		}
+		size_t n = usedItems_.erase(tableId);
+		(void)n;
+		ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", tableId, usedItems_.size(), freeItems_.size());
 }
