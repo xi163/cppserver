@@ -20,7 +20,12 @@ public:
 	/// 除了基础信息重置其它
 	/// </summary>
 	virtual void Reset();
-
+	
+	/// <summary>
+	/// 除了基础信息重置其它
+	/// </summary>
+	virtual void AssertReset();
+	
 	/// <summary>
 	/// 是否机器人
 	/// </summary>

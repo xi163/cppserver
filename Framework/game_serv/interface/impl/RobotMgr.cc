@@ -32,8 +32,10 @@ CRobotMgr::CRobotMgr()
 }
 
 CRobotMgr::~CRobotMgr() {
-	freeItems_.clear();
-	items_.clear();
+	//WRITE_LOCK(mutex_); {
+	//	freeItems_.clear();
+	//	items_.clear();
+	//}
 }
 
 bool CRobotMgr::Init(ITableContext* tableContext) {
@@ -157,20 +159,38 @@ bool CRobotMgr::Empty() {
 
 std::shared_ptr<CRobot> CRobotMgr::Pick() {
 	std::shared_ptr<CRobot> robot;
-	{
+	MY_TRY(); {
 		WRITE_LOCK(mutex_);
 		if (!freeItems_.empty()) {
 			robot = freeItems_.front();
 			freeItems_.pop_front();
+#if 1
+			if (robot) {
+				ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+					return kv.second.get() == robot.get();
+					}) == items_.end());
+				robot->AssertReset();
+				items_[robot->GetUserId()] = robot;
+			}
+#endif
 		}
 	}
+#if 0
 	if (robot) {
-		robot->Reset();
+		{
+			READ_LOCK(mutex_);
+			ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+				return kv.second.get() == robot.get();
+				}) == items_.end());
+		}
+		robot->AssertReset();
 		{
 			WRITE_LOCK(mutex_);
 			items_[robot->GetUserId()] = robot;
 		}
 	}
+#endif
+	MY_CATCH();
 	return robot;
 }
 
@@ -199,6 +219,7 @@ void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
 			});
 		if (it != items_.end()) {
 			std::shared_ptr<CRobot>& robot = it->second;
+			ASSERT(robot->GetUserId() == userId);
 			items_.erase(it);
 			robot->Reset();
 			freeItems_.emplace_back(robot);

@@ -31,6 +31,12 @@ void CRobot::Reset() {
 	official_ = false;
 }
 
+void CRobot::AssertReset() {
+	ASSERT(tableId_ == INVALID_TABLE);
+	ASSERT(chairId_ == INVALID_CHAIR);
+	ASSERT(status_ == sFree);
+}
+
 /// <summary>
 /// IRobotDelegate消息回调
 /// </summary>

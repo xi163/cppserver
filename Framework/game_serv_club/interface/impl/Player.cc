@@ -18,6 +18,12 @@ void CPlayer::Reset() {
 	baseInfo_ = UserBaseInfo();
 }
 
+void CPlayer::AssertReset() {
+	ASSERT(tableId_ == INVALID_TABLE);
+	ASSERT(chairId_ == INVALID_CHAIR);
+	ASSERT(status_ == sFree);
+}
+
 /// <summary>
 /// IRobotDelegate消息回调
 /// </summary>

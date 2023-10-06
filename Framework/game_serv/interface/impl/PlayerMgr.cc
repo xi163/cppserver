@@ -6,16 +6,18 @@ CPlayerMgr::CPlayerMgr() {
 }
 
 CPlayerMgr::~CPlayerMgr() {
-	items_.clear();
-	freeItems_.clear();
+	//WRITE_LOCK(mutex_); {
+	//	items_.clear();
+	//	freeItems_.clear();
+	//}
 }
 
 std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
-	{
-		READ_LOCK(mutex_);
-		assert(items_.find(userId) == items_.end());
-	}
 	std::shared_ptr<CPlayer> player;
+	MY_TRY(); {
+		READ_LOCK(mutex_);
+		ASSERT(items_.find(userId) == items_.end());
+	}
 	bool empty = false; {
 		READ_LOCK(mutex_);
 		empty = freeItems_.empty();
@@ -24,11 +26,14 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 		{
 			WRITE_LOCK(mutex_);
 			if (!freeItems_.empty()) {
-				player = freeItems_.back();
-				freeItems_.pop_back();
+				player = freeItems_.front();
+				freeItems_.pop_front();
 #if 1
 				if (player) {
-					player->Reset();
+					ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+						return kv.second.get() == player.get();
+						}) == items_.end());
+					player->AssertReset();
 					items_[userId] = player;
 				}
 #endif
@@ -36,7 +41,13 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 		}
 #if 0
 		if (player) {
-			player->Reset();
+			{
+				READ_LOCK(mutex_);
+				ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+					return kv.second.get() == player.get();
+				}) == items_.end());
+			}
+			player->AssertReset();
 			{
 				WRITE_LOCK(mutex_);
 				items_[userId] = player;
@@ -51,6 +62,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 			items_[userId] = player;
 		}
 	}
+	MY_CATCH();
 	return player;
 }
 
@@ -90,6 +102,7 @@ void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 			});
 		if (it != items_.end()) {
 			std::shared_ptr<CPlayer>& player = it->second;
+			ASSERT(player->GetUserId() == userId);
 			items_.erase(it);
 			player->Reset();
 			freeItems_.emplace_back(player);
