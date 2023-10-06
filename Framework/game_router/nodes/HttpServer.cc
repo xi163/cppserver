@@ -37,7 +37,7 @@ bool RouterServ::onHttpCondition(const muduo::net::InetAddress& peerAddr, muduo:
 		return true;
 	}
 #endif
-	Infof("%s %s %s [×]阻断", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+	Infof("%s %s %s [×]禁止访问", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
 #if 0
 	//Accept时候判断，socket底层控制，否则开启异步检查
 	//assert(whiteListControl_ == eApiCtrl::kOpenAccept);

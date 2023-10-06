@@ -67,7 +67,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 #else
 	{
 #ifdef _USE_MUDUO_MUTEX_
-		MutexLockGuard lock(mutex_);
+		muduo::MutexLockGuard lock(mutex_);
 #else
 		std::unique_lock<std::mutex> lock(mutex_);
 #endif
@@ -78,6 +78,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 				ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
 					return kv.second.get() == player.get();
 					}) == items_.end());
+				// FIXME crash bug!!!
 				player->AssertReset();
 				items_[userId] = player;
 			}
@@ -87,7 +88,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 		player = std::shared_ptr<CPlayer>(new CPlayer());
 		{
 #ifdef _USE_MUDUO_MUTEX_
-			MutexLockGuard lock(mutex_);
+			muduo::MutexLockGuard lock(mutex_);
 #else
 			std::unique_lock<std::mutex> lock(mutex_);
 #endif
@@ -103,7 +104,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::Get(int64_t userId) {
 #ifdef _USE_SHARED_MUTEX_
 		READ_LOCK(mutex_);
 #elif defined(_USE_MUDUO_MUTEX_)
-		MutexLockGuard lock(mutex_);
+		muduo::MutexLockGuard lock(mutex_);
 #else
 		std::unique_lock<std::mutex> lock(mutex_);
 #endif
@@ -117,15 +118,17 @@ std::shared_ptr<CPlayer> CPlayerMgr::Get(int64_t userId) {
 
 //一个userId占用多个CPlayer对象?
 void CPlayerMgr::Delete(int64_t userId) {
+	ASSERT(userId != INVALID_USER);
 	{
 #ifdef _USE_SHARED_MUTEX_
 		WRITE_LOCK(mutex_);
 #elif defined(_USE_MUDUO_MUTEX_)
-		MutexLockGuard lock(mutex_);
+		muduo::MutexLockGuard lock(mutex_);
 #else
 		std::unique_lock<std::mutex> lock(mutex_);
 #endif
 		std::map<int64_t, std::shared_ptr<CPlayer>>::iterator it = items_.find(userId);
+		ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CPlayer>& player = it->second;
 			items_.erase(it);
@@ -141,11 +144,12 @@ void CPlayerMgr::Delete(int64_t userId) {
 
 void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 	int64_t userId = player->GetUserId();
+	ASSERT(userId != INVALID_USER);
 	{
 #ifdef _USE_SHARED_MUTEX_
 		WRITE_LOCK(mutex_);
 #elif defined(_USE_MUDUO_MUTEX_)
-		MutexLockGuard lock(mutex_);
+		muduo::MutexLockGuard lock(mutex_);
 #else
 		std::unique_lock<std::mutex> lock(mutex_);
 #endif
@@ -153,6 +157,7 @@ void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 			[&](Item const& kv) -> bool {
 				return kv.second.get() == player.get();
 			});
+		ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CPlayer>& player = it->second;
 			ASSERT(player->GetUserId() == userId);

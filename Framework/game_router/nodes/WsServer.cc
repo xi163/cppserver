@@ -36,7 +36,7 @@ bool RouterServ::onCondition(const muduo::net::InetAddress& peerAddr, muduo::net
 		return true;
 	}
 #endif
-	Infof("%s %s %s [×]阻断", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+	Infof("%s %s %s [×]禁止访问", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
 	return true;
 }
 

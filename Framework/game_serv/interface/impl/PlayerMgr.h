@@ -5,6 +5,9 @@
 
 #include "Player.h"
 
+#define _USE_MUDUO_MUTEX_
+#include "public/IncMuduo.h"
+
 class CPlayerMgr : public boost::serialization::singleton<CPlayerMgr> {
 public:
 	CPlayerMgr();
@@ -42,7 +45,7 @@ protected:
 #ifdef _USE_SHARED_MUTEX_
 	mutable boost::shared_mutex mutex_;
 #elif defined(_USE_MUDUO_MUTEX_)
-	mutable MutexLock mutex_;
+	mutable muduo::MutexLock mutex_;
 #else
 	mutable std::mutex mutex_;
 #endif

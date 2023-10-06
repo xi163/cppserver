@@ -196,9 +196,11 @@ std::shared_ptr<CRobot> CRobotMgr::Pick() {
 
 //一个userId占用多个CRobot对象?
 void CRobotMgr::Delete(int64_t userId) {
+	ASSERT(userId != INVALID_USER);
 	{
 		WRITE_LOCK(mutex_);
 		std::map<int64_t, std::shared_ptr<CRobot>>::iterator it = items_.find(userId);
+		ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CRobot> robot = it->second;
 			items_.erase(it);
@@ -214,12 +216,14 @@ void CRobotMgr::Delete(int64_t userId) {
 
 void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
 	int64_t userId = robot->GetUserId();
+	ASSERT(userId != INVALID_USER);
 	{
 		WRITE_LOCK(mutex_);
 		std::map<int64_t, std::shared_ptr<CRobot>>::iterator it = std::find_if(items_.begin(), items_.end(),
 			[&](Item const& kv) -> bool {
 				return kv.second.get() == robot.get();
 			});
+		ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CRobot>& robot = it->second;
 			ASSERT(robot->GetUserId() == userId);

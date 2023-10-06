@@ -185,7 +185,7 @@ struct agent_user_t {
 
 struct UserBaseInfo {
 	UserBaseInfo() {
-		userId = -1;
+		userId = INVALID_USER;
 		account = "";
 		headId = 0;
 		privilege = 0;

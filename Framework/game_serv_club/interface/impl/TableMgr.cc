@@ -285,9 +285,11 @@ std::shared_ptr<CTable> CTableMgr::New(int64_t clubId) {
 /// </summary>
 /// <param name="tableId"></param>
 void CTableMgr::Delete(uint16_t tableId) {
+	ASSERT(tableId != INVALID_TABLE);
 	{
 		WRITE_LOCK(mutex_);
 		std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
+		ASSERT_V(it != usedItems_.end(), "tableId=%d", tableId);
 		if (it != usedItems_.end()) {
 			std::shared_ptr<CTable>& table = it->second;
 			usedItems_.erase(it);
@@ -309,12 +311,14 @@ void CTableMgr::Delete(uint16_t tableId) {
 /// <param name="table"></param>
 void CTableMgr::Delete(std::shared_ptr<CTable> const& table) {
 	uint16_t tableId = table->GetTableId();
+	ASSERT(tableId != INVALID_TABLE);
 	{
 		WRITE_LOCK(mutex_);
 		std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = std::find_if(usedItems_.begin(), usedItems_.end(),
 			[&](Item const& kv) -> bool {
 				return kv.second.get() == table.get();
 			});
+		ASSERT_V(it != usedItems_.end(), "tableId=%d", tableId);
 		if (it != usedItems_.end()) {
 			std::shared_ptr<CTable>& table = it->second;
 			ASSERT(table->GetTableId() == tableId);

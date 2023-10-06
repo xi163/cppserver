@@ -5,6 +5,7 @@
 
 #define MIN_SYS_USER_ID 1000
 
+#define INVALID_USER    (-1)
 #define INVALID_TABLE	0xFFFF
 #define INVALID_CHAIR	0xFFFF
 #define INVALID_CARD	0xFFFF
