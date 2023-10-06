@@ -108,7 +108,8 @@ void TcpConnection::handleRead_ssl_et(Timestamp receiveTime)
 	  }
 	  return;
   }
-  ASSERT(channel_->isReading() && channel_->isET());
+  ASSERT(channel_->isReading());
+  ASSERT(channel_->isET());
   ssize_t rc = 0;
   int saveErrno = 0;
   ssize_t n = inputBuffer_.SSL_readFull(ssl_, rc, &saveErrno);//SSL_readFull

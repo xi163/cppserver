@@ -496,7 +496,8 @@ void TcpConnection::handleRead(Timestamp receiveTime) {
 void TcpConnection::handleRead_(Timestamp receiveTime)
 {
   loop_->assertInLoopThread();
-  ASSERT(channel_->isReading() && !channel_->isET());
+  ASSERT(channel_->isReading());
+  ASSERT(!channel_->isET());
   int saveErrno = 0;
   ssize_t n = inputBuffer_.readFd(channel_->fd(), &saveErrno);
   if (n > 0)

@@ -83,7 +83,8 @@ void TcpConnection::sendInLoop_et(const void* data, size_t len)
 void TcpConnection::handleRead_et(Timestamp receiveTime)
 {
   loop_->assertInLoopThread();
-  ASSERT(channel_->isReading() && channel_->isET());
+  ASSERT(channel_->isReading());
+  ASSERT(channel_->isET());
   ssize_t rc = 0;
   int saveErrno = 0;
   ssize_t n = inputBuffer_.readFull(channel_->fd(), rc, &saveErrno);//readFull
