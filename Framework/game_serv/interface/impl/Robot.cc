@@ -11,7 +11,7 @@ CRobot::CRobot() {
 }
 
 CRobot::~CRobot() {
-	ASSERT_IF(GetUserId() > 0, false, "userId=%d", GetUserId());
+	ASSERT_V_IF(GetUserId() > 0, false, "userId=%d", GetUserId());
 }
 
 void CRobot::Init(std::shared_ptr<IRobotDelegate> const& robotDelegate) {
