@@ -6,13 +6,12 @@
 
 #include "../../proto/Game.Common.pb.h"
 
-
 CRobot::CRobot() {
 	official_ = false;
 }
 
 CRobot::~CRobot() {
-	ASSERT(false);
+	ASSERT_IF(GetUserId() > 0, false, "userId=%d", GetUserId());
 }
 
 void CRobot::Init(std::shared_ptr<IRobotDelegate> const& robotDelegate) {
