@@ -11,7 +11,7 @@ CPlayer::CPlayer()
 }
 
 CPlayer::~CPlayer() {
-	ASSERT(false);
+	ASSERT_V_IF(!IsRobot(), false, "userId=%d", GetUserId());
 }
 
 void CPlayer::Reset() {
