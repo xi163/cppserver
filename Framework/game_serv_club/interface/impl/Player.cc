@@ -1,7 +1,8 @@
 #include "public/Inc.h"
 #include "Player.h"
 
-CPlayer::CPlayer() {
+CPlayer::CPlayer()
+	: baseInfo_(new UserBaseInfo()) {
 	tableId_ = INVALID_TABLE;
 	chairId_ = INVALID_CHAIR;
 	status_ = sFree;
@@ -15,13 +16,13 @@ void CPlayer::Reset() {
 	status_ = sFree;
 	trustee_ = false;
 	official_ = false;
-	baseInfo_ = UserBaseInfo();
+	baseInfo_.reset(new UserBaseInfo());
 }
 
 void CPlayer::AssertReset() {
-	ASSERT(tableId_ == INVALID_TABLE);
-	ASSERT(chairId_ == INVALID_CHAIR);
-	ASSERT(status_ == sFree);
+	ASSERT_V(tableId_ == INVALID_TABLE, "tableId_=%d", tableId_);
+	ASSERT_V(chairId_ == INVALID_CHAIR, "chairId_=%d", chairId_);
+	ASSERT_V(status_ == sFree, "status_=%d", status_);
 }
 
 /// <summary>
@@ -48,6 +49,7 @@ bool CPlayer::SendTableMessage(uint8_t subId, uint8_t const* data, size_t len) {
 }
 
 bool CPlayer::ExistOnlineInfo() {
-	ASSERT(baseInfo_.userId > 0);
-	return REDISCLIENT.ExistOnlineInfo(baseInfo_.userId);
+	ASSERT(baseInfo_);
+	ASSERT(baseInfo_->userId > 0);
+	return REDISCLIENT.ExistOnlineInfo(baseInfo_->userId);
 }

@@ -32,9 +32,9 @@ void CRobot::Reset() {
 }
 
 void CRobot::AssertReset() {
-	ASSERT(tableId_ == INVALID_TABLE);
-	ASSERT(chairId_ == INVALID_CHAIR);
-	ASSERT(status_ == sFree);
+	ASSERT_V(tableId_ == INVALID_TABLE, "tableId_=%d", tableId_);
+	ASSERT_V(chairId_ == INVALID_CHAIR, "chairId_=%d", chairId_);
+	ASSERT_V(status_ == sFree, "status_=%d", status_);
 }
 
 /// <summary>
