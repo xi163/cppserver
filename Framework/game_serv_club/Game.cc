@@ -893,7 +893,6 @@ void GameServ::cmd_on_user_enter_room(
 		}
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player && player->Valid()) {
-			player->setTrustee(false);
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				RunInLoop(table->GetLoop(), CALLBACK_0([this](
@@ -901,6 +900,8 @@ void GameServ::cmd_on_user_enter_room(
 					BufferPtr const& buf, std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
+					//table->assertThisThread();
+					player->setTrustee(false);
 					if (player->isOffline()) {
 						Warnf("[%s][%d][%s] %d %d 断线重连进房间",
 							table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
@@ -1019,7 +1020,6 @@ void GameServ::cmd_on_user_enter_room(
 				return;
 			}
 			userInfo.ip = pre_header_->clientIp;
-			//player->SetUserBaseInfo(userInfo);
 			std::shared_ptr<CTable> table;
 			if (reqdata.clubid() > 0) {
 				if (!reqdata.servid().empty() &&
