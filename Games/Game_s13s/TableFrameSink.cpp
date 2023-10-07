@@ -189,7 +189,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		//Errorf("....%d", player->GetUserId());
 		return false;
 	}
-	if (player->GetUserId() == -1) { //new android enter
+	if (player->IsRobot() && player->GetUserId() == INVALID_USER && player->GetTableId() == INVALID_CHAIR) { //new android enter
 		//机器人先入桌的话要初始化
 		if (maxAndroid_ == 0)
 			maxAndroid_ = randomMaxAndroidCount();
@@ -210,7 +210,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		//Errorf("....%d  bool=%d", player->GetUserId(), table_->GetRobotPlayerCount() < maxAndroid_);
 		return table_->GetRobotPlayerCount() < maxAndroid_;
 	}
-	else if (player->GetTableId() == INVALID_CHAIR) { //new real user enter
+	else if (!player->IsRobot() && player->GetUserId() == INVALID_USER && player->GetTableId() == INVALID_CHAIR) { //new real user enter
 		//游戏开始了真人新玩家不准进入
 		if (table_->GetGameStatus() >= GAME_STATUS_START) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " false 3";

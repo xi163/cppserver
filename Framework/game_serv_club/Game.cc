@@ -1019,7 +1019,7 @@ void GameServ::cmd_on_user_enter_room(
 				return;
 			}
 			userInfo.ip = pre_header_->clientIp;
-			player->SetUserBaseInfo(userInfo);
+			//player->SetUserBaseInfo(userInfo);
 			std::shared_ptr<CTable> table;
 			if (reqdata.clubid() > 0) {
 				if (!reqdata.servid().empty() &&
@@ -1035,10 +1035,11 @@ void GameServ::cmd_on_user_enter_room(
 			if (table) {
 				RunInLoop(table->GetLoop(), CALLBACK_0([this](
 					const muduo::net::WeakTcpConnectionPtr& weakConn,
-					BufferPtr const& buf, std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
+					BufferPtr const& buf, UserBaseInfo const& userInfo, std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
 					//table->assertThisThread();
+					player->SetUserBaseInfo(userInfo);
 					if (table->RoomSitChair(player, pre_header_, header_)) {
 					}
 					else {
@@ -1062,7 +1063,7 @@ void GameServ::cmd_on_user_enter_room(
 								"ERROR_ENTERROOM_TABLE_FULL", pre_header_, header_);
 						}
 					}
-				}, conn, buf, table, player));
+				}, conn, buf, userInfo, table, player));
 			}
 			else {
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
