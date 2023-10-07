@@ -24,6 +24,8 @@ public:
 
 int main() {
 	
+	uint16_t xx = 0xFFFF;
+	Debugf("%d", xx);
 	
 	int a = 0,b = 0;
 	switch (a) {

@@ -335,7 +335,9 @@ namespace muduo {
 			static const size_t kMaskingkeyLen = 4;
 			static const size_t kExtendedPayloadlenU16 = sizeof(uint16_t);
 			static const size_t kExtendedPayloadlenI64 = sizeof(int64_t);
-
+			
+			class Context_;
+			
 			// 带扩展协议头
 			struct extended_header_t {
 			public:
@@ -490,7 +492,7 @@ namespace muduo {
 						ASSERT(Masking_key[0] == '\0');
 						return false;
 					default:
-						ASSERT(false);
+						ASSERT_V(header.MASK == 0 || header.MASK == 1, "header.MASK=%d", header.MASK);
 						return false;
 					}
 				}
@@ -632,7 +634,7 @@ namespace muduo {
 				}
 			public:
 				// 测试帧头合法性
-				inline void testValidate();
+				inline bool testValidate(websocket::Context_& context);
 
 			public:
 				//带扩展协议头
@@ -712,7 +714,7 @@ namespace muduo {
 					return NULL;
 				}
 				// 添加单个帧头
-				inline MessageFrameE addFrameHeader(websocket::extended_header_t& header);
+				inline MessageFrameE addFrameHeader(websocket::Context_& context, websocket::extended_header_t& header);
 
 				// 打印全部帧头信息
 				inline void dumpFrameHeaders(std::string const& name) {
@@ -838,8 +840,8 @@ namespace muduo {
 					return messageHeader_.getLastFrameHeader();
 				}
 				// 添加单个帧头
-				inline MessageFrameE addFrameHeader(websocket::extended_header_t& header) {
-					return messageHeader_.addFrameHeader(header);
+				inline MessageFrameE addFrameHeader(websocket::Context_& context, websocket::extended_header_t& header) {
+					return messageHeader_.addFrameHeader(context, header);
 				}
 				// 重置消息
 				inline void resetMessage(bool release = false) {
@@ -847,7 +849,7 @@ namespace muduo {
 					//memset(&header_, 0, kHeaderLen);
 					//重置消息头(header)/消息体(body)
 					messageHeader_.reset();
-					//@@@ Fixed BUG Crash
+					//FIXME crash!!!
 					//assert must not be NULL
 					//ASSERT(messageBuffer_);
 					if (messageBuffer_) {
@@ -1056,8 +1058,9 @@ namespace muduo {
 			};
 
 			// 测试帧头合法性
-			void frame_header_t::testValidate() {
+			bool frame_header_t::testValidate(websocket::Context_& context) {
 				header_t const& header = this->header.get_header();
+				websocket::ICallbackHandler* handler = context.getCallbackHandler();
 				switch (header.opcode)
 				{
 					//非控制帧，携带应用/扩展数据
@@ -1180,13 +1183,28 @@ namespace muduo {
 					ASSERT(frameControlType == FrameControlE::ControlFrame);
 					break;
 				default:
-					ASSERT(false);
+					//FIXME crash!!!
+					//ASSERT_V(false, "header.opcode=%d", header.opcode);
+					if (handler) {
+						Errorf("%s\n%s", Msg_Fin_to_string(header.FIN).c_str(), Msg_Opcode_to_string(header.opcode).c_str());
+#if 0
+						//不再发送数据
+						handler->shutdown();
+#elif 1
+						handler->forceClose();
+#else
+						handler->forceCloseWithDelay(0.2f);
+#endif
+						return false;
+					}
 					break;
 				}
+				return true;
 			}
 
 			// 添加单个帧头
-			MessageFrameE message_header_t::addFrameHeader(websocket::extended_header_t& header) {
+			MessageFrameE message_header_t::addFrameHeader(websocket::Context_& context, websocket::extended_header_t& header) {
+				websocket::ICallbackHandler* handler = context.getCallbackHandler();
 				//帧控制类型 控制帧/非控制帧
 				FrameControlE frameControlType = FrameControlE::FrameInvalid;
 				//消息帧类型
@@ -1320,7 +1338,20 @@ namespace muduo {
 					ASSERT(messageType_ == MessageE::PongMessage);
 					break;
 				default:
-					ASSERT(false);
+					//FIXME crash!!!
+					//ASSERT_V(false, "header.opcode=%d", header.get_header().opcode);
+					if (handler) {
+						Errorf("%s\n%s", Msg_Fin_to_string(header.get_header().FIN).c_str(), Msg_Opcode_to_string(header.get_header().opcode).c_str());
+#if 0
+						//不再发送数据
+						handler->shutdown();
+#elif 1
+						handler->forceClose();
+#else
+						handler->forceCloseWithDelay(0.2f);
+#endif
+						return MessageFrameE::UnknownFrame;
+					}
 					break;
 				}
 				//只有数据帧(非控制帧)可以分片，控制帧不能被分片
@@ -1346,10 +1377,14 @@ namespace muduo {
 				frame_header_t frameHeader(frameControlType, messageFrameType, header);
 #endif
 				//测试帧头合法性
-				frameHeader.testValidate();
-				//添加帧头
-				frameHeaders_.emplace_back(frameHeader);
- 				return messageFrameType;
+				switch (frameHeader.testValidate(context)) {
+				case true:
+					//添加帧头
+					frameHeaders_.emplace_back(frameHeader);
+					return messageFrameType;
+				default:
+					return MessageFrameE::UnknownFrame;
+				}
 			}
 
 			static std::string getAcceptKey(std::string const& key) {
@@ -1538,7 +1573,7 @@ namespace muduo {
 					Debugf("Payloadlen =%d ExtendedPayloadlenI64 = %lld",
 						Payloadlen, ExtendedPayloadlenI64);
 #endif
-					ASSERT(false);
+					ASSERT_V(false, "Payloadlen=%d", Payloadlen);
 					buf->append(&ExtendedPayloadlenI64, websocket::kExtendedPayloadlenI64);
 				}
 				if (header.MASK == 1) {
@@ -1553,7 +1588,8 @@ namespace muduo {
 			
 			//FrameControlE MessageFrameE use MAKEWORD best
 			static std::pair<FrameControlE, MessageFrameE>
-				get_frame_control_message_type(websocket::header_t const& header) {
+				get_frame_control_message_type(websocket::Context_& context, websocket::header_t const& header) {
+				websocket::ICallbackHandler* handler = context.getCallbackHandler();
 				//帧控制类型 控制帧/非控制帧
 				websocket::FrameControlE frameControlType = FrameControlE::FrameInvalid;
 				//消息帧类型
@@ -1687,7 +1723,20 @@ namespace muduo {
 					//ASSERT(messageType_ == MessageE::PongMessage);
 					break;
 				default:
-					ASSERT(false);
+					//FIXME crash!!!
+					//ASSERT_V(false, "header.opcode=%d", header.opcode);
+					if (handler) {
+						Errorf("%s\n%s", Msg_Fin_to_string(header.FIN).c_str(), Msg_Opcode_to_string(header.opcode).c_str());
+#if 0
+						//不再发送数据
+						handler->shutdown();
+#elif 1
+						handler->forceClose();
+#else
+						handler->forceCloseWithDelay(0.2f);
+#endif
+						return std::pair<FrameControlE, MessageFrameE>(FrameControlE::FrameInvalid, MessageFrameE::UnknownFrame);
+					}
 					break;
 				}
 				return std::pair<FrameControlE, MessageFrameE>(frameControlType, messageFrameType);
@@ -1710,7 +1759,7 @@ namespace muduo {
 				left -= chunksz;
 #ifdef LIBWEBSOCKET_DEBUG
 				int i = 0;
-				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
+				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
 				Debugf("\n" \
 				"+-----------------------------------------------------------------------------------------------------------------+" \
 				"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]",
@@ -1731,7 +1780,7 @@ namespace muduo {
 						n += chunksz;
 						left -= chunksz;
 #ifdef LIBWEBSOCKET_DEBUG
-						std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
+						std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
 						printf("Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n",
 							i++,
 							websocket::FrameControl_to_string(ty.first).c_str(),
@@ -1749,7 +1798,7 @@ namespace muduo {
 						n += left;
 						left -= left;
 #ifdef LIBWEBSOCKET_DEBUG
-						std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
+						std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
 						Debugf("\nFrame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
 							"+-----------------------------------------------------------------------------------------------------------------+",
 							i++,
@@ -1788,7 +1837,7 @@ namespace muduo {
 						messageType, websocket::FinE::FrameFinished);
 #ifdef LIBWEBSOCKET_DEBUG
 					int i = 0;
-					std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
+					std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
 					Debugf("\n" \
 						"+-----------------------------------------------------------------------------------------------------------------+\n" \
 						"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
@@ -1814,7 +1863,7 @@ namespace muduo {
 					websocket::FinE::FrameFinished);
 #ifdef LIBWEBSOCKET_DEBUG
 				int i = 0;
-				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
+				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
 				Debugf("\n" \
 					"+-----------------------------------------------------------------------------------------------------------------+\n" \
 					"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
@@ -1838,7 +1887,7 @@ namespace muduo {
 					websocket::FinE::FrameFinished);
 #ifdef LIBWEBSOCKET_DEBUG
 				int i = 0;
-				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
+				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
 				Debugf("\n" \
 					"+-----------------------------------------------------------------------------------------------------------------+\n" \
 					"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
@@ -1862,7 +1911,7 @@ namespace muduo {
 					websocket::FinE::FrameFinished);
 #ifdef LIBWEBSOCKET_DEBUG
 				int i = 0;
-				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
+				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
 				Debugf("\n" \
 					"+-----------------------------------------------------------------------------------------------------------------+\n" \
 					"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
@@ -2118,6 +2167,7 @@ namespace muduo {
 						//连接关闭帧
 						//开始解析消息体，解析buffer务必已置空
 						ASSERT(controlMessage.getMessageBuffer());
+						//FIXME crash!!!
 						ASSERT(controlMessage.getMessageBuffer()->readableBytes() == 0);
 						//控制帧消息类型
 						controlMessage.setMessageType(websocket::OpcodeE::CloseMessage);
@@ -2490,11 +2540,17 @@ namespace muduo {
 						//////////////////////////////////////////////////////////////////////////
 						context.setWebsocketStep(websocket::StepE::ReadExtendedPayloadDataU16);
 						{
-							std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
-							ASSERT(ty.first != FrameControlE::FrameInvalid);
-							enough = (ty.first == FrameControlE::UnControlFrame) ?
-								parse_uncontrol_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, saveErrno) :
-								parse_control_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, saveErrno);
+							std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
+							//ASSERT(ty.first != FrameControlE::FrameInvalid);
+							switch (ty.first) {
+							case FrameControlE::FrameInvalid:
+								break;
+							default:
+								enough = (ty.first == FrameControlE::UnControlFrame) ?
+									parse_uncontrol_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, saveErrno) :
+									parse_control_frame_ReadExtendedPayloadDataU16(context, buf, receiveTime, saveErrno);
+								break;
+							}
 						}
 						break;
 					}
@@ -2504,11 +2560,17 @@ namespace muduo {
 						//////////////////////////////////////////////////////////////////////////
 						context.setWebsocketStep(websocket::StepE::ReadExtendedPayloadDataI64);
 						{
-							std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
-							ASSERT(ty.first != FrameControlE::FrameInvalid);
-							enough = (ty.first == FrameControlE::UnControlFrame) ?
-								parse_uncontrol_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, saveErrno) :
-								parse_control_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, saveErrno);
+							std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
+							//ASSERT(ty.first != FrameControlE::FrameInvalid);
+							switch (ty.first) {
+							case FrameControlE::FrameInvalid:
+								break;
+							default:
+								enough = (ty.first == FrameControlE::UnControlFrame) ?
+									parse_uncontrol_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, saveErrno) :
+									parse_control_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, saveErrno);
+								break;
+							}
 						}
 						break;
 					}
@@ -2519,11 +2581,17 @@ namespace muduo {
 						//////////////////////////////////////////////////////////////////////////
 						context.setWebsocketStep(websocket::StepE::ReadPayloadData);
 						{
-							std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
-							ASSERT(ty.first != FrameControlE::FrameInvalid);
-							enough = (ty.first == FrameControlE::UnControlFrame) ?
-								parse_uncontrol_frame_ReadPayloadData(context, buf, receiveTime, saveErrno) :
-								parse_control_frame_ReadPayloadData(context, buf, receiveTime, saveErrno);
+							std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
+							//ASSERT(ty.first != FrameControlE::FrameInvalid);
+							switch (ty.first) {
+							case FrameControlE::FrameInvalid:
+								break;
+							default:
+								enough = (ty.first == FrameControlE::UnControlFrame) ?
+									parse_uncontrol_frame_ReadPayloadData(context, buf, receiveTime, saveErrno) :
+									parse_control_frame_ReadPayloadData(context, buf, receiveTime, saveErrno);
+								break;
+							}
 						}
 						break;
 					}
@@ -2568,6 +2636,13 @@ namespace muduo {
 #ifdef LIBWEBSOCKET_DEBUG
 					//添加消息帧头
 					websocket::MessageFrameE messageFrameType = context.getDataMessage().addFrameHeader(extended_header);
+					switch (messageFrameType)
+					{
+					case MessageFrameE::UnknownFrame:
+						return false;
+					default:
+						break;
+					}
 					//输出扩展协议头信息
 					dump_extended_header_info(extended_header);
 #endif
@@ -2623,7 +2698,20 @@ namespace muduo {
 								break;
 							}
 							default:
-								ASSERT(false);
+								//FIXME crash!!!
+								//ASSERT_V(false, "header.opcode=%d", header.opcode);
+								if (handler) {
+									Errorf("%s\n%s", Msg_Fin_to_string(header.FIN).c_str(), Msg_Opcode_to_string(header.opcode).c_str());
+#if 0
+									//不再发送数据
+									handler->shutdown();
+#elif 1
+									handler->forceClose();
+#else
+									handler->forceCloseWithDelay(0.2f);
+#endif
+									return enough;
+								}
 								break;
 							}
 							if (handler) {
@@ -2746,7 +2834,20 @@ namespace muduo {
 								break;
 							}
 							default:
-								ASSERT(false);
+								//FIXME crash!!!
+								//ASSERT_V(false, "header.opcode=%d", header.opcode);
+								if (handler) {
+									Errorf("%s\n%s", Msg_Fin_to_string(header.FIN).c_str(), Msg_Opcode_to_string(header.opcode).c_str());
+#if 0
+									//不再发送数据
+									handler->shutdown();
+#elif 1
+									handler->forceClose();
+#else
+									handler->forceCloseWithDelay(0.2f);
+#endif
+									return enough;
+								}
 								break;
 							}
 							if (handler) {
@@ -2870,7 +2971,20 @@ namespace muduo {
 								break;
 							}
 							default:
-								ASSERT(false);
+								//FIXME crash!!!
+								//ASSERT_V(false, "header.opcode=%d", header.opcode);
+								if (handler) {
+									Errorf("%s\n%s", Msg_Fin_to_string(header.FIN).c_str(), Msg_Opcode_to_string(header.opcode).c_str());
+#if 0
+									//不再发送数据
+									handler->shutdown();
+#elif 1
+									handler->forceClose();
+#else
+									handler->forceCloseWithDelay(0.2f);
+#endif
+									return enough;
+								}
 								break;
 							}
 							if (handler) {
@@ -3026,7 +3140,20 @@ namespace muduo {
 								break;
 							}
 							default:
-								ASSERT(false);
+								//FIXME crash!!!
+								//ASSERT_V(false, "header.opcode=%d", header.opcode);
+								if (handler) {
+									Errorf("%s\n%s", Msg_Fin_to_string(header.FIN).c_str(), Msg_Opcode_to_string(header.opcode).c_str());
+#if 0
+									//不再发送数据
+									handler->shutdown();
+#elif 1
+									handler->forceClose();
+#else
+									handler->forceCloseWithDelay(0.2f);
+#endif
+									return enough;
+								}
 								break;
 							}
 							if (context.getControlMessage().getMessageBuffer()->readableBytes() == header.Payloadlen) {
@@ -3177,7 +3304,20 @@ namespace muduo {
 								break;
 							}
 							default:
-								ASSERT(false);
+								//FIXME crash!!!
+								//ASSERT_V(false, "header.opcode=%d", header.opcode);
+								if (handler) {
+									Errorf("%s\n%s", Msg_Fin_to_string(header.FIN).c_str(), Msg_Opcode_to_string(header.opcode).c_str());
+#if 0
+									//不再发送数据
+									handler->shutdown();
+#elif 1
+									handler->forceClose();
+#else
+									handler->forceCloseWithDelay(0.2f);
+#endif
+									return enough;
+								}
 								break;
 							}
 							if (context.getControlMessage().getMessageBuffer()->readableBytes() == extended_header.getExtendedPayloadlenU16()) {
@@ -3329,7 +3469,20 @@ namespace muduo {
 								break;
 							}
 							default:
-								ASSERT(false);
+								//FIXME crash!!!
+								//ASSERT_V(false, "header.opcode=%d", header.opcode);
+								if (handler) {
+									Errorf("%s\n%s", Msg_Fin_to_string(header.FIN).c_str(), Msg_Opcode_to_string(header.opcode).c_str());
+#if 0
+									//不再发送数据
+									handler->shutdown();
+#elif 1
+									handler->forceClose();
+#else
+									handler->forceCloseWithDelay(0.2f);
+#endif
+									return enough;
+								}
 								break;
 							}
 							if (context.getControlMessage().getMessageBuffer()->readableBytes() == extended_header.getExtendedPayloadlenI64()) {
@@ -3379,7 +3532,12 @@ namespace muduo {
 				//控制帧，完整websocket消息体(body)
 				IBytesBuffer* controlBuffer = controlMessage.getMessageBuffer().get();
 				ASSERT(controlBuffer);
-				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(header);
+				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
+				//ASSERT(ty.first != FrameControlE::FrameInvalid);
+				switch (ty.first) {
+				case FrameControlE::FrameInvalid:
+					return 0;
+				}
 				bool enough = true;
 #ifdef LIBWEBSOCKET_DEBUG
 				int i = 0;
@@ -3435,7 +3593,20 @@ namespace muduo {
 							parse_control_frame_ReadExtendedPayloadDataI64(context, buf, receiveTime, saveErrno);
 						break;
 					default:
-						ASSERT(false);
+						//FIXME crash!!!
+						//ASSERT_V(false, "header.opcode=%d", header.opcode);
+						if (handler) {
+							Errorf("%s\n%s", Msg_Fin_to_string(header.FIN).c_str(), Msg_Opcode_to_string(header.opcode).c_str());
+#if 0
+							//不再发送数据
+							handler->shutdown();
+#elif 1
+							handler->forceClose();
+#else
+							handler->forceCloseWithDelay(0.2f);
+#endif
+							return 0;
+						}
 						break;
 					}
 				}

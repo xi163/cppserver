@@ -16,12 +16,12 @@ CPlayer::~CPlayer() {
 }
 
 void CPlayer::Reset() {
+	baseInfo_.reset(new UserBaseInfo());
 	tableId_ = INVALID_TABLE;
 	chairId_ = INVALID_CHAIR;
 	status_ = sFree;
 	trustee_ = false;
 	official_ = false;
-	baseInfo_.reset(new UserBaseInfo());
 }
 
 void CPlayer::AssertReset() {

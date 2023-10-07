@@ -30,7 +30,7 @@ public:
 	/// 是否机器人
 	/// </summary>
 	/// <returns></returns>
-	virtual inline bool IsRobot() { return robot_; }
+	virtual inline bool IsRobot() { return robot_/*true*/; }
 	
 	/// <summary>
 	/// 是否官方账号

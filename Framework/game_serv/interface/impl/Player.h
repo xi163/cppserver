@@ -16,8 +16,8 @@ public:
 	virtual void Reset();
 	virtual void AssertReset();
 	virtual bool ExistOnlineInfo();
-	virtual inline bool Valid() { return /*tableId_ != INVALID_TABLE && chairId_ != INVALID_CHAIR && */GetUserId() > 0; }
-	virtual inline bool IsRobot() { return robot_; }
+	virtual inline bool Valid() { return baseInfo_->userId != INVALID_USER/* && tableId_ != INVALID_TABLE && chairId_ != INVALID_CHAIR*/; }
+	virtual inline bool IsRobot() { return robot_/*false*/; }
 	virtual inline bool IsOfficial() { return official_; }
 	virtual inline std::shared_ptr<IRobotDelegate> GetDelegate() { return std::shared_ptr<IRobotDelegate>(); }
 	/// <summary>

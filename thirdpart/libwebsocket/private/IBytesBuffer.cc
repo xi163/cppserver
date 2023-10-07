@@ -94,8 +94,8 @@ namespace muduo {
 					//rc = 0 errno = EAGAIN(11)
 					//rc = 0 errno = 0 peer close
 					//
-					//Connection has been aborted by peer
-					Debugf("Connection has been aborted by peer rc = %d errno = %d errmsg = %s",
+					//Connection reset by peer
+					Debugf("Connection reset by peer rc = %d errno = %d errmsg = %s",
 						rc, errno, strerror(errno));
 					break;
 				}
@@ -144,8 +144,8 @@ namespace muduo {
 					//rc = 0 errno = 0 peer close
 					//
 					//ASSERT(left == 0);
-					//Connection has been aborted by peer
-					Debugf("Connection has been aborted by peer rc = %d errno = %d errmsg = %s",
+					//Connection reset by peer
+					Debugf("Connection reset by peer rc = %d errno = %d errmsg = %s",
 						rc, errno, strerror(errno));
 					break;
 				}
