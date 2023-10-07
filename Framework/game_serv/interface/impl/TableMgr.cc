@@ -274,11 +274,12 @@ void CTableMgr::Delete(uint16_t tableId) {
 		std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId);
 		//ASSERT_V(it != usedItems_.end(), "tableId=%d", tableId);
 		if (it != usedItems_.end()) {
-			std::shared_ptr<CTable>& table = it->second;
-			usedItems_.erase(it);
-			table->Reset();
+			std::shared_ptr<CTable>/*&*/ table = it->second;
+			ASSERT(table);
 			ASSERT(table->GetTableId() >= 0);
 			ASSERT(table->GetTableId() < items_.size());
+			usedItems_.erase(it);
+			table->Reset();
 			freeItems_.emplace_back(table);
 		}
 		else {
@@ -306,12 +307,13 @@ void CTableMgr::Delete(std::shared_ptr<CTable> const& table) {
 			});
 		//ASSERT_V(it != usedItems_.end(), "tableId=%d", tableId);
 		if (it != usedItems_.end()) {
-			std::shared_ptr<CTable>& table = it->second;
+			std::shared_ptr<CTable>/*&*/ table = it->second;
+			ASSERT(table);
+			ASSERT(table->GetTableId() >= 0);
+			ASSERT(table->GetTableId() < items_.size());
 			ASSERT(table->GetTableId() == tableId);
 			usedItems_.erase(it);
 			table->Reset();
-			ASSERT(table->GetTableId() >= 0);
-			ASSERT(table->GetTableId() < items_.size());
 			freeItems_.emplace_back(table);
 		}
 		else {

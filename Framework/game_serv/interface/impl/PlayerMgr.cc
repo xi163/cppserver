@@ -136,7 +136,8 @@ void CPlayerMgr::Delete(int64_t userId) {
 		std::map<int64_t, std::shared_ptr<CPlayer>>::iterator it = items_.find(userId);
 		ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
-			std::shared_ptr<CPlayer>& player = it->second;
+			std::shared_ptr<CPlayer>/*&*/ player = it->second;
+			ASSERT(player);
 			ASSERT(player->IsRobot() == false);
 			items_.erase(it);
 			player->Reset();
@@ -166,9 +167,10 @@ void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 			});
 		ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
-			std::shared_ptr<CPlayer>& player = it->second;
-			ASSERT(player->GetUserId() == userId);
+			std::shared_ptr<CPlayer>/*&*/ player = it->second;
+			ASSERT(player);
 			ASSERT(player->IsRobot() == false);
+			ASSERT(player->GetUserId() == userId);
 			items_.erase(it);
 			player->Reset();
 			freeItems_.emplace_back(player);
