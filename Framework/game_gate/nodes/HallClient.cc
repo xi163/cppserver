@@ -176,10 +176,10 @@ void GateServ::asyncHallHandler(
 			else {
 				//用户当前游戏节点不存在/不可用，需要指定
 				if (clientConn.first.empty()) {
-					Warnf("%d 游戏节点不存在，需要指定", userId);
+					//Warnf("%d 游戏节点不存在，需要指定", userId);
 				}
 				else {
-					Errorf("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
+					//Errorf("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
 				}
 				std::string serverIp;//roomid:ip:port:mode
 				if (REDISCLIENT.GetOnlineInfoIP(userId, serverIp)) {
