@@ -93,7 +93,7 @@ public:
 	virtual bool RoomSitChair(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
 	virtual bool OnUserEnterAction(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
 	virtual void SendUserSitdownFinish(std::shared_ptr<CPlayer> const& player, packet::internal_prev_header_t const* pre_header, packet::header_t const* header);
-	virtual bool OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendState = true, bool sendToSelf = false);
+	virtual bool OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendState = true, bool sendToSelf = true, uint8_t sendErrCode = 0);
 	virtual bool SendTableData(uint16_t chairId, uint8_t subId, uint8_t const* data, size_t len);
 	virtual bool SendTableData(uint16_t chairId, uint8_t subId, ::google::protobuf::Message* msg);
 	virtual bool SendUserData(std::shared_ptr<IPlayer> const& player, uint8_t subId, uint8_t const* data, size_t len);

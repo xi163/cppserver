@@ -366,40 +366,33 @@ bool CTable::SendGameMessage(uint16_t chairId, std::string const& msg, uint8_t m
 void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, uint8_t sendErrCode) {
     loop_->assertInLoopThread();
     if (INVALID_CHAIR == chairId) {
+        int c = 0;
+        bool ok = true;
         for (int i = 0; i < roomInfo_->maxPlayerNum; ++i) {
             std::shared_ptr<CPlayer> player = items_[i];
             if (player && player->Valid()) {
                 int64_t userId = player->GetUserId();
-                switch (sendErrCode) {
-                case 0: {
-                    ::GameServer::MSG_S2C_UserEnterMessageResponse msg;
-                    msg.mutable_header()->set_sign(HEADER_SIGN);
-                    msg.set_retcode(sendErrCode);
-                    msg.set_errormsg("游戏结束,您已被清理");
-                    send(player, &msg,
-                        Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-                        GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
-                    break;
-                }
-                default: {
-                    ::GameServer::MSG_S2C_UserEnterMessageResponse msg;
-                    msg.mutable_header()->set_sign(HEADER_SIGN);
-                    msg.set_retcode(sendErrCode);
-                    msg.set_errormsg("游戏结束,您已被清理");
-                    send(player, &msg,
-                        Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-                        GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
-                    break;
-                }
-                }
-                if (!OnUserStandup(player, sendState, sendToSelf)) {
+                if (!OnUserStandup(player, sendState, sendToSelf, sendErrCode)) {
+                    ok = false;
                     Errorf("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
                 }
                 else {
+                    ++c;
                     Errorf("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
                 }
             }
         }
+        if (c > 0 && ok && GetPlayerCount() == 0) {
+			if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
+#define DEL_TABLE_BY_TABLEID_
+#ifdef DEL_TABLE_BY_TABLEID_
+				//桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
+				CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
+#else
+				CTableMgr::get_mutable_instance().Delete(shared_from_this());
+#endif
+			}
+		}
     }
     else {
         if (chairId >= roomInfo_->maxPlayerNum) {
@@ -408,45 +401,23 @@ void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, u
         std::shared_ptr<CPlayer> player = items_[chairId];
         if (player && player->Valid()) {
             int64_t userId = player->GetUserId();
-            switch (sendErrCode) {
-            case 0: {
-                ::GameServer::MSG_S2C_UserEnterMessageResponse msg;
-                msg.mutable_header()->set_sign(HEADER_SIGN);
-                msg.set_retcode(sendErrCode);
-                msg.set_errormsg("游戏结束,您已被清理");
-                send(player, &msg,
-                    Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-                    GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
-                break;
-            }
-            default: {
-                ::GameServer::MSG_S2C_UserEnterMessageResponse msg;
-                msg.mutable_header()->set_sign(HEADER_SIGN);
-                msg.set_retcode(sendErrCode);
-                msg.set_errormsg("游戏结束,您已被清理");
-                send(player, &msg,
-                    Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
-                    GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
-                break;
-            }
-            }
-            if (!OnUserStandup(player, sendState, sendToSelf)) {
+            if (!OnUserStandup(player, sendState, sendToSelf, sendErrCode)) {
                 Errorf("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
             }
             else {
                 Errorf("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
-            }
-        }
-    }
-    if (GetPlayerCount() == 0) {
-        if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
+				if (GetPlayerCount() == 0) {
+					if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
 #define DEL_TABLE_BY_TABLEID_
 #ifdef DEL_TABLE_BY_TABLEID_
-            //桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
-            CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
+						//桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
+						CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
 #else
-            CTableMgr::get_mutable_instance().Delete(shared_from_this());
+						CTableMgr::get_mutable_instance().Delete(shared_from_this());
 #endif
+					}
+				}
+            }
         }
     }
 }
@@ -620,17 +591,9 @@ bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf)
     player->setTrustee(true);
     //BroadcastUserStatus(player, sendToSelf);
     bool rc = tableDelegate_->OnUserLeft(player->GetUserId(), false);
-	if (GetPlayerCount() == 0) {
-		if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
-#define DEL_TABLE_BY_TABLEID_
-#ifdef DEL_TABLE_BY_TABLEID_
-			//桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
-			CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
-#else
-			CTableMgr::get_mutable_instance().Delete(shared_from_this());
-#endif
-		}
-	}
+    if (rc) {
+        ClearTableUser(player->GetUserId(), true, false);
+    }
     return rc;
 //	}
 // 	if (tableDelegate_->OnUserLeft(player->GetUserId(), false)) {
@@ -651,16 +614,8 @@ bool CTable::OnUserOffline(std::shared_ptr<CPlayer> const& player) {
     player->setTrustee(true);
     //BroadcastUserStatus(player, false);
     bool rc = tableDelegate_->OnUserLeft(player->GetUserId(), false);
-	if (GetPlayerCount() == 0) {
-		if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
-#define DEL_TABLE_BY_TABLEID_
-#ifdef DEL_TABLE_BY_TABLEID_
-			//桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
-			CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
-#else
-			CTableMgr::get_mutable_instance().Delete(shared_from_this());
-#endif
-		}
+	if (rc) {
+		ClearTableUser(player->GetUserId(), true, false);
 	}
     return rc;
 }
@@ -826,53 +781,82 @@ void CTable::SendUserSitdownFinish(std::shared_ptr<CPlayer> const& player, packe
     send(player, &rspdata, mainId, subId);
 }
 
-bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendState, bool sendToSelf) {
+bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendState, bool sendToSelf, uint8_t sendErrCode) {
     loop_->assertInLoopThread();
     ASSERT(player && player->Valid() && player->GetTableId() >= 0 && player->GetChairId() >= 0);
-    //游戏中禁止起立
-    if (!player->isPlaying()) {
-        int64_t userId = player->GetUserId();
-        uint16_t chairId = player->GetChairId();
-        //assert(player->GetTableId() == GetTableId());
-        //assert(player.get() == GetChairPlayer(chairId).get());
-        if (player->IsRobot()) {
-            Warnf("<robot> %d %d", chairId, userId);
-            //清理机器人数据
+    switch (player->isPlaying()) {
+    case true:
+        //游戏中禁止起立
+        break;
+	default: {
+		int64_t userId = player->GetUserId();
+		uint16_t chairId = player->GetChairId();
+		//assert(player->GetTableId() == GetTableId());
+		//assert(player.get() == GetChairPlayer(chairId).get());
+		switch (player->IsRobot()) {
+		case true:
+			Warnf("<robot> %d %d", chairId, userId);
+			//清理机器人数据
 #ifdef DEL_ROBOT_BY_USERID_
-            CRobotMgr::get_mutable_instance().Delete(userId);
+			CRobotMgr::get_mutable_instance().Delete(userId);
 #else
-            CRobotMgr::get_mutable_instance().Delete(std::dynamic_pointer_cast<CRobot>(player));
+			CRobotMgr::get_mutable_instance().Delete(std::dynamic_pointer_cast<CRobot>(player));
 #endif
-        }
-        else {
-            if (roomInfo_->serverStatus != kRunning && tableContext_->GetGameInfo()->gameType == GameType_BaiRen) {
-                uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
-                uint8_t subId = GameServer::SUB_S2C_USER_LEFT_RES;
-                ::GameServer::MSG_C2S_UserLeftMessageResponse response;
-                ::Game::Common::Header* resp_header = response.mutable_header();
-                resp_header->set_sign(HEADER_SIGN);
-                response.set_gameid(tableContext_->GetGameInfo()->gameId);
-                response.set_roomid(roomInfo_->roomId);
-                response.set_type(0);
-                response.set_retcode(ERROR_ENTERROOM_SERVERSTOP);
-                response.set_errormsg("游戏维护请进入其他房间");
-                send(player, &response, mainId, subId);
-            }
-            Warnf("<real> %d %d", chairId, userId);
-            //清理真人数据
-            tableContext_->DelContext(userId);
-            DelOnlineInfo(userId);
+			break;
+		default: {
+			switch (sendErrCode) {
+			case 0: {
+				::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+				msg.mutable_header()->set_sign(HEADER_SIGN);
+				msg.set_retcode(sendErrCode);
+				msg.set_errormsg("游戏结束,您已被清理");
+				send(player, &msg,
+					Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+					GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+				break;
+			}
+			default: {
+				::GameServer::MSG_S2C_UserEnterMessageResponse msg;
+				msg.mutable_header()->set_sign(HEADER_SIGN);
+				msg.set_retcode(sendErrCode);
+				msg.set_errormsg("游戏结束,您已被清理");
+				send(player, &msg,
+					Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
+					GameServer::SUB_S2C_ENTER_ROOM_RES, true, -1);
+				break;
+			}
+			}
+			if (roomInfo_->serverStatus != kRunning && tableContext_->GetGameInfo()->gameType == GameType_BaiRen) {
+				uint8_t mainId = Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER;
+				uint8_t subId = GameServer::SUB_S2C_USER_LEFT_RES;
+				::GameServer::MSG_C2S_UserLeftMessageResponse response;
+				::Game::Common::Header* resp_header = response.mutable_header();
+				resp_header->set_sign(HEADER_SIGN);
+				response.set_gameid(tableContext_->GetGameInfo()->gameId);
+				response.set_roomid(roomInfo_->roomId);
+				response.set_type(0);
+				response.set_retcode(ERROR_ENTERROOM_SERVERSTOP);
+				response.set_errormsg("游戏维护请进入其他房间");
+				send(player, &response, mainId, subId);
+			}
+			Warnf("<real> %d %d", chairId, userId);
+			//清理真人数据
+			tableContext_->DelContext(userId);
+			DelOnlineInfo(userId);
 #ifdef DEL_PLAYER_BY_USERID_
-            CPlayerMgr::get_mutable_instance().Delete(userId);
+			CPlayerMgr::get_mutable_instance().Delete(userId);
 #else
-            CPlayerMgr::get_mutable_instance().Delete(player);
+			CPlayerMgr::get_mutable_instance().Delete(player);
 #endif
-        }
-        //清空重置座位
-        if (chairId < items_.size()) {
-            items_[chairId] = std::shared_ptr<CPlayer>();
-        }
-        return true;
+			break;
+		}
+		}
+		//清空重置座位
+		if (chairId < items_.size()) {
+			items_[chairId] = std::shared_ptr<CPlayer>();
+		}
+		return true;
+	}
     }
     return false;
 }
