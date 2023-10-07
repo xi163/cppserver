@@ -459,10 +459,13 @@ void GameServ::asyncOfflineHandler(std::string const& ipPort) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				RunInLoop(table->GetLoop(), CALLBACK_0([=](std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
+				ASSERT(player->GetChairId() != INVALID_CHAIR);
+				ASSERT(player->GetUserId() != INVALID_USER);
+				ASSERT(player->GetTableId() != INVALID_TABLE);
 				//table->assertThisThread();
 				//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
 				table->OnUserOffline(player);
-					}, table, player));
+				}, table, player));
 			}
 		}
 	}
@@ -893,6 +896,10 @@ void GameServ::cmd_on_user_enter_room(
 				RunInLoop(table->GetLoop(), CALLBACK_0([this](
 					const muduo::net::WeakTcpConnectionPtr& weakConn,
 					BufferPtr const& buf, std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
+					//FIXME bug [][275][INIT] 65535 -1 异地登陆进房间
+					ASSERT(player->GetChairId() != INVALID_CHAIR);
+					ASSERT(player->GetUserId() != INVALID_USER);
+					ASSERT(player->GetTableId() != INVALID_TABLE);
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
 					//table->assertThisThread();
@@ -1020,6 +1027,9 @@ void GameServ::cmd_on_user_enter_room(
 				RunInLoop(table->GetLoop(), CALLBACK_0([this](
 					const muduo::net::WeakTcpConnectionPtr& weakConn,
 					BufferPtr const& buf, UserBaseInfo const& userInfo, std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
+					ASSERT(player->GetChairId() == INVALID_CHAIR);
+					ASSERT(player->GetUserId() == INVALID_USER);
+					ASSERT(player->GetTableId() == INVALID_TABLE);
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
 					//table->assertThisThread();
@@ -1079,6 +1089,9 @@ void GameServ::cmd_on_user_ready(
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				RunInLoop(table->GetLoop(), CALLBACK_0([this](std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
+					ASSERT(player->GetChairId() != INVALID_CHAIR);
+					ASSERT(player->GetUserId() != INVALID_USER);
+					ASSERT(player->GetTableId() != INVALID_TABLE);
 					//table->assertThisThread();
 					table->SetUserReady(player->GetChairId());
 				}, table, player));
@@ -1116,6 +1129,9 @@ void GameServ::cmd_on_user_left_room(
 					uint32_t gameId, uint32_t roomId, int Type,
 					const muduo::net::WeakTcpConnectionPtr& weakConn,
 					BufferPtr const& buf, std::shared_ptr<CTable>& table , std::shared_ptr<CPlayer>& player) {
+					ASSERT(player->GetChairId() != INVALID_CHAIR);
+					ASSERT(player->GetUserId() != INVALID_USER);
+					ASSERT(player->GetTableId() != INVALID_TABLE);
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
 					::GameServer::MSG_C2S_UserLeftMessageResponse rspdata;
@@ -1187,6 +1203,9 @@ void GameServ::cmd_on_user_offline(
 		std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 		if (table) {
 			RunInLoop(table->GetLoop(), CALLBACK_0([=](std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
+				ASSERT(player->GetChairId() != INVALID_CHAIR);
+				ASSERT(player->GetUserId() != INVALID_USER);
+				ASSERT(player->GetTableId() != INVALID_TABLE);
 				//table->assertThisThread();
 				//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
 				table->OnUserOffline(player);
@@ -1212,6 +1231,9 @@ void GameServ::cmd_on_game_message(
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				RunInLoop(table->GetLoop(), CALLBACK_0([=](BufferPtr const& buf, std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
+					ASSERT(player->GetChairId() != INVALID_CHAIR);
+					ASSERT(player->GetUserId() != INVALID_USER);
+					ASSERT(player->GetTableId() != INVALID_TABLE);
 					packet::internal_prev_header_t const* pre_header_ = packet::get_pre_header(buf);
 					packet::header_t const* header_ = packet::get_header(buf);
 					//uint8_t const* msg = packet::get_msg(buf);
@@ -1264,6 +1286,9 @@ void GameServ::KickUser(int64_t userId, int32_t kickType) {
 	std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 	if (table) {
 		RunInLoop(table->GetLoop(), CALLBACK_0([=](std::shared_ptr<CTable>& table, std::shared_ptr<CPlayer>& player) {
+			ASSERT(player->GetChairId() != INVALID_CHAIR);
+			ASSERT(player->GetUserId() != INVALID_USER);
+			ASSERT(player->GetTableId() != INVALID_TABLE);
 			//table->assertThisThread();
 			//tableDelegate_->OnUserLeft -> ClearTableUser -> DelContext -> erase(it)
 			table->OnUserOffline(player);

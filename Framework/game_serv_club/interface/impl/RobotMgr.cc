@@ -205,7 +205,8 @@ void CRobotMgr::Delete(int64_t userId) {
 		std::map<int64_t, std::shared_ptr<CRobot>>::iterator it = items_.find(userId);
 		ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
-			std::shared_ptr<CRobot> robot = it->second;
+			std::shared_ptr<CRobot>/*&*/ robot = it->second;
+			ASSERT(robot);
 			ASSERT(robot->IsRobot());
 			items_.erase(it);
 			robot->Reset();
@@ -229,9 +230,10 @@ void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
 			});
 		ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
-			std::shared_ptr<CRobot>& robot = it->second;
-			ASSERT(robot->GetUserId() == userId);
+			std::shared_ptr<CRobot>/*&*/ robot = it->second;
+			ASSERT(robot);
 			ASSERT(robot->IsRobot());
+			ASSERT(robot->GetUserId() == userId);
 			items_.erase(it);
 			robot->Reset();
 			freeItems_.emplace_back(robot);
