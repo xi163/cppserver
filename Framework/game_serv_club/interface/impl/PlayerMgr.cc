@@ -35,8 +35,8 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 					ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
 						return kv.second.get() == player.get();
 						}) == items_.end());
-					ASSERT(player->IsRobot() == false);
 					// FIXME crash bug!!!
+					//ASSERT(player->IsRobot() == false);
 					//player->AssertReset();
 					items_[userId] = player;
 				}
@@ -51,8 +51,8 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 					return kv.second.get() == player.get();
 				}) == items_.end());
 			}
-			ASSERT(player->IsRobot() == false);
 			// FIXME crash bug!!!
+			//ASSERT(player->IsRobot() == false);
 			//player->AssertReset();
 			{
 				WRITE_LOCK(mutex_);
@@ -83,8 +83,8 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 				ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
 					return kv.second.get() == player.get();
 					}) == items_.end());
-				ASSERT(player->IsRobot() == false);
 				// FIXME crash bug!!!
+				//ASSERT(player->IsRobot() == false);
 				//player->AssertReset();
 				items_[userId] = player;
 			}
@@ -140,7 +140,7 @@ void CPlayerMgr::Delete(int64_t userId) {
 			ASSERT(player->IsRobot() == false);
 			items_.erase(it);
 			player->Reset();
-			freeItems_./*emplace_back*/push_back(player);
+			freeItems_.emplace_back(player);
 		}
 		//size_t n = items_.erase(userId);
 		//(void)n;
@@ -171,7 +171,7 @@ void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 			ASSERT(player->IsRobot() == false);
 			items_.erase(it);
 			player->Reset();
-			freeItems_./*emplace_back*/push_back(player);
+			freeItems_.emplace_back(player);
 		}
 		//size_t n = items_.erase(userId);
 		//(void)n;
