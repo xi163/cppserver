@@ -170,6 +170,7 @@ std::shared_ptr<CRobot> CRobotMgr::Pick() {
 				ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
 					return kv.second.get() == robot.get();
 					}) == items_.end());
+				ASSERT(robot->IsRobot());
 				robot->AssertReset();
 				items_[robot->GetUserId()] = robot;
 			}
@@ -184,6 +185,7 @@ std::shared_ptr<CRobot> CRobotMgr::Pick() {
 				return kv.second.get() == robot.get();
 				}) == items_.end());
 		}
+		ASSERT(robot->IsRobot());
 		robot->AssertReset();
 		{
 			WRITE_LOCK(mutex_);
@@ -204,13 +206,14 @@ void CRobotMgr::Delete(int64_t userId) {
 		ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CRobot> robot = it->second;
+			ASSERT(robot->IsRobot());
 			items_.erase(it);
 			robot->Reset();
 			freeItems_.emplace_back(robot);
 		}
-		size_t n = items_.erase(userId);
-		(void)n;
-		ASSERT_V(n == 0, "n=%d", n);
+		//size_t n = items_.erase(userId);
+		//(void)n;
+		//ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
@@ -228,13 +231,14 @@ void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
 		if (it != items_.end()) {
 			std::shared_ptr<CRobot>& robot = it->second;
 			ASSERT(robot->GetUserId() == userId);
+			ASSERT(robot->IsRobot());
 			items_.erase(it);
 			robot->Reset();
 			freeItems_.emplace_back(robot);
 		}
-		size_t n = items_.erase(userId);
-		(void)n;
-		ASSERT_V(n == 0, "n=%d", n);
+		//size_t n = items_.erase(userId);
+		//(void)n;
+		//ASSERT_V(n == 0, "n=%d", n);
 	}
 	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }

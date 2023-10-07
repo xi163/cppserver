@@ -5,8 +5,9 @@
 
 #include "Player.h"
 
-#define _USE_MUDUO_MUTEX_
-#include "public/IncMuduo.h"
+#define _USE_SHARED_MUTEX_
+//#define _USE_MUDUO_MUTEX_
+//#include "public/IncMuduo.h"
 
 class CPlayerMgr : public boost::serialization::singleton<CPlayerMgr> {
 public:
