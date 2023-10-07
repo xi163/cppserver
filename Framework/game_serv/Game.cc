@@ -1338,7 +1338,8 @@ void GameServ::cmd_on_game_message(
 					const muduo::net::WeakTcpConnectionPtr& weakConn,
 					BufferPtr const& buf,
 					std::shared_ptr<CTable>& table,
-					std::shared_ptr<CPlayer>& player) {
+					std::shared_ptr<CPlayer>& player,
+					::GameServer::MSG_CSC_Passageway const& reqdata) {
 					//ASSERT(player->GetUserId() != INVALID_USER);
 					//ASSERT(player->GetTableId() != INVALID_TABLE);
 					//ASSERT(player->GetChairId() != INVALID_CHAIR);
@@ -1356,9 +1357,11 @@ void GameServ::cmd_on_game_message(
 						//uint8_t const* data = (uint8_t const*)reqdata.passdata().data();
 						//uint32_t len = reqdata.passdata().size();
 						//table->assertThisThread();
+						uint8_t const* data = (uint8_t const*)reqdata.passdata().data();
+						uint32_t len = reqdata.passdata().size();
 						table->OnGameEvent(player->GetChairId(), header_->subId, data, len);
 					}
-				}, conn, buf, table, player));
+				}, conn, buf, table, player, reqdata));
 			}
 		}
 	}
