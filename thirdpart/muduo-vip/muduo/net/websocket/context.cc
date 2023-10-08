@@ -35,7 +35,7 @@ namespace muduo {
 			
 			// ~Context -> ~Context_ -> ~IContext
 			Context::~Context() {
-				//Debugf("...");
+				Tracef("...");
 			}
 			
 			void Context::send(const void* data, int len) {

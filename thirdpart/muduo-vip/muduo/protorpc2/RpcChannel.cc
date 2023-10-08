@@ -101,7 +101,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
   //printf("%s\n", message.DebugString().c_str());
   RpcMessage& message = *messagePtr;
   //LOG_INFO << "RpcChannel::onRpcMessage " << message.DebugString();
-  //Debugf(message.DebugString().c_str());
+  //Tracef(message.DebugString().c_str());
   if (message.type() == RESPONSE)
   {
     int64_t id = message.id();

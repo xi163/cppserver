@@ -17,7 +17,7 @@ namespace muduo {
 				virtual void resetAll() = 0;
 				// ~Context_ -> ~IContext
 				virtual ~IContext() {
-					//Debugf("...");
+					Tracef("...");
 				}
 			};
 

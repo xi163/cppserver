@@ -94,14 +94,14 @@ void TcpConnection::handleRead_ssl(Timestamp receiveTime)
 		  channel_->enableWriting(et_);
 		  break;
 	  case SSL_ERROR_SSL:
-		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+		  Tracef("close fd=%d rc=%d", socket_->fd(), saveErrno);
 		  handleClose();
 		  break;
 	  case 0:
 		  //succ
 		  break;
 	  default:
-		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+          Tracef("close fd=%d rc=%d", socket_->fd(), saveErrno);
 		  handleClose();
 		  break;
 	  }
@@ -142,14 +142,14 @@ void TcpConnection::handleWrite_ssl()
 		  channel_->enableWriting(et_);
 		  break;
 	  case SSL_ERROR_SSL:
-		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+          Tracef("close fd=%d rc=%d", socket_->fd(), saveErrno);
 		  handleClose();
 		  break;
 	  case 0:
 		  //succ
 		  break;
 	  default:
-		  Debugf("close fd=%d rc=%d", socket_->fd(), saveErrno);
+          Tracef("close fd=%d rc=%d", socket_->fd(), saveErrno);
 		  handleClose();
 		  break;
 	  }

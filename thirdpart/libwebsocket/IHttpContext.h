@@ -85,7 +85,7 @@ namespace muduo {
 				virtual IRequest const* requestConstPtr() const = 0;
 				virtual IRequest* requestPtr() = 0;
 				virtual ~IContext() {
-					//printf("%s %s(%d)\n", __FUNCTION__, __FILE__, __LINE__);
+					Tracef("...");
 				}
 			};
 

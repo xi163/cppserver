@@ -912,16 +912,16 @@ namespace muduo {
 					//, callbackHandler_(NULL)
 					/*, httpContext_(NULL)*/ {
 #ifdef LIBWEBSOCKET_DEBUG
-					Debugf("...");
+					Tracef("...");
 #endif
 					init(handler, context, dataBuffer, controlBuffer);
 				}
 				
 				// ~Context -> ~Context_ -> ~IContext
 				~Context_() {
-#ifdef LIBWEBSOCKET_DEBUG
-					Debugf("...");
-#endif
+//#ifdef LIBWEBSOCKET_DEBUG
+					Tracef("...");
+//#endif
 					resetAll();
 				}
 
@@ -1012,7 +1012,7 @@ namespace muduo {
 
 				inline void resetAll() {
 #ifdef LIBWEBSOCKET_DEBUG
-					Debugf("...");
+					Tracef("...");
 #endif
 					resetHttpContext();
 					resetExtendedHeader();
@@ -3874,7 +3874,6 @@ namespace muduo {
 						//new时内部引用计数递增，reset时递减，递减为0时销毁对象释放资源
 						//////////////////////////////////////////////////////////////////////////
 						//释放HttpContext资源
-						//Debugf("free websocket::httpContext");
 						context.getHttpContext().reset();
 						return true;
 					}
@@ -3906,7 +3905,6 @@ namespace muduo {
 				//new时内部引用计数递增，reset时递减，递减为0时销毁对象释放资源
 				//////////////////////////////////////////////////////////////////////////
 				//释放HttpContext资源
-				//Debugf("free websocket::httpContext");
 				context.getHttpContext().reset();
 				return false;
 			}
@@ -3985,7 +3983,7 @@ namespace muduo {
 			
 			// ~Context -> ~Context_ -> resetAll -> ~IContext
 			void free(IContext* context) {
-				//Debugf("websocket::context");
+				Tracef("...");
 				ASSERT(context);
 				context->resetAll();
 				delete context;
