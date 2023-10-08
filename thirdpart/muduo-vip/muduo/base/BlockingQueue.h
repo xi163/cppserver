@@ -12,6 +12,8 @@
 #include <deque>
 #include <assert.h>
 
+#include "Logger/src/utils/utils.h"
+
 namespace muduo
 {
 
@@ -51,7 +53,7 @@ class BlockingQueue : noncopyable
     {
       notEmpty_.wait();
     }
-    assert(!queue_.empty());
+    ASSERT(!queue_.empty());
     T front(std::move(queue_.front()));
     queue_.pop_front();
     return front;
@@ -63,7 +65,7 @@ class BlockingQueue : noncopyable
     {
       MutexLockGuard lock(mutex_);
       queue = std::move(queue_);
-      assert(queue_.empty());
+      ASSERT(queue_.empty());
     }
     return queue;
   }

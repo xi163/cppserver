@@ -11,6 +11,8 @@
 #include <assert.h>
 #include <pthread.h>
 
+#include "Logger/src/utils/utils.h"
+
 // Thread safety annotations {
 // https://clang.llvm.org/docs/ThreadSafetyAnalysis.html
 
@@ -100,7 +102,7 @@ __END_DECLS
 #else  // CHECK_PTHREAD_RETURN_VALUE
 
 #define MCHECK(ret) ({ __typeof__ (ret) errnum = (ret);         \
-                       assert(errnum == 0); (void) errnum;})
+                       ASSERT(errnum == 0); (void) errnum;})
 
 #endif // CHECK_PTHREAD_RETURN_VALUE
 
@@ -129,7 +131,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable
 
   ~MutexLock()
   {
-    assert(holder_ == 0);
+    ASSERT(holder_ == 0);
     MCHECK(pthread_mutex_destroy(&mutex_));
   }
 
@@ -141,7 +143,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable
 
   void assertLocked() const ASSERT_CAPABILITY(this)
   {
-    assert(isLockedByThisThread());
+    ASSERT(isLockedByThisThread());
   }
 
   // internal usage

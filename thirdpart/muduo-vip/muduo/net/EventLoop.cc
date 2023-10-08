@@ -105,7 +105,7 @@ EventLoop::~EventLoop()
 
 void EventLoop::loop()
 {
-  assert(!looping_);
+  ASSERT(!looping_);
   assertInLoopThread();
   looping_ = true;
   quit_ = false;  // FIXME: what if someone calls quit() before loop() ?
@@ -229,18 +229,18 @@ void EventLoop::cancel(TimerId timerId)
 
 void EventLoop::updateChannel(Channel* channel)
 {
-  assert(channel->ownerLoop() == this);
+  ASSERT(channel->ownerLoop() == this);
   assertInLoopThread();
   poller_->updateChannel(channel);
 }
 
 void EventLoop::removeChannel(Channel* channel)
 {
-  assert(channel->ownerLoop() == this);
+  ASSERT(channel->ownerLoop() == this);
   assertInLoopThread();
   if (eventHandling_)
   {
-    assert(currentActiveChannel_ == channel ||
+    ASSERT(currentActiveChannel_ == channel ||
         std::find(activeChannels_.begin(), activeChannels_.end(), channel) == activeChannels_.end());
   }
   poller_->removeChannel(channel);
@@ -248,7 +248,7 @@ void EventLoop::removeChannel(Channel* channel)
 
 bool EventLoop::hasChannel(Channel* channel)
 {
-  assert(channel->ownerLoop() == this);
+  ASSERT(channel->ownerLoop() == this);
   assertInLoopThread();
   return poller_->hasChannel(channel);
 }

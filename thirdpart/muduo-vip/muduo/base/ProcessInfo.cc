@@ -18,6 +18,8 @@
 #include <sys/resource.h>
 #include <sys/times.h>
 
+#include "Logger/src/utils/utils.h"
+
 namespace muduo
 {
 namespace detail
@@ -46,7 +48,7 @@ int scanDir(const char *dirpath, int (*filter)(const struct dirent *))
 {
   struct dirent** namelist = NULL;
   int result = ::scandir(dirpath, &namelist, filter, alphasort);
-  assert(namelist == NULL);
+  ASSERT(namelist == NULL);
   return result;
 }
 

@@ -21,6 +21,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "Logger/src/utils/utils.h"
+
 namespace muduo
 {
 namespace net
@@ -66,7 +68,7 @@ class HttpRequest : public muduo::copyable, public http::IRequest
 
   bool setMethod(const char* start, const char* end)
   {
-    assert(method_ == http::IRequest::kInvalid);
+    ASSERT(method_ == http::IRequest::kInvalid);
     string m(start, end);
     if (m == "GET")
     {

@@ -13,13 +13,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "Logger/src/utils/utils.h"
+
 using namespace muduo;
 
 FileUtil::AppendFile::AppendFile(StringArg filename)
   : fp_(::fopen(filename.c_str(), "ae")),  // 'e' for O_CLOEXEC
     writtenBytes_(0)
 {
-  assert(fp_);
+  ASSERT(fp_);
   ::setbuffer(fp_, buffer_, sizeof buffer_);
   // posix_fadvise POSIX_FADV_DONTNEED ?
 }
@@ -91,7 +93,7 @@ int FileUtil::ReadSmallFile::readToString(int maxSize,
                                           int64_t* createTime)
 {
   static_assert(sizeof(off_t) == 8, "_FILE_OFFSET_BITS = 64");
-  assert(content != NULL);
+  ASSERT(content != NULL);
   int err = err_;
   if (fd_ >= 0)
   {

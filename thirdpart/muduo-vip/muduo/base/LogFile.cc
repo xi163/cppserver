@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "Logger/src/utils/utils.h"
+
 using namespace muduo;
 
 LogFile::LogFile(const string& basename,
@@ -29,7 +31,7 @@ LogFile::LogFile(const string& basename,
     lastRoll_(0),
     lastFlush_(0)
 {
-  assert(basename.find('/') == string::npos);
+  ASSERT(basename.find('/') == string::npos);
   rollFile();
 }
 

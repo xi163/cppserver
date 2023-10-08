@@ -57,7 +57,7 @@ void AsyncLogging::append(const char* logline, int len)
 
 void AsyncLogging::threadFunc()
 {
-  assert(running_ == true);
+  ASSERT(running_ == true);
   latch_.countDown();
   LogFile output(basename_, rollSize_, false);
   BufferPtr newBuffer1(new Buffer);
@@ -68,9 +68,9 @@ void AsyncLogging::threadFunc()
   buffersToWrite.reserve(16);
   while (running_)
   {
-    assert(newBuffer1 && newBuffer1->length() == 0);
-    assert(newBuffer2 && newBuffer2->length() == 0);
-    assert(buffersToWrite.empty());
+    ASSERT(newBuffer1 && newBuffer1->length() == 0);
+    ASSERT(newBuffer2 && newBuffer2->length() == 0);
+    ASSERT(buffersToWrite.empty());
 
     {
       muduo::MutexLockGuard lock(mutex_);
@@ -87,7 +87,7 @@ void AsyncLogging::threadFunc()
       }
     }
 
-    assert(!buffersToWrite.empty());
+    ASSERT(!buffersToWrite.empty());
 
     if (buffersToWrite.size() > 25)
     {
@@ -114,7 +114,7 @@ void AsyncLogging::threadFunc()
 
     if (!newBuffer1)
     {
-      assert(!buffersToWrite.empty());
+      ASSERT(!buffersToWrite.empty());
       newBuffer1 = std::move(buffersToWrite.back());
       buffersToWrite.pop_back();
       newBuffer1->reset();
@@ -122,7 +122,7 @@ void AsyncLogging::threadFunc()
 
     if (!newBuffer2)
     {
-      assert(!buffersToWrite.empty());
+      ASSERT(!buffersToWrite.empty());
       newBuffer2 = std::move(buffersToWrite.back());
       buffersToWrite.pop_back();
       newBuffer2->reset();

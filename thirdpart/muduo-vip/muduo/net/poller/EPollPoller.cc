@@ -19,6 +19,8 @@
 
 #include "muduo/net/Define.h"
 
+#include "Logger/src/utils/utils.h"
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -117,15 +119,15 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels)
 void EPollPoller::fillActiveChannels(int numEvents,
                                      ChannelList* activeChannels) const
 {
-  assert(implicit_cast<size_t>(numEvents) <= events_.size());
+  ASSERT(implicit_cast<size_t>(numEvents) <= events_.size());
   for (int i = 0; i < numEvents; ++i)
   {
     Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
 #ifndef NDEBUG
     int fd = channel->fd();
     ChannelMap::const_iterator it = channels_.find(fd);
-    assert(it != channels_.end());
-    assert(it->second == channel);
+    ASSERT(it != channels_.end());
+    ASSERT(it->second == channel);
 #endif
 	//Fixed BUG 同一个channel，不同的events，会出现覆盖的情况
 	//by andy_ro 2019.12.14
@@ -157,13 +159,13 @@ void EPollPoller::updateChannel(Channel* channel)
     int fd = channel->fd();
     if (index == kNew)
     {
-      assert(channels_.find(fd) == channels_.end());
+      ASSERT(channels_.find(fd) == channels_.end());
       channels_[fd] = channel;
     }
     else // index == kDeleted
     {
-      assert(channels_.find(fd) != channels_.end());
-      assert(channels_[fd] == channel);
+      ASSERT(channels_.find(fd) != channels_.end());
+      ASSERT(channels_[fd] == channel);
     }
 
     channel->set_index(kAdded);
@@ -174,9 +176,9 @@ void EPollPoller::updateChannel(Channel* channel)
     // update existing one with EPOLL_CTL_MOD/DEL
     int fd = channel->fd();
     (void)fd;
-    assert(channels_.find(fd) != channels_.end());
-    assert(channels_[fd] == channel);
-    assert(index == kAdded);
+    ASSERT(channels_.find(fd) != channels_.end());
+    ASSERT(channels_[fd] == channel);
+    ASSERT(index == kAdded);
     if (channel->isNoneEvent())
     {
       update(EPOLL_CTL_DEL, channel);
@@ -214,14 +216,14 @@ void EPollPoller::removeChannel(Channel* channel)
 #ifndef _MUDUO_OPTIMIZE_CHNANNEL_
   int fd = channel->fd();
   //LOG_TRACE << "fd = " << fd;
-  assert(channels_.find(fd) != channels_.end());
-  assert(channels_[fd] == channel);
-  assert(channel->isNoneEvent());
+  ASSERT(channels_.find(fd) != channels_.end());
+  ASSERT(channels_[fd] == channel);
+  ASSERT(channel->isNoneEvent());
   int index = channel->index();
-  assert(index == kAdded || index == kDeleted);
+  ASSERT(index == kAdded || index == kDeleted);
   size_t n = channels_.erase(fd);
   (void)n;
-  assert(n == 1);
+  ASSERT(n == 1);
 
   if (index == kAdded)
   {
@@ -229,7 +231,7 @@ void EPollPoller::removeChannel(Channel* channel)
   }
   channel->set_index(kNew);
 #else
-  assert(
+  ASSERT(
 	  channel->index() == kAdded ||
 	  channel->index() == kDeleted);
   if (channel->index() == kAdded) {
@@ -294,7 +296,7 @@ const char* EPollPoller::operationToString(int op)
     case EPOLL_CTL_MOD:
       return "MOD";
     default:
-      assert(false && "ERROR op");
+      ASSERT(false && "ERROR op");
       return "Unknown Operation";
   }
 }

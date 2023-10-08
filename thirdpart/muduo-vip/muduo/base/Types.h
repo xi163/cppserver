@@ -9,6 +9,8 @@
 #include <assert.h>
 #endif
 
+#include "Logger/src/utils/utils.h"
+
 ///
 /// The most common stuffs.
 ///
@@ -113,7 +115,7 @@ inline To down_cast(From* f)                     // so we only accept pointers
   }
 
 #if !defined(NDEBUG) && !defined(GOOGLE_PROTOBUF_NO_RTTI)
-  assert(f == NULL || dynamic_cast<To>(f) != NULL);  // RTTI: debug mode only!
+  ASSERT(f == NULL || dynamic_cast<To>(f) != NULL);  // RTTI: debug mode only!
 #endif
   return static_cast<To>(f);
 }

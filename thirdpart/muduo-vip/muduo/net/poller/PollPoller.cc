@@ -16,6 +16,8 @@
 #include <errno.h>
 #include <poll.h>
 
+#include "Logger/src/utils/utils.h"
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -62,9 +64,9 @@ void PollPoller::fillActiveChannels(int numEvents,
     {
       --numEvents;
       ChannelMap::const_iterator ch = channels_.find(pfd->fd);
-      assert(ch != channels_.end());
+      ASSERT(ch != channels_.end());
       Channel* channel = ch->second;
-      assert(channel->fd() == pfd->fd);
+      ASSERT(channel->fd() == pfd->fd);
       channel->set_revents(pfd->revents);
       // pfd->revents = 0;
       activeChannels->push_back(channel);
@@ -79,7 +81,7 @@ void PollPoller::updateChannel(Channel* channel)
   if (channel->index() < 0)
   {
     // a new one, add to pollfds_
-    assert(channels_.find(channel->fd()) == channels_.end());
+    ASSERT(channels_.find(channel->fd()) == channels_.end());
     struct pollfd pfd;
     pfd.fd = channel->fd();
     pfd.events = static_cast<short>(channel->events());
@@ -92,12 +94,12 @@ void PollPoller::updateChannel(Channel* channel)
   else
   {
     // update existing one
-    assert(channels_.find(channel->fd()) != channels_.end());
-    assert(channels_[channel->fd()] == channel);
+    ASSERT(channels_.find(channel->fd()) != channels_.end());
+    ASSERT(channels_[channel->fd()] == channel);
     int idx = channel->index();
-    assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
+    ASSERT(0 <= idx && idx < static_cast<int>(pollfds_.size()));
     struct pollfd& pfd = pollfds_[idx];
-    assert(pfd.fd == channel->fd() || pfd.fd == -channel->fd()-1);
+    ASSERT(pfd.fd == channel->fd() || pfd.fd == -channel->fd()-1);
     pfd.fd = channel->fd();
     pfd.events = static_cast<short>(channel->events());
     pfd.revents = 0;
@@ -113,15 +115,15 @@ void PollPoller::removeChannel(Channel* channel)
 {
   Poller::assertInLoopThread();
   //LOG_TRACE << "fd = " << channel->fd();
-  assert(channels_.find(channel->fd()) != channels_.end());
-  assert(channels_[channel->fd()] == channel);
-  assert(channel->isNoneEvent());
+  ASSERT(channels_.find(channel->fd()) != channels_.end());
+  ASSERT(channels_[channel->fd()] == channel);
+  ASSERT(channel->isNoneEvent());
   int idx = channel->index();
-  assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
+  ASSERT(0 <= idx && idx < static_cast<int>(pollfds_.size()));
   const struct pollfd& pfd = pollfds_[idx]; (void)pfd;
-  assert(pfd.fd == -channel->fd()-1 && pfd.events == channel->events());
+  ASSERT(pfd.fd == -channel->fd()-1 && pfd.events == channel->events());
   size_t n = channels_.erase(channel->fd());
-  assert(n == 1); (void)n;
+  ASSERT(n == 1); (void)n;
   if (implicit_cast<size_t>(idx) == pollfds_.size()-1)
   {
     pollfds_.pop_back();

@@ -68,9 +68,9 @@ class HttpResponse : public muduo::copyable, public http::IResponse
   void appendToBuffer(Buffer* output) const;
   
   void appendToBufferPtr(IBytesBuffer* output) const {
-      assert(output);
+      ASSERT(output);
       Buffer* buf = reinterpret_cast<Buffer*>(output);
-      assert(buf);
+      ASSERT(buf);
       appendToBuffer(buf);
   }
  private:

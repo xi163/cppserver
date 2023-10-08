@@ -172,7 +172,7 @@ void Thread::setDefaultName()
 
 void Thread::start()
 {
-  assert(!started_);
+  ASSERT(!started_);
   started_ = true;
   // FIXME: move(func_)
   detail::ThreadData* data = new detail::ThreadData(func_, name_, &tid_, &latch_);
@@ -185,14 +185,14 @@ void Thread::start()
   else
   {
     latch_.wait();
-    assert(tid_ > 0);
+    ASSERT(tid_ > 0);
   }
 }
 
 int Thread::join()
 {
-  assert(started_);
-  assert(!joined_);
+  ASSERT(started_);
+  ASSERT(!joined_);
   joined_ = true;
   return pthread_join(pthreadId_, NULL);
 }

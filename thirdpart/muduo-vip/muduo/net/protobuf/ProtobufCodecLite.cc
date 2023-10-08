@@ -42,7 +42,7 @@ void ProtobufCodecLite::send(const TcpConnectionPtr& conn,
 void ProtobufCodecLite::fillEmptyBuffer(muduo::net::Buffer* buf,
                                         const google::protobuf::Message& message)
 {
-  assert(buf->readableBytes() == 0);
+  ASSERT(buf->readableBytes() == 0);
   // FIXME: can we move serialization & checksum to other thread?
   buf->append(tag_);
 
@@ -50,7 +50,7 @@ void ProtobufCodecLite::fillEmptyBuffer(muduo::net::Buffer* buf,
 
   int32_t checkSum = checksum(buf->peek(), static_cast<int>(buf->readableBytes()));
   buf->appendInt32(checkSum);
-  assert(buf->readableBytes() == tag_.size() + byte_size + kChecksumLen); (void) byte_size;
+  ASSERT(buf->readableBytes() == tag_.size() + byte_size + kChecksumLen); (void) byte_size;
   int32_t len = sockets::hostToNetwork32(static_cast<int32_t>(buf->readableBytes()));
   buf->prepend(&len, sizeof len);
 }

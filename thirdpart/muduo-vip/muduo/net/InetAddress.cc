@@ -104,7 +104,7 @@ string InetAddress::toIp() const
 
 uint32_t InetAddress::ipv4NetEndian() const
 {
-  assert(family() == AF_INET);
+  ASSERT(family() == AF_INET);
   return addr_.sin_addr.s_addr;
 }
 
@@ -117,7 +117,7 @@ static __thread char t_resolveBuffer[64 * 1024];
 
 bool InetAddress::resolve(StringArg hostname, InetAddress* out)
 {
-  assert(out != NULL);
+  ASSERT(out != NULL);
   struct hostent hent;
   struct hostent* he = NULL;
   int herrno = 0;
@@ -126,7 +126,7 @@ bool InetAddress::resolve(StringArg hostname, InetAddress* out)
   int ret = gethostbyname_r(hostname.c_str(), &hent, t_resolveBuffer, sizeof t_resolveBuffer, &he, &herrno);
   if (ret == 0 && he != NULL)
   {
-    assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
+    ASSERT(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
     out->addr_.sin_addr = *reinterpret_cast<struct in_addr*>(he->h_addr);
     return true;
   }

@@ -207,7 +207,7 @@ void sockets::toIpPort(char* buf, size_t size,
     size_t end = ::strlen(buf);
     const struct sockaddr_in6* addr6 = sockaddr_in6_cast(addr);
     uint16_t port = sockets::networkToHost16(addr6->sin6_port);
-    assert(size > end);
+    ASSERT(size > end);
     snprintf(buf+end, size-end, "]:%u", port);
     return;
   }
@@ -215,7 +215,7 @@ void sockets::toIpPort(char* buf, size_t size,
   size_t end = ::strlen(buf);
   const struct sockaddr_in* addr4 = sockaddr_in_cast(addr);
   uint16_t port = sockets::networkToHost16(addr4->sin_port);
-  assert(size > end);
+  ASSERT(size > end);
   snprintf(buf+end, size-end, ":%u", port);
 }
 
@@ -224,13 +224,13 @@ void sockets::toIp(char* buf, size_t size,
 {
   if (addr->sa_family == AF_INET)
   {
-    assert(size >= INET_ADDRSTRLEN);
+    ASSERT(size >= INET_ADDRSTRLEN);
     const struct sockaddr_in* addr4 = sockaddr_in_cast(addr);
     ::inet_ntop(AF_INET, &addr4->sin_addr, buf, static_cast<socklen_t>(size));
   }
   else if (addr->sa_family == AF_INET6)
   {
-    assert(size >= INET6_ADDRSTRLEN);
+    ASSERT(size >= INET6_ADDRSTRLEN);
     const struct sockaddr_in6* addr6 = sockaddr_in6_cast(addr);
     ::inet_ntop(AF_INET6, &addr6->sin6_addr, buf, static_cast<socklen_t>(size));
   }

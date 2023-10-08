@@ -12,6 +12,8 @@
 #include <boost/circular_buffer.hpp>
 #include <assert.h>
 
+#include "Logger/src/utils/utils.h"
+
 namespace muduo
 {
 
@@ -34,7 +36,7 @@ class BoundedBlockingQueue : noncopyable
     {
       notFull_.wait();
     }
-    assert(!queue_.full());
+    ASSERT(!queue_.full());
     queue_.push_back(x);
     notEmpty_.notify();
   }
@@ -46,7 +48,7 @@ class BoundedBlockingQueue : noncopyable
     {
       notFull_.wait();
     }
-    assert(!queue_.full());
+    ASSERT(!queue_.full());
     queue_.push_back(std::move(x));
     notEmpty_.notify();
   }
@@ -58,7 +60,7 @@ class BoundedBlockingQueue : noncopyable
     {
       notEmpty_.wait();
     }
-    assert(!queue_.empty());
+    ASSERT(!queue_.empty());
     T front(std::move(queue_.front()));
     queue_.pop_front();
     notFull_.notify();

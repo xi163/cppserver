@@ -11,6 +11,8 @@
 #include <assert.h>
 #include <pthread.h>
 
+#include "Logger/src/utils/utils.h"
+
 namespace muduo
 {
 
@@ -39,7 +41,7 @@ class ThreadLocalSingleton : noncopyable
  private:
   static void destructor(void* obj)
   {
-    assert(obj == t_value_);
+    ASSERT(obj == t_value_);
     typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1];
     T_must_be_complete_type dummy; (void) dummy;
     delete t_value_;
@@ -61,7 +63,7 @@ class ThreadLocalSingleton : noncopyable
 
     void set(T* newObj)
     {
-      assert(pthread_getspecific(pkey_) == NULL);
+      ASSERT(pthread_getspecific(pkey_) == NULL);
       pthread_setspecific(pkey_, newObj);
     }
 

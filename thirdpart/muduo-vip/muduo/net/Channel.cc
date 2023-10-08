@@ -40,11 +40,11 @@ Channel::Channel(EventLoop* loop, int fd)
 
 Channel::~Channel()
 {
-  //assert(!eventHandling_);
-  //assert(!addedToLoop_);
+  //ASSERT(!eventHandling_);
+  //ASSERT(!addedToLoop_);
   if (loop_->isInLoopThread())
   {
-    //assert(!loop_->hasChannel(this));
+    //ASSERT(!loop_->hasChannel(this));
   }
 }
 
@@ -62,7 +62,7 @@ void Channel::update()
 
 void Channel::remove()
 {
-  assert(isNoneEvent());
+  ASSERT(isNoneEvent());
   addedToLoop_ = false;
   loop_->removeChannel(this);
 }

@@ -23,7 +23,7 @@ static int test_down_pointer_cast()
 {
   ::std::shared_ptr< ::google::protobuf::Message> msg(new RpcMessage);
   ::std::shared_ptr<RpcMessage> rpc(::google::protobuf::down_pointer_cast<RpcMessage>(msg));
-  assert(msg && rpc);
+  ASSERT(msg && rpc);
   if (!rpc)
   {
     abort();
@@ -97,7 +97,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
                               const RpcMessagePtr& messagePtr,
                               Timestamp receiveTime)
 {
-  assert(conn == conn_);
+  ASSERT(conn == conn_);
   //printf("%s\n", message.DebugString().c_str());
   RpcMessage& message = *messagePtr;
   //LOG_INFO << "RpcChannel::onRpcMessage " << message.DebugString();
@@ -105,7 +105,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
   if (message.type() == RESPONSE)
   {
     int64_t id = message.id();
-    assert(message.has_response());
+    ASSERT(message.has_response());
 
     OutstandingCall out = { NULL, NULL };
     bool found = false;
@@ -169,7 +169,7 @@ void RpcChannel::callServiceMethod(const RpcMessage& message)
     if (it != services_->end())
     {
       Service* service = it->second;
-      assert(service != NULL);
+      ASSERT(service != NULL);
       const google::protobuf::ServiceDescriptor* desc = service->GetDescriptor();
       const google::protobuf::MethodDescriptor* method
           = desc->FindMethodByName(message.method());
@@ -204,7 +204,7 @@ void RpcChannel::doneCallback(const ::google::protobuf::Message* responsePrototy
                               int64_t id)
 {
   // FIXME: can we move serialization to IO thread?
-  assert(response->GetDescriptor() == responsePrototype->GetDescriptor());
+  ASSERT(response->GetDescriptor() == responsePrototype->GetDescriptor());
   RpcMessage message;
   message.set_type(RESPONSE);
   message.set_id(id);

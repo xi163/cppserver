@@ -12,6 +12,8 @@
 #include <assert.h>
 #include <string.h> // memcpy
 
+#include "Logger/src/utils/utils.h"
+
 namespace muduo
 {
 

@@ -60,7 +60,7 @@ void removeAllInLoop(EventLoop* loop_, TcpConnectionPtr connection_, ConnectorPt
 		conn = connection_;
 	}
 	if (conn) {
-		//assert(loop_ == conn->getLoop());
+		//ASSERT(loop_ == conn->getLoop());
 		// FIXME: not 100% safe, if we are in different thread
 		//CloseCallback cb = std::bind(&detail::removeConnection, loop_, _1);
 		//loop_->runInLoop(
@@ -125,7 +125,7 @@ TcpClient::~TcpClient()
 //   }
 //   if (conn)
 //   {
-//     assert(loop_ == conn->getLoop());
+//     ASSERT(loop_ == conn->getLoop());
 //     // FIXME: not 100% safe, if we are in different thread
 //     CloseCallback cb = std::bind(&detail::removeConnection, loop_, _1);
 //     loop_->runInLoop(
@@ -230,7 +230,7 @@ void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn) {
 	conn->getLoop()->assertInLoopThread();
 	{
 		MutexLockGuard lock(mutex_);
-		assert(connection_ == conn);
+		ASSERT(connection_ == conn);
 		connection_.reset();
 	}
 	EventLoop* ioLoop = conn->getLoop();
@@ -290,7 +290,7 @@ void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn)
 	EventLoopThread::Singleton::getLoop()->assertInLoopThread();
 	{
 		//MutexLockGuard lock(mutex_);
-		assert(connection_ == conn);
+		ASSERT(connection_ == conn);
 		connection_.reset();
 	}
 	EventLoop* ioLoop = conn->getLoop();
@@ -349,11 +349,11 @@ void TcpClient::removeConnection(const TcpConnectionPtr& conn)
 void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn)
 {
   loop_->assertInLoopThread();
-  //assert(loop_ == conn->getLoop());
+  //ASSERT(loop_ == conn->getLoop());
 
   {
     //MutexLockGuard lock(mutex_);
-    assert(connection_ == conn);
+    ASSERT(connection_ == conn);
     connection_.reset();
   }
   EventLoop* ioLoop = conn->getLoop();

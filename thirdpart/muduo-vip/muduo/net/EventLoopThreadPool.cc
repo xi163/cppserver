@@ -114,7 +114,7 @@ EventLoopThreadPool::~EventLoopThreadPool()
 
 void EventLoopThreadPool::start(const ThreadInitCallback& cb)
 {
-  assert(!started_);
+  ASSERT(!started_);
   baseLoop_->assertInLoopThread();
 
   started_ = true;
@@ -136,7 +136,7 @@ void EventLoopThreadPool::start(const ThreadInitCallback& cb)
 EventLoop* EventLoopThreadPool::getNextLoop()
 {
   baseLoop_->assertInLoopThread();
-  assert(started_);
+  ASSERT(started_);
   EventLoop* loop = baseLoop_;
 
   if (!loops_.empty())
@@ -154,7 +154,7 @@ EventLoop* EventLoopThreadPool::getNextLoop()
 
 EventLoop* EventLoopThreadPool::getNextLoop_safe()
 {
-	assert(started_);
+	ASSERT(started_);
 	EventLoop* loop = baseLoop_;
 	if (!loops_.empty())
 	{
@@ -190,7 +190,7 @@ EventLoop* EventLoopThreadPool::getLoopForHash(size_t hashCode)
 std::vector<EventLoop*> EventLoopThreadPool::getAllLoops()
 {
   baseLoop_->assertInLoopThread();
-  assert(started_);
+  ASSERT(started_);
   if (loops_.empty())
   {
     return std::vector<EventLoop*>(1, baseLoop_);

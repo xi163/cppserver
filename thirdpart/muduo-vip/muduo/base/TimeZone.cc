@@ -20,6 +20,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "Logger/src/utils/utils.h"
+
 using namespace muduo;
 
 struct TimeZone::Data
@@ -339,7 +341,7 @@ const TimeZone::Data::LocalTime* TimeZone::Data::findLocalTime(int64_t utcTime) 
     Transition sentry(utcTime, 0, 0);
     std::vector<Transition>::const_iterator transI =
         std::upper_bound(transitions.begin(), transitions.end(), sentry, CompareUtcTime());
-    assert(transI != transitions.begin());
+    ASSERT(transI != transitions.begin());
     if (transI != transitions.end())
     {
       --transI;
@@ -369,7 +371,7 @@ const TimeZone::Data::LocalTime* TimeZone::Data::findLocalTime(
   Transition sentry(0, localtime, 0);
   std::vector<Transition>::const_iterator transI =
       std::upper_bound(transitions.begin(), transitions.end(), sentry, CompareLocalTime());
-  assert(transI != transitions.begin());
+  ASSERT(transI != transitions.begin());
 
   if (transI == transitions.end())
   {
@@ -461,7 +463,7 @@ TimeZone::TimeZone(int eastOfUtc, const char* name)
 struct DateTime TimeZone::toLocalTime(int64_t seconds, int* utcOffset) const
 {
   struct DateTime localTime;
-  assert(data_ != NULL);
+  ASSERT(data_ != NULL);
 
   const Data::LocalTime* local = data_->findLocalTime(seconds);
 
@@ -479,7 +481,7 @@ struct DateTime TimeZone::toLocalTime(int64_t seconds, int* utcOffset) const
 
 int64_t TimeZone::fromLocalTime(const struct DateTime& localtime, bool postTransition) const
 {
-  assert(data_ != NULL);
+  ASSERT(data_ != NULL);
   const Data::LocalTime* local = data_->findLocalTime(localtime, postTransition);
   const int64_t localSeconds = fromUtcTime(localtime);
   if (local)

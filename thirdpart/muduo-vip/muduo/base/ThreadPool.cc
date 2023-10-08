@@ -10,6 +10,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "Logger/src/utils/utils.h"
+
 using namespace muduo;
 
 ThreadPool::ThreadPool(const string& nameArg)
@@ -32,7 +34,7 @@ ThreadPool::~ThreadPool()
 
 void ThreadPool::start(int numThreads)
 {
-  assert(threads_.empty());
+  ASSERT(threads_.empty());
   running_ = true;
   threads_.reserve(numThreads);
   for (int i = 0; i < numThreads; ++i)
@@ -83,7 +85,7 @@ void ThreadPool::run(Task task)
       notFull_.wait();
     }
     if (!running_) return;
-    assert(!isFull());
+    ASSERT(!isFull());
 
     queue_.push_back(std::move(task));
     notEmpty_.notify();

@@ -49,10 +49,10 @@ class HttpContext : public muduo::copyable, public IHttpContext
   bool parseRequest(Buffer* buf, Timestamp receiveTime);
 
   bool parseRequestPtr(IBytesBuffer* buf, ITimestamp* receiveTime) {
-      assert(buf);
-      assert(receiveTime);
+      ASSERT(buf);
+      ASSERT(receiveTime);
       Buffer* buff = reinterpret_cast<Buffer*>(buf);
-      assert(buff);
+      ASSERT(buff);
       return parseRequest(buff, Timestamp(receiveTime->microSecondsSinceEpoch()));
   }
 

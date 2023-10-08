@@ -74,7 +74,7 @@ class T
     :str_(str),
      len_(len)
   {
-    assert(strlen(str) == len_);
+    ASSERT(strlen(str) == len_);
   }
 
   const char* str_;
@@ -150,19 +150,19 @@ void Logger::Impl::formatTime()
 
     int len = snprintf(t_time, sizeof(t_time), "%4d%02d%02d %02d:%02d:%02d",
         dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
-    assert(len == 17); (void)len;
+    ASSERT(len == 17); (void)len;
   }
 
   if (g_logTimeZone.valid())
   {
     Fmt us(".%06d ", microseconds);
-    assert(us.length() == 8);
+    ASSERT(us.length() == 8);
     stream_ << T(t_time, 17) << T(us.data(), 8);
   }
   else
   {
     Fmt us(".%06dZ ", microseconds);
-    assert(us.length() == 9);
+    ASSERT(us.length() == 9);
     stream_ << T(t_time, 17) << T(us.data(), 9);
   }
 }

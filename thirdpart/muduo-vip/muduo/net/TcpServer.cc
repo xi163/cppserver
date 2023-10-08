@@ -60,7 +60,7 @@ TcpServer::~TcpServer()
 
 void TcpServer::setThreadNum(int numThreads)
 {
-  assert(0 <= numThreads);
+  ASSERT(0 <= numThreads);
   EventLoopThreadPool::Singleton::setThreadNum(numThreads);//threadPool_->setThreadNum(numThreads);
 }
 
@@ -70,7 +70,7 @@ void TcpServer::start(bool et)
   {
     EventLoopThreadPool::Singleton::start(threadInitCallback_);//threadPool_->start(threadInitCallback_);
 
-    assert(!acceptor_->listening());
+    ASSERT(!acceptor_->listening());
     if (conditionCallback_)
     {
       acceptor_->setConditionCallback(conditionCallback_);

@@ -53,9 +53,9 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
       readerIndex_(kCheapPrepend),
       writerIndex_(kCheapPrepend)
   {
-    assert(readableBytes() == 0);
-    assert(writableBytes() == initialSize);
-    assert(prependableBytes() == kCheapPrepend);
+    ASSERT(readableBytes() == 0);
+    ASSERT(writableBytes() == initialSize);
+    ASSERT(prependableBytes() == kCheapPrepend);
   }
 
   // implicit copy-ctor, move-ctor, dtor and assignment are fine
@@ -95,8 +95,8 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
 
   const char* findCRLF(const char* start) const
   {
-    assert(peek() <= start);
-    assert(start <= beginWrite());
+    ASSERT(peek() <= start);
+    ASSERT(start <= beginWrite());
     // FIXME: replace with memmem()?
     const char* crlf = std::search(start, beginWrite(), kCRLF, kCRLF+2);
     return crlf == beginWrite() ? NULL : crlf;
@@ -110,8 +110,8 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
 
   const char* findEOL(const char* start) const
   {
-    assert(peek() <= start);
-    assert(start <= beginWrite());
+    ASSERT(peek() <= start);
+    ASSERT(start <= beginWrite());
     const void* eol = memchr(start, '\n', beginWrite() - start);
     return static_cast<const char*>(eol);
   }
@@ -121,7 +121,7 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   // the evaluation of two functions are unspecified
   void retrieve(size_t len)
   {
-    assert(len <= readableBytes());
+    ASSERT(len <= readableBytes());
     if (len < readableBytes())
     {
       readerIndex_ += len;
@@ -134,8 +134,8 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
 
   void retrieveUntil(const char* end)
   {
-    assert(peek() <= end);
-    assert(end <= beginWrite());
+    ASSERT(peek() <= end);
+    ASSERT(end <= beginWrite());
     retrieve(end - peek());
   }
 
@@ -172,7 +172,7 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
 
   string retrieveAsString(size_t len)
   {
-    assert(len <= readableBytes());
+    ASSERT(len <= readableBytes());
     string result(peek(), len);
     retrieve(len);
     return result;
@@ -206,7 +206,7 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
     {
       makeSpace(len);
     }
-    assert(writableBytes() >= len);
+    ASSERT(writableBytes() >= len);
   }
 
   char* beginWrite()
@@ -217,13 +217,13 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
 
   void hasWritten(size_t len)
   {
-    assert(len <= writableBytes());
+    ASSERT(len <= writableBytes());
     writerIndex_ += len;
   }
 
   void unwrite(size_t len)
   {
-    assert(len <= readableBytes());
+    ASSERT(len <= readableBytes());
     writerIndex_ -= len;
   }
 
@@ -313,7 +313,7 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   /// Require: buf->readableBytes() >= sizeof(int64_t)
   int64_t peekInt64(bool v = false) const
   {
-    assert(readableBytes() >= sizeof(int64_t));
+    ASSERT(readableBytes() >= sizeof(int64_t));
     int64_t be64 = 0;
     ::memcpy(&be64, peek(), sizeof be64);
 	switch (v) {
@@ -330,7 +330,7 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
   /// Require: buf->readableBytes() >= sizeof(int32_t)
   int32_t peekInt32(bool v = false) const
   {
-      assert(readableBytes() >= sizeof(int32_t));
+      ASSERT(readableBytes() >= sizeof(int32_t));
       int32_t be32 = 0;
       ::memcpy(&be32, peek(), sizeof be32);
 	  switch (v) {
@@ -343,7 +343,7 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
 
   int16_t peekInt16(bool v = false) const
   {
-    assert(readableBytes() >= sizeof(int16_t));
+    ASSERT(readableBytes() >= sizeof(int16_t));
     int16_t be16 = 0;
     ::memcpy(&be16, peek(), sizeof be16);
 	switch (v) {
@@ -356,7 +356,7 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
 
   int8_t peekInt8() const
   {
-    assert(readableBytes() >= sizeof(int8_t));
+    ASSERT(readableBytes() >= sizeof(int8_t));
     int8_t x = *peek();
     return x;
   }
@@ -407,7 +407,7 @@ class Buffer : public muduo::copyable, public muduo::net::IBytesBuffer
 
   void prepend(const void* /*restrict*/ data, size_t len)
   {
-    assert(len <= prependableBytes());
+    ASSERT(len <= prependableBytes());
     readerIndex_ -= len;
     const char* d = static_cast<const char*>(data);
     std::copy(d, d+len, begin()+readerIndex_);
@@ -463,14 +463,14 @@ private:
     else
     {
       // move readable data to the front, make space inside buffer
-      assert(kCheapPrepend < readerIndex_);
+      ASSERT(kCheapPrepend < readerIndex_);
       size_t readable = readableBytes();
       std::copy(begin()+readerIndex_,
                 begin()+writerIndex_,
                 begin()+kCheapPrepend);
       readerIndex_ = kCheapPrepend;
       writerIndex_ = readerIndex_ + readable;
-      assert(readable == readableBytes());
+      ASSERT(readable == readableBytes());
     }
   }
 

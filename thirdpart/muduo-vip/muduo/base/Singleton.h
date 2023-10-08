@@ -12,6 +12,8 @@
 #include <pthread.h>
 #include <stdlib.h> // atexit
 
+#include "Logger/src/utils/utils.h"
+
 namespace muduo
 {
 
@@ -38,7 +40,7 @@ class Singleton : noncopyable
   static T& instance()
   {
     pthread_once(&ponce_, &Singleton::init);
-    assert(value_ != NULL);
+    ASSERT(value_ != NULL);
     return *value_;
   }
 

@@ -36,7 +36,7 @@ Connector::Connector(EventLoop* loop, const InetAddress& serverAddr)
 Connector::~Connector()
 {
   //LOG_DEBUG << "dtor[" << this << "]";
-  assert(!channel_);
+  ASSERT(!channel_);
 }
 
 void Connector::start()
@@ -48,7 +48,7 @@ void Connector::start()
 void Connector::startInLoop()
 {
   loop_->assertInLoopThread();
-  assert(state_ == kDisconnected);
+  ASSERT(state_ == kDisconnected);
   if (connect_)
   {
     connect();
@@ -136,7 +136,7 @@ void Connector::restart()
 void Connector::connecting(int sockfd)
 {
   setState(kConnecting);
-  assert(!channel_);
+  ASSERT(!channel_);
   channel_.reset(new Channel(loop_, sockfd));
   channel_->setWriteCallback(
       std::bind(&Connector::handleWrite, this)); // FIXME: unsafe
@@ -209,7 +209,7 @@ void Connector::handleWrite()
   else
   {
     // what happened?
-    assert(state_ == kDisconnected);
+    ASSERT(state_ == kDisconnected);
   }
 }
 

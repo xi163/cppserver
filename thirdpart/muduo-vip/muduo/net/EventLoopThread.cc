@@ -69,7 +69,7 @@ EventLoopThread::~EventLoopThread()
 
 EventLoop* EventLoopThread::startLoop()
 {
-  assert(!thread_.started());
+  ASSERT(!thread_.started());
   thread_.start();
 
   EventLoop* loop = NULL;
@@ -101,7 +101,7 @@ void EventLoopThread::threadFunc()
   }
 
   loop.loop();
-  //assert(exiting_);
+  //ASSERT(exiting_);
   MutexLockGuard lock(mutex_);
   loop_ = NULL;
 }

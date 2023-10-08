@@ -72,7 +72,7 @@ class ZlibOutputStream : noncopyable
     if (zerror_ != Z_OK)
       return false;
 
-    assert(zstream_.next_in == NULL && zstream_.avail_in == 0);
+    ASSERT(zstream_.next_in == NULL && zstream_.avail_in == 0);
     void* in = const_cast<char*>(buf.data());
     zstream_.next_in = static_cast<Bytef*>(in);
     zstream_.avail_in = buf.size();
@@ -82,7 +82,7 @@ class ZlibOutputStream : noncopyable
     }
     if (zstream_.avail_in == 0)
     {
-      assert(static_cast<const void*>(zstream_.next_in) == buf.end());
+      ASSERT(static_cast<const void*>(zstream_.next_in) == buf.end());
       zstream_.next_in = NULL;
     }
     return zerror_ == Z_OK;

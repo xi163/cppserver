@@ -13,6 +13,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "Logger/src/utils/utils.h"
+
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
@@ -322,7 +324,7 @@ Fmt::Fmt(const char* fmt, T val)
   static_assert(std::is_arithmetic<T>::value == true, "Must be arithmetic type");
 
   length_ = snprintf(buf_, sizeof buf_, fmt, val);
-  assert(static_cast<size_t>(length_) < sizeof buf_);
+  ASSERT(static_cast<size_t>(length_) < sizeof buf_);
 }
 
 // Explicit instantiations

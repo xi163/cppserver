@@ -47,7 +47,7 @@ inline ::std::shared_ptr<To> down_pointer_cast(const ::std::shared_ptr<From>& f)
   }
 
 #ifndef NDEBUG
-  assert(f == NULL || dynamic_cast<To*>(get_pointer(f)) != NULL);
+  ASSERT(f == NULL || dynamic_cast<To*>(get_pointer(f)) != NULL);
 #endif
   return ::std::static_pointer_cast<To>(f);
 }
