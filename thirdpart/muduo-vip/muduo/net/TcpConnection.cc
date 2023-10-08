@@ -122,7 +122,7 @@ TcpConnection::~TcpConnection()
   //          << " fd=" << channel_->fd()
   //          << " state=" << stateToString();
   ASSERT(socket_->fd() == channel_->fd());
-  Debugf("fd=%d", channel_->fd());
+  Tracef("fd=%d", channel_->fd());
   //ssl::SSL_free(ssl_);
   //ASSERT(state_ == kDisconnected);
   ASSERT(state_ == kDisconnected ||
@@ -309,7 +309,7 @@ void TcpConnection::sendInLoop_(const void* data, size_t len)
 
 void TcpConnection::shutdown()
 {
-  Debugf("fd=%d", socket_->fd());
+  Tracef("fd=%d", socket_->fd());
   // FIXME: use compare and swap
   if (state_ == kConnected)
   {
@@ -356,7 +356,7 @@ void TcpConnection::shutdownInLoop()
 
 void TcpConnection::forceClose()
 {
-  Debugf("fd=%d", socket_->fd());
+  Tracef("fd=%d", socket_->fd());
   // FIXME: use compare and swap
   if (state_ == kConnected || state_ == kDisconnecting)
   {
@@ -367,7 +367,7 @@ void TcpConnection::forceClose()
 
 void TcpConnection::forceCloseWithDelay(double seconds)
 {
-  Debugf("fd=%d", socket_->fd());
+  Tracef("fd=%d", socket_->fd());
   if (state_ == kConnected || state_ == kDisconnecting)
   {
     setState(kDisconnecting);

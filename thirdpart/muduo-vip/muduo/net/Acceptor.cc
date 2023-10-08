@@ -71,7 +71,7 @@ void Acceptor::handleRead(int events)
           // LOG_TRACE << "Accepts of " << hostport;
 
 		  //errno = 115 errmsg = Operation now in progress
-		  //Debugf("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
+		  //Tracef("ET[%d] errno = %d errmsg = %s", et_, errno, strerror(errno));
 #ifdef _MUDUO_ASYNC_CONN_POOL_
 		  EventLoop* loop = EventLoopThreadPool::Singleton::getNextLoop();
 		  RunInLoop(loop, std::bind([this](int connfd, InetAddress const& peerAddr, EventLoop* loop) {

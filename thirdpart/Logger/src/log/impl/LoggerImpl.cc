@@ -72,9 +72,10 @@ namespace LOGGER {
 	bool LoggerImpl::_setLevel(int level) {
 #if 0
 		switch (level) {
-		case LVL_DEBUG:
 		case LVL_TRACE:
+		case LVL_DEBUG:
 		case LVL_INFO:
+		case LVL_CRITICAL:
 		case LVL_WARN:
 		case LVL_ERROR:
 		case LVL_FATAL:
@@ -83,8 +84,8 @@ namespace LOGGER {
 		}
 		return false;
 #else
-		if (level >= LVL_DEBUG) {
-			level_.store(LVL_DEBUG);
+		if (level >= LVL_TRACE) {
+			level_.store(LVL_TRACE);
 		}
 		else if (level <= LVL_FATAL) {
 			level_.store(LVL_FATAL);
@@ -317,7 +318,7 @@ namespace LOGGER {
 		struct tm tm;
 		struct timeval tv;
 		bool ok = update(tm, tv);
-		static char const chr[] = { 'F','E','W','I','T','D','S','O','X' };
+		static char const chr[] = { 'F','E','W','C','I','D','T','S','O','X' };
 		switch (flag) {
 		case F_DETAIL:
 		case F_DETAIL_SYNC:
@@ -498,9 +499,10 @@ namespace LOGGER {
 		case 'F': return LVL_FATAL;
 		case 'E':return LVL_ERROR;
 		case 'W':return LVL_WARN;
+		case 'C':return LVL_CRITICAL;
 		case 'I':return LVL_INFO;
-		case 'T':return LVL_TRACE;
 		case 'D':return LVL_DEBUG;
+		case 'T':return LVL_TRACE;
 		case 'S':return _S;
 		case 'O':return _O;
 		case 'X':return _X;
@@ -637,9 +639,10 @@ namespace LOGGER {
 		case LVL_FATAL: qFatal(msg); break;
 		case LVL_ERROR: qCritical(msg); break;
 		case LVL_WARN: qWarning(msg); break;
+		case LVL_CRITICAL: qInfo(msg); break;
 		case LVL_INFO: qInfo(msg); break;
-		case LVL_TRACE: qInfo(msg); break;
 		case LVL_DEBUG: qDebug(msg); break;
+		case LVL_TRACE: qInfo(msg); break;
 		}
 #elif defined(_windows_)
 		if (!isConsoleOpen_) {
@@ -714,9 +717,10 @@ namespace LOGGER {
 		}
 		case LVL_ERROR:
 		case LVL_WARN:
+		case LVL_CRITICAL:
 		case LVL_INFO:
-		case LVL_TRACE:
-		case LVL_DEBUG: {
+		case LVL_DEBUG:
+		case LVL_TRACE: {
 			switch (flag) {
 			case F_DETAIL:
 			case F_DETAIL_SYNC:
@@ -886,9 +890,10 @@ namespace LOGGER {
 			}
 			case LVL_ERROR:
 			case LVL_WARN:
+			case LVL_CRITICAL:
 			case LVL_INFO:
-			case LVL_TRACE:
-			case LVL_DEBUG: {
+			case LVL_DEBUG:
+			case LVL_TRACE: {
 				switch (mode) {
 				case M_STDOUT_ONLY:
 					stdoutbuf(&Msg(it).c_str()[1], Msg(it).size() - 1, Pos(it) - 1, level, Flag(it));

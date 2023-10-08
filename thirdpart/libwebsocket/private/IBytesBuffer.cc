@@ -95,7 +95,7 @@ namespace muduo {
 					//rc = 0 errno = 0 peer close
 					//
 					//Connection reset by peer
-					Debugf("Connection reset by peer rc = %d errno = %d errmsg = %s",
+					Tracef("Connection reset by peer rc = %d errno = %d errmsg = %s",
 						rc, errno, strerror(errno));
 					break;
 				}
@@ -118,7 +118,7 @@ namespace muduo {
 					//只要可写(内核buf还有空间且用户待写数据还未写完)，就一直写，直到数据发送完，或者errno = EAGAIN
 					n += (ssize_t)rc;
 					left -= (ssize_t)rc;
-					//Debugf("rc = %d left = %d errno = %d errmsg = %s",
+					//Tracef("rc = %d left = %d errno = %d errmsg = %s",
 					//	rc, left, errno, strerror(errno));
 					continue;
 				}
@@ -145,7 +145,7 @@ namespace muduo {
 					//
 					//ASSERT(left == 0);
 					//Connection reset by peer
-					Debugf("Connection reset by peer rc = %d errno = %d errmsg = %s",
+					Tracef("Connection reset by peer rc = %d errno = %d errmsg = %s",
 						rc, errno, strerror(errno));
 					break;
 				}

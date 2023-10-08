@@ -43,12 +43,13 @@
 #endif
 
 #define LEVEL_MAP(XX, YY) \
-	YY(LVL_FATAL, 0, "FATAL") \
-	YY(LVL_ERROR, 1, "ERROR") \
-	YY(LVL_WARN,  2, "WARN") \
-	YY(LVL_INFO,  3, "INFO") \
-	YY(LVL_TRACE, 4, "TRACE") \
-	YY(LVL_DEBUG, 5, "DEBUG") \
+	YY(LVL_FATAL,    0, "FATAL") \
+	YY(LVL_ERROR,    1, "ERROR") \
+	YY(LVL_WARN,     2, "WARN") \
+	YY(LVL_CRITICAL, 3, "CRITICAL") \
+	YY(LVL_INFO,     4, "INFO") \
+	YY(LVL_DEBUG,    5, "DEBUG") \
+	YY(LVL_TRACE,    6, "TRACE") \
 
 #define MODE_MAP(XX, YY) \
 	YY(M_STDOUT_ONLY, 0, "STDOUT_ONLY") \
