@@ -53,7 +53,7 @@ void TcpConnection::sendInLoop_ssl(const void* data, size_t len)
       if (errno != EWOULDBLOCK)
       {
         //LOG_SYSERR << "TcpConnection::sendInLoop";
-        Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
+        Errorf("%d %s", saveErrno, strerror_tl(saveErrno));
         if (errno == EPIPE || errno == ECONNRESET) // FIXME: any others?
         {
           faultError = true;
@@ -124,7 +124,7 @@ void TcpConnection::handleRead_ssl(Timestamp receiveTime)
   {
     errno = saveErrno;
     //LOG_SYSERR << "TcpConnection::handleRead";
-    Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
+    Errorf("%d %s", saveErrno, strerror_tl(saveErrno));
     handleError();
   }
 }
@@ -183,7 +183,7 @@ void TcpConnection::handleWrite_ssl()
     else
     {
       //LOG_SYSERR << "TcpConnection::handleWrite";
-      Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
+      Errorf("%d %s", saveErrno, strerror_tl(saveErrno));
       // if (state_ == kDisconnecting)
       // {
       //   shutdownInLoop();

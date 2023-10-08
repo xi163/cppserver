@@ -111,13 +111,13 @@ void Connector::connect()
     case EFAULT:
     case ENOTSOCK:
       //LOG_SYSERR << "connect error in Connector::startInLoop " << saveErrno;
-      Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
+      Errorf("%d %s", saveErrno, strerror_tl(saveErrno));
       sockets::close(sockfd);
       break;
 
     default:
       //LOG_SYSERR << "Unexpected error in Connector::startInLoop " << saveErrno;
-      Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
+      Errorf("%d %s", saveErrno, strerror_tl(saveErrno));
       sockets::close(sockfd);
       // connectErrorCallback_();
       break;
