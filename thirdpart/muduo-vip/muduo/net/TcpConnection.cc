@@ -280,7 +280,8 @@ void TcpConnection::sendInLoop_(const void* data, size_t len)
       nwrote = 0;
       if (errno != EWOULDBLOCK)
       {
-        LOG_SYSERR << "TcpConnection::sendInLoop";
+        //LOG_SYSERR << "TcpConnection::sendInLoop";
+        Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
         if (errno == EPIPE || errno == ECONNRESET) // FIXME: any others?
         {
           faultError = true;
@@ -511,7 +512,8 @@ void TcpConnection::handleRead_(Timestamp receiveTime)
   else
   {
     errno = saveErrno;
-    LOG_SYSERR << "TcpConnection::handleRead";
+    //LOG_SYSERR << "TcpConnection::handleRead";
+    Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
     handleError();
   }
 }
@@ -571,7 +573,8 @@ void TcpConnection::handleWrite_()
     }
     else
     {
-      LOG_SYSERR << "TcpConnection::handleWrite";
+      //LOG_SYSERR << "TcpConnection::handleWrite";
+      Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
       // if (state_ == kDisconnecting)
       // {
       //   shutdownInLoop();
@@ -604,6 +607,7 @@ void TcpConnection::handleClose()
 void TcpConnection::handleError()
 {
   int err = sockets::getSocketError(channel_->fd());
-  LOG_ERROR << "TcpConnection::handleError [" << name_
-            << "] - SO_ERROR = " << err << " " << strerror_tl(err);
+  //LOG_ERROR << "TcpConnection::handleError [" << name_
+  //          << "] - SO_ERROR = " << err << " " << strerror_tl(err);
+  Errorf("SO_ERROR = %d %.*s", err, strerror_tl(err));
 }

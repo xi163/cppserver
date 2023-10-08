@@ -52,7 +52,8 @@ void TcpConnection::sendInLoop_ssl(const void* data, size_t len)
       nwrote = 0;
       if (errno != EWOULDBLOCK)
       {
-        LOG_SYSERR << "TcpConnection::sendInLoop";
+        //LOG_SYSERR << "TcpConnection::sendInLoop";
+        Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
         if (errno == EPIPE || errno == ECONNRESET) // FIXME: any others?
         {
           faultError = true;
@@ -122,7 +123,8 @@ void TcpConnection::handleRead_ssl(Timestamp receiveTime)
   else
   {
     errno = saveErrno;
-    LOG_SYSERR << "TcpConnection::handleRead";
+    //LOG_SYSERR << "TcpConnection::handleRead";
+    Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
     handleError();
   }
 }
@@ -180,7 +182,8 @@ void TcpConnection::handleWrite_ssl()
     }
     else
     {
-      LOG_SYSERR << "TcpConnection::handleWrite";
+      //LOG_SYSERR << "TcpConnection::handleWrite";
+      Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
       // if (state_ == kDisconnecting)
       // {
       //   shutdownInLoop();
@@ -189,7 +192,8 @@ void TcpConnection::handleWrite_ssl()
   }
   else
   {
-    LOG_TRACE << "Connection fd = " << channel_->fd()
-              << " is down, no more writing";
+    //LOG_TRACE << "Connection fd = " << channel_->fd()
+    //          << " is down, no more writing";
+    Errorf("SO_ERROR = %d %.*s", err, strerror_tl(err));
   }
 }

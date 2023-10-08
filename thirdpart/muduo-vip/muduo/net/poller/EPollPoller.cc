@@ -84,6 +84,7 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels)
     {
       errno = saveErrno;
       //LOG_SYSERR << "EPollPoller::poll()";
+      //Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
     }
   }
   return now;
