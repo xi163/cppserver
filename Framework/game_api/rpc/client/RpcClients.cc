@@ -138,7 +138,7 @@ namespace rpc {
 	}
 
 	void Connector::getAll(ClientConnList& clients) {
-		assert(clients.size() == 0);
+		ASSERT(clients.size() == 0);
 		bool ok = false;
 		QueueInLoop(loop_,
 			std::bind(&Connector::getAllInLoop, this, std::ref(clients), std::ref(ok)));
@@ -242,7 +242,7 @@ namespace rpc {
 					}
 				}
 				else {
-					assert(
+					ASSERT(
 						client->connection() &&
 						client->connection()->connected());
 				}
@@ -277,22 +277,22 @@ namespace rpc {
 		if (it == clients_.end()) {
 			//name不存在
 			if (exist) {
-				assert(false);
+				ASSERT(false);
 			}
 		}
 		else {
 			//name已存在
 			TcpClientPtr const& client = it->second;;
 			if (exist) {
-				assert(client);
-				assert(
+				ASSERT(client);
+				ASSERT(
 					client->connection() &&
 					client->connection()->connected());
 			}
 			else {
 				//连接断开
 				if (client) {
-					assert(
+					ASSERT(
 						!client->connection() ||
 						!client->connection()->connected());
 				}
@@ -339,7 +339,7 @@ namespace rpc {
 			conn->setTcpNoDelay(true);
 #else
 			TcpClientMap::iterator it = clients_.find(client->name());
-			assert(it != clients_.end());
+			ASSERT(it != clients_.end());
 #endif
 		}
 
@@ -367,7 +367,7 @@ namespace rpc {
 #if 1
 			if (1 == removes_.erase(name)) {
 				//TcpClientMap::const_iterator it = clients_.find(name);
-				//assert(it != clients_.end());
+				//ASSERT(it != clients_.end());
 				//it->second->stop();
 				//it->second.reset();
 				//clients_.erase(it);
@@ -376,13 +376,13 @@ namespace rpc {
 			}
 			else {
 				//TcpClientMap::iterator it = clients_.find(name);
-				//assert(it != clients_.end());
+				//ASSERT(it != clients_.end());
 				//it->second->stop();
 			}
 #else
 			size_t n = clients_.erase(name);
 			(void)n;
-			assert(n == 1);
+			ASSERT(n == 1);
 #endif
 		}
 		QueueInLoop(conn->getLoop(), std::bind(&Connector::connectionCallback, this, conn));

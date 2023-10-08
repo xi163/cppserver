@@ -41,6 +41,7 @@ void GateServ::onGameMessage(const muduo::net::TcpConnectionPtr& conn,
 				//不再发送数据
 				conn->shutdown();
 #else
+				ASSERT_V(false, "len:%d bufsize:%d", len, buf->readableBytes());
 				conn->forceClose();
 #endif
 			}
@@ -51,12 +52,12 @@ void GateServ::onGameMessage(const muduo::net::TcpConnectionPtr& conn,
 			buffer->append(buf->peek(), static_cast<size_t>(len));
 			buf->retrieve(len);
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buffer);
-			assert(packet::checkCheckSum(pre_header));
+			ASSERT(packet::checkCheckSum(pre_header));
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
-			assert(header->crc == crc);
+			ASSERT(header->crc == crc);
 			std::string session((char const*)pre_header->session, packet::kSessionSZ);
-			assert(!session.empty() && session.size() == packet::kSessionSZ);
+			ASSERT(!session.empty() && session.size() == packet::kSessionSZ);
 			//session -> conn -> entryContext -> index
 			muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 			if (peer) {
@@ -93,14 +94,14 @@ void GateServ::asyncGameHandler(
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 	packet::header_t const* header = packet::get_header(buf);
 	std::string session((char const*)pre_header->session, packet::kSessionSZ);
-	assert(!session.empty() && session.size() == packet::kSessionSZ);
+	ASSERT(!session.empty() && session.size() == packet::kSessionSZ);
 	//session -> conn
 	muduo::net::TcpConnectionPtr peer(weakConn.lock());
 	if (peer) {
 		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
-		assert(userId > 0 && userId == entryContext.getUserId());
-		assert(session == entryContext.getSession());
+		ASSERT(userId > 0 && userId == entryContext.getUserId());
+		ASSERT(session == entryContext.getSession());
 		TraceMessageId(header->mainId, header->subId);
 		//////////////////////////////////////////////////////////////////////////
 		//进房间失败/离开房间/游戏结束，清理用户游戏节点
@@ -193,10 +194,10 @@ void GateServ::sendGameMessage(
 	ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 	muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 	if (gameConn) {
-		assert(gameConn->connected());
+		ASSERT(gameConn->connected());
 #if !defined(NDEBUG)
 #if 0
-		assert(
+		ASSERT(
 			std::find(
 				std::begin(clients_[containTy::kGameTy].names_),
 				std::end(clients_[containTy::kGameTy].names_),
@@ -241,10 +242,10 @@ void GateServ::sendGameMessage(
 		ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 		muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
 		if (gameConn) {
-			assert(gameConn->connected());
+			ASSERT(gameConn->connected());
 #if !defined(NDEBUG)
 #if 0
-			assert(
+			ASSERT(
 				std::find(
 					std::begin(clients_[containTy::kGameTy].names_),
 					std::end(clients_[containTy::kGameTy].names_),
@@ -293,7 +294,7 @@ void GateServ::onUserOfflineGame(Context& entryContext) {
 			TraceMessageId(
 				::Game::Common::MAIN_MESSAGE_PROXY_TO_GAME_SERVER,
 				::Game::Common::MESSAGE_PROXY_TO_GAME_SERVER_SUBID::GAME_SERVER_ON_USER_OFFLINE);
-			assert(buffer->readableBytes() < packet::kMaxPacketSZ);
+			ASSERT(buffer->readableBytes() < packet::kMaxPacketSZ);
 			sendGameMessage(entryContext, buffer, userId);
 		}
 	}

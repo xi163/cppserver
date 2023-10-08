@@ -22,7 +22,7 @@ namespace STR {
 #endif
 #ifndef NDEBUG
 			WeakConnMap::const_iterator it = peers_.find(session);
-			assert(it == peers_.end());
+			ASSERT(it == peers_.end());
 #endif
 			peers_[session] = weakConn;
 		}
@@ -49,7 +49,7 @@ namespace STR {
 #else
 			READ_LOCK(mutex_);
 #endif
-			assert(buf);
+			ASSERT(buf);
 			for (WeakConnMap::const_iterator it = peers_.begin();
 				it != peers_.end(); ++it) {
 				muduo::net::TcpConnectionPtr peer(it->second.lock());
@@ -136,7 +136,7 @@ namespace INT {
 #else
 			READ_LOCK(mutex_);
 #endif
-			assert(buf);
+			ASSERT(buf);
 			for (WeakConnMap::const_iterator it = peers_.begin();
 				it != peers_.end(); ++it) {
 				muduo::net::TcpConnectionPtr peer(it->second.lock());
@@ -157,7 +157,7 @@ namespace INT {
 			WeakConnMap::const_iterator it = peers_.find(userid);
 			if (it != peers_.end()) {
 				muduo::net::TcpConnectionPtr peer(it->second.lock());
-				assert(peer);
+				ASSERT(peer);
 				//check before remove
 				if (peer == conn) {
 					peers_.erase(it);

@@ -47,12 +47,12 @@ void GateServ::onGateMessage(const muduo::net::TcpConnectionPtr& conn,
 			buffer->append(buf->peek(), static_cast<size_t>(len));
 			buf->retrieve(len);
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buffer);
-			assert(packet::checkCheckSum(pre_header));
+			ASSERT(packet::checkCheckSum(pre_header));
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
-			assert(header->crc == crc);
+			ASSERT(header->crc == crc);
 			std::string session((char const*)pre_header->session, packet::kSessionSZ);
-			assert(!session.empty() && session.size() == packet::kSessionSZ);
+			ASSERT(!session.empty() && session.size() == packet::kSessionSZ);
 			//session -> conn -> entryContext -> index
 			muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 			if (peer) {
@@ -89,13 +89,13 @@ void GateServ::asyncGateHandler(
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 	packet::header_t const* header = packet::get_header(buf);
 	std::string session((char const*)pre_header->session, packet::kSessionSZ);
-	assert(!session.empty() && session.size() == packet::kSessionSZ);
+	ASSERT(!session.empty() && session.size() == packet::kSessionSZ);
 	//session -> conn
 	muduo::net::TcpConnectionPtr peer(weakConn.lock());
 	if (peer) {
 		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
-		assert(session == entryContext.getSession());
+		ASSERT(session == entryContext.getSession());
 		TraceMessageId(header->mainId, header->subId);
 		
 		muduo::net::websocket::send(peer, (uint8_t const*)header, header->len);
@@ -112,8 +112,8 @@ void GateServ::sendGateMessage(
 	ClientConn const& clientConn = entryContext.getClientConn(containTy::kGateTy);
 	muduo::net::TcpConnectionPtr gateConn(clientConn.second.lock());
 	if (gateConn) {
-		assert(gateConn->connected());
-		assert(entryContext.getUserId() > 0);
+		ASSERT(gateConn->connected());
+		ASSERT(entryContext.getUserId() > 0);
 		
 	}
 	else {

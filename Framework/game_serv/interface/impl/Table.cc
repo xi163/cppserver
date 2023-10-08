@@ -592,7 +592,7 @@ bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf)
     //BroadcastUserStatus(player, sendToSelf);
     bool rc = tableDelegate_->OnUserLeft(player->GetUserId(), false);
     if (rc) {
-        ClearTableUser(player->GetUserId(), true, false);
+        //ClearTableUser(player->GetUserId(), true, false);
     }
     return rc;
 //	}
@@ -615,7 +615,7 @@ bool CTable::OnUserOffline(std::shared_ptr<CPlayer> const& player) {
     //BroadcastUserStatus(player, false);
     bool rc = tableDelegate_->OnUserLeft(player->GetUserId(), false);
 	if (rc) {
-		ClearTableUser(player->GetUserId(), true, false);
+		//ClearTableUser(player->GetUserId(), true, false);
 	}
     return rc;
 }
@@ -791,8 +791,8 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
 	default: {
 		int64_t userId = player->GetUserId();
 		uint16_t chairId = player->GetChairId();
-		//assert(player->GetTableId() == GetTableId());
-		//assert(player.get() == GetChairPlayer(chairId).get());
+		//ASSERT(player->GetTableId() == GetTableId());
+		//ASSERT(player.get() == GetChairPlayer(chairId).get());
 		switch (player->IsRobot()) {
 		case true:
 			Warnf("<robot> %d %d", chairId, userId);

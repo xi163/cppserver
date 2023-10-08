@@ -79,7 +79,7 @@ struct Buckets /*: public muduo::noncopyable*/ {
 		if (likely(entry)) {
 			muduo::net::TcpConnectionPtr conn(entry->weakConn_.lock());
 			if (likely(conn)) {
-				assert(conn->getLoop() == loop_);
+				ASSERT(conn->getLoop() == loop_);
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
@@ -91,7 +91,7 @@ struct Buckets /*: public muduo::noncopyable*/ {
 			}
 		}
 		else {
-			//assert(false);
+			//ASSERT(false);
 		}
 	}
 	void update(EntryPtr const& entry) {
@@ -99,7 +99,7 @@ struct Buckets /*: public muduo::noncopyable*/ {
 		if (likely(entry)) {
 			muduo::net::TcpConnectionPtr conn(entry->weakConn_.lock());
 			if (likely(conn)) {
-				assert(conn->getLoop() == loop_);
+				ASSERT(conn->getLoop() == loop_);
 				//必须使用shared_ptr，持有entry引用计数(加1)
 				buckets_.back().insert(entry);
 #ifdef _DEBUG_BUCKETS_
@@ -126,7 +126,7 @@ struct Context /*: public muduo::noncopyable*/ {
 	}
 	explicit Context(WeakEntryPtr const& weakEntry, const boost::any& context)
 		: weakEntry_(weakEntry), context_(context) {
-		assert(!context_.empty());
+		ASSERT(!context_.empty());
 		reset();
 	}
 	virtual ~Context() {
@@ -207,7 +207,7 @@ struct Context /*: public muduo::noncopyable*/ {
 	inline void setClientConn(containTy ty,
 		std::string const& name,
 		muduo::net::WeakTcpConnectionPtr const& weakConn) {
-		assert(!name.empty());
+		ASSERT(!name.empty());
 		client_[ty].first = name;
 		client_[ty].second = weakConn;
 	}

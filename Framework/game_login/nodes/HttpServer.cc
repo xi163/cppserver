@@ -41,7 +41,7 @@ bool LoginServ::onHttpCondition(const muduo::net::InetAddress& peerAddr, muduo::
 	Infof("%s %s %s [×]禁止访问", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
 #if 0
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	//assert(whiteListControl_ == eApiCtrl::kOpenAccept);
+	//ASSERT(whiteListControl_ == eApiCtrl::kOpenAccept);
 	//httpserver_.getLoop()->assertInLoopThread();
 	{
 		//管理员挂维护/恢复服务
@@ -92,7 +92,7 @@ void LoginServ::onHttpConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->forceCloseWithDelay(0.2f);
 #endif
 			//会调用onHttpMessage函数
-			assert(conn->getContext().empty());
+			ASSERT(conn->getContext().empty());
 			numTotalBadReq_.incrementAndGet();
 			return;
 		}
@@ -122,7 +122,7 @@ void LoginServ::onHttpMessage(
 	}
 	Debugf("\n%.*s", buf->readableBytes(), buf->peek());
 	//先确定是HTTP数据报文，再解析
-	//assert(buf->readableBytes() > 4 && buf->findCRLFCRLF());
+	//ASSERT(buf->readableBytes() > 4 && buf->findCRLFCRLF());
 	Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 	muduo::net::HttpContext& httpContext = boost::any_cast<muduo::net::HttpContext&>(entryContext.getContext());
 	if (!httpContext.parseRequest(buf, receiveTime)) {
@@ -287,7 +287,7 @@ void LoginServ::asyncHttpHandler(
 #endif
 		Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 		muduo::net::HttpContext& httpContext = boost::any_cast<muduo::net::HttpContext&>(entryContext.getContext());
-		assert(httpContext.gotAll());
+		ASSERT(httpContext.gotAll());
 		const std::string& connection = httpContext.request().getHeader("Connection");
 		bool close = (connection == "close") ||
 			(httpContext.request().getVersion() == muduo::net::HttpRequest::kHttp10 && connection != "Keep-Alive");
@@ -873,7 +873,7 @@ void LoginServ::refreshWhiteList() {
 
 bool LoginServ::refreshWhiteListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == eApiCtrl::kOpen);
+	ASSERT(whiteListControl_ == eApiCtrl::kOpen);
 	{
 		WRITE_LOCK(white_list_mutex_);
 		white_list_.clear();
@@ -893,7 +893,7 @@ bool LoginServ::refreshWhiteListSync() {
 
 bool LoginServ::refreshWhiteListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(whiteListControl_ == eApiCtrl::kOpenAccept);
+	ASSERT(whiteListControl_ == eApiCtrl::kOpenAccept);
 	httpserver_.getLoop()->assertInLoopThread();
 	white_list_.clear();
 	mgo::LoadIpWhiteList(

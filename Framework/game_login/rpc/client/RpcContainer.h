@@ -20,7 +20,7 @@ namespace rpc {
 			WRITE_LOCK(mutex_);
 #ifndef NDEBUG
 			std::map<std::string, bool>::const_iterator it = names_.find(name);
-			assert(it == names_.end());
+			ASSERT(it == names_.end());
 #endif
 			names_[name] = true;
 		}

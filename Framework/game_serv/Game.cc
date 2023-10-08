@@ -348,10 +348,10 @@ void GameServ::onMessage(
 			buffer->append(buf->peek(), static_cast<size_t>(len));
 			buf->retrieve(len);
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buffer);
-			assert(packet::checkCheckSum(pre_header));
+			ASSERT(packet::checkCheckSum(pre_header));
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
-			assert(header->crc == crc);
+			ASSERT(header->crc == crc);
 #if 0
 			std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header->userId);
 			if (player) {

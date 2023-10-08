@@ -47,12 +47,12 @@ void GateServ::onHallMessage(const muduo::net::TcpConnectionPtr& conn,
 			buffer->append(buf->peek(), static_cast<size_t>(len));
 			buf->retrieve(len);
 			packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buffer);
-			assert(packet::checkCheckSum(pre_header));
+			ASSERT(packet::checkCheckSum(pre_header));
 			packet::header_t const* header = packet::get_header(buffer);
 			uint16_t crc = packet::getCheckSum((uint8_t const*)&header->ver, header->len - 4);
-			assert(header->crc == crc);
+			ASSERT(header->crc == crc);
 			std::string session((char const*)pre_header->session, packet::kSessionSZ);
-			assert(!session.empty() && session.size() == packet::kSessionSZ);
+			ASSERT(!session.empty() && session.size() == packet::kSessionSZ);
 			//session -> conn -> entryContext -> index
 			muduo::net::TcpConnectionPtr peer(entities_.get(session).lock());
 			if (peer) {
@@ -89,13 +89,13 @@ void GateServ::asyncHallHandler(
 	packet::internal_prev_header_t const* pre_header = packet::get_pre_header(buf);
 	packet::header_t const* header = packet::get_header(buf);
 	std::string session((char const*)pre_header->session, packet::kSessionSZ);
-	assert(!session.empty() && session.size() == packet::kSessionSZ);
+	ASSERT(!session.empty() && session.size() == packet::kSessionSZ);
 	//session -> conn
 	muduo::net::TcpConnectionPtr peer(weakConn.lock());
 	if (peer) {
 		Context& entryContext = boost::any_cast<Context&>(peer->getContext());
 		int64_t userId = pre_header->userId;
-		assert(session == entryContext.getSession());
+		ASSERT(session == entryContext.getSession());
 		TraceMessageId(header->mainId, header->subId);
 		if (
 			//////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ void GateServ::asyncHallHandler(
 			header->mainId == ::Game::Common::MAINID::MAIN_MESSAGE_CLIENT_TO_HALL &&
 			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_RES &&
 			pre_header->ok == 1) {
-			assert(userId > 0 && 0 == entryContext.getUserId());
+			ASSERT(userId > 0 && 0 == entryContext.getUserId());
 			//指定userId
 			entryContext.setUserId(userId);
 			//指定大厅节点
@@ -119,9 +119,9 @@ void GateServ::asyncHallHandler(
 			if (old && old != peer && old.get() != peer.get()) {
 				Context& entryContext_ = boost::any_cast<Context&>(old->getContext());
 				std::string const& session_ = entryContext_.getSession();
-				assert(session_.size() == packet::kSessionSZ);
+				ASSERT(session_.size() == packet::kSessionSZ);
 				if (session_ != session) {
-					BufferPtr buffer = packClientShutdownMsg(userId, 0); assert(buffer);
+					BufferPtr buffer = packClientShutdownMsg(userId, 0); ASSERT(buffer);
 					muduo::net::websocket::send(old, buffer->peek(), buffer->readableBytes());
 					entryContext_.setkicking(KICK_REPLACE);
 #if 0
@@ -143,7 +143,7 @@ void GateServ::asyncHallHandler(
 			header->subId == ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_GET_GAME_SERVER_MESSAGE_RES ||
 			header->subId == ::Game::Common::CLIENT_TO_HALL_GET_PLAYING_GAME_INFO_MESSAGE_RES) &&
 			pre_header->ok == 1) {
-			assert(userId > 0 && userId == entryContext.getUserId());
+			ASSERT(userId > 0 && userId == entryContext.getUserId());
 			//判断用户当前游戏节点
 			ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 			muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
@@ -228,12 +228,12 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 			muduo::net::TcpConnectionPtr old(sessions_.get(userid).lock());
 			if (old) {
 				Context& entryContext_ = boost::any_cast<Context&>(old->getContext());
-				assert(entryContext_.getUserId() == userid);
+				ASSERT(entryContext_.getUserId() == userid);
 				std::string const& session_ = entryContext_.getSession();
-				assert(session_.size() == packet::kSessionSZ);
+				ASSERT(session_.size() == packet::kSessionSZ);
 				//相同userid，不同session，非当前最新，则关闭之
 				if (session_ != session) {
-					BufferPtr buffer = packClientShutdownMsg(userid, 0); assert(buffer);
+					BufferPtr buffer = packClientShutdownMsg(userid, 0); ASSERT(buffer);
 					muduo::net::websocket::send(old, buffer->peek(), buffer->readableBytes());
 					entryContext_.setkicking(KICK_REPLACE);
 #if 0
@@ -263,13 +263,13 @@ void GateServ::sendHallMessage(
 	ClientConn const& clientConn = entryContext.getClientConn(containTy::kHallTy);
 	muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 	if (hallConn) {
-		assert(hallConn->connected());
-		assert(entryContext.getUserId() > 0);
+		ASSERT(hallConn->connected());
+		ASSERT(entryContext.getUserId() > 0);
 		//判断节点是否维护中
 		if (!clients_[containTy::kHallTy].isRepairing(clientConn.first)) {
 #if !defined(NDEBUG)
 #if 0
-			assert(
+			ASSERT(
 				std::find(
 					std::begin(clients_[containTy::kHallTy].clients_),
 					std::end(clients_[containTy::kHallTy].clients_),
@@ -293,7 +293,7 @@ void GateServ::sendHallMessage(
 				std::map<std::string, bool> repairs;
 				do {
 					int index = randomHall_.betweenInt(0, clients.size() - 1).randInt_mt();
-					assert(index >= 0 && index < clients.size());
+					ASSERT(index >= 0 && index < clients.size());
 					ClientConn const& clientConn = clients[index];
 					muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 					if (hallConn) {
@@ -352,11 +352,11 @@ void GateServ::sendHallMessage(
 			std::map<std::string, bool> repairs;
 			do {
 				int index = randomHall_.betweenInt(0, clients.size() - 1).randInt_mt();
-				assert(index >= 0 && index < clients.size());
+				ASSERT(index >= 0 && index < clients.size());
 				ClientConn const& clientConn = clients[index];
 				muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
 				if (hallConn) {
-					assert(hallConn->connected());
+					ASSERT(hallConn->connected());
 					//判断节点是否维护中
 					if (ok = !clients_[containTy::kHallTy].isRepairing(clientConn.first)) {
 						if (entryContext.getUserId() > 0) {
@@ -424,7 +424,7 @@ void GateServ::onUserOfflineHall(Context& entryContext) {
 			TraceMessageId(
 				::Game::Common::MAIN_MESSAGE_PROXY_TO_HALL,
 				::Game::Common::MESSAGE_PROXY_TO_HALL_SUBID::HALL_ON_USER_OFFLINE);
-			assert(buffer->readableBytes() < packet::kMaxPacketSZ);
+			ASSERT(buffer->readableBytes() < packet::kMaxPacketSZ);
 			sendHallMessage(entryContext, buffer, userId);
 		}
 	}

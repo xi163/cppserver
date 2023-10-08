@@ -59,7 +59,7 @@ void ApiServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->forceCloseWithDelay(0.2f);
 #endif
 			//会调用onMessage函数
-			assert(conn->getContext().empty());
+			ASSERT(conn->getContext().empty());
 
 			numTotalBadReq_.incrementAndGet();
 			return;
@@ -87,7 +87,7 @@ void ApiServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {
 			conn->localAddress().toIpPort().c_str(),
 			conn->peerAddress().toIpPort().c_str(),
 			(conn->connected() ? "UP" : "DOWN"), num);
-		assert(!conn->getContext().empty());
+		ASSERT(!conn->getContext().empty());
 		//////////////////////////////////////////////////////////////////////////
 		//websocket::Context::dtor
 		//////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ void ApiServ::onConnected(
 
 	conn->getLoop()->assertInLoopThread();
 
-	assert(!conn->getContext().empty());
+	ASSERT(!conn->getContext().empty());
 	Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 	EntryPtr entry(entryContext.getWeakEntryPtr().lock());
 	if (entry) {
@@ -312,8 +312,8 @@ void ApiServ::asyncClientHandler(
 					std::string const& aesKey = entryContext.getAesKey();
 					ClientConn const& clientConn = entryContext.getClientConn(containTy::kHallTy);
 					muduo::net::TcpConnectionPtr hallConn(clientConn.second.lock());
-					assert(header->len == len);
-					assert(header->len >= packet::kHeaderLen);
+					ASSERT(header->len == len);
+					ASSERT(header->len >= packet::kHeaderLen);
 					//非登录消息 userid > 0
 					if (header->subId != ::Game::Common::MESSAGE_CLIENT_TO_HALL_SUBID::CLIENT_TO_HALL_LOGIN_MESSAGE_REQ &&
 						userId == 0) {
@@ -343,8 +343,8 @@ void ApiServ::asyncClientHandler(
 					std::string const& aesKey = entryContext.getAesKey();
 					ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
 					muduo::net::TcpConnectionPtr gameConn(clientConn.second.lock());
-					assert(header->len == len);
-					assert(header->len >= packet::kHeaderLen);
+					ASSERT(header->len == len);
+					ASSERT(header->len >= packet::kHeaderLen);
 					if (userId == 0) {
 						Errorf("user Must Login Hall Server First!");
 						break;
@@ -402,7 +402,7 @@ void ApiServ::refreshBlackList() {
 
 bool ApiServ::refreshBlackListSync() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(blackListControl_ == eApiCtrl::kOpen);
+	ASSERT(blackListControl_ == eApiCtrl::kOpen);
 	{
 		WRITE_LOCK(black_list_mutex_);
 		black_list_.clear();
@@ -418,7 +418,7 @@ bool ApiServ::refreshBlackListSync() {
 
 bool ApiServ::refreshBlackListInLoop() {
 	//Accept时候判断，socket底层控制，否则开启异步检查
-	assert(blackListControl_ == eApiCtrl::kOpenAccept);
+	ASSERT(blackListControl_ == eApiCtrl::kOpenAccept);
 	server_.getLoop()->assertInLoopThread();
 	black_list_.clear();
 	std::string s;

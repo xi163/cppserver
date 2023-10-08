@@ -35,9 +35,9 @@ namespace rpc {
 		diff.resize(it - diff.begin());
 		for (std::string const& name : diff) {
 			//names_中有
-			assert(std::find(std::begin(names_), std::end(names_), name) != names_.end());
+			ASSERT(std::find(std::begin(names_), std::end(names_), name) != names_.end());
 			//names中没有
-			assert(std::find(std::begin(names), std::end(names), name) == names.end());
+			ASSERT(std::find(std::begin(names), std::end(names), name) == names.end());
 			//失效则移除
 			if (exclude == name) {
 				continue;
@@ -51,9 +51,9 @@ namespace rpc {
 		diff.resize(it - diff.begin());
 		for (std::string const& name : diff) {
 			//names_中没有
-			assert(std::find(std::begin(names_), std::end(names_), name) == names_.end());
+			ASSERT(std::find(std::begin(names_), std::end(names_), name) == names_.end());
 			//names中有
-			assert(std::find(std::begin(names), std::end(names), name) != names.end());
+			ASSERT(std::find(std::begin(names), std::end(names), name) != names.end());
 			//添加新节点
 			if (exclude == name) {
 				continue;

@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 				std::string const& ipport = child.second.get_value<std::string>();
 				std::vector<std::string> vec;
 				boost::algorithm::split(vec, ipport, boost::is_any_of(","));
-				assert(vec.size() == 2);
+				ASSERT(vec.size() == 2);
 				mapRedisIps[vec[0]] = vec[1];
 			}
 		}
