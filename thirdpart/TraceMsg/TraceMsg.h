@@ -8,15 +8,17 @@
 	int lvl = fmtMessageId(s, mainId, subId, false, false); \
 	if(!s.empty()) { \
 		switch(lvl) { \
-			case LVL_DEBUG: \
-				Debugf(s.c_str()); \
-				break; \
 			case LVL_TRACE: \
 				Tracef(s.c_str()); \
+				break; \
+			case LVL_DEBUG: \
+				Debugf(s.c_str()); \
 				break; \
 			case LVL_INFO: \
 				Infof(s.c_str()); \
 				break; \
+			case LVL_CRITICAL: \
+				Criticalf(s.c_str()); \
 			case LVL_WARN: \
 				Warnf(s.c_str()); \
 				break; \

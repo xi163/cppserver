@@ -14,9 +14,9 @@
 #include <QDebug>
 #endif
 
-#define _S (6)
-#define _O (7)
-#define _X (8)
+#define _S (7)
+#define _O (8)
+#define _X (9)
 
 #define _PARAM_S     _S,__FILE__,__LINE__,__FUNC__,__STACK__
 #define _PARAM_O     _O,__FILE__,__LINE__,__FUNC__,__STACK__
