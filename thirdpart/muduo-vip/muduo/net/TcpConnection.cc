@@ -281,7 +281,7 @@ void TcpConnection::sendInLoop_(const void* data, size_t len)
       if (errno != EWOULDBLOCK)
       {
         //LOG_SYSERR << "TcpConnection::sendInLoop";
-        Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
+        Errorf("%d %.*s", errno, strerror_tl(errno));
         if (errno == EPIPE || errno == ECONNRESET) // FIXME: any others?
         {
           faultError = true;
@@ -574,7 +574,7 @@ void TcpConnection::handleWrite_()
     else
     {
       //LOG_SYSERR << "TcpConnection::handleWrite";
-      Errorf("%d %.*s", saveErrno, strerror_tl(saveErrno));
+      Errorf("%d %.*s", errno, strerror_tl(errno));
       // if (state_ == kDisconnecting)
       // {
       //   shutdownInLoop();
@@ -583,8 +583,9 @@ void TcpConnection::handleWrite_()
   }
   else
   {
-    LOG_TRACE << "Connection fd = " << channel_->fd()
-              << " is down, no more writing";
+    //LOG_TRACE << "Connection fd = " << channel_->fd()
+    //          << " is down, no more writing";
+    Tracef("fd=%d is down, no more writing", channel_->fd());
   }
 }
 

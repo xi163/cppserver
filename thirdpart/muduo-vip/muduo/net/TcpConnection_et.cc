@@ -147,6 +147,6 @@ void TcpConnection::handleWrite_et()
   {
     //LOG_TRACE << "Connection fd = " << channel_->fd()
     //          << " is down, no more writing";
-    Errorf("SO_ERROR = %d %.*s", err, strerror_tl(err));
+    Tracef("fd=%d is down, no more writing", channel_->fd());
   }
 }
