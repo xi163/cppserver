@@ -214,12 +214,12 @@ void GateServ::sendGameMessage(
 		{
 			//用户当前游戏节点不存在/不可用，需要指定
 			if (clientConn.first.empty()) {
-				Warnf("%d 游戏节点不存在，需要指定", userId);
+				//Warnf("%d 游戏节点不存在，需要指定", userId);
 			}
 			else {
-				Errorf("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
+				//Errorf("%d 游戏节点[%s]不可用，需要指定", userId, clientConn.first.c_str());
 			}
-			std::string serverIp;//roomid:ip:port:mode
+			std::string serverIp;
 			if (REDISCLIENT.GetOnlineInfoIP(userId, serverIp)) {
 				//获取目标游戏节点
 				ClientConn clientConn;
@@ -236,7 +236,12 @@ void GateServ::sendGameMessage(
 				}
 			}
 			else {
-				Errorf("%d 游戏节点IP不存在!", userId);
+				if (clientConn.first.empty()) {
+					Errorf("%d GetOnlineInfoIP ERR 无法定位游戏节点!", userId);
+				}
+				else {
+					Errorf("%d GetOnlineInfoIP ERR 无法定位游戏节点[%s]!", userId, clientConn.first.c_str());
+				}
 			}
 		}
 		ClientConn const& clientConn = entryContext.getClientConn(containTy::kGameTy);
