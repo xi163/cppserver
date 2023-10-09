@@ -80,7 +80,8 @@ void CTableThread::checkUserIn() {
 		//Errorf("机器人没有库存了");
 		return;
 	}
-	std::list<std::shared_ptr<CTable>> tables = CTableMgr::get_mutable_instance().UsedTables(tableId_);
+	std::list<std::shared_ptr<CTable>> tables;
+	CTableMgr::get_mutable_instance().UsedTables(tableId_, tables);
 	for (auto it : tables) {
 		std::shared_ptr<CTable>& table = it;
 		if (table) {

@@ -96,9 +96,9 @@ void CTableMgr::Init(ITableContext* tableContext) {
 /// <summary>
 /// 返回使用中桌子
 /// </summary>
+/// <param name="usedItems"></param>
 /// <returns></returns>
-std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
-	std::list<std::shared_ptr<CTable>> usedItems;
+bool CTableMgr::UsedTables(std::list<std::shared_ptr<CTable>>& usedItems) {
 	{
 		READ_LOCK(mutex_);
 #if 0
@@ -113,26 +113,26 @@ std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables() {
 			});
 #endif
 	}
-	return usedItems;
+	return !usedItems.empty();
 }
 
 /// <summary>
 /// 返回使用中桌子
 /// </summary>
 /// <param name="tableId"></param>
+/// <param name="usedItems"></param>
 /// <returns></returns>
-std::list<std::shared_ptr<CTable>> CTableMgr::UsedTables(std::vector<uint16_t>& tableId) {
-	std::list<std::shared_ptr<CTable>> usedItems;
+bool CTableMgr::UsedTables(std::vector<uint16_t> const& tableId, std::list<std::shared_ptr<CTable>>& usedItems) {
 	{
 		READ_LOCK(mutex_);
 		for (int i = 0; i < tableId.size(); ++i) {
-			std::map<uint16_t, std::shared_ptr<CTable>>::iterator it = usedItems_.find(tableId[i]);
+			std::map<uint16_t, std::shared_ptr<CTable>>::const_iterator it = usedItems_.find(tableId[i]);
 			if (it != usedItems_.end()) {
 				usedItems.emplace_back(it->second);
 			}
 		}
 	}
-	return usedItems;
+	return !usedItems.empty();
 }
 
 /// <summary>

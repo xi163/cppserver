@@ -31,15 +31,17 @@ public:
 	/// <summary>
 	/// 返回使用中桌子
 	/// </summary>
+	/// <param name="usedItems"></param>
 	/// <returns></returns>
-	std::list<std::shared_ptr<CTable>> UsedTables();
-
+	bool UsedTables(std::list<std::shared_ptr<CTable>>& usedItems);
+	
 	/// <summary>
 	/// 返回使用中桌子
 	/// </summary>
 	/// <param name="tableId"></param>
+	/// <param name="usedItems"></param>
 	/// <returns></returns>
-	std::list<std::shared_ptr<CTable>> UsedTables(std::vector<uint16_t>& tableId);
+	bool UsedTables(std::vector<uint16_t> const& tableId, std::list<std::shared_ptr<CTable>>& usedItems);
 
 	/// <summary>
 	/// 初始化
