@@ -293,7 +293,7 @@ void GateServ::sendHallMessage(
 			}
 		}
 		else {
-			Warnf("用户大厅服维护，重新分配");
+			//Warnf("用户大厅服维护，重新分配");
 			//用户大厅服维护，重新分配
 			ClientConnList clients;
 			//异步获取全部有效大厅连接
@@ -351,7 +351,7 @@ void GateServ::sendHallMessage(
 		}
 	}
 	else {
-		Warnf("用户大厅服失效，重新分配");
+		//Warnf("用户大厅服失效，重新分配");
 		//用户大厅服失效，重新分配
 		ClientConnList clients;
 		//异步获取全部有效大厅连接
