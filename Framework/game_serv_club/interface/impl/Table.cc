@@ -386,8 +386,7 @@ void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, u
         }
         if (c > 0 && ok && GetPlayerCount() == 0) {
 			if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
-#define DEL_TABLE_BY_TABLEID_
-#ifdef DEL_TABLE_BY_TABLEID_
+#ifdef DEL_TABLE_BY_ID_
 				//桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
 				CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
 #else
@@ -410,8 +409,7 @@ void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, u
                 Errorf("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
 				if (GetPlayerCount() == 0) {
 					if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
-#define DEL_TABLE_BY_TABLEID_
-#ifdef DEL_TABLE_BY_TABLEID_
+#ifdef DEL_TABLE_BY_ID_
 						//桌子还在使用中 ClearTableUser 回收桌子中会不会有问题?
 						CTableMgr::get_mutable_instance().Delete(tableState_.tableId);
 #else
@@ -606,7 +604,7 @@ bool CTable::OnUserLeft(std::shared_ptr<CPlayer> const& player, bool sendToSelf)
     //BroadcastUserStatus(player, sendToSelf);
     bool rc = tableDelegate_->OnUserLeft(player->GetUserId(), false);
     if (rc) {
-        ClearTableUser(player->GetUserId(), true, false);
+        //ClearTableUser(player->GetUserId(), true, false);
     }
     return rc;
 //	}
@@ -629,7 +627,7 @@ bool CTable::OnUserOffline(std::shared_ptr<CPlayer> const& player) {
     //BroadcastUserStatus(player, false);
     bool rc = tableDelegate_->OnUserLeft(player->GetUserId(), false);
 	if (rc) {
-		ClearTableUser(player->GetUserId(), true, false);
+		//ClearTableUser(player->GetUserId(), true, false);
 	}
     return rc;
 }
@@ -811,7 +809,7 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
 		case true:
 			Warnf("<robot> %d %d", chairId, userId);
 			//清理机器人数据
-#ifdef DEL_ROBOT_BY_USERID_
+#ifdef DEL_ROBOT_BY_ID_
 			CRobotMgr::get_mutable_instance().Delete(userId);
 #else
 			CRobotMgr::get_mutable_instance().Delete(std::dynamic_pointer_cast<CRobot>(player));
@@ -857,7 +855,7 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
 			//清理真人数据
 			tableContext_->DelContext(userId);
 			DelOnlineInfo(userId);
-#ifdef DEL_PLAYER_BY_USERID_
+#ifdef DEL_PLAYER_BY_ID_
 			CPlayerMgr::get_mutable_instance().Delete(userId);
 #else
 			CPlayerMgr::get_mutable_instance().Delete(player);

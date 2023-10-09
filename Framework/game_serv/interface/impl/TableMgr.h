@@ -9,6 +9,8 @@
 #include "ITableContext.h"
 #include "Player.h"
 
+#define DEL_TABLE_BY_ID_
+
 template<typename T>
 struct second_t {
 	typename T::second_type operator()(T const& p) const {

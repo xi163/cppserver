@@ -868,6 +868,7 @@ void GameServ::cmd_on_user_enter_room(
 					//DelContext(pre_header_->userId);
 					//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 					//桌子密码错误
+					Errorf("...");
 					SendGameErrorCode(conn,
 						::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 						::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -880,6 +881,7 @@ void GameServ::cmd_on_user_enter_room(
 				//DelContext(pre_header_->userId);
 				//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 				//会话不存在
+				Errorf("...");
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -892,6 +894,7 @@ void GameServ::cmd_on_user_enter_room(
 			//DelContext(pre_header_->userId);
 			//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 			//游戏已结束
+			Errorf("...");
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -917,18 +920,9 @@ void GameServ::cmd_on_user_enter_room(
 						player->GetTableId() == INVALID_TABLE ||
 						player->GetChairId() == INVALID_CHAIR) {
 						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-						//DelContext(pre_header_->userId);
-						//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
-//						if (table->GetPlayerCount() == 0) {
-//#define DEL_TABLE_BY_TABLEID_
-//#ifdef DEL_TABLE_BY_TABLEID_
-//							CTableMgr::get_mutable_instance().Delete(table->GetTableId());
-//#else
-//							CTableMgr::get_mutable_instance().Delete(table);
-//#endif
-//						}
 						muduo::net::TcpConnectionPtr conn(weakConn.lock());
 						if (conn) {
+							Errorf("...");
 							SendGameErrorCode(conn,
 								::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 								::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -958,6 +952,7 @@ void GameServ::cmd_on_user_enter_room(
 						REDISCLIENT.DelOnlineInfo(pre_header_->userId);
 						muduo::net::TcpConnectionPtr conn(weakConn.lock());
 						if (conn) {
+							Errorf("...");
 							SendGameErrorCode(conn,
 								::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 								::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -970,6 +965,7 @@ void GameServ::cmd_on_user_enter_room(
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				DelContext(pre_header_->userId);
 				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
+				Errorf("...");
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -991,6 +987,7 @@ void GameServ::cmd_on_user_enter_room(
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_PLAY_IN_OTHERROOM,
 					pre_header_, header_);
+				Errorf("...");
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_PLAY_IN_OTHERROOM,
@@ -1004,6 +1001,7 @@ void GameServ::cmd_on_user_enter_room(
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				DelContext(pre_header_->userId);
 				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
+				Errorf("...");
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_USERNOTEXIST,
@@ -1015,6 +1013,7 @@ void GameServ::cmd_on_user_enter_room(
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
 			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
+			Errorf("...");
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES, ERROR_ENTERROOM_NOSESSION,
@@ -1029,6 +1028,7 @@ void GameServ::cmd_on_user_enter_room(
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
 			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
+			Errorf("...");
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -1042,6 +1042,7 @@ void GameServ::cmd_on_user_enter_room(
 			const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 			DelContext(pre_header_->userId);
 			REDISCLIENT.DelOnlineInfo(pre_header_->userId);
+			Errorf("...");
 			SendGameErrorCode(conn,
 				::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 				::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -1072,25 +1073,6 @@ void GameServ::cmd_on_user_enter_room(
 //					if (player->GetUserId() != INVALID_USER ||
 //						player->GetTableId() != INVALID_TABLE ||
 //						player->GetChairId() != INVALID_CHAIR) {
-//						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
-						//DelContext(pre_header_->userId);
-						//REDISCLIENT.DelOnlineInfo(pre_header_->userId);
-//						if (table->GetPlayerCount() == 0) {
-//#define DEL_TABLE_BY_TABLEID_
-//#ifdef DEL_TABLE_BY_TABLEID_
-//							CTableMgr::get_mutable_instance().Delete(table->GetTableId());
-//#else
-//							CTableMgr::get_mutable_instance().Delete(table);
-//#endif
-//						}
-//						muduo::net::TcpConnectionPtr conn(weakConn.lock());
-//						if (conn) {
-//							SendGameErrorCode(conn,
-//								::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
-//								::GameServer::SUB_S2C_ENTER_ROOM_RES,
-//								ERROR_ENTERROOM_TABLE_FULL,
-//								"ERROR_ENTERROOM_TABLE_FULL", pre_header_, header_);
-//						}
 //						return;
 //					}
 					//table->assertThisThread();
@@ -1101,9 +1083,13 @@ void GameServ::cmd_on_user_enter_room(
 						const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 						DelContext(pre_header_->userId);
 						REDISCLIENT.DelOnlineInfo(pre_header_->userId);
+#ifdef DEL_PLAYER_BY_ID_
+						CPlayerMgr::get_mutable_instance().Delete(pre_header_->userId);
+#else
+						CPlayerMgr::get_mutable_instance().Delete(player);
+#endif
 						if (table->GetPlayerCount() == 0) {
-#define DEL_TABLE_BY_TABLEID_
-#ifdef DEL_TABLE_BY_TABLEID_
+#ifdef DEL_TABLE_BY_ID_
 							CTableMgr::get_mutable_instance().Delete(table->GetTableId());
 #else
 							CTableMgr::get_mutable_instance().Delete(table);
@@ -1111,6 +1097,7 @@ void GameServ::cmd_on_user_enter_room(
 						}
 						muduo::net::TcpConnectionPtr conn(weakConn.lock());
 						if (conn) {
+							Errorf("...");
 							SendGameErrorCode(conn,
 								::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 								::GameServer::SUB_S2C_ENTER_ROOM_RES,
@@ -1121,9 +1108,15 @@ void GameServ::cmd_on_user_enter_room(
 				}, conn, buf, table, player, userInfo));
 			}
 			else {
+#ifdef DEL_PLAYER_BY_ID_
+				CPlayerMgr::get_mutable_instance().Delete(pre_header_->userId);
+#else
+				CPlayerMgr::get_mutable_instance().Delete(player);
+#endif
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				DelContext(pre_header_->userId);
 				REDISCLIENT.DelOnlineInfo(pre_header_->userId);
+				Errorf("...");
 				SendGameErrorCode(conn,
 					::Game::Common::MAIN_MESSAGE_CLIENT_TO_GAME_SERVER,
 					::GameServer::SUB_S2C_ENTER_ROOM_RES,

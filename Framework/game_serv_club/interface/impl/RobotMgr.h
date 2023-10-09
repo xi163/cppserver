@@ -6,6 +6,8 @@
 #include "ITableContext.h"
 #include "Robot.h"
 
+//#define DEL_ROBOT_BY_ID_
+
 class CRobotMgr : public boost::serialization::singleton<CRobotMgr> {
 public:
 	CRobotMgr();
