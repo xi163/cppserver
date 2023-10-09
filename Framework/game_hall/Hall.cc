@@ -479,9 +479,9 @@ void HallServ::onMessage(
 	conn->getLoop()->assertInLoopThread();
 	while (buf->readableBytes() >= packet::kMinPacketSZ) {
 		const uint16_t len = buf->peekInt16(true);
-		if (likely(len > packet::kMaxPacketSZ ||
-			len < packet::kPrevHeaderLen + packet::kHeaderLen ||
-			buf->readableBytes() < packet::kPrevHeaderLen + packet::kHeaderLen)) {
+		if (unlikely(len > packet::kMaxPacketSZ ||
+					 len < packet::kPrevHeaderLen + packet::kHeaderLen)) {
+			ASSERT_V(false, "len:%d bufsize:%d", len, buf->readableBytes());
 			if (conn) {
 #if 0
 				//不再发送数据
@@ -492,7 +492,8 @@ void HallServ::onMessage(
 			}
 			break;
 		}
-		else if (likely(len <= buf->readableBytes())) {
+		else if (likely(len <= buf->readableBytes() &&
+						len >= packet::kPrevHeaderLen + packet::kHeaderLen)) {
 			BufferPtr buffer(new muduo::net::Buffer(len));
 			buffer->append(buf->peek(), static_cast<size_t>(len));
 			buf->retrieve(len);
@@ -512,8 +513,8 @@ void HallServ::onMessage(
 					muduo::net::WeakTcpConnectionPtr(conn), buffer, receiveTime));
 		}
 		//数据包不足够解析，等待下次接收再解析
-		else {
-			Errorf("error");
+		else /*if (unlikely(len > buf->readableBytes()))*/ {
+			Errorf("len:%d bufsize:%d", len, buf->readableBytes());
 			break;
 		}
 	}

@@ -175,10 +175,11 @@ void GateServ::onMessage(
 	}
 	case muduo::net::websocket::MessageT::TyBinaryMessage: {
 		const uint16_t len = buf->peekInt16(true);
-		if (likely(len > packet::kMaxPacketSZ ||
-			len < packet::kHeaderLen)) {
+		if (unlikely(len > packet::kMaxPacketSZ ||
+					 len < packet::kHeaderLen)) {
+			//ASSERT_V(false, "len:%d bufsize:%d", len, buf->readableBytes());
+			Errorf("len:%d bufsize:%d", len, buf->readableBytes());
 			if (conn) {
-				Errorf("len:%d bufsize:%d", len, buf->readableBytes());
 #if 0
 				//不再发送数据
 				conn->shutdown();
@@ -188,7 +189,8 @@ void GateServ::onMessage(
 			}
 			numTotalBadReq_.incrementAndGet();
 		}
-		else if (likely(len <= buf->readableBytes())) {
+		else if (likely(len <= buf->readableBytes() &&
+						len >= packet::kHeaderLen)) {
 			Context& entryContext = boost::any_cast<Context&>(conn->getContext());
 			EntryPtr entry(entryContext.getWeakEntryPtr().lock());
 			if (entry) {
@@ -213,9 +215,9 @@ void GateServ::onMessage(
 			}
 		}
 		//数据包不足够解析，等待下次接收再解析
-		else {
+		else /*if (unlikely(len > buf->readableBytes()))*/ {
+			Errorf("len:%d bufsize:%d", len, buf->readableBytes());
 			if (conn) {
-				Errorf("len:%d bufsize:%d", len, buf->readableBytes());
 #if 0
 				//不再发送数据
 				conn->shutdown();
