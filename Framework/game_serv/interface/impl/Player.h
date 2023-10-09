@@ -25,6 +25,7 @@ public:
 	/// </summary>
 	/// <param name="mainId"></param>
 	/// <param name="subId"></param>
+	/// <param name="data"></param>
 	/// <param name="len"></param>
 	/// <returns></returns>
 	virtual bool SendUserMessage(uint8_t mainId, uint8_t subId, uint8_t const* data, size_t len);
@@ -48,8 +49,7 @@ public:
 	virtual inline uint16_t GetChairId() { return chairId_; }
 	virtual inline void SetChairId(uint16_t chairId) { chairId_ = chairId; }
 	virtual inline int64_t GetUserScore() { return baseInfo_->userScore; }
-	virtual inline void SetUserScore(int64_t userScore) { baseInfo_->user
-	/// <param name="data"></param>Score = userScore; }
+	virtual inline void SetUserScore(int64_t userScore) { baseInfo_->userScore = userScore; }
 	virtual inline void SetCurTakeScore(int64_t score) { }
 	virtual inline int64_t GetCurTakeScore() { return 0; }
 	virtual inline void SetAutoSetScore(bool autoSet) { }
