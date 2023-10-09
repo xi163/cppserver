@@ -240,7 +240,7 @@ void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn) {
 	{
 		//LOG_WARN << "TcpClient::connect[" << name_ << "] - Reconnecting to "
 		//         << connector_->serverAddress().toIpPort();
-
+		Tracef("Reconnecting to %s", connector_->serverAddress().toIpPort().c_str());
 		//maybe that connector_->restart after TcpClient::dtor
 		RunInLoop(loop_, std::bind(&Connector::restart, connector_));
 	}
@@ -300,7 +300,7 @@ void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn)
 	{
 		//LOG_WARN << "TcpClient::connect[" << name_ << "] - Reconnecting to "
 		//         << connector_->serverAddress().toIpPort();
-
+		Tracef("Reconnecting to %s", connector_->serverAddress().toIpPort().c_str());
 		//maybe that connector_->restart after TcpClient::dtor
 		RunInLoop(loop_, std::bind(&Connector::restart, connector_));
 	}
@@ -363,7 +363,7 @@ void TcpClient::removeConnectionInLoop(const TcpConnectionPtr& conn)
   {
     //LOG_WARN << "TcpClient::connect[" << name_ << "] - Reconnecting to "
     //         << connector_->serverAddress().toIpPort();
-
+	Tracef("Reconnecting to %s", connector_->serverAddress().toIpPort().c_str());
     //maybe that connector_->restart after TcpClient::dtor
     connector_->restart();
   }
