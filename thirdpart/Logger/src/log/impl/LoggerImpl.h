@@ -144,7 +144,14 @@ namespace LOGGER {
 		utils::Timer timer_;
 	};
 	template <typename T>
-	T* _FatalNotNull(int level, char const* file, int line, char const* func, char const* stack, T* ptr, char const* msg) {
+	T _FatalNotNull(int level, char const* file, int line, char const* func, char const* stack, T ptr, char const* msg) {
+		if (ptr == NULL) {
+			::LOGGER::LoggerImpl::instance()->write_fatal_s(level, file, line, func, stack, F_DETAIL | F_SYNC, msg);
+		}
+		return ptr;
+	}
+	template <typename T>
+	T& _FatalNotNullRef(int level, char const* file, int line, char const* func, char const* stack, T& ptr, char const* msg) {
 		if (ptr == NULL) {
 			::LOGGER::LoggerImpl::instance()->write_fatal_s(level, file, line, func, stack, F_DETAIL | F_SYNC, msg);
 		}

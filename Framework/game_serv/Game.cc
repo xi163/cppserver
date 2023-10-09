@@ -903,7 +903,7 @@ void GameServ::cmd_on_user_enter_room(
 			return;
 		}
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
-		if (player && player->Valid()) {
+		if (player) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
 			if (table) {
 				RunInLoop(table->GetLoop(), CALLBACK_0([this](

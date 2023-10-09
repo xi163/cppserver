@@ -171,11 +171,17 @@ size_t CTableMgr::UsedCount() {
 /// <param name="tableId"></param>
 /// <returns></returns>
 std::shared_ptr<CTable> CTableMgr::Get(uint16_t tableId) {
+	switch (tableId)
 	{
+	case INVALID_TABLE:
+		break;
+	default: {
 		//READ_LOCK(mutex_);
 		if (tableId < items_.size()) {
 			return items_[tableId];
 		}
+		break;
+	}
 	}
 	return std::shared_ptr<CTable>();
 }
@@ -187,7 +193,11 @@ std::shared_ptr<CTable> CTableMgr::Get(uint16_t tableId) {
 /// <param name="tableId"></param>
 /// <returns></returns>
 std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& player, uint16_t tableId) {
+	switch (tableId)
 	{
+	case INVALID_TABLE:
+		break;
+	default: {
 		//READ_LOCK(mutex_);
 		if (tableId < items_.size()) {
 			std::shared_ptr<CTable> table = items_[tableId];
@@ -198,6 +208,8 @@ std::shared_ptr<CTable> CTableMgr::GetSuit(std::shared_ptr<CPlayer> const& playe
 				return table;
 			} while (0);
 		}
+		break;
+	}
 	}
 	return std::shared_ptr<CTable>();
 }

@@ -19,11 +19,14 @@ public:
 	void resetAll() {
 	
 	}
+	int i;
 };
 
-
 int main() {
-	
+	std::unique_ptr <Context> ctx;// (new Context(0));
+
+	ASSERT_NOTNULL_REF(ctx)->i;
+
 	uint16_t xx = 0xFFFF;
 	Debugf("%d", xx);
 	

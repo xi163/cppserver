@@ -14,6 +14,8 @@ CPlayerMgr::~CPlayerMgr() {
 }
 
 std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
+	ASSERT(userId != INVALID_USER);
+	ASSERT(userId > 0);
 	std::shared_ptr<CPlayer> player;
 #ifdef _USE_SHARED_MUTEX_
 	MY_TRY(); {
@@ -106,6 +108,8 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 }
 
 std::shared_ptr<CPlayer> CPlayerMgr::Get(int64_t userId) {
+	ASSERT(userId != INVALID_USER);
+	ASSERT(userId > 0);
 	{
 #ifdef _USE_SHARED_MUTEX_
 		READ_LOCK(mutex_);
@@ -125,6 +129,7 @@ std::shared_ptr<CPlayer> CPlayerMgr::Get(int64_t userId) {
 //一个userId占用多个CPlayer对象?
 void CPlayerMgr::Delete(int64_t userId) {
 	ASSERT(userId != INVALID_USER);
+	ASSERT(userId > 0);
 	{
 #ifdef _USE_SHARED_MUTEX_
 		WRITE_LOCK(mutex_);
@@ -153,6 +158,7 @@ void CPlayerMgr::Delete(int64_t userId) {
 void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 	int64_t userId = player->GetUserId();
 	ASSERT(userId != INVALID_USER);
+	ASSERT(userId > 0);
 	{
 #ifdef _USE_SHARED_MUTEX_
 		WRITE_LOCK(mutex_);

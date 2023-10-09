@@ -5,9 +5,12 @@
 
 #ifdef NDEBUG
 	#define ASSERT_NOTNULL(ptr) (ptr)
+	#define ASSERT_NOTNULL_REF(ptr) (ptr)
 #else
 	#define ASSERT_NOTNULL(ptr) \
 		LOGGER::FatalNotNull(PARAM_FATAL, (ptr), "'" #ptr "' Must be non NULL")
+	#define ASSERT_NOTNULL_REF(ptr) \
+		LOGGER::FatalNotNullRef(PARAM_FATAL, (ptr), "'" #ptr "' Must be non NULL")
 #endif
 
 // ASSERT
