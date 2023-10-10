@@ -374,11 +374,11 @@ void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, u
                 int64_t userId = player->GetUserId();
                 if (!OnUserStandup(player, sendState, sendToSelf, sendErrCode)) {
                     ok = false;
-                    Errorf("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
+                    Errorf("%d %s %d %d err, sPlaying!", tableState_.tableId, (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
                 }
                 else {
                     ++c;
-                    Errorf("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
+                    Errorf("%d %s %d %d ok", tableState_.tableId, (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
                 }
             }
         }
@@ -401,10 +401,10 @@ void CTable::ClearTableUser(uint16_t chairId, bool sendState, bool sendToSelf, u
         if (player && player->Valid()) {
             int64_t userId = player->GetUserId();
             if (!OnUserStandup(player, sendState, sendToSelf, sendErrCode)) {
-                Errorf("%s %d %d err, sPlaying!", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
+                Errorf("%d %s %d %d err, sPlaying!", tableState_.tableId, (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
             }
             else {
-                Errorf("%s %d %d ok", (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
+                Errorf("%d %s %d %d ok", tableState_.tableId, (player->IsRobot() ? "<robot>" : "<real>"), chairId, userId);
 				if (GetPlayerCount() == 0) {
 					if (tableContext_->GetGameInfo()->gameType == GameType_Confrontation) {
 #ifdef DEL_TABLE_BY_ID_
@@ -793,7 +793,7 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
 		//ASSERT(player.get() == GetChairPlayer(chairId).get());
 		switch (player->IsRobot()) {
 		case true:
-			Warnf("<robot> %d %d", chairId, userId);
+			//Warnf("%d <robot> %d %d", tableState_.tableId, chairId, userId);
 			//清理机器人数据
 #ifdef DEL_ROBOT_BY_ID_
 			CRobotMgr::get_mutable_instance().Delete(userId);
@@ -837,7 +837,7 @@ bool CTable::OnUserStandup(std::shared_ptr<CPlayer> const& player, bool sendStat
 				response.set_errormsg("游戏维护请进入其他房间");
 				send(player, &response, mainId, subId);
 			}
-			Warnf("<real> %d %d", chairId, userId);
+			//Warnf("%d <real> %d %d", tableState_.tableId, chairId, userId);
 			//清理真人数据
 			tableContext_->DelContext(userId);
 			DelOnlineInfo(userId);

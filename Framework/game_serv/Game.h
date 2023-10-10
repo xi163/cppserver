@@ -118,7 +118,7 @@ public:
 		packet::header_t const* header_);
 	void DelContext(int64_t userId);
 	void DelContextInLoop(int64_t userId);
-	bool IsStopped() { return false; }
+	bool Stopping() { return false; }
 public:
 	bool SendGameErrorCode(
 		const muduo::net::TcpConnectionPtr& conn,

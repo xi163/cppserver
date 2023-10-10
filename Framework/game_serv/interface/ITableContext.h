@@ -25,7 +25,7 @@ public:
 	virtual void KickUser(int64_t userId, int32_t kickType) = 0;
 	virtual TableContext GetContext(int64_t userId) = 0;
 	virtual void DelContext(int64_t userId) = 0;
-	virtual bool IsStopped() = 0;
+	virtual bool Stopping() = 0;
 	virtual void send(
 		const muduo::net::TcpConnectionPtr& conn,
 		uint8_t const* msg, size_t len,
