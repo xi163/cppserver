@@ -16,7 +16,8 @@ CPlayer::~CPlayer() {
 }
 
 void CPlayer::Reset() {
-	baseInfo_.reset(new UserBaseInfo());
+	//baseInfo_.reset(new UserBaseInfo());
+	baseInfo_->userId = INVALID_USER;
 	tableId_ = INVALID_TABLE;
 	chairId_ = INVALID_CHAIR;
 	status_ = sFree;

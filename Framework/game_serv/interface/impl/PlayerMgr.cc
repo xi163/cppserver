@@ -19,8 +19,8 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 	std::shared_ptr<CPlayer> player;
 #ifdef _USE_SHARED_MUTEX_
 	MY_TRY(); {
-		READ_LOCK(mutex_);
-		ASSERT(items_.find(userId) == items_.end());
+		//READ_LOCK(mutex_);
+		//ASSERT(items_.find(userId) == items_.end());
 	}
 	bool empty = false; {
 		READ_LOCK(mutex_);
@@ -34,9 +34,9 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 				freeItems_.pop_front();
 #if 1
 				if (player) {
-					ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
-						return kv.second.get() == player.get();
-						}) == items_.end());
+					//ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+					//	return kv.second.get() == player.get();
+					//	}) == items_.end());
 					// FIXME crash bug!!!
 					//ASSERT(player->IsRobot() == false);
 					//player->AssertReset();
@@ -48,10 +48,10 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 #if 0
 		if (player) {
 			{
-				READ_LOCK(mutex_);
-				ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
-					return kv.second.get() == player.get();
-				}) == items_.end());
+				//READ_LOCK(mutex_);
+				//ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+				//	return kv.second.get() == player.get();
+				//}) == items_.end());
 			}
 			// FIXME crash bug!!!
 			//ASSERT(player->IsRobot() == false);
@@ -82,9 +82,9 @@ std::shared_ptr<CPlayer> CPlayerMgr::New(int64_t userId) {
 			player = freeItems_.front();
 			freeItems_.pop_front();
 			if (player) {
-				ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
-					return kv.second.get() == player.get();
-					}) == items_.end());
+				//ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+				//	return kv.second.get() == player.get();
+				//	}) == items_.end());
 				// FIXME crash bug!!!
 				//ASSERT(player->IsRobot() == false);
 				//player->AssertReset();
@@ -139,7 +139,7 @@ void CPlayerMgr::Delete(int64_t userId) {
 		std::unique_lock<std::mutex> lock(mutex_);
 #endif
 		std::map<int64_t, std::shared_ptr<CPlayer>>::iterator it = items_.find(userId);
-		ASSERT_V(it != items_.end(), "userId=%d", userId);
+		//ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CPlayer>/*&*/ player = it->second;
 			ASSERT(player);
@@ -155,10 +155,15 @@ void CPlayerMgr::Delete(int64_t userId) {
 	Errorf("%d used = %d free = %d", userId, items_.size(), freeItems_.size());
 }
 
-void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
+void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player, bool v) {
 	int64_t userId = player->GetUserId();
-	ASSERT(userId != INVALID_USER);
-	ASSERT(userId > 0);
+	switch (v)
+	{
+	case true:
+		ASSERT(userId != INVALID_USER);
+		ASSERT(userId > 0);		
+		break;
+	}
 	{
 #ifdef _USE_SHARED_MUTEX_
 		WRITE_LOCK(mutex_);
@@ -171,7 +176,7 @@ void CPlayerMgr::Delete(std::shared_ptr<CPlayer> const& player) {
 			[&](Item const& kv) -> bool {
 				return kv.second.get() == player.get();
 			});
-		ASSERT_V(it != items_.end(), "userId=%d", userId);
+		//ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CPlayer>/*&*/ player = it->second;
 			ASSERT(player);

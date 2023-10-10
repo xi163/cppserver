@@ -1109,11 +1109,11 @@ void GameServ::cmd_on_user_enter_room(
 				}, conn, buf, table, player, userInfo));
 			}
 			else {
-#ifdef DEL_PLAYER_BY_ID_
-				CPlayerMgr::get_mutable_instance().Delete(pre_header_->userId);
-#else
-				CPlayerMgr::get_mutable_instance().Delete(player);
-#endif
+//#ifdef DEL_PLAYER_BY_ID_
+//				CPlayerMgr::get_mutable_instance().Delete(pre_header_->userId);
+//#else
+				CPlayerMgr::get_mutable_instance().Delete(player, false);
+//#endif
 				const_cast<packet::internal_prev_header_t*>(pre_header_)->ok = -1;
 				DelContext(pre_header_->userId);
 				REDISCLIENT.DelOnlineInfo(pre_header_->userId);

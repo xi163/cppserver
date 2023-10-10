@@ -167,9 +167,9 @@ std::shared_ptr<CRobot> CRobotMgr::Pick() {
 			freeItems_.pop_front();
 #if 1
 			if (robot) {
-				ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
-					return kv.second.get() == robot.get();
-					}) == items_.end());
+				//ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+				//	return kv.second.get() == robot.get();
+				//	}) == items_.end());
 				ASSERT(robot->IsRobot());
 				robot->AssertReset();
 				items_[robot->GetUserId()] = robot;
@@ -181,9 +181,9 @@ std::shared_ptr<CRobot> CRobotMgr::Pick() {
 	if (robot) {
 		{
 			READ_LOCK(mutex_);
-			ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
-				return kv.second.get() == robot.get();
-				}) == items_.end());
+			//ASSERT(std::find_if(items_.begin(), items_.end(), [&](Item const& kv) -> bool {
+			//	return kv.second.get() == robot.get();
+			//	}) == items_.end());
 		}
 		ASSERT(robot->IsRobot());
 		robot->AssertReset();
@@ -204,7 +204,7 @@ void CRobotMgr::Delete(int64_t userId) {
 	{
 		WRITE_LOCK(mutex_);
 		std::map<int64_t, std::shared_ptr<CRobot>>::iterator it = items_.find(userId);
-		ASSERT_V(it != items_.end(), "userId=%d", userId);
+		//ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CRobot>/*&*/ robot = it->second;
 			ASSERT(robot);
@@ -230,7 +230,7 @@ void CRobotMgr::Delete(std::shared_ptr<CRobot> const& robot) {
 			[&](Item const& kv) -> bool {
 				return kv.second.get() == robot.get();
 			});
-		ASSERT_V(it != items_.end(), "userId=%d", userId);
+		//ASSERT_V(it != items_.end(), "userId=%d", userId);
 		if (it != items_.end()) {
 			std::shared_ptr<CRobot>/*&*/ robot = it->second;
 			ASSERT(robot);

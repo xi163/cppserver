@@ -40,7 +40,7 @@ public:
 	/// 回收
 	/// </summary>
 	/// <param name="player"></param>
-	void Delete(std::shared_ptr<CPlayer> const& player);
+	void Delete(std::shared_ptr<CPlayer> const& player, bool v = true);
 protected:
 	typedef std::pair<int64_t, std::shared_ptr<CPlayer>> Item;
 	std::map<int64_t, std::shared_ptr<CPlayer>> items_;
