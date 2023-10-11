@@ -1069,6 +1069,7 @@ void GameServ::cmd_on_user_enter_room(
 					strncmp(
 						reqdata.servid().c_str(), nodeValue_.c_str(),
 						std::min(reqdata.servid().size(), nodeValue_.size())) == 0 && reqdata.tableid() >= 0) {
+					Tracef("%d %d %s %d", pre_header_->userId, reqdata.clubid(), reqdata.servid().c_str(), reqdata.tableid());
 					table = CTableMgr::get_mutable_instance().GetSuit(player, reqdata.clubid(), reqdata.tableid());
 				}
 				else {
@@ -1125,7 +1126,7 @@ void GameServ::cmd_on_user_enter_room(
 				}, conn, buf, table, player, userInfo));
 			}
 			else {
-				ASSERT_V(false, "clubid:%d servid:%s tableid:%d", reqdata.clubid(), reqdata.servid().c_str(), reqdata.tableid());
+				//ASSERT_V(false, "%d %d %s %d", pre_header_->userId, reqdata.clubid(), reqdata.servid().c_str(), reqdata.tableid());
 //#ifdef DEL_PLAYER_BY_ID_
 //				CPlayerMgr::get_mutable_instance().Delete(pre_header_->userId);
 //#else
