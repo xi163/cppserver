@@ -271,7 +271,7 @@ bool GameServ::InitServer() {
 
 void GameServ::checkClubTables() {
 	mgo::LoadGameClubInfos(
-		document{} << "clubid" << 1 << finalize,
+		document{} << "clubid" << 1 << "clubname" << 1 << finalize,
 		document{} << "status" << b_int32{ 1 } << finalize, clubInfos_);
 	for (std::vector<tagGameClubInfo>::const_iterator it = clubInfos_.begin(); it != clubInfos_.end(); ++it) {
 		std::map<int64_t, int>::const_iterator ir = ClubTables_.find(it->clubId);
@@ -298,6 +298,10 @@ void GameServ::checkClubTables() {
 				}
 				if (c > 0) {
 					ClubTables_[it->clubId] = c;
+					Infof("%d %s 启用桌子数:%d", it->clubId, it->clubName.c_str(), c);
+				}
+				else {
+					Errorf("%d %s 启用桌子数:%d", it->clubId, it->clubName.c_str(), c);
 				}
 				break;
 			}
