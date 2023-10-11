@@ -129,6 +129,8 @@ void GateServ::asyncHallHandler(
 					old->getLoop()->runAfter(0.2f, [&]() {
 						entry_.reset();
 						});
+#elif 1
+					old->forceClose();
 #else
 					old->forceCloseWithDelay(0.2f);
 #endif
@@ -251,6 +253,8 @@ void GateServ::onUserLoginNotify(std::string const& msg) {
 					old->getLoop()->runAfter(0.2f, [&]() {
 						entry_.reset();
 						});
+#elif 1
+					old->forceClose();
 #else
 					old->forceCloseWithDelay(0.2f);
 #endif

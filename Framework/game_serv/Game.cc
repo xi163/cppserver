@@ -1138,7 +1138,6 @@ void GameServ::cmd_on_user_ready(
 	if (reqdata.ParseFromArray(msg, msgLen)) {
 		::GameServer::MSG_S2C_UserReadyMessageResponse rspdata;
 		rspdata.mutable_header()->CopyFrom(reqdata.header());
-
 		std::shared_ptr<CPlayer> player = CPlayerMgr::get_mutable_instance().Get(pre_header_->userId);
 		if (player) {
 			std::shared_ptr<CTable> table = CTableMgr::get_mutable_instance().Get(player->GetTableId());
@@ -1309,8 +1308,7 @@ void GameServ::cmd_on_user_offline(
 				table->OnUserOffline(player);
 			}, conn, buf, table, player));
 		}
-		else {
-		}
+		break;
 	}
 }
 
