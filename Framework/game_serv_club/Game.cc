@@ -940,12 +940,12 @@ void GameServ::cmd_on_user_enter_room(
 					player->setTrustee(false);
 					if (player->isOffline()) {
 						Warnf("[%s][%d][%s] %d %d 断线重连进房间",
-							table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
+							table->GetRoundId().c_str(), table->GetTableId(), table->GetGameStatusStr().c_str(),
 							player->GetChairId(), player->GetUserId());
 					}
 					else {
 						Warnf("[%s][%d][%s] %d %d 异地登陆进房间",
-							table->GetRoundId().c_str(), table->GetTableId(), table->StrGameStatus().c_str(),
+							table->GetRoundId().c_str(), table->GetTableId(), table->GetGameStatusStr().c_str(),
 							player->GetChairId(), player->GetUserId());
 					}
 					table->assertThisThread();

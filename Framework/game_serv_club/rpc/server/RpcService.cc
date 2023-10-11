@@ -36,6 +36,7 @@ namespace rpc {
 					::club::game::room::table::info* tableInfo = rsp.add_tables();
 					tableInfo->set_tableid(table->GetTableId());
 					tableInfo->set_gamestatus(table->GetGameStatus());
+					tableInfo->set_gamestatusstr(table->GetGameStatusStr());
 					//userInfos
 					std::vector<std::shared_ptr<CPlayer>> items;
 					table->GetPlayers(items);

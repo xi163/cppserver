@@ -92,6 +92,19 @@ std::string CGameTable::GetRoundId() {
 	return strRoundID_;
 }
 
+std::string CGameTable::GetGameStatusStr() {
+	switch (table_->GetGameStatus()) {
+	case GAME_STATUS_INIT: return "初始化";
+	case GAME_STATUS_READY: return "准备中";
+	case GAME_STATUS_START: return "游戏开始";
+	case GAME_STATUS_GROUP: return "理牌中";
+	case GAME_STATUS_OPEN: return "开牌中";
+	case GAME_STATUS_PREEND:
+	case GAME_STATUS_END: return "游戏结束";
+	}
+	return "nil";
+}
+
 void CGameTable::Reposition() {
 }
 

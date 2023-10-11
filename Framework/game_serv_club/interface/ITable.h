@@ -40,7 +40,7 @@ public:
 	virtual bool ExistUser(uint16_t chairId) = 0;
 	virtual void SetGameStatus(uint8_t status) = 0;
 	virtual uint8_t GetGameStatus() = 0;
-	virtual std::string StrGameStatus() = 0;
+	virtual std::string GetGameStatusStr() = 0;
 	virtual void SetUserTrustee(uint16_t chairId, bool trustee) = 0;
 	virtual bool GetUserTrustee(uint16_t chairId) = 0;
 	virtual void SetUserReady(uint16_t chairId) = 0;

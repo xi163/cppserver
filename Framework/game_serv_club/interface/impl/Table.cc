@@ -504,7 +504,8 @@ uint8_t CTable::GetGameStatus() {
     return status_;
 }
 
-std::string CTable::StrGameStatus() {
+std::string CTable::GetGameStatusStr() {
+#if 0
     switch (status_) {
     case GAME_STATUS_INIT:
         return "INIT";
@@ -517,6 +518,9 @@ std::string CTable::StrGameStatus() {
         return "START";
     }
     return "";
+#else
+    return tableDelegate_->GetGameStatusStr();
+#endif
 }
 
 bool CTable::CanJoinTable(std::shared_ptr<CPlayer> const& player) {

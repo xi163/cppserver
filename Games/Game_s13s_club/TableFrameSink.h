@@ -90,6 +90,7 @@ public:
     ~CGameTable(void);
 public:
 	virtual std::string GetRoundId();
+	virtual std::string GetGameStatusStr();
     //游戏开始
     virtual void OnGameStart();
     //游戏结束

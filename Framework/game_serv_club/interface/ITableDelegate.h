@@ -24,7 +24,13 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	virtual std::string GetRoundId() = 0;
-
+	
+	/// <summary>
+	/// 返回桌子游戏状态名
+	/// </summary>
+	/// <returns></returns>
+	virtual std::string GetGameStatusStr() = 0;
+	
 	/// <summary>
 	/// 绑定桌子
 	/// </summary>
