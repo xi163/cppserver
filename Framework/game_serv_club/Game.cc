@@ -278,7 +278,7 @@ void GameServ::checkClubTables() {
 		if (ir == ClubTables_.end()) {
 			switch (gameInfo_.gameType) {
 			case GameType_BaiRen: {
-				int c = 0, n = RANDOM().betweenInt(1, std::min(initMaxTablesPerClub_, roomInfo_.tableCount));
+				int c = 0, n = RANDOM().betweenInt(1, std::min<int>(initMaxTablesPerClub_, roomInfo_.tableCount)).randInt_mt();
 				for (int i = 0; i < n; ++i) {
 					if (CTableMgr::get_mutable_instance().New(it->clubId)) {
 						++c;
@@ -290,7 +290,7 @@ void GameServ::checkClubTables() {
 				break;
 			}
 			case GameType_Confrontation: {
-				int c = 0, n = RANDOM().betweenInt(1, std::min(initMaxTablesPerClub_, roomInfo_.tableCount));
+				int c = 0, n = RANDOM().betweenInt(1, std::min<int>(initMaxTablesPerClub_, roomInfo_.tableCount)).randInt_mt();
 				for (int i = 0; i < n; ++i) {
 					if (CTableMgr::get_mutable_instance().New(it->clubId)) {
 						++c;
