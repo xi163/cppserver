@@ -146,9 +146,20 @@ void CTableThread::checkUserIn() {
 				break;
 			}
 			case GameType_Confrontation: {
-				if (realCount == 0 || table->GetGameStatus() >= GAME_STATUS_START) {
-					continue;
-				}
+				//if (realCount == 0 || table->GetGameStatus() >= GAME_STATUS_START) {
+				//	continue;
+				//}
+				//static struct _w_init_t {
+				//	_w_init_t(int a, int b) {
+				//		int weight[2] = { a, b };
+				//		weight_.init(weight, 2);
+				//		weight_.shuffle();
+				//	}
+				//	STD::Weight weight_;
+				//}_w(20, 80);
+				//if (1 == _w.weight_.getResult()) {
+				//	return;
+				//}
 				//对战游戏匹配前3.6秒都必须等待玩家加入桌子，禁入机器人，定时器到时空缺的机器人一次性填补
 				//如果定时器触发前，真实玩家都齐了，秒开
 				std::shared_ptr<CRobot> robot = std::make_shared<CRobot>();//ctor

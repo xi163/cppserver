@@ -167,6 +167,12 @@ public:
 	std::map<std::string, std::set<int64_t>> mapGateUsers_;
 	mutable boost::shared_mutex mutexGateUsers_;
 	
+	void checkClubTables();
+	int initMaxTablesPerClub_ = 10;
+	std::map<int64_t, int> ClubTables_;
+	std::vector<tagGameClubInfo> clubInfos_;
+	mutable boost::shared_mutex mutexClubInfos_;
+
 	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
 	bool et_ = false;

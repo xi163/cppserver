@@ -256,10 +256,6 @@ void GameServ::threadInit() {
 	//Warnf("redisLock%s", s.c_str());
 }
 
-//LoadGameClubInfos(
-//	builder::stream::document{} << "clubid" << 1 << finalize,
-//	builder::stream::document{} << "status" << b_int32{ 1 } << finalize,
-//	clubInfos_);
 bool GameServ::InitServer() {
 	switch (tracemsg_) {
 	case true:
@@ -271,6 +267,43 @@ bool GameServ::InitServer() {
 	}
 	Errorf("error");
 	return false;
+}
+
+void GameServ::checkClubTables() {
+	mgo::LoadGameClubInfos(
+		document{} << "clubid" << 1 << finalize,
+		document{} << "status" << b_int32{ 1 } << finalize, clubInfos_);
+	for (std::vector<tagGameClubInfo>::const_iterator it = clubInfos_.begin(); it != clubInfos_.end(); ++it) {
+		std::map<int64_t, int>::const_iterator ir = ClubTables_.find(it->clubId);
+		if (ir == ClubTables_.end()) {
+			switch (gameInfo_.gameType) {
+			case GameType_BaiRen: {
+				int c = 0, n = RANDOM().betweenInt(1, std::min(initMaxTablesPerClub_, roomInfo_.tableCount));
+				for (int i = 0; i < n; ++i) {
+					if (CTableMgr::get_mutable_instance().New(it->clubId)) {
+						++c;
+					}
+				}
+				if (c > 0) {
+					ClubTables_[it->clubId] = c;
+				}
+				break;
+			}
+			case GameType_Confrontation: {
+				int c = 0, n = RANDOM().betweenInt(1, std::min(initMaxTablesPerClub_, roomInfo_.tableCount));
+				for (int i = 0; i < n; ++i) {
+					if (CTableMgr::get_mutable_instance().New(it->clubId)) {
+						++c;
+					}
+				}
+				if (c > 0) {
+					ClubTables_[it->clubId] = c;
+				}
+				break;
+			}
+			}
+		}
+	}
 }
 
 void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
@@ -294,7 +327,9 @@ void GameServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 	thisTimer_->getLoop()->runAfter(5.0f, std::bind(&GameServ::registerZookeeper, this));
 	//thisTimer_->getLoop()->runAfter(3.0f, std::bind(&GameServ::db_refresh_game_room_info, this));
 	//thisTimer_->getLoop()->runAfter(30, std::bind(&GameServ::redis_refresh_room_player_nums, this));
-
+	if (roomInfo_.bEnableAndroid) {
+		thisTimer_->getLoop()->runAfter(5.0f, std::bind(&GameServ::checkClubTables, this));
+	}
 	CTableThreadMgr::get_mutable_instance().startCheckUserIn(this);
 }
 

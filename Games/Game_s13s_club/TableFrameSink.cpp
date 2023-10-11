@@ -135,8 +135,8 @@ void CGameTable::ClearAllTimer() {
 }
 
 int CGameTable::randomMaxAndroidCount() {
-	//return rand_.betweenInt(1, table_->GetRoomInfo()->maxAndroidCount).randInt_mt();
-	return table_->GetRoomInfo()->maxAndroidCount;
+	return rand_.betweenInt(1, table_->GetRoomInfo()->maxAndroidCount).randInt_mt();
+	//return table_->GetRoomInfo()->maxAndroidCount;
 }
 
 bool CGameTable::OnUserEnter(int64_t userId, bool islookon) {
@@ -209,15 +209,15 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		//游戏开始了机器人新玩家不准进入
 		if (table_->GetGameStatus() >= GAME_STATUS_START) {
 			if (table_->GetRobotPlayerCount() >= maxAndroid_) {
-				Errorf("....%d", player->GetUserId());
+				//Errorf("....%d", player->GetUserId());
 				return false;
 			}
 			static STD::Random r(1, 100);
 			if (r.randInt_mt() <= 20) {
-				Errorf("....%d", player->GetUserId());
+				//Errorf("....%d", player->GetUserId());
 				return true;
 			}
-			Errorf("....%d", player->GetUserId());
+			//Errorf("....%d", player->GetUserId());
 			return false;
 		}
 		//匹配真人时间或没有真人玩家，机器人不准进入
@@ -228,7 +228,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 //		}
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " " << table_->GetRobotPlayerCount() << "<" << maxAndroid_ << " true 1";
 		//根据房间机器人配置来决定补充多少机器人
-		Errorf("....%d", player->GetUserId());
+		//Errorf("....%d", player->GetUserId());
 		return table_->GetRobotPlayerCount() < maxAndroid_;
 	}
 	else if (!player->IsRobot() && player->GetUserId() == INVALID_USER && player->GetTableId() == INVALID_CHAIR) { //new real user enter
@@ -238,18 +238,18 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		//	return false;
 		//}
 		//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 2";
-		Errorf("....%d", player->GetUserId());
+		//Errorf("....%d", player->GetUserId());
 		return true;
 	}
 	else if (player->GetUserId() >= MIN_SYS_USER_ID) {//断线重连
 		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
 		if (userItem) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 3";
-			Errorf("....%d", player->GetUserId());
+			//Errorf("....%d", player->GetUserId());
 			return true;
 		}
 	}
-	Errorf("....%d", player->GetUserId());
+	//Errorf("....%d", player->GetUserId());
 	return false;
 }
 
@@ -297,7 +297,7 @@ bool CGameTable::OnUserLeft(int64_t userId, bool lookon) {
 		table_->ClearTableUser(chairId, true, true);
 		//匹配中没有真人玩家，清理腾出桌子
 		if (/*table_->GetGameStatus()*/gameStatus_ == GAME_STATUS_READY &&
-			table_->GetRealPlayerCount()/*table_->GetPlayerCount()*/ == 0) {
+			/*table_->GetRealPlayerCount()*/table_->GetPlayerCount() == 0) {
 			if (writeRealLog_) {
 				Infof("tableID[%d][%s] %s[%d][%d]已经离桌(real=%d AI=%d total=%d) 重置桌子",
 					table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), (isAndroid ? "AI" : "真人"), chairId, userId,
@@ -471,7 +471,7 @@ void CGameTable::GameTimerReadyOver() {
 	ThisThreadTimer->cancel(timerIdGameReadyOver_);
 	CheckGameStart();
 	//有真人玩家且够游戏人数，开始游戏
-	if (table_->GetRealPlayerCount() > 0 && table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
+	if (/*table_->GetRealPlayerCount() > 0 && */table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
 		InitGameData();
 		//游戏状态
 		table_->SetGameStatus(GAME_STATUS_START);
@@ -493,8 +493,8 @@ void CGameTable::GameTimerReadyOver() {
 		//开始游戏
 		OnGameStart();
 	}
-	else if (table_->GetRealPlayerCount() > 0) {
-	//else if (table_->GetPlayerCount() > 0) {
+	//else if (table_->GetRealPlayerCount() > 0) {
+	else if (table_->GetPlayerCount() > 0) {
 		if (writeRealLog_) {
 			Infof("tableID[%d][%s][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
 				table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(), strRoundID_.c_str(),
@@ -1217,7 +1217,7 @@ void CGameTable::OnTimerGameEnd() {
 	ClearAllTimer();
 	clearKickUsers();
 	//有真人玩家且够游戏人数，继续下一局游戏
-	if (table_->GetRealPlayerCount() > 0 && table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
+	if (/*table_->GetRealPlayerCount() > 0 && */table_->GetPlayerCount() >= MIN_GAME_PLAYER) {
 		if (writeRealLog_) {
 			Infof("[%s][%d][%s] 继续下一局游戏!",
 				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str());
@@ -1229,8 +1229,8 @@ void CGameTable::OnTimerGameEnd() {
 		maxAndroid_ = randomMaxAndroidCount();
 		timerIdGameReadyOver_ = ThisThreadTimer->runAfter(aniPlay_.Get_DELAY_time(GAME_STATUS_NEXT), boost::bind(&CGameTable::GameTimerReadyOver, this));
 	}
-	else if (table_->GetRealPlayerCount() > 0) {
-	//else if (table_->GetPlayerCount() > 0) {
+	//else if (table_->GetRealPlayerCount() > 0) {
+	else if (table_->GetPlayerCount() > 0) {
 		if (writeRealLog_) {
 			Infof("[%s][%d][%s] 不满最小游戏人数(real=%d AI=%d total=%d)，重新匹配!",
 				strRoundID_.c_str(), table_->GetTableId(), StringStat(table_->GetGameStatus()).c_str(),

@@ -23,7 +23,7 @@
 namespace S13S {
 	const int MaxCardTotal = 52;	//牌总个数，除去大小王，52张牌
 	const int MaxPlayer = 4;		//最多4人局
-	const int MinPlayer = 3;		//至少2人局
+	const int MinPlayer = 2;		//至少2人局
 	const int MaxCount = 13;		//每人13张牌
 	const int MaxRound = 1;			//最大局数
 
