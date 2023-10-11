@@ -164,6 +164,18 @@ namespace mgo {
 		document::view_or_value const& select,
 		document::view_or_value const& where,
 		std::map<in_addr_t, eApiVisit> infos);
+
+	bool GetPlayRecord(
+		int64_t skip, int64_t limit,
+		document::view_or_value const& select,
+		document::view_or_value const& where,
+		bsoncxx::document::view_or_value const& sort,
+		::HallServer::GetPlayRecordMessageResponse& rspdata);
+	
+	bool GetPlayRecordDetail(
+		document::view_or_value const& select,
+		document::view_or_value const& where,
+		::HallServer::GetRecordDetailResponse& rspdata);
 }
 
 #endif

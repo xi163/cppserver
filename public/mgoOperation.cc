@@ -3240,4 +3240,77 @@ namespace mgo {
 		MGO_CATCH();
 		return infos.size() > 0;
 	}
+
+	bool GetPlayRecord(
+		int64_t skip, int64_t limit,
+		document::view_or_value const& select,
+		document::view_or_value const& where,
+		bsoncxx::document::view_or_value const& sort,
+		::HallServer::GetPlayRecordMessageResponse& rspdata) {
+		mongocxx::cursor cursor = opt::Find(
+			mgoKeys::db::GAMEMAIN,
+			mgoKeys::tbl::PLAY_RECORD,
+			skip,limit,
+			select, where, sort);
+		MGO_TRY();
+		std::string roundid;
+		int32_t roomid = 0;
+		int64_t winscore = 0;
+		::time_point endTime;
+		int64_t endTimestamp = 0;
+		for (auto& view : cursor) {
+			roundid = view["gameinfoid"].get_utf8().value.to_string();//牌局编号
+			roomid = view["roomid"].get_int32();//房间号
+			winscore = view["winscore"].get_int64();//输赢分
+			endTime = view["gameendtime"].get_date();//结束时间
+			endTimestamp = STD::time_point(endTime).to_sec();//结束时间戳
+			::HallServer::GameRecordInfo* info = rspdata.add_detailinfo();
+			info->set_gameroundno(roundid);
+			info->set_roomid(roomid);
+			info->set_winlosescore(winscore);
+			info->set_gameendtime(endTimestamp);
+		}
+		rspdata.set_retcode(0);
+		rspdata.set_errormsg("CMD GET USER SCORE OK.");
+		return true;
+		MGO_CATCH();
+		return false;
+	}
+
+	bool GetPlayRecordDetail(
+		document::view_or_value const& select,
+		document::view_or_value const& where,
+		::HallServer::GetRecordDetailResponse& rspdata) {
+		MGO_TRY();
+		auto result = opt::FindOne(
+			mgoKeys::db::GAMEMAIN,
+			mgoKeys::tbl::GAME_REPLAY,
+			select, where);
+		if (!result) {
+		}
+		else {
+			document::view view = result->view();
+			std::string jsondata;
+			if (view["detail"]) {
+				switch (view["detail"].type()) {
+				case bsoncxx::type::k_null:
+					break;
+				case bsoncxx::type::k_utf8:
+					jsondata = view["detail"].get_utf8().value.to_string();
+					Errorf(jsondata.c_str());
+					rspdata.set_detailinfo(jsondata);
+					break;
+				case bsoncxx::type::k_binary:
+					rspdata.set_detailinfo(view["detail"].get_binary().bytes, view["detail"].get_binary().size);
+					break;
+				}
+			}
+			rspdata.set_retcode(0);
+			rspdata.set_errormsg("CMD GET GAME RECORD DETAIL OK.");
+			return true;
+		}
+		return false;
+		MGO_CATCH();
+		return false;
+	}
 }

@@ -1172,37 +1172,13 @@ void HallServ::cmd_get_play_record(
 		int64_t userId = pre_header_->userId;
 		int32_t gameid = reqdata.gameid();
 		rspdata.set_gameid(gameid);
-		try {
-			std::string roundid;//牌局编号
-			int32_t roomid = 0;//房间号
-			int64_t winscore = 0;//输赢分
-			std::chrono::system_clock::time_point endTime;//结束时间
-			int64_t endTimestamp = 0;//结束时间戳
-			//(userId, gameid)
-			mongocxx::options::find opts = mongocxx::options::find{};
-			opts.projection(document{} << "gameinfoid" << 1 << "roomid" << 1 << "winscore" << 1 << "gameendtime" << 1 << finalize);
-			opts.sort(document{} << "_id" << -1 << finalize);//"_id"字段排序
-			opts.limit(10); //显示最新10条
-			mongocxx::collection playCollection = MONGODBCLIENT["gamemain"]["play_record"];
-			mongocxx::cursor cursor = playCollection.find(document{} << "userid" << userId << "gameid" << gameid << finalize, opts);
-			for (auto& doc : cursor) {
-				roundid = doc["gameinfoid"].get_utf8().value.to_string();	//牌局编号
-				roomid = doc["roomid"].get_int32();							//房间号
-				winscore = doc["winscore"].get_int64();						//输赢分
-				endTime = doc["gameendtime"].get_date();					//结束时间
-				endTimestamp = (std::chrono::duration_cast<std::chrono::seconds>(endTime.time_since_epoch())).count();
-
-				::HallServer::GameRecordInfo* gameRecordInfo = rspdata.add_detailinfo();
-				gameRecordInfo->set_gameroundno(roundid);
-				gameRecordInfo->set_roomid(roomid);
-				gameRecordInfo->set_winlosescore(winscore);
-				gameRecordInfo->set_gameendtime(endTimestamp);
-			}
-			rspdata.set_retcode(0);
-			rspdata.set_errormsg("CMD GET USER SCORE OK.");
-		}
-		catch (std::exception& e) {
-			Errorf(e.what());
+		if (!mgo::GetPlayRecord(
+			0,
+			10,//显示最新10条
+			document{} << "gameinfoid" << 1 << "roomid" << 1 << "winscore" << 1 << "gameendtime" << 1 << finalize,
+			document{} << "userid" << userId << "gameid" << gameid << finalize,
+			document{} << "_id" << -1 << finalize,//"_id"字段排序
+			rspdata)) {
 			rspdata.set_retcode(1);
 			rspdata.set_errormsg("MongoDB  Error.");
 		}
@@ -1227,35 +1203,10 @@ void HallServ::cmd_get_play_record_detail(
 		rspdata.set_retcode(-1);
 		rspdata.set_errormsg("Not Exist.");
 		int64_t userId = pre_header_->userId;
-		try {
-			std::string jsondata;
-			mongocxx::collection replayCollection = MONGODBCLIENT["gamelog"]["game_replay"];
-			mongocxx::options::find opts = mongocxx::options::find{};
-			opts.projection(document{} << "detail" << 1 << finalize);
-			bsoncxx::stdx::optional<bsoncxx::document::value> result =
-				replayCollection.find_one(document{} << "gameinfoid" << roundid << finalize, opts);
-			if (result) {
-				bsoncxx::document::view view = result->view();
-				if (view["detail"]) {
-					switch (view["detail"].type()) {
-					case bsoncxx::type::k_null:
-						break;
-					case bsoncxx::type::k_utf8:
-						jsondata = view["detail"].get_utf8().value.to_string();
-						Errorf(jsondata.c_str());
-						rspdata.set_detailinfo(jsondata);
-						break;
-					case bsoncxx::type::k_binary:
-						rspdata.set_detailinfo(view["detail"].get_binary().bytes, view["detail"].get_binary().size);
-						break;
-					}
-				}
-				rspdata.set_retcode(0);
-				rspdata.set_errormsg("CMD GET GAME RECORD DETAIL OK.");
-			}
-		}
-		catch (std::exception& e) {
-			Errorf(e.what());
+		if (!mgo::GetPlayRecordDetail(
+			document{} << "detail" << 1 << finalize,
+			document{} << "gameinfoid" << roundid << finalize,
+			rspdata)) {
 			rspdata.set_retcode(1);
 			rspdata.set_errormsg("MongoDB Error.");
 		}
