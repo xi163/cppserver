@@ -162,7 +162,7 @@ private:
 	bool IsTrustee(void);
 protected:
 	//打印真人游戏局log
-	bool writeRealLog_;
+	bool writeRealLog_ = true;
 	time_t lastReadCfgTime_;
 	int readIntervalTime_;//更新配置间隔时间
 	//空闲踢人间隔时间

@@ -167,7 +167,7 @@ void CTableThread::checkUserIn() {
 				if (!table->CanJoinTable(robot)) {
 					continue;
 				}
-				if (table->roomInfo_->bEnableAndroid && realCount > 0 && playerCount < MaxPlayer && robotCount < maxRobotCount) {
+				if (table->roomInfo_->bEnableAndroid /*&& realCount > 0*/ && playerCount < MaxPlayer && robotCount < maxRobotCount) {
 					int n = randomOnce(maxRobotCount - robotCount, 1);
 					for (int i = 0; i < n; ++i) {
 						std::shared_ptr<CRobot> robot = CRobotMgr::get_mutable_instance().Pick();

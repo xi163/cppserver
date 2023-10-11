@@ -241,7 +241,7 @@ bool CGameTable::CanJoinTable(std::shared_ptr<IPlayer> const& player) {
 		//Errorf("....%d", player->GetUserId());
 		return true;
 	}
-	else if (player->GetUserId() >= MIN_SYS_USER_ID) {//断线重连
+	else {//断线重连
 		std::shared_ptr<IPlayer> userItem = table_->GetPlayer(player->GetUserId());
 		if (userItem) {
 			//LOG_ERROR << __FUNCTION__ << " tableId = " << table_->GetTableId() << " true 3";
