@@ -11,6 +11,8 @@
     tar -zxvf zookeeper-3.4.14.tar.gz
 
 ### mongodb-server安装
+    yum list installed | grep mongo
+    yum erase mongodb-database-tools.x86_64 mongodb-org.x86_64 mongodb-org-database-tools-extra.x86_64 mongodb-org-mongos.x86_64 mongodb-org-server.x86_64 mongodb-org-shell.x86_64 mongodb-org-tools.x86_64
     cd /etc/yum.repos.d/
     vim mongodb-org-4.4.repo
         [mongodb-org-4.4]
@@ -20,11 +22,17 @@
         enabled=1
         gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
     sudo yum install -y mongodb-org
+    chown -R mongod:mongod /var/lib/mongo*
+    chown -R mongod:mongod /var/log/mongodb
+    chown -R mongod:mongod /tmp/*.sock
     mongo
     use admin
+    db.dropUser("root")
     db.createUser({user:"root",pwd:"Lcw@12345678#!",roles:[{role:"root",db:"admin"}]})
     vim /etc/mongod.conf
-
+    firewall-cmd --zone=public --permanent --add-port=27017/tcp
+    firewall-cmd --reload
+    
 ### redis安装
     tar -zxvf redis-7.0.5.tar.gz
     cd redis-7.0.5
