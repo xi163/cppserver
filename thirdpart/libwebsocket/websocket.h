@@ -121,22 +121,26 @@ namespace muduo {
 
 			// S2C
 			void pack_unmask_data_frame(
+				IContext* context,
 				IBytesBuffer* buf,
 				char const* data, size_t len,
 				MessageT messageType = MessageT::TyTextMessage, bool chunk = false);
 
 			// S2C
 			void pack_unmask_close_frame(
+				IContext* context,
 				IBytesBuffer* buf,
 				char const* data, size_t len);
 
 			// S2C
 			void pack_unmask_ping_frame(
+				IContext* context,
 				IBytesBuffer* buf,
 				char const* data, size_t len);
 
 			// S2C
 			void pack_unmask_pong_frame(
+				IContext* context,
 				IBytesBuffer* buf,
 				char const* data, size_t len);
 

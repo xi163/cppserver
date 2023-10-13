@@ -34,12 +34,16 @@ namespace muduo {
 				muduo::net::Buffer* buf, muduo::Timestamp receiveTime) {
 				ASSERT(conn);
 				conn->getLoop()->assertInLoopThread();
+				
 				Warnf("websocket::onClosed - %s", conn->peerAddress().toIpPort().c_str());
+				
+				websocket::ContextPtr& context = conn->getWsContext();
+				ASSERT(context);
 				//////////////////////////////////////////////////////////////////////////
 				//pack_unmask_close_frame
 				//////////////////////////////////////////////////////////////////////////
 				muduo::net::Buffer rspdata;
-				websocket::pack_unmask_close_frame(&rspdata, buf->peek(), buf->readableBytes());
+				context->pack_unmask_close_frame(&rspdata, buf->peek(), buf->readableBytes());
 				conn->send(&rspdata);
 			}
 			
@@ -79,11 +83,13 @@ namespace muduo {
 			}
 
 			void send(const muduo::net::TcpConnectionPtr& conn, char const* data, size_t len, MessageT msgType) {
+				websocket::ContextPtr& context = conn->getWsContext();
+				ASSERT(context);
 				//////////////////////////////////////////////////////////////////////////
 				//pack_unmask_data_frame
 				//////////////////////////////////////////////////////////////////////////
 				muduo::net::Buffer rspdata;
-				websocket::pack_unmask_data_frame(&rspdata, data, len, msgType, false);
+				context->pack_unmask_data_frame(&rspdata, data, len, msgType);
 				conn->send(&rspdata);
 			}
 

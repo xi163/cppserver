@@ -83,7 +83,7 @@ buf[0] = 0x78  - 低地址 = 低位
 */
 
 //#define _NETTOHOST_BIGENDIAN_
-//#define LIBWEBSOCKET_DEBUG
+#define LIBWEBSOCKET_DEBUG
 
 #include <libwebsocket/IHttpContext.h>
 #include <libwebsocket/websocket.h>
@@ -371,13 +371,13 @@ namespace muduo {
 				}
 				inline void setExtendedPayloadlen(uint16_t ExtendedPayloadlen) {
 #ifdef LIBWEBSOCKET_DEBUG
-					Debugf("ExtendedPayloadlen.u16 = %d", ExtendedPayloadlen);
+					Tracef("ExtendedPayloadlen.u16 = %d", ExtendedPayloadlen);
 #endif
 					this->ExtendedPayloadlen.u16 = ExtendedPayloadlen;
 				}
 				inline void setExtendedPayloadlen(int64_t ExtendedPayloadlen) {
 #ifdef LIBWEBSOCKET_DEBUG
-					Debugf("ExtendedPayloadlen.i64 = %d", ExtendedPayloadlen);
+					Tracef("ExtendedPayloadlen.i64 = %d", ExtendedPayloadlen);
 #endif
 					this->ExtendedPayloadlen.i64 = ExtendedPayloadlen;
 				}
@@ -385,7 +385,7 @@ namespace muduo {
 					switch (header.Payloadlen) {
 					case 126:
 #ifdef LIBWEBSOCKET_DEBUG
-						Debugf("ExtendedPayloadlen.u16 = %d", ExtendedPayloadlen.u16);
+						Tracef("ExtendedPayloadlen.u16 = %d", ExtendedPayloadlen.u16);
 #endif
 						//ASSERT(ExtendedPayloadlen.u16 > 0);
 						return ExtendedPayloadlen.u16;
@@ -393,7 +393,7 @@ namespace muduo {
 						//ASSERT(false);
 						//ASSERT(ExtendedPayloadlen.i64 > 0);
 #ifdef LIBWEBSOCKET_DEBUG
-						Debugf("ExtendedPayloadlen.i64 = %d", ExtendedPayloadlen.i64);
+						Tracef("ExtendedPayloadlen.i64 = %d", ExtendedPayloadlen.i64);
 #endif
 						return ExtendedPayloadlen.i64;
 					default:
@@ -719,7 +719,7 @@ namespace muduo {
 				// 打印全部帧头信息
 				inline void dumpFrameHeaders(std::string const& name) {
 					int i = 0;
-					Debugf("%s\n" \
+					Tracef("%s\n" \
 						"+-----------------------------------------------------------------------------------------------------------------+"
 						, name.c_str());
 					for (std::vector<frame_header_t>::const_iterator it = frameHeaders_.begin();
@@ -1570,7 +1570,7 @@ namespace muduo {
 				else if (Payloadlen == 127) {
 #ifdef LIBWEBSOCKET_DEBUG
 					//控制帧，Payload len<=126字节，且不能被分片
-					Debugf("Payloadlen =%d ExtendedPayloadlenI64 = %lld",
+					Tracef("Payloadlen =%d ExtendedPayloadlenI64 = %lld",
 						Payloadlen, ExtendedPayloadlenI64);
 #endif
 					ASSERT_V(false, "Payloadlen=%d", Payloadlen);
@@ -1744,6 +1744,7 @@ namespace muduo {
 
 			// S2C
 			static void pack_unmask_data_frame_chunk(
+				websocket::Context_& context,
 				IBytesBuffer* buf,
 				char const* data, size_t len,
 				websocket::MessageE messageType/* = MessageE::TextMessage*/, size_t chunksz/* = 1024*/) {
@@ -1760,7 +1761,7 @@ namespace muduo {
 #ifdef LIBWEBSOCKET_DEBUG
 				int i = 0;
 				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
-				Debugf("\n" \
+				Tracef("\n" \
 				"+-----------------------------------------------------------------------------------------------------------------+" \
 				"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]",
 					i++,
@@ -1799,7 +1800,7 @@ namespace muduo {
 						left -= left;
 #ifdef LIBWEBSOCKET_DEBUG
 						std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
-						Debugf("\nFrame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
+						Tracef("\nFrame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
 							"+-----------------------------------------------------------------------------------------------------------------+",
 							i++,
 							websocket::FrameControl_to_string(ty.first).c_str(),
@@ -1816,6 +1817,7 @@ namespace muduo {
 
 			// S2C
 			void pack_unmask_data_frame(
+				IContext* context_,
 				IBytesBuffer* buf,
 				char const* data, size_t len,
 				MessageT msgType /*= MessageT::TyTextMessage*/, bool chunk/* = false*/) {
@@ -1828,7 +1830,9 @@ namespace muduo {
 					messageType == MessageE::PongMessage);
 				static const size_t chunksz = 1024;
 				if (chunk && len > chunksz) {
-					pack_unmask_data_frame_chunk(
+					websocket::Context_* context = reinterpret_cast<websocket::Context_*>(context_);
+					ASSERT(context);
+					pack_unmask_data_frame_chunk(*context,
 						buf, data, len, messageType, chunksz);
 				}
 				else {
@@ -1836,9 +1840,11 @@ namespace muduo {
 						buf, data, len,
 						messageType, websocket::FinE::FrameFinished);
 #ifdef LIBWEBSOCKET_DEBUG
+					websocket::Context_* context = reinterpret_cast<websocket::Context_*>(context_);
+					ASSERT(context);
 					int i = 0;
-					std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
-					Debugf("\n" \
+					std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(*context, header);
+					Tracef("\n" \
 						"+-----------------------------------------------------------------------------------------------------------------+\n" \
 						"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
 						"+-----------------------------------------------------------------------------------------------------------------+",
@@ -1855,6 +1861,7 @@ namespace muduo {
 			
 			// S2C
 			void pack_unmask_close_frame(
+				IContext* context_,
 				IBytesBuffer* buf,
 				char const* data, size_t len) {
 				websocket::header_t header = pack_unmask_control_frame(
@@ -1862,9 +1869,11 @@ namespace muduo {
 					websocket::OpcodeE::CloseMessage,
 					websocket::FinE::FrameFinished);
 #ifdef LIBWEBSOCKET_DEBUG
+				websocket::Context_* context = reinterpret_cast<websocket::Context_*>(context_);
+				ASSERT(context);
 				int i = 0;
-				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
-				Debugf("\n" \
+				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(*context, header);
+				Tracef("\n" \
 					"+-----------------------------------------------------------------------------------------------------------------+\n" \
 					"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
 					"+-----------------------------------------------------------------------------------------------------------------+",
@@ -1879,6 +1888,7 @@ namespace muduo {
 
 			// S2C
 			void pack_unmask_ping_frame(
+				IContext* context_,
 				IBytesBuffer* buf,
 				char const* data, size_t len) {
 				websocket::header_t header = pack_unmask_control_frame(
@@ -1886,9 +1896,11 @@ namespace muduo {
 					websocket::OpcodeE::PingMessage,
 					websocket::FinE::FrameFinished);
 #ifdef LIBWEBSOCKET_DEBUG
+				websocket::Context_* context = reinterpret_cast<websocket::Context_*>(context_);
+				ASSERT(context);
 				int i = 0;
-				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
-				Debugf("\n" \
+				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(*context, header);
+				Tracef("\n" \
 					"+-----------------------------------------------------------------------------------------------------------------+\n" \
 					"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
 					"+-----------------------------------------------------------------------------------------------------------------+",
@@ -1903,6 +1915,7 @@ namespace muduo {
 
 			// S2C
 			void pack_unmask_pong_frame(
+				IContext* context_,
 				IBytesBuffer* buf,
 				char const* data, size_t len) {
 				websocket::header_t header = pack_unmask_control_frame(
@@ -1910,9 +1923,11 @@ namespace muduo {
 					websocket::OpcodeE::PongMessage,
 					websocket::FinE::FrameFinished);
 #ifdef LIBWEBSOCKET_DEBUG
+				websocket::Context_* context = reinterpret_cast<websocket::Context_*>(context_);
+				ASSERT(context);
 				int i = 0;
-				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(context, header);
-				Debugf("\n" \
+				std::pair<FrameControlE, MessageFrameE> ty = get_frame_control_message_type(*context, header);
+				Tracef("\n" \
 					"+-----------------------------------------------------------------------------------------------------------------+\n" \
 					"Frame[%d][%s][%s][%s] opcode[%s] FIN[%s] Payloadlen[%d] MASK[%d]\n" \
 					"+-----------------------------------------------------------------------------------------------------------------+",
@@ -1956,7 +1971,7 @@ namespace muduo {
 				uint8_t RSV2 = get_frame_RSV2(header);
 				uint8_t RSV3 = get_frame_RSV3(header);
 				//show hex to the left
-				Debugf("\n" \
+				Tracef("\n" \
 					"+---------------------------------------------------------------+\n" \
 					"|0                   1                   2                   3  |\n" \
 					"|0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1|\n" \
@@ -1982,7 +1997,7 @@ namespace muduo {
 				if (header.existExtendedPayloadlen()) {
 					if (header.existMaskingkey()) {
 						//Extended payload length & Masking-key
-						Debugf("\n" \
+						Tracef("\n" \
 							"+---------------------------------------------------------------+\n" \
 							"|0                   1                   2                   3  |\n" \
 							"|0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1|\n" \
@@ -2006,7 +2021,7 @@ namespace muduo {
 					}
 					else {
 						//Extended payload length
-						Debugf("\n" \
+						Tracef("\n" \
 							"+---------------------------------------------------------------+\n" \
 							"|0                   1                   2                   3  |\n" \
 							"|0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1|\n" \
@@ -2027,7 +2042,7 @@ namespace muduo {
 				else {
 					if (header.existMaskingkey()) {
 						//Masking-key
-						Debugf("\n" \
+						Tracef("\n" \
 							"+---------------------------------------------------------------+\n" \
 							"|0                   1                   2                   3  |\n" \
 							"|0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1|\n" \
@@ -2050,7 +2065,7 @@ namespace muduo {
 					}
 					else {
 						//show hex to the left
-						Debugf("\n" \
+						Tracef("\n" \
 							"+---------------------------------------------------------------+\n" \
 							"|0                   1                   2                   3  |\n" \
 							"|0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1|\n" \
@@ -2373,7 +2388,7 @@ namespace muduo {
 						break;
 					}
 #ifdef LIBWEBSOCKET_DEBUG
-					Debugf("[ok][%d]: %s(%d) readableBytes(%d)",
+					Tracef("[ok][%d]: %s(%d) readableBytes(%d)",
 						header.Payloadlen,
 						websocket::Step_to_string(context.getWebsocketStep()).c_str(), websocket::kHeaderLen, buf->readableBytes());
 #endif
@@ -2427,7 +2442,7 @@ namespace muduo {
 						break;
 					}
 #ifdef LIBWEBSOCKET_DEBUG
-					Debugf("[ok][%d]: %s(%d) readableBytes(%d)",
+					Tracef("[ok][%d]: %s(%d) readableBytes(%d)",
 						header.Payloadlen,
 						websocket::Step_to_string(context.getWebsocketStep()).c_str(), websocket::kExtendedPayloadlenU16, buf->readableBytes());
 #endif
@@ -2476,7 +2491,7 @@ namespace muduo {
 						break;
 					}
 #ifdef LIBWEBSOCKET_DEBUG
-					Debugf("[ok][%d]: %s(%d) readableBytes(%d)",
+					Tracef("[ok][%d]: %s(%d) readableBytes(%d)",
 						header.Payloadlen,
 						websocket::Step_to_string(context.getWebsocketStep()).c_str(), websocket::kMaskingkeyLen, buf->readableBytes());
 #endif
@@ -2525,7 +2540,7 @@ namespace muduo {
 						break;
 					}
 #ifdef LIBWEBSOCKET_DEBUG
-					Debugf("[ok][%d]: %s(%d) readableBytes(%d)",
+					Tracef("[ok][%d]: %s(%d) readableBytes(%d)",
 						header.Payloadlen,
 						websocket::Step_to_string(context.getWebsocketStep()).c_str(), websocket::kMaskingkeyLen, buf->readableBytes());
 #endif
@@ -2635,7 +2650,7 @@ namespace muduo {
 					}
 #ifdef LIBWEBSOCKET_DEBUG
 					//添加消息帧头
-					websocket::MessageFrameE messageFrameType = context.getDataMessage().addFrameHeader(extended_header);
+					websocket::MessageFrameE messageFrameType = context.getDataMessage().addFrameHeader(context, extended_header);
 					switch (messageFrameType)
 					{
 					case MessageFrameE::UnknownFrame:
@@ -2648,7 +2663,7 @@ namespace muduo {
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						Debugf("[ok][%d]: %s(%d) readableBytes(%d)",
+						Tracef("[ok][%d]: %s(%d) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), header.Payloadlen, buf->readableBytes());
 #endif
@@ -2778,13 +2793,13 @@ namespace muduo {
 					}
 #ifdef LIBWEBSOCKET_DEBUG
 					//添加消息帧头
-					websocket::MessageFrameE messageFrameType = context.getDataMessage().addFrameHeader(extended_header);
+					websocket::MessageFrameE messageFrameType = context.getDataMessage().addFrameHeader(context, extended_header);
 					//输出扩展协议头信息
 					dump_extended_header_info(extended_header);
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						Debugf("[ok][%d]: %s(%d) readableBytes(%d)",
+						Tracef("[ok][%d]: %s(%d) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenU16(), buf->readableBytes());
 #endif
@@ -2915,13 +2930,13 @@ namespace muduo {
 					}
 #ifdef LIBWEBSOCKET_DEBUG
 					//添加消息帧头
-					websocket::MessageFrameE messageFrameType = context.getDataMessage().addFrameHeader(extended_header);
+					websocket::MessageFrameE messageFrameType = context.getDataMessage().addFrameHeader(context, extended_header);
 					//输出扩展协议头信息
 					dump_extended_header_info(extended_header);
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						Debugf("[ok][%d]: %s(%lld) readableBytes(%d)",
+						Tracef("[ok][%d]: %s(%lld) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenI64(), buf->readableBytes());
 #endif
@@ -3051,13 +3066,13 @@ namespace muduo {
 					}
 #ifdef LIBWEBSOCKET_DEBUG
 					//添加消息帧头
-					websocket::MessageFrameE messageFrameType = context.getControlMessage().addFrameHeader(extended_header);
+					websocket::MessageFrameE messageFrameType = context.getControlMessage().addFrameHeader(context, extended_header);
 					//输出扩展协议头信息
 					dump_extended_header_info(extended_header);
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						Debugf("[ok][%d]: %s(%d) readableBytes(%d)",
+						Tracef("[ok][%d]: %s(%d) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), header.Payloadlen, buf->readableBytes());
 #endif
@@ -3215,13 +3230,13 @@ namespace muduo {
 					}
 #ifdef LIBWEBSOCKET_DEBUG
 					//添加消息帧头
-					websocket::MessageFrameE messageFrameType = context.getControlMessage().addFrameHeader(extended_header);
+					websocket::MessageFrameE messageFrameType = context.getControlMessage().addFrameHeader(context, extended_header);
 					//输出扩展协议头信息
 					dump_extended_header_info(extended_header);
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						Debugf("[ok][%d]: %s(%d) readableBytes(%d)",
+						Tracef("[ok][%d]: %s(%d) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenU16(), buf->readableBytes());
 #endif
@@ -3380,13 +3395,13 @@ namespace muduo {
 					}
 #ifdef LIBWEBSOCKET_DEBUG
 					//添加消息帧头
-					websocket::MessageFrameE messageFrameType = context.getControlMessage().addFrameHeader(extended_header);
+					websocket::MessageFrameE messageFrameType = context.getControlMessage().addFrameHeader(context, extended_header);
 					//输出扩展协议头信息
 					dump_extended_header_info(extended_header);
 #endif
 					{
 #ifdef LIBWEBSOCKET_DEBUG
-						Debugf("[ok][%d]: %s(%lld) readableBytes(%d)",
+						Tracef("[ok][%d]: %s(%lld) readableBytes(%d)",
 							header.Payloadlen,
 							websocket::Step_to_string(context.getWebsocketStep()).c_str(), extended_header.getExtendedPayloadlenI64(), buf->readableBytes());
 #endif
@@ -3547,7 +3562,7 @@ namespace muduo {
 #ifdef LIBWEBSOCKET_DEBUG
 					//websocket::parse_frame loop[1] StepE::ReadFrameHeader readableBytes(6)
 					//websocket::parse_frame loop[2] StepE::ReadMaskingkey readableBytes(4)
-					Debugf("loop[%d] %s readableBytes(%d)",
+					Tracef("loop[%d] %s readableBytes(%d)",
 						++i, websocket::Step_to_string(context.getWebsocketStep()).c_str(), buf->readableBytes());
 #endif
 					//消息流解析步骤step，先解析包头(header)，再解析包体(body)
@@ -3631,6 +3646,7 @@ namespace muduo {
 			* Accept-Encoding: gzip, deflate, br
 			* Accept-Language: zh-CN,zh;q=0.9
 			* Sec-WebSocket-Key: ylPFmimkYxdg/eh968/lHQ==
+			* Sec-WebSocket-Location: 192.168.2.93:10000
 			* Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
 
 			* 握手成功 SHA-1 Base64
@@ -3681,7 +3697,7 @@ namespace muduo {
 					//先确定是HTTP数据报文，再解析
 					//ASSERT(buf->readableBytes() > 4 && buf->findCRLFCRLF());
 //#ifdef LIBWEBSOCKET_DEBUG
-					Debugf("bufsize=%d\n\n%.*s", buf->readableBytes(), buf->readableBytes(), buf->peek());
+					Tracef("bufsize=%d\n\n%.*s", buf->readableBytes(), buf->readableBytes(), buf->peek());
 //#endif
 					//数据包太小
 					if (buf->readableBytes() <= CRLFCRLFSZ) {
@@ -3866,7 +3882,7 @@ namespace muduo {
 						}
 						//握手成功
 #ifdef LIBWEBSOCKET_DEBUG
-						Debugf("succ");
+						Tracef("succ");
 #endif
 						//////////////////////////////////////////////////////////////////////////
 						//shared_ptr/weak_ptr 引用计数lock持有/递减是读操作，线程安全!

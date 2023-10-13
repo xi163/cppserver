@@ -40,6 +40,18 @@ namespace muduo {
 					//////////////////////////////////////////////////////////////////////////
 					websocket::parse_message_frame(getContext(), buf, receiveTime, path_handshake_);
 				}
+				inline void pack_unmask_close_frame(IBytesBuffer* buf, char const* data, size_t len) {
+					//////////////////////////////////////////////////////////////////////////
+					//pack_unmask_close_frame
+					//////////////////////////////////////////////////////////////////////////
+					websocket::pack_unmask_close_frame(getContext(), buf, data, len);
+				}
+				inline void pack_unmask_data_frame(IBytesBuffer* buf, char const* data, size_t len, MessageT msgType) {
+					//////////////////////////////////////////////////////////////////////////
+					//pack_unmask_data_frame
+					//////////////////////////////////////////////////////////////////////////
+					websocket::pack_unmask_data_frame(getContext(), buf, data, len, msgType, false);
+				}
 			private:
 				void send(const void* message, int len);
 				void sendMessage(std::string const& message);
