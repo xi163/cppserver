@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
+    <RemoteDebuggingMode>gdb</RemoteDebuggingMode>
+    <RemoteDebuggerCommandArguments>630 6301</RemoteDebuggerCommandArguments>
+    <PreLaunchCommand>
+    </PreLaunchCommand>
+    <RemoteDebuggerWorkingDirectory>/home/andy/cppserver/bin/</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerCommand>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</RemoteDebuggerCommand>
+    <AdditionalSymbolSearchPaths>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/usr/bin;/usr/local/bin;/home/andy/cppserver/libs</AdditionalSymbolSearchPaths>
+  </PropertyGroup>
+</Project>

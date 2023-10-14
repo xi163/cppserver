@@ -32,6 +32,9 @@
     vim /etc/mongod.conf
     firewall-cmd --zone=public --permanent --add-port=27017/tcp
     firewall-cmd --reload
+    systemctl stop mongod
+    systemctl start mongod
+    systemctl status mongod
     
 ### redis安装
     tar -zxvf redis-7.0.5.tar.gz

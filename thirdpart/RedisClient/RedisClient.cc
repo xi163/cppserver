@@ -1,8 +1,6 @@
-#include "public/Inc.h"
-#include "RedisClient.h"
-#include "../redisKeys.h"
-#include <thread>
-
+#include "Logger/src/utils/utils.h"
+#include "public/redisKeys.h"
+#include "RedisClient/RedisClient.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,16 +12,6 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-//#include "json/json.h"
-
-//#include <muduo/base/Logging.h>
-//#include <boost/algorithm/std::string.hpp>
-//#include <algorithm>
-//#include "../crypto/crypto.h"
-
-const std::string passWord = "AliceLandy@20181024";
-
 
 std::string string_replace(std::string strbase, std::string src, std::string dst)
 {

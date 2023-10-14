@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\public\errorCode.h" />
+    <ClInclude Include="..\..\..\public\gameConst.h" />
+    <ClInclude Include="..\..\..\public\gameStruct.h" />
+    <ClInclude Include="..\..\..\public\Inc.h" />
+    <ClInclude Include="..\..\..\public\IncMuduo.h" />
+    <ClInclude Include="..\..\..\public\redisKeys.h" />
+    <ClInclude Include="..\..\..\thirdpart\RedisClient\RedisClient.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\public\redisKeys.cc" />
+    <ClCompile Include="..\..\..\thirdpart\RedisClient\RedisClient.cc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{21A1904F-D710-4EB2-9FE5-99677906D15A}</ProjectGuid>
+    <Keyword>Linux</Keyword>
+    <RootNamespace>redisclient</RootNamespace>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+    <ApplicationType>Linux</ApplicationType>
+    <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
+    <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
+    <LinuxProjectType>{D51BCBC9-82E9-4017-911E-C93873C4EA2B}</LinuxProjectType>
+    <ProjectName>redisclient</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfStl>libstdc++_shared</UseOfStl>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>Y:\include;Y:\local\include;Y:\local\include\bsoncxx\v_noabi;Y:\local\include\mongocxx\v_noabi;Y:\local\include\google\protobuf;Y:\local\include\hiredis-vip;Y:\local\include\zookeeper;X:\andy\cppserver;X:\andy\cppserver\public;X:\andy\cppserver\proto;X:\andy\cppserver\thirdpart\muduo-vip;X:\andy\cppserver\public\TraceMsg;X:\andy\cppserver\public\MongoDB;X:\andy\cppserver\public\RedisClient;X:\andy\cppserver\public\RedisLock;X:\andy\cppserver\public\zookeeperclient;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include.linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\include;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\asm-generic;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\linux;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\c++\5;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VC\Linux\include\usr\include\x86_64-linux-gnu;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.34.31933\include;X:\andy\cppserver\thirdpart;X:\andy\cppserver\Framework\redisclient;X:\andy\cppserver\Framework\redisclient\interface;X:\andy\cppserver\Framework\redisclient\interface\impl;X:\andy\cppserver\thirdpart\Logger\src;X:\andy\cppserver\thirdpart\Logger\src\log;X:\andy\cppserver\thirdpart\Logger\src\utils;$(IncludePath)</IncludePath>
+    <TargetName>libredisclient</TargetName>
+    <TargetExt>.a</TargetExt>
+    <OutDir>/home/andy/cppserver/libs</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link />
+    <ClCompile />
+    <Link>
+      <LibraryDependencies>muduo-vip;websocket;protobuf;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;pthread;rt;m;z;dl;snappy;crypto;ssl;bson-1.0;mongoc-1.0;bsoncxx;mongocxx;hiredis_vip;zookeeper_mt;Response;Logger;MongoDB;RedLock;TraceMsg;zkclient;Packet;IPLocator</LibraryDependencies>
+      <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>/usr/include;/usr/local/include;/usr/local/include/hiredis-vip;/home/andy/cppserver;/home/andy/cppserver/public;/home/andy/cppserver/proto;/home/andy/cppserver/thirdpart;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MUDUO_STD_STRING</PreprocessorDefinitions>
+      <AdditionalOptions>-pthread -Wno-unused-function -Wno-conversion -Wno-reorder -Wno-unused-variable -Wno-sign-compare</AdditionalOptions>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
