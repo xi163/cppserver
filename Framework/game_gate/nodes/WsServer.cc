@@ -204,6 +204,8 @@ void GateServ::onMessage(
 				buffer->append(buf->peek(), static_cast<size_t>(buf->readableBytes()));
 				buf->retrieve(buf->readableBytes());
 #endif
+				//std::string s = utils::buffer2HexStr((unsigned char const*)buffer->peek(), buffer->readableBytes());
+				//Tracef("len:%d bufsize:%d\n%s\n\n", len, buffer->readableBytes(), s.c_str());
 				entryContext.getWorker()->run(
 					std::bind(
 						&GateServ::asyncClientHandler,
