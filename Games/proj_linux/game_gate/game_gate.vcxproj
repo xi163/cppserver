@@ -59,7 +59,6 @@
     <ClInclude Include="..\..\..\public\mgoKeys.h" />
     <ClInclude Include="..\..\..\public\mgoModel.h" />
     <ClInclude Include="..\..\..\public\mgoOperation.h" />
-    <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h" />
     <ClInclude Include="..\..\..\public\redisKeys.h" />
   </ItemGroup>
   <ItemGroup>
@@ -88,7 +87,6 @@
     <ClCompile Include="..\..\..\public\mgoKeys.cc" />
     <ClCompile Include="..\..\..\public\mgoModel.cc" />
     <ClCompile Include="..\..\..\public\mgoOperation.cc" />
-    <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp" />
     <ClCompile Include="..\..\..\public\redisKeys.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -144,7 +142,7 @@
     <Link />
     <ClCompile />
     <Link>
-      <LibraryDependencies>muduo-vip;websocket;protobuf;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;pthread;rt;m;z;dl;snappy;crypto;ssl;bson-1.0;mongoc-1.0;bsoncxx;mongocxx;hiredis_vip;zookeeper_mt;Response;Logger;MongoDB;RedLock;TraceMsg;zkclient;Packet;IPLocator</LibraryDependencies>
+      <LibraryDependencies>muduo-vip;websocket;protobuf;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;pthread;rt;m;z;dl;snappy;crypto;ssl;bson-1.0;mongoc-1.0;bsoncxx;mongocxx;redisclient;hiredis_vip;zookeeper_mt;Response;Logger;MongoDB;RedLock;TraceMsg;zkclient;Packet;IPLocator</LibraryDependencies>
       <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

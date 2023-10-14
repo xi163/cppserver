@@ -28,9 +28,6 @@
     <Filter Include="public">
       <UniqueIdentifier>{738fe4ff-54fb-42e4-8309-2a98289ff47e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public\RedisClient">
-      <UniqueIdentifier>{be189e5b-9e8e-4e97-a2d6-5b4963cd1429}</UniqueIdentifier>
-    </Filter>
     <Filter Include="public\Database">
       <UniqueIdentifier>{2b8cf204-a843-413d-aad5-63233b586eef}</UniqueIdentifier>
     </Filter>
@@ -86,9 +83,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\public\gameStruct.h">
       <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
-      <Filter>public\RedisClient</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\public\mgoKeys.h">
       <Filter>public\Database</Filter>
@@ -157,9 +151,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\proto\HallServer.Message.pb.cc">
       <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
-      <Filter>public\RedisClient</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\mgoKeys.cc">
       <Filter>public\Database</Filter>

@@ -25,9 +25,6 @@
     <Filter Include="public">
       <UniqueIdentifier>{24c65347-38e0-4d57-8d71-82a22a8810c9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public\RedisClient">
-      <UniqueIdentifier>{974b0b86-bb78-43e4-aa27-25fdbe7e143d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="public\Database">
       <UniqueIdentifier>{4cacbc39-e852-49c6-a4ca-84033055126c}</UniqueIdentifier>
     </Filter>
@@ -88,9 +85,6 @@
     <ClInclude Include="..\..\..\public\IncMuduo.h">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\public\RedisClient\RedisClient.h">
-      <Filter>public\RedisClient</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\public\mgoKeys.h">
       <Filter>public\Database</Filter>
     </ClInclude>
@@ -145,9 +139,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\proto\table.pb.cc">
       <Filter>pb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\public\RedisClient\RedisClient.cpp">
-      <Filter>public\RedisClient</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\public\mgoKeys.cc">
       <Filter>public\Database</Filter>
