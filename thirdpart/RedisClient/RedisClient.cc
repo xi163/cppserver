@@ -1,6 +1,5 @@
 #include "Logger/src/utils/utils.h"
 #include "public/redisKeys.h"
-#include "RedisClient/RedisClient.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,6 +11,8 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+#include "RedisClient/RedisClient.h"
 
 std::string string_replace(std::string strbase, std::string src, std::string dst)
 {

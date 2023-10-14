@@ -1,14 +1,6 @@
 #ifndef REDISCLIENT_H
 #define REDISCLIENT_H
 
-#include <iostream>
-#include <string>
-#include <memory>
-#include <vector>
-#include <map>
-#include <random>
-#include <thread>
-
 #define REDIS_POP_TIMEOUT    (1)
 
 #define USE_REDIS_CLUSTER    (0)
