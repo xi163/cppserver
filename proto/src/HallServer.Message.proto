@@ -76,6 +76,7 @@ message GetGameMessageResponse
      string                 errorMsg                = 3;
 	 int32                  type                    = 4; // 0-金币场 1-好友房 2-俱乐部
      repeated GameMessage   gameMessage             = 5;
+	 int64                  clubId                  = 6;
 }
 
 message MatchMessage

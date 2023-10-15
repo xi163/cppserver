@@ -865,6 +865,7 @@ void HallServ::cmd_get_game_info(
 			}
 			READ_LOCK(gameinfo_mutex_[reqdata.type()]);
 			rspdata.mutable_header()->set_sign(PROTOBUF_SIGN);
+			rspdata.set_clubid(reqdata.clubid());
 			rspdata.set_type(reqdata.type());
 			rspdata.set_retcode(0);
 			rspdata.set_errormsg("Get Game Message OK!");
@@ -895,6 +896,7 @@ void HallServ::cmd_get_game_info(
 		}
 		default:
 			rspdata.mutable_header()->CopyFrom(reqdata.header());
+			rspdata.set_clubid(reqdata.clubid());
 			rspdata.set_type(reqdata.type());
 			rspdata.set_retcode(-1);
 			rspdata.set_errormsg("Get Game type error!");
