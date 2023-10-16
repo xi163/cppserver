@@ -32,7 +32,8 @@ TcpServer::TcpServer(EventLoop* loop,
     connectionCallback_(defaultConnectionCallback),
     messageCallback_(defaultMessageCallback),
     nextConnId_(1),
-    ssl_ctx_(NULL)
+    ssl_ctx_(NULL),
+	et_(false)
 {
   EventLoopThreadPool::Singleton::init(loop, name_);
 #ifdef _MUDUO_ASYNC_CONN_POOL_
