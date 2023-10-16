@@ -85,7 +85,7 @@ void TcpConnection::handleRead_et(Timestamp receiveTime)
 {
   loop_->assertInLoopThread();
   ASSERT(channel_->isReading());
-  ASSERT(channel_->isET());
+  ASSERT_V(channel_->isET(), "%s", channel_->eventsToString().c_str());
   ssize_t rc = 0;
   int saveErrno = 0;
   ssize_t n = inputBuffer_.readFull(channel_->fd(), rc, &saveErrno);//readFull
