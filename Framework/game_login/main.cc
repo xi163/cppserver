@@ -143,6 +143,28 @@ int main(int argc, char* argv[]) {
 	server.verify_ = pt.get<int>(config + ".verify", 1);
 	server.et_ = pt.get<int>(config + ".et", 0);
 	server.registscore_ = pt.get<int64_t>(config + ".registscore", 400000);
+	std::string country_list = pt.get<std::string>(config + ".country_list", "");
+	{
+		std::vector<std::string> vec;
+		boost::algorithm::split(vec, country_list, boost::is_any_of(","));
+		for (std::vector<std::string>::const_iterator it = vec.begin();
+			it != vec.end(); ++it) {
+			if (!it->empty()) {
+				server.country_list_.emplace_back(*it);
+			}
+		}
+	}
+	std::string location_list = pt.get<std::string>(config + ".location_list", "");
+	{
+		std::vector<std::string> vec;
+		boost::algorithm::split(vec, location_list, boost::is_any_of(","));
+		for (std::vector<std::string>::const_iterator it = vec.begin();
+			it != vec.end(); ++it) {
+			if (!it->empty()) {
+				server.location_list_.emplace_back(*it);
+			}
+		}
+	}
 	//管理员ip地址列表
 	{
 		std::vector<std::string> vec;

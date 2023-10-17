@@ -300,6 +300,8 @@ public:
 	bool verify_ = true;
 	bool et_ = false;
 	int64_t registscore_ = 0;
+	std::vector<std::string> country_list_;
+	std::vector<std::string> location_list_;
 };
 
 #endif

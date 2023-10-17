@@ -48,6 +48,7 @@ public:
 	bool InitServer();
 	void Start(int numThreads, int numWorkerThreads, int maxSize);
 private:
+	bool onCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
 	void onConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onMessage(
 		const muduo::net::TcpConnectionPtr& conn,
@@ -170,6 +171,8 @@ public:
 	CIPLocator ipLocator_;
 	bool tracemsg_ = 0;
 	bool et_ = false;
+	std::vector<std::string> country_list_;
+	std::vector<std::string> location_list_;
 };
 
 #endif

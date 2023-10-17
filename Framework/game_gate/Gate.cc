@@ -36,6 +36,8 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	server_.setMessageCallback(
 		std::bind(&muduo::net::websocket::onMessage,
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	tcpserver_.setConditionCallback(
+		std::bind(&GateServ::onTcpCondition, this, std::placeholders::_1, std::placeholders::_2));
 	tcpserver_.setConnectionCallback(
 		std::bind(&GateServ::onTcpConnection, this, std::placeholders::_1));
 	tcpserver_.setMessageCallback(

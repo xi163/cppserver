@@ -15,6 +15,8 @@ HallServ::HallServ(muduo::net::EventLoop* loop,
 	, ipLocator_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
+	server_.setConditionCallback(
+		std::bind(&HallServ::onCondition, this, std::placeholders::_1, std::placeholders::_2));
 	server_.setConnectionCallback(
 		std::bind(&HallServ::onConnection, this, std::placeholders::_1));
 	server_.setMessageCallback(
@@ -452,6 +454,29 @@ void HallServ::Start(int numThreads, int numWorkerThreads, int maxSize) {
 		loadGameRoomInfos();
 	}));
 	thisTimer_->getLoop()->runEvery(3.0f, OBJ_CALLBACK_0(this, &HallServ::redis_refresh_room_player_nums));
+}
+
+bool HallServ::onCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion) {
+	std::string ipaddr = peerAddr.toIp();
+	//dead loop bug???
+	ipLocator_.GetAddressByIp(ipaddr.c_str(), peerRegion.location, peerRegion.country);
+	//country
+	for (std::vector<std::string>::const_iterator it = country_list_.begin();
+		it != country_list_.end(); ++it) {
+		if (peerRegion.country.find(*it) != std::string::npos) {
+			//location
+			for (std::vector<std::string>::const_iterator ir = location_list_.begin();
+				ir != location_list_.end(); ++ir) {
+				if (peerRegion.location.find(*ir) != std::string::npos) {
+					Infof("%s %s %s [√]通过", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+					return true;
+				}
+			}
+			break;
+		}
+	}
+	Infof("%s %s %s [×]禁止访问", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+	return false;
 }
 
 void HallServ::onConnection(const muduo::net::TcpConnectionPtr& conn) {

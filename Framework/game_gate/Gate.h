@@ -162,6 +162,7 @@ private:
 	bool repairServer(std::string const& queryStr, std::string& rspdata);
 	void repairServerNotify(std::string const& msg, std::string& rspdata);
 public:
+	bool onTcpCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
 	void onTcpConnection(const muduo::net::TcpConnectionPtr& conn);
 	void onTcpMessage(
 		const muduo::net::TcpConnectionPtr& conn,
@@ -236,6 +237,8 @@ public:
 	bool tracemsg_ = 0;
 	bool verify_ = true;
 	bool et_ = false;
+	std::vector<std::string> country_list_;
+	std::vector<std::string> location_list_;
 };
 
 #endif

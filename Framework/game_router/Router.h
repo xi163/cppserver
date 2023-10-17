@@ -305,6 +305,8 @@ public:
 	bool tracemsg_ = 0;
 	bool verify_ = true;
 	bool et_ = false;
+	std::vector<std::string> country_list_;
+	std::vector<std::string> location_list_;
 };
 
 #endif
