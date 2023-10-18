@@ -235,6 +235,9 @@ private:
 		muduo::Timestamp receiveTime);
 	//std::string onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& code, std::string& errMsg, boost::property_tree::ptree& latest, int& testTPS);
 	//int execute(int opType, std::string const& account, double score, std::string const& orderId, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS);
+private:
+	bool onRpcCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
+private:
 	void refreshWhiteList();
 	bool refreshWhiteListSync();
 	bool refreshWhiteListInLoop();

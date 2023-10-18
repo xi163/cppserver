@@ -72,6 +72,7 @@
     <ClCompile Include="..\..\..\Framework\game_login\Login.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\main.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\nodes\HttpServer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_login\nodes\RpcServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\nodes\WsServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\rpc\client\RpcClients.cc" />
     <ClCompile Include="..\..\..\Framework\game_login\rpc\client\RpcContainer.cc" />

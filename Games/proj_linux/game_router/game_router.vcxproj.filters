@@ -164,5 +164,8 @@
     <ClCompile Include="..\..\..\public\redisKeys.cc">
       <Filter>public\Database</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_router\nodes\RpcServer.cc">
+      <Filter>internal\nodes</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

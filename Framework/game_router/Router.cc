@@ -17,6 +17,8 @@ RouterServ::RouterServ(muduo::net::EventLoop* loop,
 	, ipLocator_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
+	rpcserver_.setConditionCallback(
+		std::bind(&RouterServ::onRpcCondition, this, std::placeholders::_1, std::placeholders::_2));
 	server_.setConditionCallback(
 		std::bind(&RouterServ::onCondition, this, std::placeholders::_1, std::placeholders::_2));
 	server_.setConnectionCallback(

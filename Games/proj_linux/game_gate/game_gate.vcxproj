@@ -71,6 +71,7 @@
     <ClCompile Include="..\..\..\Framework\game_gate\nodes\GateClient.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\nodes\HallClient.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\nodes\HttpServer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_gate\nodes\RpcServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\nodes\TcpServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\nodes\WsServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_gate\rpc\client\RpcClients.cc" />

@@ -28,6 +28,8 @@ GateServ::GateServ(muduo::net::EventLoop* loop,
 	, ipLocator_("qqwry.dat") {
 	registerHandlers();
 	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
+	rpcserver_.setConditionCallback(
+		std::bind(&GateServ::onRpcCondition, this, std::placeholders::_1, std::placeholders::_2));
 	rpcserver_.registerService(&rpcservice_);
 	server_.setConditionCallback(
 		std::bind(&GateServ::onCondition, this, std::placeholders::_1, std::placeholders::_2));

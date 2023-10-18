@@ -29,6 +29,8 @@ GameServ::GameServ(muduo::net::EventLoop* loop,
 	CTableThreadMgr::get_mutable_instance().Init(loop, "TableThread");
 	registerHandlers();
 	muduo::net::EventLoopThreadPool::Singleton::init(loop, "IOThread");
+	rpcserver_.setConditionCallback(
+		std::bind(&GameServ::onRpcCondition, this, std::placeholders::_1, std::placeholders::_2));
 	rpcserver_.registerService(&rpcservice_);
 	server_.setConditionCallback(
 		std::bind(&GameServ::onCondition, this, std::placeholders::_1, std::placeholders::_2));
@@ -858,6 +860,29 @@ void GameServ::send(
 	packet::packMessage(data, msg, subId, pre_header_, header_);
 	TraceMessageId(header_->mainId, subId);
 	conn->send(&data[0], data.size());
+}
+
+bool GameServ::onRpcCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion) {
+	std::string ipaddr = peerAddr.toIp();
+	//dead loop bug???
+	ipLocator_.GetAddressByIp(ipaddr.c_str(), peerRegion.location, peerRegion.country);
+	//country
+	for (std::vector<std::string>::const_iterator it = country_list_.begin();
+		it != country_list_.end(); ++it) {
+		if (peerRegion.country.find(*it) != std::string::npos) {
+			//location
+			for (std::vector<std::string>::const_iterator ir = location_list_.begin();
+				ir != location_list_.end(); ++ir) {
+				if (peerRegion.location.find(*ir) != std::string::npos) {
+					Infof("%s %s %s [√]通过", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+					return true;
+				}
+			}
+			break;
+		}
+	}
+	Infof("%s %s %s [×]禁止访问", ipaddr.c_str(), peerRegion.country.c_str(), peerRegion.location.c_str());
+	return false;
 }
 
 void GameServ::cmd_keep_alive_ping(

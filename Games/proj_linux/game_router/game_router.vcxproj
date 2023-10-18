@@ -67,6 +67,7 @@
     <ClCompile Include="..\..\..\Framework\game_gate\EntryPtr.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\handler\ServList.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\handler\router_handler.cc" />
+    <ClCompile Include="..\..\..\Framework\game_router\nodes\RpcServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\Router.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\main.cc" />
     <ClCompile Include="..\..\..\Framework\game_router\nodes\HttpServer.cc" />

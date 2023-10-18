@@ -230,7 +230,9 @@ private:
 		muduo::Timestamp receiveTime);
 	//std::string onProcess(std::string const& reqStr, muduo::Timestamp receiveTime, int& code, std::string& errMsg, boost::property_tree::ptree& latest, int& testTPS);
 	//int execute(int opType, std::string const& account, double score, std::string const& orderId, std::string& errmsg, boost::property_tree::ptree& latest, int& testTPS);
-	
+private:
+	bool onRpcCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
+private:
 	//刷新所有agent_info信息
 	//1.web后台更新代理通知刷新
 	//2.游戏启动刷新一次

@@ -69,6 +69,7 @@
     <ClCompile Include="..\..\..\Framework\game_api\Api.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\main.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\nodes\HttpServer.cc" />
+    <ClCompile Include="..\..\..\Framework\game_api\nodes\RpcServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\nodes\WsServer.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\rpc\client\RpcClients.cc" />
     <ClCompile Include="..\..\..\Framework\game_api\rpc\client\RpcContainer.cc" />

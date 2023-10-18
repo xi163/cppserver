@@ -37,7 +37,10 @@ class RpcServer
   // NOT thread safe, must call before start().
   void registerService(Service*);
   void start(bool et = false);
-
+  void setConditionCallback(const ConditionCallback& cb)
+  {
+    server_.setConditionCallback(cb);
+  }
  private:
   void onConnection(const TcpConnectionPtr& conn);
 

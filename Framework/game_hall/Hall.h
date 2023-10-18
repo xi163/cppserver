@@ -79,6 +79,8 @@ private:
 		packet::internal_prev_header_t const* pre_header_,
 		packet::header_t const* header_);
 private:
+	bool onRpcCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
+private:
 	void cmd_keep_alive_ping(
 		const muduo::net::TcpConnectionPtr& conn, BufferPtr const& buf);
 	void cmd_on_user_login(

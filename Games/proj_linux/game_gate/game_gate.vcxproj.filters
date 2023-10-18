@@ -173,5 +173,8 @@
     <ClCompile Include="..\..\..\proto\user.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Framework\game_gate\nodes\RpcServer.cc">
+      <Filter>internal\nodes</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

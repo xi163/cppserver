@@ -172,6 +172,8 @@ public:
 		muduo::net::WeakTcpConnectionPtr const& weakConn,
 		BufferPtr& buf, muduo::Timestamp receiveTime);
 	void onMarqueeNotify(std::string const& msg);
+private:
+	bool onRpcCondition(const muduo::net::InetAddress& peerAddr, muduo::net::InetRegion& peerRegion);
 public:
 	std::shared_ptr<ZookeeperClient> zkclient_;
 	std::string nodePath_, nodeValue_, invalidNodePath_;
