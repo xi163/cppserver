@@ -291,7 +291,7 @@ namespace utils {
 		snprintf(date, sizeof(date), "_%04d-%02d-%02d_%02d_%02d_%02d",
 			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 		std::string filename;
-		std::string path = utils::_GetModulePath(&filename);
+		std::string path = utils::_getModulePath(&filename);
 		std::string prefix = filename.substr(0, filename.find_last_of('.'));
 		std::string df(path);
 		df += "\\" + prefix + date;

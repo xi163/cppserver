@@ -243,3 +243,9 @@ cd mongo-cxx-driver-r3.8.0/build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBSONCXX_POLY_USE_BOOST=1
 cmake --build .
 make && make install
+
+### lua安装
+curl -R -O http://www.lua.org/ftp/lua-5.4.6.tar.gz
+tar zxf lua-5.4.6.tar.gz
+cd lua-5.4.6
+make all test

@@ -58,8 +58,10 @@ namespace utils {
 	
 	bool parseQuery(std::string const& queryStr, std::map<std::string, std::string>& params);
 
-	std::string GetModulePath(std::string* filename = NULL, bool exec = false);
+	std::string getModulePath(std::string* filename = NULL, bool exec = false);
 
+	std::string combineFilePath(std::string const& path, std::string const& filename);
+	
 	bool mkDir(char const* dir);
 	
 	void mkDir_p(char const* dir);

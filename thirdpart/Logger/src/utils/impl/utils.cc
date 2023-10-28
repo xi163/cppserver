@@ -168,11 +168,16 @@ namespace utils {
 		return utils::_parseQuery(queryStr, params);
 	}
 
-	std::string GetModulePath(std::string* filename, bool exec) {
+	std::string getModulePath(std::string* filename, bool exec) {
 		AUTHORIZATION_CHECK_S;
-		return utils::_GetModulePath(filename, exec);
+		return utils::_getModulePath(filename, exec);
 	}
-
+	
+	std::string combineFilePath(std::string const& path, std::string const& filename) {
+		AUTHORIZATION_CHECK_S;
+		return utils::_combineFilePath(path, filename);
+	}
+	
 	unsigned int now_ms() {
 		AUTHORIZATION_CHECK_I;
 		return utils::_now_ms();

@@ -13,6 +13,7 @@
 #endif
 
 #define BUFSZ 1024
+#define MAXPATH 512
 
 #if 0
 
@@ -68,6 +69,8 @@
 	YY(F_TMSTMP_FL_FN,      0x0080,                "TMSTMP_FL_FN") \
 	YY(F_TEXT,              0x0100,                "TEXT") \
 	YY(F_PURE,              0x0200,                "PURE") \
+	YY(F_THRD,              0x0400,                "THRD") \
+	YY(F_TMSTMP_THRD,       0x0800,                "TMSTMP_THRD") \
 	YY(F_DETAIL_SYNC,       F_DETAIL|F_SYNC,       "DETAIL_SYNC") \
 	YY(F_TMSTMP_SYNC,       F_TMSTMP|F_SYNC,       "TMSTMP_SYNC") \
 	YY(F_FN_SYNC,           F_FN|F_SYNC,           "FN_SYNC") \
@@ -78,6 +81,8 @@
 	YY(F_TMSTMP_FL_FN_SYNC, F_TMSTMP_FL_FN|F_SYNC, "TMSTMP_FL_FN_SYNC") \
 	YY(F_TEXT_SYNC,         F_TEXT|F_SYNC,         "TEXT_SYNC") \
 	YY(F_PURE_SYNC,         F_PURE|F_SYNC,         "PURE_SYNC") \
+	YY(F_THRD_SYNC,         F_THRD|F_SYNC,         "THRD_SYNC") \
+	YY(F_TMSTMP_THRD_SYNC,  F_TMSTMP_THRD|F_SYNC,  "TMSTMP_THRD_SYNC") \
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -143,6 +148,7 @@ typedef std::chrono::system_clock::time_point time_point;
 #define strtoull     _strtoui64
 #define xsleep(t) Sleep(t) //milliseconds
 #define clscr() system("cls")
+#define SYS_G '\\'
 
 #include <shared_mutex>
 
@@ -199,6 +205,7 @@ typedef HANDLE fd_t;
 #define INVALID_HANDLE_VALUE (-1)
 #define xsleep(t) usleep((t) * 1000) //microseconds
 #define clscr() system("reset")
+#define SYS_G '/'
 
 #include "Logger/src/IncBoost.h"
 

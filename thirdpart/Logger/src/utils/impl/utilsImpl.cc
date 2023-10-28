@@ -559,10 +559,10 @@ namespace utils {
 		return params.size() > 0;
 	}
 
-	std::string _GetModulePath(std::string* filename, bool exec) {
-		char chr[512];
+	std::string _getModulePath(std::string* filename, bool exec) {
+		char chr[MAXPATH];
 #ifdef _windows_
-		::GetModuleFileNameA(NULL/*(HMODULE)GetModuleHandle(NULL)*/, chr, sizeof(chr));
+		::GetModuleFileNameA(NULL/*(HMODULE)GetModuleHandle(NULL)*/, chr, MAXPATH);
 #else
 		char link[100];
 		snprintf(link, sizeof(link), "/proc/%d/exe", getpid());
@@ -579,7 +579,23 @@ namespace utils {
 		}
 		return exec ? s : s.substr(0, pos);
 	}
-
+	
+	std::string _combineFilePath(std::string const& path, std::string const& filename) {
+		if (path.empty() || filename.empty()) {
+			return "";
+		}
+		if (*path.rbegin() != SYS_G) {
+			if (*filename.begin() != SYS_G) {
+				return path + SYS_G + filename;
+			}
+			return path + filename;
+		}
+		if (*filename.begin() != SYS_G) {
+			return path + filename;
+		}
+		return path + filename.substr(filename.find_first_of(SYS_G) + 1, -1);
+	}
+	
 	unsigned int _now_ms() {
 
 		//自开机经过的毫秒数

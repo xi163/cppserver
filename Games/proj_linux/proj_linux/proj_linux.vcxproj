@@ -35,7 +35,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LuaLogger.cc" />
+    <ClCompile Include="LuaState.cc" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LuaLogger.h" />
+    <ClInclude Include="LuaState.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CBCABB9A-1150-455E-A9A5-A9450E576A9B}</ProjectGuid>
@@ -90,7 +96,7 @@
     <Link />
     <ClCompile />
     <Link>
-      <LibraryDependencies>muduo-vip;websocket;protobuf;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;pthread;rt;m;z;dl;snappy;crypto;ssl;bson-1.0;mongoc-1.0;bsoncxx;mongocxx;hiredis_vip;zookeeper_mt;Logger</LibraryDependencies>
+      <LibraryDependencies>muduo-vip;websocket;protobuf;boost_locale;boost_date_time;boost_filesystem;boost_system;boost_thread;boost_regex;pthread;rt;m;z;dl;snappy;crypto;ssl;bson-1.0;mongoc-1.0;bsoncxx;mongocxx;hiredis_vip;zookeeper_mt;Logger;lua</LibraryDependencies>
       <OutputFile>/home/andy/cppserver/bin/$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>/usr/lib;/usr/lib64;/usr/local/lib;/usr/local/lib64;/home/andy/cppserver/libs;/home/home/andy/cppserver/libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

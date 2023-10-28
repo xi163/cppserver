@@ -9,6 +9,9 @@
 #protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=./../thirdpart/muduo-vip/muduo/net/protorpc --cpp_out=./../thirdpart/muduo-vip/muduo/protorpc2 --rpc_out=./../thirdpart/muduo-vip/muduo/protorpc2 -I/usr/local/include -I./../thirdpart/muduo-vip/muduo/net/protorpc ./../thirdpart/muduo-vip/muduo/net/protorpc/rpcservice.proto
 #protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/protorpc.sudoku.proto
 
+protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/Ddz.Message.proto
+protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/Pdk.Message.proto
+
 #protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/Common.Message.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/user.proto
 protoc --plugin=/home/build/protorpc-release/bin/protoc-gen-rpc --proto_path=/usr/local/include --proto_path=src --cpp_out=. --rpc_out=. -I/usr/local/include src/table.proto

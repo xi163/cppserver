@@ -112,6 +112,8 @@ namespace LOGGER {
 		switch (style) {
 		case F_DETAIL:
 		case F_TMSTMP:
+		case F_THRD:
+		case F_TMSTMP_THRD:
 		case F_FN:
 		case F_TMSTMP_FN:
 		case F_FL:
@@ -340,6 +342,24 @@ namespace LOGGER {
 				logname(name_, false).c_str(),
 				getTimezoneDesc(timezone_.load()).c_str(),
 				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec);
+		case F_THRD:
+		case F_THRD_SYNC:
+			//W101106 199] xxx
+			return snprintf(buffer, size, "%c%c%d%s %s] ",
+				(ok ? UTC_OK : UTC_ER),
+				chr[level], pid_,
+				logname(name_, false).c_str(),
+				utils::_gettid().c_str());
+		case F_TMSTMP_THRD:
+		case F_TMSTMP_THRD_SYNC:
+			//W101106 CST 21:17:00.024254 199] xxx
+			return snprintf(buffer, size, "%c%c%d%s %s %02d:%02d:%02d.%.6lu %s] ",
+				(ok ? UTC_OK : UTC_ER),
+				chr[level], pid_,
+				logname(name_, false).c_str(),
+				getTimezoneDesc(timezone_.load()).c_str(),
+				tm.tm_hour, tm.tm_min, tm.tm_sec, (unsigned long)tv.tv_usec,
+				utils::_gettid().c_str());
 		case F_FN:
 		case F_FN_SYNC:
 			//W101106] server.run xxx
@@ -664,6 +684,18 @@ namespace LOGGER {
 				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
 				Printf(color[level][0], "%.*s", (int)stacklen, stack);
 				break;
+			case F_THRD:
+			case F_THRD_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
+			case F_TMSTMP_THRD:
+			case F_TMSTMP_THRD_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				Printf(color[level][0], "%.*s", (int)stacklen, stack);
+				break;
 			case F_FN:
 			case F_FN_SYNC:
 				Printf(color[level][0], "%.*s", (int)pos, msg);
@@ -732,6 +764,16 @@ namespace LOGGER {
 				Printf(color[level][0], "%.*s", (int)pos, msg);
 				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
 				break;
+			case F_THRD:
+			case F_THRD_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
+			case F_TMSTMP_THRD:
+			case F_TMSTMP_THRD_SYNC:
+				Printf(color[level][0], "%.*s", (int)pos, msg);
+				Printf(color[level][1], "%.*s", (int)len - (int)pos, msg + pos);
+				break;
 			case F_FN:
 			case F_FN_SYNC:
 				Printf(color[level][0], "%.*s", (int)pos, msg);
@@ -790,6 +832,14 @@ namespace LOGGER {
 				break;
 			case F_TMSTMP:
 			case F_TMSTMP_SYNC:
+				LOGGER::write(fd_, msg, len);
+				break;
+			case F_THRD:
+			case F_THRD_SYNC:
+				LOGGER::write(fd_, msg, len);
+				break;
+			case F_TMSTMP_THRD:
+			case F_TMSTMP_THRD_SYNC:
 				LOGGER::write(fd_, msg, len);
 				break;
 			case F_FN:
