@@ -15,61 +15,70 @@ extern "C" {
 #define LUASTATE_FUNCTION_MAPPING "G_LuaStateFuncMapping"
 
 class LuaState {
-private:
+public:
 	LuaState();
 	~LuaState();
+private:
 	bool init();
-	int createBindFuncIndex();
-	void openFuncMapping();
+	int initfuncindex();
+	void initfuncmapping();
 public:
-	static inline void setWorkPath(std::string const& path) { workPath_ = path; }
+	static inline void setscriptpath(std::string const& path) { scriptPath_ = path; }
 public:
-	static LuaState * create();
+	//static std::unique_ptr<LuaState> LuaState * create();
 	static LuaState *instance(lua_State *L);
 	inline lua_State* getL() { return L_; }
-	void addSearchPath(char const* path);
-	void registerFunc(char const* funcName, lua_CFunction cb);
+	void addsearchpath(char const* path);
+	void registerfunction(char const* funcName, lua_CFunction cb);
 
-	int bindFunc(int lo);
-	bool setFuncByMapValues(int index);
-	void removeFuncByMapValues(int index);
+	int bindfunction(int lo);
+	bool setfunction(int index);
+	void removefunction(int index);
     
-	inline void* getObject() { return obj_; }
-	inline void setObject(void* obj) { obj_ = obj; }
+	inline void* getobject() { return obj_; }
+	inline void setobject(void* obj) { obj_ = obj; }
 	
-	int loadFile(char const* filename);
-	int execString(char const* s);
-	int execFile(char const* filename);
+	int loadfile(char const* filename);
+	int callstring(char const* s);
+	int dofile(char const* filename);
 	int call(int argc, int retc = LUA_MULTRET, STD::variant* result = nullptr);
-
-	void pushNull();
-	void pushInt(int val);
-	void pushLong(long val);
-	void pushFloat(float val);
-	void pushBoolean(int val);
-	void pushNumber(double val);
-	void pushString(char const* val);
-	void pushString(char const* val, size_t len);
-	void pushUserData(void* val);
-	void pushUserData(char const* name, void* val);
-	void pushValue(int idx);
+	char const* gettypename(int idx);
 	
-	bool testFunc(int idx);
-	lua_CFunction toFunc(int idx);
-	int toBoolean(int idx);
-	double toNumber(int idx);
-	long long toInteger(int idx);
-	char const* toString(int idx);
-	void* toUserdata(int idx);
-	void const* toPointer(int idx);
-	int getTable(int idx);
-	int getGlobal(char const* name);
+	void pushnil();
+	void pushint(int val);
+	void pushlong(long val);
+	void pushfloat(float val);
+	void pushboolean(int val);
+	void pushnumber(double val);
+	void pushstring(char const* val);
+	void pushstring(char const* val, size_t len);
+	void pushlightuserdata(void* val);
+	void pushlightuserdata(char const* name, void* val);
+	void pushvalue(int idx);
+	void* newuserdata(size_t size);
+
+	bool testfunction(int idx);
+	lua_CFunction tofunction(int idx);
+	int toboolean(int idx);
+	double tonumber(int idx);
+	long long tointeger(int idx);
+	char const* tostring(int idx);
+	void* touserdata(int idx);
+	void const* topointer(int idx);
+	int gettable(int idx);
+	int getglobal(char const* name);
+	void settop(int idx);
+	int gettop();
+	void clearstack();
+	void pop(int n);
 private:
 	lua_State* L_;
 	void* obj_;
 	int funcId_; // 回调函数引用ID
 	int funcValues_[MAX_FUNCTION_MAP_VALUES];// 函数映射的绑定值
-	static std::string workPath_;// 程序脚本的主路径
+	static std::string scriptPath_;// 程序脚本的主路径
 };
+
+extern void lua_test();
 
 #endif

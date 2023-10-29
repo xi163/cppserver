@@ -67,7 +67,7 @@ int LuaLogger::luaFatal(lua_State* L) {
 	s.append(lua_FUNC(L));
 	s.append(" ");
 	s.append(msg);
-	Fatal(s);
+	Fatal_tmsp_thrd(s);
 	return 0;
 }
 
@@ -81,7 +81,7 @@ int LuaLogger::luaError(lua_State* L) {
 	s.append(lua_FUNC(L));
 	s.append(" ");
 	s.append(msg);
-	Error(s);
+	Error_tmsp_thrd(s);
 	return 0;
 }
 
@@ -95,7 +95,7 @@ int LuaLogger::luaWarn(lua_State* L) {
 	s.append(lua_FUNC(L));
 	s.append(" ");
 	s.append(msg);
-	Warn(s);
+	Warn_tmsp_thrd(s);
 	return 0;
 }
 
@@ -109,7 +109,7 @@ int LuaLogger::luaCritical(lua_State* L) {
 	s.append(lua_FUNC(L));
 	s.append(" ");
 	s.append(msg);
-	Critical(s);
+	Critical_tmsp_thrd(s);
 	return 0;
 }
 
@@ -123,7 +123,7 @@ int LuaLogger::luaInfo(lua_State* L) {
 	s.append(lua_FUNC(L));
 	s.append(" ");
 	s.append(msg);
-	Info(s);
+	Info_tmsp_thrd(s);
 	return 0;
 }
 
@@ -137,7 +137,7 @@ int LuaLogger::luaDebug(lua_State* L) {
 	s.append(lua_FUNC(L));
 	s.append(" ");
 	s.append(msg);
-	Debug(s);
+	Debug_tmsp_thrd(s);
 	return 0;
 }
 
@@ -151,19 +151,19 @@ int LuaLogger::luaTrace(lua_State* L) {
 	s.append(lua_FUNC(L));
 	s.append(" ");
 	s.append(msg);
-	Trace(s);
+	Trace_tmsp_thrd(s);
 	return 0;
 }
 
 int LuaLogger::luaExcept(lua_State* L) {
 	char const* msg = lua_tostring(L, 1);
-	Error(msg);
+	Error_tmsp_thrd(msg);
 	return 0;
 }
 
 int LuaLogger::luaFatalExcept(lua_State* L) {
 	char const* msg = lua_tostring(L, 1);
-	Fatal(msg);
+	Fatal_tmsp_thrd(msg);
 	return 0;
 }
 
@@ -184,14 +184,19 @@ static int luaL_openlib(lua_State* L) {
 		{ "fatalExcept", LuaLogger::luaFatalExcept },
 		{NULL,NULL}
 	};
+	//Tracef("top=%d", lua_gettop(L)); // 1
 	luaL_newlib(L, regFunc);
+	//Tracef("top=%d", lua_gettop(L)); // 2
 	return 1;
 }
 
 void LuaLogger::luaRegister(lua_State* L) {
  	ASSERT(L);
 	//_LOG_SET_STYLE(F_THRD);
-	_LOG_SET_STYLE(F_TMSTMP_THRD);
+	//_LOG_SET_STYLE(F_TMSTMP_THRD);
 	//_LOG_SET_STYLE(F_PURE);
+	//Tracef("top=%d", lua_gettop(L)); // 0
 	luaL_requiref(L, "logger", luaL_openlib, 1);
+	//Tracef("top=%d", lua_gettop(L));// 1
+	lua_pop(L, 1);
 }

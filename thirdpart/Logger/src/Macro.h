@@ -149,6 +149,7 @@ typedef std::chrono::system_clock::time_point time_point;
 #define xsleep(t) Sleep(t) //milliseconds
 #define clscr() system("cls")
 #define SYS_G '\\'
+#define SYS_G_STR "\\"
 
 #include <shared_mutex>
 
@@ -206,6 +207,7 @@ typedef HANDLE fd_t;
 #define xsleep(t) usleep((t) * 1000) //microseconds
 #define clscr() system("reset")
 #define SYS_G '/'
+#define SYS_G_STR "/"
 
 #include "Logger/src/IncBoost.h"
 
