@@ -82,4 +82,22 @@
 
 #endif
 
+// TEST TEST_IF
+#ifdef NDEBUG
+
+	#define TEST(cb)
+	
+	#define TEST_IF(cond, cb)
+
+#else
+	
+	#define TEST(cb) cb()
+	
+	#define TEST_IF(cond, cb) \
+		(cond) \
+		? cb() \
+		:(void)
+
+#endif
+
 #endif

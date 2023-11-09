@@ -6,6 +6,52 @@
 
 std::string LuaState::scriptPath_ = utils::getModulePath();
 
+static inline char const* gettypename(lua_State* L_, int idx) {
+	return lua_typename(L_, lua_type(L_, idx));
+}
+
+static inline int getglobal(lua_State* L_, char const* name) {
+#ifdef _LUA_TEST_
+	int v = lua_getglobal(L_, name);
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	Tracef("top=%d %s %s", lua_gettop(L_), name, gettypename(L_, lua_gettop(L_)));
+	return v;
+#else
+	return lua_getglobal(L_, name);
+#endif
+}
+
+static inline void const* topointer(lua_State* L_, int idx) {
+	if (lua_islightuserdata(L_, idx)) {
+#ifdef _LUA_TEST_
+		void const* v = lua_topointer(L_, idx);
+		ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+		ASSERT(lua_islightuserdata(L_, lua_gettop(L_)));
+		ASSERT(lua_isuserdata(L_, lua_gettop(L_)));
+		Tracef("top=%d %s", lua_gettop(L_), gettypename(L_, lua_gettop(L_)));
+		return v;
+#else
+		return lua_topointer(L_, idx);
+#endif
+	}
+	return NULL;
+}
+
+static inline void pop(lua_State* L_, int n) {
+	ASSERT_V(n > 0, "n=%d", n);
+	//ASSERT_V(n <= lua_gettop(L_), "n=%d top=%d", n, lua_gettop(L_));
+	if (n <= lua_gettop(L_)) {
+		Tracef("{S} %d top=%d %s", n, lua_gettop(L_), gettypename(L_, lua_gettop(L_)));
+		lua_pop(L_, n);
+		Tracef("{E} %d top=%d %s", n, lua_gettop(L_), gettypename(L_, lua_gettop(L_)));
+	}
+	else if (lua_gettop(L_) > 0) {
+		Tracef("{S} %d top=%d %s", n, lua_gettop(L_), gettypename(L_, lua_gettop(L_)));
+		lua_pop(L_, lua_gettop(L_));
+		Tracef("{E} %d top=%d %s", n, lua_gettop(L_), gettypename(L_, lua_gettop(L_)));
+	}
+}
+
 LuaState::LuaState()
 	: L_(NULL)
 	, funcId_(-1)
@@ -21,20 +67,14 @@ LuaState::~LuaState() {
 	}
 }
 
-// LuaState* LuaState::create() {
-// 	LuaState* state = new LuaState();
-// 	state->init();
-// 	return state;
-// }
-
 LuaState* LuaState::instance(lua_State* L) {
-	lua_getglobal(L, "G_LuaStateInst");
+	::getglobal(L, "G_LuaStateInst");
 	if (lua_isnil(L, lua_gettop(L))) {
 		return NULL;
 	}
-	LuaState* ptr = (LuaState*)(lua_topointer(L, lua_gettop(L)));
+	LuaState* ptr = (LuaState*)(::topointer(L, lua_gettop(L)));
 	ASSERT(ptr);
-	lua_pop(L, 1);
+	::pop(L, 1);
 	return ptr;
 }
 
@@ -92,29 +132,21 @@ bool LuaState::init() {
 
 void LuaState::addsearchpath(char const* path) {
 	Tracef("%s", path);
-	lua_getglobal(L_, "package");
-	//Tracef("top=%d", lua_gettop(L_));// 1
-	lua_getfield(L_, -1, "path");
-	//Tracef("top=%d", lua_gettop(L_));// 2
+	getglobal("package");
+	getfield(-1, "path");
 	// 获取LUA环境字段的值(package.path)
-	char const* szCurPath = lua_tostring(L_, -1);
+	char const* curPath = tostring(-1);
 	// 设置新的搜索路径到LUA环境字段(package.path)
-	lua_pushfstring(L_, "%s;%s", szCurPath, path);
-	//Tracef("top=%d", lua_gettop(L_));// 3
-	lua_setfield(L_, -3, "path");
-	//Tracef("top=%d", lua_gettop(L_));// 2
-	lua_pop(L_, 2);
-	//Tracef("top=%d", lua_gettop(L_));// 0
+	pushfstring("%s;%s", curPath, path);
+	setfield(-3, "path");
+	pop(2);
 	ASSERT(lua_gettop(L_) == 0);
 }
 
 void LuaState::initfuncmapping() {
-	lua_pushstring(L_, LUASTATE_FUNCTION_MAPPING);
-	//Tracef("top=%d", lua_gettop(L_));// 1
-	lua_newtable(L_);
-	//Tracef("top=%d", lua_gettop(L_));// 2
-	lua_rawset(L_, LUA_REGISTRYINDEX);
-	//Tracef("top=%d", lua_gettop(L_));// 0
+	pushstring(LUASTATE_FUNCTION_MAPPING);
+	newtable();
+	rawset(LUA_REGISTRYINDEX);
 	ASSERT(lua_gettop(L_) == 0);
 }
 
@@ -135,55 +167,55 @@ int LuaState::initfuncindex() {
 
 int LuaState::bindfunction(int lo) {
 	// 获取新的函数ID
-	int handler = initfuncindex();
-	if (handler == LUA_REFNIL) {
+	int val = initfuncindex();
+	if (val == LUA_REFNIL) {
 		return LUA_REFNIL;
 	}
 	// 检查当前是否为有效的函数类型
 	if (lua_isfunction(L_, lo)) {
-		lua_pushstring(L_, LUASTATE_FUNCTION_MAPPING);
-		lua_rawget(L_, LUA_REGISTRYINDEX);
-		lua_pushinteger(L_, handler);
-		lua_pushvalue(L_, lo);
-		lua_rawset(L_, -3);
-		lua_pop(L_, 1);
+		pushstring(LUASTATE_FUNCTION_MAPPING);
+		rawget(LUA_REGISTRYINDEX);
+		pushinteger(val);
+		pushvalue(lo);
+		rawset(-3);
+		pop(1);
 	}
 
 	// 添加函数句柄设置到函数映射值内
-	if (handler >= 0 && handler < MAX_FUNCTION_MAP_VALUES) {
-		funcValues_[handler] = handler;
+	if (val >= 0 && val < MAX_FUNCTION_MAP_VALUES) {
+		funcValues_[val] = val;
 	}
-	return handler;
+	return val;
 }
 
 void LuaState::removefunction(int index) {
-	int handler = LUA_REFNIL;
+	int val = LUA_REFNIL;
 	// 获取函数的句柄ID
 	if (index >= 0 && index < MAX_FUNCTION_MAP_VALUES) {
-		handler = funcValues_[index];
+		val = funcValues_[index];
 		funcValues_[index] = LUA_REFNIL;
 	}
 	// 从函数映射表内移除指定的函数
-	lua_pushstring(L_, LUASTATE_FUNCTION_MAPPING);
-	lua_rawget(L_, LUA_REGISTRYINDEX);
-	lua_pushinteger(L_, handler);
-	lua_pushnil(L_);
-	lua_rawset(L_, -3);
-	lua_pop(L_, 1);
+	pushstring(LUASTATE_FUNCTION_MAPPING);
+	rawget(LUA_REGISTRYINDEX);
+	pushinteger(val);
+	pushnil();
+	rawset(-3);
+	pop(1);
 }
 
 int LuaState::callstring(char const* s) {
-	luaL_loadstring(L_, s);
+	loadstring(s);
 	return call(0);
 }
 
 int LuaState::loadfile(char const* filename) {
 	std::string scriptFile = utils::combineFilePath(scriptPath_, filename);
 	int rc = luaL_loadfile(L_, scriptFile.c_str());
-	Tracef("top=%d %s %s", lua_gettop(L_), gettypename(lua_gettop(L_)), scriptFile.c_str());
+	Tracef("top=%d %s %s", lua_gettop(L_), scriptFile.c_str(), gettypename(lua_gettop(L_)));
 	if (rc != 0) {
 		Errorf("%s", lua_tostring(L_, -1));
-		lua_pop(L_, 1);
+		pop(1);
 	}
 	return rc;
 }
@@ -191,29 +223,33 @@ int LuaState::loadfile(char const* filename) {
 int LuaState::dofile(char const* filename) {
 	std::string scriptFile = utils::combineFilePath(scriptPath_, filename);
 	int rc = luaL_dofile(L_, scriptFile.c_str());
-	Tracef("top=%d %s %s", lua_gettop(L_), gettypename(lua_gettop(L_)), scriptFile.c_str());
+	Tracef("top=%d %s %s", lua_gettop(L_), scriptFile.c_str(), gettypename(lua_gettop(L_)));
 	if (rc != 0) {
 		Errorf("%s", lua_tostring(L_, -1));
-		lua_pop(L_, 1);
+		pop(1);
 	}
 	return rc;
 }
 
+char const* LuaState::gettypename(int idx) {
+	return lua_typename(L_, lua_type(L_, idx));
+}
+
 bool LuaState::setfunction(int index) {
-	int handler = LUA_REFNIL;
+	int val = LUA_REFNIL;
 	if (index >= 0 && index < MAX_FUNCTION_MAP_VALUES) {
-		handler = funcValues_[index];
+		val = funcValues_[index];
 	}
-	if (handler == LUA_REFNIL) {
+	if (val == LUA_REFNIL) {
 		return false;
 	}
 
 	// 设置LUA回调函数
-	lua_pushstring(L_, LUASTATE_FUNCTION_MAPPING);
-	lua_rawget(L_, LUA_REGISTRYINDEX);
-	lua_pushinteger(L_, handler);
-	lua_rawget(L_, -2);
-	lua_remove(L_, -2);
+	pushstring(LUASTATE_FUNCTION_MAPPING);
+	rawget(LUA_REGISTRYINDEX);
+	pushinteger(val);
+	rawget(-2);
+	remove(-2);
 	return true;
 }
 
@@ -221,7 +257,7 @@ bool LuaState::testfunction(int idx) {
 	if (lua_isfunction(L_, idx)) {
 		return true;
 	}
-	lua_pop(L_, 1);
+	pop(1);
 	return false;
 }
 
@@ -306,6 +342,7 @@ void* LuaState::touserdata(int idx) {
 		void* v = lua_touserdata(L_, idx);
 		ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
 		ASSERT(lua_isuserdata(L_, lua_gettop(L_)));
+		ASSERT(lua_islightuserdata(L_, lua_gettop(L_)));
 		Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
 		return v;
 #else
@@ -330,6 +367,37 @@ void const* LuaState::topointer(int idx) {
 	return NULL;
 }
 
+int LuaState::rawget(int idx) {
+#ifdef _LUA_TEST_
+	int v = lua_rawget(L_, idx);
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
+	return v;
+#else
+	return lua_rawget(L_, idx);
+#endif
+}
+
+void LuaState::rawset(int idx) {
+#ifdef _LUA_TEST_
+	lua_rawset(L_, idx);
+	//ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
+#else
+	lua_rawset(L_, idx);
+#endif
+}
+
+void LuaState::newtable() {
+#ifdef _LUA_TEST_
+	lua_newtable(L_);
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
+#else
+	lua_newtable(L_);
+#endif
+}
+
 int LuaState::gettable(int idx) {
 	if (lua_istable(L_, idx)) {
 #ifdef _LUA_TEST_
@@ -345,6 +413,19 @@ int LuaState::gettable(int idx) {
 	return -1;
 }
 
+void LuaState::setglobal(char const* name) {
+#ifdef _LUA_TEST_
+	lua_setglobal(L_, name);
+	//-1:nil 0:userdata
+	//ASSERT_V(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)),
+	//	"-1:%s %d:%s",
+	//	gettypename(-1), lua_gettop(L_), gettypename(lua_gettop(L_)));
+	Tracef("top=%d %s %s", lua_gettop(L_), name, gettypename(lua_gettop(L_)));
+#else
+	lua_setglobal(L_, name);
+#endif
+}
+
 int LuaState::getglobal(char const* name) {
 #ifdef _LUA_TEST_
 	int v = lua_getglobal(L_, name);
@@ -354,6 +435,27 @@ int LuaState::getglobal(char const* name) {
 	return v;
 #else
 	return lua_getglobal(L_, name);
+#endif
+}
+
+int LuaState::getfield(int idx, char const* key) {
+#ifdef _LUA_TEST_
+	int v = lua_getfield(L_, idx, key);
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	Tracef("top=%d %s %s", lua_gettop(L_), key, gettypename(lua_gettop(L_)));
+	return v;
+#else
+	return lua_getfield(L_, idx, key);
+#endif
+}
+
+void LuaState::setfield(int idx, char const* key) {
+#ifdef _LUA_TEST_
+	lua_setfield(L_, idx, key);
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	Tracef("top=%d %s %s", lua_gettop(L_), key, gettypename(lua_gettop(L_)));
+#else
+	lua_setfield(L_, idx, key);
 #endif
 }
 
@@ -399,6 +501,18 @@ void LuaState::pop(int n) {
 	}
 }
 
+void LuaState::insert(int idx) {
+	lua_insert(L_, idx);
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
+}
+
+void LuaState::remove(int idx) {
+	lua_remove(L_, idx);
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
+}
+
 void LuaState::pushnil() {
 	lua_pushnil(L_);
 	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
@@ -406,7 +520,7 @@ void LuaState::pushnil() {
 	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
 }
 
-void LuaState::pushint(int val) {
+void LuaState::pushinteger(int val) {
 	lua_pushinteger(L_, val);
 	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
 	ASSERT(lua_isinteger(L_, lua_gettop(L_)));
@@ -441,18 +555,54 @@ void LuaState::pushnumber(double val) {
 	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
 }
 
-void LuaState::pushstring(char const* val) {
-	lua_pushstring(L_, val);
+void LuaState::pushstring(char const* s) {
+	lua_pushstring(L_, s);
 	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
 	ASSERT(lua_isstring(L_, lua_gettop(L_)));
-	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
+	Tracef("top=%d %s %s", lua_gettop(L_), s, gettypename(lua_gettop(L_)));
 }
 
-void LuaState::pushstring(char const* val, size_t len) {
-	lua_pushlstring(L_, val, len);
+void LuaState::pushstring(char const* s, size_t len) {
+	lua_pushlstring(L_, s, len);
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	ASSERT(lua_isstring(L_, lua_gettop(L_)));
+	Tracef("top=%d %s %s", lua_gettop(L_), s, gettypename(lua_gettop(L_)));
+}
+
+char const* LuaState::pushfstring(char const* format, ...) {
+#if 0
+	va_list ap;
+	va_start(ap, format);
+	char const* s = lua_pushfstring(L_, format, ap);
+	va_end(ap);
+#else
+	char s[BUFSZ] = { 0 };
+	va_list ap;
+	va_start(ap, format);
+#ifdef _windows_
+	size_t n = vsnprintf_s(s, BUFSZ, _TRUNCATE, format, ap);
+#else
+	size_t n = vsnprintf(s, BUFSZ, format, ap);
+#endif
+	va_end(ap);
+	(void)n;
+	lua_pushstring(L_, s);
+#endif
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	ASSERT(lua_isstring(L_, lua_gettop(L_)));
+	Tracef("top=%d %s %s", lua_gettop(L_), s, gettypename(lua_gettop(L_)));
+}
+
+int LuaState::loadstring(char const* s) {
+#ifdef _LUA_TEST_
+	int v = luaL_loadstring(L_, s);
 	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
 	ASSERT(lua_isstring(L_, lua_gettop(L_)));
 	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
+	return v;
+#else
+	return luaL_loadstring(L_, s);
+#endif
 }
 
 void LuaState::pushlightuserdata(void* val) {
@@ -465,8 +615,7 @@ void LuaState::pushlightuserdata(char const* name, void* val) {
 	lua_pushlightuserdata(L_, val);
 	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
 	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));// 1
-	lua_setglobal(L_, name);
-	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));// 0
+	setglobal(name);
 }
 
 void LuaState::pushvalue(int idx) {
@@ -478,7 +627,7 @@ void LuaState::pushvalue(int idx) {
 void* LuaState::newuserdata(size_t size) {
 #ifdef _LUA_TEST_
 	void* v = lua_newuserdata(L_, size);
-	//ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
+	ASSERT(lua_type(L_, -1) == lua_type(L_, lua_gettop(L_)));
 	Tracef("top=%d %s", lua_gettop(L_), gettypename(lua_gettop(L_)));
 	return v;
 #else
@@ -491,7 +640,7 @@ int LuaState::call(int argc, int retc, STD::variant* result) {
 	// 查检是否为函数类型
 	if (!lua_isfunction(L_, index)) {
 		Errorf("stack[%d] is not function", index);
-		lua_pop(L_, argc + 1);
+		pop(argc + 1);
 		return -1;
 	}
 	int traceback = 0;
@@ -502,39 +651,38 @@ int LuaState::call(int argc, int retc, STD::variant* result) {
 	}
 	else {
 		traceback = index - 1;
-		lua_insert(L_, traceback);
-		Tracef("top=%d", lua_gettop(L_));
+		insert(traceback);
 	}
 	int rc = -1;
 	MY_TRY();
 	ASSERT(lua_gettop(L_) > 0);
 	ASSERT(lua_isfunction(L_, -1 - argc));
-#ifdef _LUA_TEST_
-	for (int i = 1; i <= lua_gettop(L_); ++i) {
-		Tracef("idx=%d type -> %s", i, gettypename(i));
-	}
-#endif
+	TEST(CALLBACK_0([this]() {
+		for (int i = 1; i <= lua_gettop(L_); ++i) {
+			Tracef("idx=%d type -> %s", i, gettypename(i));
+		}
+	}));
 	if ((rc = lua_pcall(L_, argc, retc, traceback)) != 0) {
 		if (traceback == 0) {
 			Errorf("%s", lua_tostring(L_, -1));
-			lua_pop(L_, 1);
+			pop(1);
 		}
 		else {
 			Warnf("%s", lua_tostring(L_, -1));
-			lua_pop(L_, 2);
+			pop(2);
 		}
 		return rc;
 	}
-#ifdef _LUA_TEST_
-	if (lua_gettop(L_) > 0) {
-		for (int i = 1; i <= lua_gettop(L_); ++i) {
-			Tracef("idx=%d rctype -> %s traceback=%d", i, gettypename(i), traceback);
+	TEST(CALLBACK_0([this](int traceback) {
+		if (lua_gettop(L_) > 0) {
+			for (int i = 1; i <= lua_gettop(L_); ++i) {
+				Tracef("idx=%d rctype -> %s traceback=%d", i, gettypename(i), traceback);
+			}
 		}
-	}
-	else {
-		Tracef("top=%d rctype -> %s traceback=%d", lua_gettop(L_), gettypename(-1), traceback);
-	}
-#endif
+		else {
+			Tracef("top=%d rctype -> %s traceback=%d", lua_gettop(L_), gettypename(-1), traceback);
+		}
+	}, traceback));
 	if (lua_isboolean(L_, -1)) {
 		if (result) {
 			*result = (int)lua_toboolean(L_, -1);
@@ -569,15 +717,11 @@ int LuaState::call(int argc, int retc, STD::variant* result) {
 	}
 	// 弹出栈顶返回值
 	//if (retc == LUA_MULTRET || retc > 0) {
-		//if (!lua_isnil(L_, -1)) {
-			pop(1);
-		//}
+		pop(1);
 	//}
 	// 弹出栈顶错误追踪函数
 	if (traceback) {
-		//if (!lua_isnil(L_, -1)) {
-			pop(1);
-		//}
+		pop(1);
 	}
 	MY_CATCH();
 	Tracef("top=%d", lua_gettop(L_));
@@ -585,15 +729,16 @@ int LuaState::call(int argc, int retc, STD::variant* result) {
 	return rc;
 }
 
-char const* LuaState::gettypename(int idx) {
-	return lua_typename(L_, lua_type(L_, idx));
-}
-
 void lua_test() {
 #if 1
 	lua_State* L = luaL_newstate();
 	luaL_openlibs(L);
-	//lua_settop(L, -1);
+
+	ASSERT(lua_gettop(L) == 0 && lua_isnil(L, -1));
+	lua_settop(L, 1);
+	ASSERT(lua_gettop(L) > 0 && lua_isnil(L, -1));
+	
+	lua_settop(L, 0);
 	Debugf("top=%d", lua_gettop(L)); // 0
 	lua_pushstring(L, "1");
 	Debugf("top=%d", lua_gettop(L)); // 1

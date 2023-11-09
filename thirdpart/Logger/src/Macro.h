@@ -129,6 +129,7 @@
 #include <condition_variable>
 
 typedef std::chrono::system_clock::time_point time_point;
+typedef std::function<void()> Functor;
 
 #ifdef _windows_
 

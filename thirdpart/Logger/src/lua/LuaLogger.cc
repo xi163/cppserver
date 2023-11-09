@@ -195,8 +195,7 @@ void LuaLogger::luaRegister(lua_State* L) {
 	//_LOG_SET_STYLE(F_THRD);
 	//_LOG_SET_STYLE(F_TMSTMP_THRD);
 	//_LOG_SET_STYLE(F_PURE);
-	//Tracef("top=%d", lua_gettop(L)); // 0
 	luaL_requiref(L, "logger", luaL_openlib, 1);
-	//Tracef("top=%d", lua_gettop(L));// 1
 	lua_pop(L, 1);
+	ASSERT(lua_gettop(L) == 0);
 }
